@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - web.HES</title>
+    <title>@ViewData["Title"] - HES</title>
 
     <environment include="Development">
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
@@ -19,7 +19,7 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow">
             <div class="container">
                 <a class="navbar-brand" asp-area="" asp-page="/Index">web.HES</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
@@ -34,10 +34,7 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Devices/Index">Devices</a>
-                        </li>
+                        </li>           
                     </ul>
                 </div>
             </div>
@@ -45,37 +42,90 @@
     </header>
     <div class="container-fluid">
         <partial name="_CookieConsentPartial" />
-        @*<main role="main" class="pb-3">*@
+        <main role="main">
 
-        <nav class="collapse bd-links">
-            <div class="bd-toc-item">
-                <a class="bd-toc-link" href="/docs/4.1/getting-started/introduction/">
-                    Getting started
-                </a>
-            </div>
-        </nav>
-        <div class="row">
-            <div class="col" style="width:100px">
-                <ul class="nav flex-column">
+            <!-- Page Wrapper -->
+            <div id="wrapper">
+                <!-- Sidebar -->
+                <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+                    <!-- Nav Item - Users -->
                     <li class="nav-item">
-                        <a class="nav-link" asp-area="" asp-page="/Users/Index">Users</a>
+                        <a class="nav-link" asp-area="" asp-page="/Users/Index">
+                            <i class="fas fa-user-circle"></i>
+                            <span>Users</span>
+                        </a>
                     </li>
+                    <!-- Nav Item - Devices -->
                     <li class="nav-item">
-                        <a class="nav-link" asp-area="" asp-page="/Devices/Index">Devices</a>
+                        <a class="nav-link" asp-area="" asp-page="/Devices/Index">
+                            <i class="fas fa-dice-d6"></i>
+                            <span>Devices</span>
+                        </a>
                     </li>
                 </ul>
-            </div>
-            <div class="col">
-                @RenderBody()
-            </div>
-        </div>
+                <!-- End of Sidebar -->
+                <!-- Content Wrapper -->
+                <div id="content-wrapper" class="d-flex flex-column">
 
-        @*</main>*@
+                    <!-- Main Content -->
+                    <div id="content">
+
+                        @RenderBody()
+
+                        <!-- Begin Page Content -->
+                        <div class="container-fluid">
+
+                            <!-- Content Row -->
+                            <div class="row">
+
+                                <!-- Area Chart -->
+                                @*<div class="col-xl-8 col-lg-7">
+                                    <div class="card shadow mb-4">
+                                        <!-- Card Header - Dropdown -->
+                                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                            <h6 class="m-0 font-weight-bold text-primary">Earnings Overview</h6>
+                                            <div class="dropdown no-arrow">
+                                                <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+                                                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                                                </a>
+                                                <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+                                                     aria-labelledby="dropdownMenuLink">
+                                                    <div class="dropdown-header">Dropdown Header:</div>
+                                                    <a class="dropdown-item" href="#">Action</a>
+                                                    <a class="dropdown-item" href="#">Another action</a>
+                                                    <div class="dropdown-divider"></div>
+                                                    <a class="dropdown-item" href="#">Something else here</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- Card Body -->
+                                        <div class="card-body">
+                                            <div class="chart-area">
+                                                <canvas id="myAreaChart"></canvas>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>*@
+                            </div>
+
+                        </div>
+                        <!-- /.container-fluid -->
+
+                    </div>
+                    <!-- End of Main Content -->
+
+                </div>
+                <!-- End of Content Wrapper -->
+
+            </div>
+            <!-- End of Page Wrapper -->
+        </main>
     </div>
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2019 - web.HES - <a asp-area="" asp-page="/Privacy">Privacy</a>
+            &copy; 2019 - HES - <a asp-area="" asp-page="/Privacy">Privacy</a>
         </div>
     </footer>
 
@@ -98,6 +148,8 @@
         </script>
     </environment>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/font/fontawesome.min.js"></script>
+    <script src="~/font/solid.min.js"></script>
 
     @RenderSection("Scripts", required: false)
 </body>
