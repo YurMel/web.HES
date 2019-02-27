@@ -1,0 +1,85 @@
+﻿@page
+@model web.HES.Pages.Devices.IndexModel
+
+@{
+    ViewData["Title"] = "Devices";
+}
+
+<h1>Devices</h1>
+
+<p>
+    <a asp-page="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Device[0].MAC)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Device[0].ManufacturerUserId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Device[0].Model)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Device[0].BootLoaderVersion)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Device[0].Manufactured)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Device[0].CpuSerialNo)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Device[0].DeviceKey)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Device[0].BleDeviceBatchId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Device[0].User)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Device)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.MAC)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ManufacturerUserId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Model)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.BootLoaderVersion)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Manufactured)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CpuSerialNo)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DeviceKey)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.BleDeviceBatchId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.User.Id)
+                </td>
+                <td>
+                    <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

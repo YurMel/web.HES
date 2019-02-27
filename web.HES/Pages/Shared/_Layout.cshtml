@@ -13,7 +13,7 @@
               asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
               asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute"
               crossorigin="anonymous"
-              integrity="sha256-eSi1q2PG6J7g7ib17yAaWMcrr5GrtohYChqibrV7PBE="/>
+              integrity="sha256-eSi1q2PG6J7g7ib17yAaWMcrr5GrtohYChqibrV7PBE=" />
     </environment>
     <link rel="stylesheet" href="~/css/site.css" />
 </head>
@@ -35,16 +35,42 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-page="/Devices/Index">Devices</a>
+                        </li>
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
+    <div class="container-fluid">
         <partial name="_CookieConsentPartial" />
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+        @*<main role="main" class="pb-3">*@
+
+        <nav class="collapse bd-links">
+            <div class="bd-toc-item">
+                <a class="bd-toc-link" href="/docs/4.1/getting-started/introduction/">
+                    Getting started
+                </a>
+            </div>
+        </nav>
+        <div class="row">
+            <div class="col" style="width:100px">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="" asp-page="/Users/Index">Users</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="" asp-page="/Devices/Index">Devices</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="col">
+                @RenderBody()
+            </div>
+        </div>
+
+        @*</main>*@
     </div>
 
     <footer class="border-top footer text-muted">

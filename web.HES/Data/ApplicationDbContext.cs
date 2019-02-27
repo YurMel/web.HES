@@ -13,5 +13,6 @@ namespace web.HES.Data
             : base(options)
         {
         }
+        public DbSet<Device> Devices { get; set; }
     }
 }
