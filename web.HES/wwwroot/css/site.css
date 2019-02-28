@@ -14241,3 +14241,8 @@ body.sidebar-toggled footer.sticky-footer {
     padding: 0.5rem 1rem;
     font-weight: 500;
 }
+
+/*.table-hover tbody tr:hover {
+    color: #fff;
+    background-color: #007bff;
+}*/

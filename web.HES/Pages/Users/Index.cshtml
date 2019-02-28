@@ -7,10 +7,11 @@
 
 <h1>Users</h1>
 
-<p>
-    <a asp-page="Create">Create New</a>
-</p>
-<table class="table">
+<form method="get">
+    <button type="submit" class="btn btn-primary mt-2 mb-2" asp-page="Create">Create New</button>
+</form>
+
+<table class="table table-bordered table-hover">
     <thead>
         <tr>
             <th>
@@ -31,7 +32,7 @@
             <th>
                 @Html.DisplayNameFor(model => model.Users[0].AccessFailedCount)
             </th>
-            <th></th>
+            <th>Action</th>
         </tr>
     </thead>
     <tbody>
@@ -57,9 +58,22 @@
                     @Html.DisplayFor(modelItem => item.AccessFailedCount)
                 </td>
                 <td>
+                    @*
                     <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
                     <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
                     <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
+                    *@
+                    <div class="dropdown no-arrow">
+                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-black-400"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
+                            <a class="dropdown-item" asp-page="./Edit" asp-route-id="@item.Id">Edit</a>
+                            <a class="dropdown-item" asp-page="./Details" asp-route-id="@item.Id">Details</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
+                        </div>
+                    </div>
                 </td>
             </tr>
         }
