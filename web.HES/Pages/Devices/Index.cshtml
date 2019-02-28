@@ -11,14 +11,32 @@
     <button type="submit" class="btn btn-primary mt-2 mb-2" asp-page="Create">Create New</button>
 </form>
 
+<form asp-page="./Index" method="get">
+    <div class="form-actions no-color">
+        <p>
+            Find by name: <input type="text" name="SearchString" value="@Model.CurrentFilter" />
+            <input type="submit" value="Search" class="btn btn-default" /> |
+            <a asp-page="./Index">Back to full List</a>
+        </p>
+    </div>
+</form>
+
 <table class="table table-bordered table-hover">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Device[0].MAC)
+                <a asp-page="./Index" asp-route-sortOrder="@Model.MacSort"
+                   asp-route-currentFilter="@Model.CurrentFilter">
+                    @Html.DisplayNameFor(model => model.Device[0].MAC)
+                </a>
+                @*@Html.DisplayNameFor(model => model.Device[0].MAC)*@
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Device[0].ManufacturerUserId)
+                <a asp-page="./Index" asp-route-sortOrder="@Model.ManufacturerSort"
+                   asp-route-currentFilter="@Model.CurrentFilter">
+                    @Html.DisplayNameFor(model => model.Device[0].ManufacturerUserId)
+                </a>
+                @*@Html.DisplayNameFor(model => model.Device[0].ManufacturerUserId)*@
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Device[0].Model)
@@ -90,9 +108,7 @@
                                 <i class="fas fa-pen"></i>
                                 <span class="ml-2">Edit</span>
                             </a>
-                            <a class="dropdown-item" asp-page="./Details" asp-route-id="@item.Id">
-                                Details
-                            </a>
+                            <a class="dropdown-item" asp-page="./Details" asp-route-id="@item.Id">Details</a>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
                         </div>
@@ -102,3 +118,46 @@
         }
     </tbody>
 </table>
+
+@{
+    var prevDisabled = !Model.Device.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.Device.HasNextPage ? "disabled" : "";
+}
+
+@*<a asp-page="./Index"
+   asp-route-sortOrder="@Model.CurrentSort"
+   asp-route-pageIndex="@(Model.Device.PageIndex - 1)"
+   asp-route-currentFilter="@Model.CurrentFilter"
+   class="btn btn-default @prevDisabled">
+    Previous
+</a>
+<a asp-page="./Index"
+   asp-route-sortOrder="@Model.CurrentSort"
+   asp-route-pageIndex="@(Model.Device.PageIndex + 1)"
+   asp-route-currentFilter="@Model.CurrentFilter"
+   class="btn btn-default @nextDisabled">
+    Next
+</a>*@
+
+<nav aria-label="Page navigation">
+    <ul class="pagination">
+        <li class="page-item @prevDisabled">
+            <a asp-page="./Index"
+               asp-route-sortOrder="@Model.CurrentSort"
+               asp-route-pageIndex="@(Model.Device.PageIndex - 1)"
+               asp-route-currentFilter="@Model.CurrentFilter"
+               class="page-link">
+                Previous
+            </a>
+        </li>
+        <li class="page-item  @nextDisabled">
+            <a asp-page="./Index"
+               asp-route-sortOrder="@Model.CurrentSort"
+               asp-route-pageIndex="@(Model.Device.PageIndex + 1)"
+               asp-route-currentFilter="@Model.CurrentFilter"
+               class="page-link">
+                Next
+            </a>
+        </li>
+    </ul>
+</nav>
