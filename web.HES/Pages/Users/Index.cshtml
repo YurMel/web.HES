@@ -1,11 +1,18 @@
 ﻿@page
 @model web.HES.Pages.Users.IndexModel
+@using ReflectionIT.Mvc.Paging
+@addTagHelper *, ReflectionIT.Mvc.Paging
 
 @{
     ViewData["Title"] = "Users";
+    ViewData["ActivePage"] = ManageNavPages.Users;
 }
 
 <h1>Users</h1>
+
+<nav aria-label="Suppliers navigation example">
+    @await this.Component.InvokeAsync("Pager", new { pagingList = this.Model.Users })
+</nav>
 
 <form method="get">
     <button type="submit" class="btn btn-primary mt-2 mb-2" asp-page="Create">Create New</button>
@@ -32,7 +39,7 @@
             <th>
                 @Html.DisplayNameFor(model => model.Users[0].AccessFailedCount)
             </th>
-            <th>Action</th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -59,9 +66,9 @@
                 </td>
                 <td>
                     @*
-                    <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
-                    <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
-                    <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
+                        <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
+                        <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
+                        <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
                     *@
                     <div class="dropdown no-arrow">
                         <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -79,3 +86,8 @@
         }
     </tbody>
 </table>
+
+
+@*<nav aria-label="Suppliers navigation example">
+    <vc:pager paging-list="@Model" />
+</nav>*@

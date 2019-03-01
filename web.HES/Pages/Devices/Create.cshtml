@@ -3,6 +3,7 @@
 
 @{
     ViewData["Title"] = "Create";
+    ViewData["ActivePage"] = ManageNavPages.Devices;
 }
 
 <h1>Create</h1>
@@ -55,7 +56,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="Device.RegisteredUserId" class="control-label"></label>
-                <select asp-for="Device.RegisteredUserId" class ="form-control" asp-items="ViewBag.RegisteredUserId"></select>
+                <select asp-for="Device.RegisteredUserId" class="form-control" asp-items="ViewBag.RegisteredUserId"></select>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />

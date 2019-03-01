@@ -3,6 +3,7 @@
 
 @{
     ViewData["Title"] = "Devices";
+    ViewData["ActivePage"] = ManageNavPages.Devices;
 }
 
 <h1>Devices</h1>
@@ -22,7 +23,7 @@
 </form>
 
 <table class="table table-bordered table-hover">
-    <thead>
+    <thead class="thead-light">
         <tr>
             <th>
                 <a asp-page="./Index" asp-route-sortOrder="@Model.MacSort"
@@ -59,7 +60,7 @@
             <th>
                 @Html.DisplayNameFor(model => model.Device[0].User)
             </th>
-            <th>Action</th>
+            <th class="action-col"></th>
         </tr>
     </thead>
     <tbody>
@@ -90,7 +91,7 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.BleDeviceBatchId)
                 </td>
-                <td>
+                <td style="overflow:hidden;white-space: nowrap;  text-overflow: ellipsis;">
                     @Html.DisplayFor(modelItem => item.User.Id)
                 </td>
                 <td>
@@ -125,19 +126,19 @@
 }
 
 @*<a asp-page="./Index"
-   asp-route-sortOrder="@Model.CurrentSort"
-   asp-route-pageIndex="@(Model.Device.PageIndex - 1)"
-   asp-route-currentFilter="@Model.CurrentFilter"
-   class="btn btn-default @prevDisabled">
-    Previous
-</a>
-<a asp-page="./Index"
-   asp-route-sortOrder="@Model.CurrentSort"
-   asp-route-pageIndex="@(Model.Device.PageIndex + 1)"
-   asp-route-currentFilter="@Model.CurrentFilter"
-   class="btn btn-default @nextDisabled">
-    Next
-</a>*@
+       asp-route-sortOrder="@Model.CurrentSort"
+       asp-route-pageIndex="@(Model.Device.PageIndex - 1)"
+       asp-route-currentFilter="@Model.CurrentFilter"
+       class="btn btn-default @prevDisabled">
+        Previous
+    </a>
+    <a asp-page="./Index"
+       asp-route-sortOrder="@Model.CurrentSort"
+       asp-route-pageIndex="@(Model.Device.PageIndex + 1)"
+       asp-route-currentFilter="@Model.CurrentFilter"
+       class="btn btn-default @nextDisabled">
+        Next
+    </a>*@
 
 <nav aria-label="Page navigation">
     <ul class="pagination">
