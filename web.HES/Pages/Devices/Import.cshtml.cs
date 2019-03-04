@@ -31,6 +31,22 @@ namespace web.HES.Pages.Devices
             public string Password { get; set; }
         }
 
+
+        public class MyHideezDevice
+        {
+            public string Id { get; set; }
+            public string MAC { get; set; }
+            public string ManufacturerUserId { get; set; }
+            public string Model { get; set; }
+            public string BootLoaderVersion { get; set; }
+            public DateTime Manufactured { get; set; }
+            public string CpuSerialNo { get; set; }
+            public Byte[] DeviceKey { get; set; }
+            public int? BleDeviceBatchId { get; set; }
+            public string RegisteredUserId { get; set; }
+            public virtual ApplicationUser User { get; set; }
+        }
+
         public ImportModel(ApplicationDbContext context, IAesCryptography aes)
         {
             _context = context;
@@ -56,17 +72,22 @@ namespace web.HES.Pages.Devices
                             try
                             {
                                 byte[] fileContent = memoryStream.ToArray();
-                                var objects = _aes.DecryptObject<List<Device>>(fileContent, Encoding.Unicode.GetBytes(key));
+                                var objects = _aes.DecryptObject<List<MyHideezDevice>>(fileContent, Encoding.Unicode.GetBytes(key));
                                 if (objects.Count > 0)
                                 {
                                     var existDevices = _context.Devices.Where(z => objects.Select(m => m.Id).Contains(z.Id)).ToList(); //get all exist devices in system
                                     if (existDevices.Count > 0)
                                     {
+                                        //todo
                                         //ViewBag.ExistDevices = existDevices;
                                         UploadResult = "Devices exist";
                                     }
 
-                                    var toImport = objects.Where(z => !existDevices.Select(m => m.Id).Contains(z.Id)).ToList(); //devices to import in the system
+                                    var toImport = objects.Where(z => !existDevices.Select(m => m.Id).Contains(z.Id)).Select(d => new Device()
+                                    {
+                                        Id = d.Id
+                                        //todo
+                                    }).ToList(); //devices to import in the system
                                     if (toImport.Count > 0) //add devices if count > 0
                                     {
                                         // Save devices to DB
