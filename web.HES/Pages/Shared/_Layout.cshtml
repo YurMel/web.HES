@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - HES</title>
 
+    <!-- Bootstrap CSS -->
     <environment include="Development">
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
     </environment>
@@ -15,12 +16,14 @@
               crossorigin="anonymous"
               integrity="sha256-eSi1q2PG6J7g7ib17yAaWMcrr5GrtohYChqibrV7PBE=" />
     </environment>
-
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.18/datatables.min.css" />
+    <!-- Main CSS-->
     <link rel="stylesheet" href="~/css/site.css" />
 </head>
 <body>
     <header>
-        <nav class="navbar fixed-top  navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow">
+        <nav class="navbar fixed-top navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-page="/Users/Index">
                     <svg width="133" height="24" viewBox="0 0 133 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -89,7 +92,11 @@
                 integrity="sha256-E/V4cWE4qvAeO5MOhjtGtqDzPndRO1LBk8lJ/PR7CA4=">
         </script>
     </environment>
+    <!-- DataTebles JS -->
+    <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.18/datatables.min.js"></script>
+    <!-- Main JS -->
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <!-- Fontawesome-->
     <script src="~/font/fontawesome.min.js"></script>
     <script src="~/font/solid.min.js"></script>
 

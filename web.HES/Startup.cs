@@ -13,7 +13,6 @@ using Microsoft.EntityFrameworkCore;
 using web.HES.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using ReflectionIT.Mvc.Paging;
 
 namespace web.HES
 {
@@ -47,12 +46,9 @@ namespace web.HES
                 {
                     options.Conventions.AuthorizeFolder("/Devices");
                     options.Conventions.AuthorizeFolder("/Users");
-                    //options.Conventions.AllowAnonymousToPage("/Private/PublicPage");
                     options.Conventions.AddPageRoute("/Users/Index", "");
                 })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-
-            services.AddPaging();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -1,7 +1,5 @@
 ﻿@page
 @model web.HES.Pages.Users.IndexModel
-@using ReflectionIT.Mvc.Paging
-@addTagHelper *, ReflectionIT.Mvc.Paging
 
 @{
     ViewData["Title"] = "Users";
@@ -10,34 +8,30 @@
 
 <h1>Users</h1>
 
-<nav aria-label="Suppliers navigation example">
-    @await this.Component.InvokeAsync("Pager", new { pagingList = this.Model.Users })
-</nav>
-
 <form method="get">
     <button type="submit" class="btn btn-primary mt-2 mb-2" asp-page="Create">Create New</button>
 </form>
 
-<table class="table table-bordered table-hover">
+<table id="users" class="display table table-bordered table-hover" style="width:100%">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Users[0].Email)
+                @Html.DisplayNameFor(model => model.Users.First().Email)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Users[0].UserName)
+                @Html.DisplayNameFor(model => model.Users.First().UserName)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Users[0].PhoneNumber)
+                @Html.DisplayNameFor(model => model.Users.First().PhoneNumber)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Users[0].LockoutEnabled)
+                @Html.DisplayNameFor(model => model.Users.First().LockoutEnabled)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Users[0].LockoutEnd)
+                @Html.DisplayNameFor(model => model.Users.First().LockoutEnd)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Users[0].AccessFailedCount)
+                @Html.DisplayNameFor(model => model.Users.First().AccessFailedCount)
             </th>
             <th></th>
         </tr>
@@ -87,7 +81,10 @@
     </tbody>
 </table>
 
-
-@*<nav aria-label="Suppliers navigation example">
-    <vc:pager paging-list="@Model" />
-</nav>*@
+@section scripts{
+    <script>
+        $(document).ready(function () {
+            $('#users').DataTable();
+        });
+    </script>
+}
