@@ -13,6 +13,8 @@ using Microsoft.EntityFrameworkCore;
 using web.HES.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using web.HES.Helpers.Interfaces;
+using web.HES.Helpers.Services;
 
 namespace web.HES
 {
@@ -49,6 +51,8 @@ namespace web.HES
                     options.Conventions.AddPageRoute("/Users/Index", "");
                 })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
+            services.AddTransient<IAesCryptography, AesCryptography>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
