@@ -17,10 +17,13 @@ namespace web.HES.Pages.Devices
     {
         private readonly IAesCryptography _aes;
         private readonly ApplicationDbContext _context;
-        public string UploadResult { get; set; }
+        public IList<Device> DevicesExist { get; set; }
+        public IList<Device> DevicesImported { get; set; }
+        public string Message { get; set; }
 
         [BindProperty]
         public InputModel Input { get; set; }
+
         public class InputModel
         {
             [Required]
@@ -30,7 +33,6 @@ namespace web.HES.Pages.Devices
             [DataType(DataType.Password)]
             public string Password { get; set; }
         }
-
 
         public class MyHideezDevice
         {
@@ -75,60 +77,55 @@ namespace web.HES.Pages.Devices
                                 var objects = _aes.DecryptObject<List<MyHideezDevice>>(fileContent, Encoding.Unicode.GetBytes(key));
                                 if (objects.Count > 0)
                                 {
-                                    var existDevices = _context.Devices.Where(z => objects.Select(m => m.Id).Contains(z.Id)).ToList(); //get all exist devices in system
-                                    if (existDevices.Count > 0)
+                                    // Get all exist devices in system
+                                    var isExist = _context.Devices.Where(z => objects.Select(m => m.Id).Contains(z.Id)).ToList();
+                                    if (isExist.Count > 0)
                                     {
-                                        //todo
-                                        //ViewBag.ExistDevices = existDevices;
-                                        UploadResult = "Devices exist";
+                                        DevicesExist = isExist;
                                     }
 
-                                    var toImport = objects.Where(z => !existDevices.Select(m => m.Id).Contains(z.Id)).Select(d => new Device()
+                                    // Devices to import in the system
+                                    var toImport = objects.Where(z => !isExist.Select(m => m.Id).Contains(z.Id)).Select(d => new Device()
                                     {
-                                        Id = d.Id
-                                        //todo
-                                    }).ToList(); //devices to import in the system
-                                    if (toImport.Count > 0) //add devices if count > 0
+                                        Id = d.Id,
+                                        MAC = d.MAC,
+                                        Model = d.Model,
+                                        ImportedAt = d.Manufactured,
+                                        DeviceKey = d.DeviceKey,
+                                        RFID = null,
+                                        UserId = d.RegisteredUserId
+                                    }).ToList();
+
+                                    // Add devices if count > 0
+                                    if (toImport.Count > 0)
                                     {
                                         // Save devices to DB
                                         _context.AddRange(toImport);
                                         _context.SaveChanges();
 
-                                        UploadResult = "Devices imported";
-                                        //log action
+                                        DevicesImported = toImport;
                                         //Logger.SaveActionAsync(new ApplicationLog(_userManager.GetUserId(User), action: "Import devices", issuccess: true, message: Serializer.SerializeToXML(toImport)));
-                                        //ViewBag.SuccessImport = toImport;
                                     }
                                 }
                                 else
                                 {
-                                    //ViewBag.Message = Resource.no_devices_import_err;
-                                    UploadResult = "No devices to import";
+                                    Message = "File is recognized, but it is no devices to import. Check file structure and try again.";
                                 }
                             }
                             catch (Exception ex)
                             {
-                                //ViewBag.Message = Resource.import_device_err1 + Environment.NewLine + ex.Message +
-                                //Environment.NewLine + Resource.import_device_err2;
-
-                                UploadResult = $"Error message {ex.Message}";
-                            }
+                                Message = $"There is a problem with device import. Exception: " +
+                                          $"{Environment.NewLine} {ex.Message} " +
+                                          $"Please, check if you select a correct file, enter correct encryption key and try again.";
+                             }
                         }
                     }
                 }
                 else
                 {
-                    //ViewBag.Message = Resource.not_correct_file_format_err;
-                    UploadResult = $"Error not_correct_file_format";
-                    return Page();
+                    Message = "Selected file is not in correct format. Please, select .hdz file and try again.";
                 }
             }
-            //else
-            //{
-            //    //ViewBag.Message = Resource.not_specified_file_err;
-            //    return Page();
-            //}
-
             return Page();
         }
     }

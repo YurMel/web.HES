@@ -13,8 +13,6 @@ namespace web.HES.Data
         public DateTime ImportedAt { get; set; }
         public byte[] DeviceKey { get; set; }
         public string RFID { get; set; }
-
-        //[MaxLength(450)]
         public string UserId { get; set; }
         [ForeignKey("UserId")]
         public virtual ApplicationUser User { get; set; }

@@ -20,46 +20,22 @@
                 <input asp-for="Device.MAC" class="form-control" />
                 <span asp-validation-for="Device.MAC" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Device.ManufacturerUserId" class="control-label"></label>
-                <input asp-for="Device.ManufacturerUserId" class="form-control" />
-                <span asp-validation-for="Device.ManufacturerUserId" class="text-danger"></span>
-            </div>
+            
             <div class="form-group">
                 <label asp-for="Device.Model" class="control-label"></label>
                 <input asp-for="Device.Model" class="form-control" />
                 <span asp-validation-for="Device.Model" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Device.BootLoaderVersion" class="control-label"></label>
-                <input asp-for="Device.BootLoaderVersion" class="form-control" />
-                <span asp-validation-for="Device.BootLoaderVersion" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Device.Manufactured" class="control-label"></label>
-                <input asp-for="Device.Manufactured" class="form-control" />
-                <span asp-validation-for="Device.Manufactured" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Device.CpuSerialNo" class="control-label"></label>
-                <input asp-for="Device.CpuSerialNo" class="form-control" />
-                <span asp-validation-for="Device.CpuSerialNo" class="text-danger"></span>
-            </div>
+           
+
+ 
             <div class="form-group">
                 <label asp-for="Device.DeviceKey" class="control-label"></label>
                 <input asp-for="Device.DeviceKey" class="form-control" />
                 <span asp-validation-for="Device.DeviceKey" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Device.BleDeviceBatchId" class="control-label"></label>
-                <input asp-for="Device.BleDeviceBatchId" class="form-control" />
-                <span asp-validation-for="Device.BleDeviceBatchId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Device.RegisteredUserId" class="control-label"></label>
-                <select asp-for="Device.RegisteredUserId" class="form-control" asp-items="ViewBag.RegisteredUserId"></select>
-                <span asp-validation-for="Device.RegisteredUserId" class="text-danger"></span>
-            </div>
+
+
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>

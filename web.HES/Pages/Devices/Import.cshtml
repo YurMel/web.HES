@@ -5,25 +5,91 @@
     ViewData["ActivePage"] = ManageNavPages.Devices;
 }
 
-<h1>Import devices</h1>
+<h1 class="mb-4">Import devices</h1>
 
 <div class="row">
     <div class="col-md-4">
         <form method="post" enctype="multipart/form-data">
             <div class="form-group">
-                <label asp-for="Input.FileToUpload"></label>
-                <input asp-for="Input.FileToUpload" type="file" class="form-control" />
-                <span asp-validation-for="Input.FileToUpload" class="text-danger"></span>
+                <div class="custom-file">
+                    <input asp-for="Input.FileToUpload" type="file" class="custom-file-input">
+                    <label class="custom-file-label" for="customFile">Choose file</label>
+                    <span asp-validation-for="Input.FileToUpload" class="text-danger"></span>
+                </div>
             </div>
             <div class="form-group">
-                <label asp-for="Input.Password"></label>
-                <input asp-for="Input.Password" class="form-control" />
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="inputGroup-sizing-default">Password</span>
+                    </div>
+                    <input asp-for="Input.Password" type="password" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
+                </div>
                 <span asp-validation-for="Input.Password" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Import" class="btn btn-primary" />
             </div>
         </form>
-        <h5>Status: @Model.UploadResult</h5>
     </div>
 </div>
+
+@* Devices imported *@
+@if (@Model.DevicesImported != null)
+{
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-3">
+                <div class="card-header text-white bg-success">
+                    Such devices are successfully imported in the system (count: @Model.DevicesImported.Count)
+                </div>
+                <ul class="list-group list-group-flush">
+                    @foreach (var item in @Model.DevicesExist)
+                    {
+                        <li class="list-group-item">@item.Id</li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+}
+
+@* Devices exist *@
+@if (@Model.DevicesExist != null)
+{
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-3">
+                <div class="card-header text-white bg-danger">
+                    Such devices are exist in the system and not imported (count: @Model.DevicesExist.Count)
+                </div>
+                <ul class="list-group list-group-flush">
+                    @foreach (var item in @Model.DevicesExist)
+                    {
+                        <li class="list-group-item">@item.Id</li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+}
+
+@* Error message *@
+@if (!string.IsNullOrEmpty(Model.Message))
+{
+    <div class="row">
+        <div class="col-md-4">
+            <div class="alert alert-danger" role="alert">
+                <h4 class="alert-heading">Error</h4>
+                <p>@Model.Message</p>
+            </div>
+        </div>
+    </div>
+}
+
+@section scripts{
+    <script>
+        $(document).ready(function () {
+            bsCustomFileInput.init()
+        })
+    </script>
+}

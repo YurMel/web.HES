@@ -9,11 +9,13 @@
 <h1>Devices</h1>
 
 <div class="d-flex justify-content-start ">
-    <form method="get">
-        <button type="submit" class="btn btn-primary mt-2 mb-2 mr-2" asp-page="Create">
-            Create New
-        </button>
-    </form>
+    @*
+        <form method="get">
+            <button type="submit" class="btn btn-primary mt-2 mb-2 mr-2" asp-page="Create">
+                Create New
+            </button>
+        </form>
+    *@
     <form method="get">
         <button type="submit" class="btn btn-primary mt-2 mb-2 mr-2" asp-page="Import">
             Import
@@ -22,36 +24,33 @@
 </div>
 
 <table id="devices" class="display table table-bordered table-hover" style="width:100%">
-    <thead >
+    <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Device[0].MAC)
+                @Html.DisplayNameFor(model => model.Device[0].Id)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Device[0].ManufacturerUserId)
+                @Html.DisplayNameFor(model => model.Device[0].MAC)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Device[0].Model)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Device[0].BootLoaderVersion)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Device[0].Manufactured)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Device[0].CpuSerialNo)
+                @Html.DisplayNameFor(model => model.Device[0].ImportedAt)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Device[0].DeviceKey)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Device[0].BleDeviceBatchId)
+                @Html.DisplayNameFor(model => model.Device[0].RFID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Device[0].DeviceKey)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Device[0].User)
             </th>
-            <th class="action-col"></th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -59,30 +58,27 @@
         {
             <tr>
                 <td>
-                    @Html.DisplayFor(modelItem => item.MAC)
+                    @Html.DisplayFor(modelItem => item.Id)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.ManufacturerUserId)
+                    @Html.DisplayFor(modelItem => item.MAC)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Model)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.BootLoaderVersion)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Manufactured)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.CpuSerialNo)
+                    @Html.DisplayFor(modelItem => item.ImportedAt)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.DeviceKey)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.BleDeviceBatchId)
+                    @Html.DisplayFor(modelItem => item.RFID)
                 </td>
-                <td style="overflow:hidden;white-space: nowrap;  text-overflow: ellipsis;">
+                <td>
+                    @Html.DisplayFor(modelItem => item.DeviceKey)
+                </td>
+                <td>
                     @Html.DisplayFor(modelItem => item.User.Id)
                 </td>
                 <td>
