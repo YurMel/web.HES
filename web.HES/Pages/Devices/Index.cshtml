@@ -21,6 +21,13 @@
             Import
         </button>
     </form>
+
+    <div class="input-group mt-2 mb-2 mr-2 w-25">
+        <div class="input-group-prepend">
+            <span class="input-group-text" id="basic-addon1">Search</span>
+        </div>
+        <input id="searchbox" type="text" class="form-control" aria-describedby="basic-addon1">
+    </div>
 </div>
 
 <table id="devices" class="display table table-bordered table-hover" style="width:100%">
@@ -102,10 +109,34 @@
     </tbody>
 </table>
 
+@* Bottom table items *@
+<div class="row align-items-center">
+    <div class="col d-flex justify-content-start">
+        <span class=" d-flex align-items-center m-1">Show entries</span>
+        <div id="newEntriesPlace"></div>
+    </div>
+    <div id="newShowingPlace" class="col d-flex justify-content-center"></div>
+    <div id="newPaginationPlace" class="col d-flex justify-content-end"></div>
+</div>
+
 @section scripts{
     <script>
         $(document).ready(function () {
+            // Init DT
             $('#devices').DataTable();
+            // Override search box
+            $('.dataTables_filter').addClass('d-none');
+            var dataTable = $('#devices').dataTable();
+            $('#searchbox').keyup(function () {
+                dataTable.fnFilter(this.value);
+            });
+            // Length
+            $('#devices_length').addClass('d-none');
+            $('#newEntriesPlace').html($('.dataTables_length select').removeClass('custom-select-sm form-control-sm'));
+            // Info
+            $('#newShowingPlace').html($('.dataTables_info'));
+            // Paginate
+            $('#newPaginationPlace').html($('.dataTables_paginate'));
         });
     </script>
 }

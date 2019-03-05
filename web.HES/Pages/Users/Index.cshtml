@@ -8,32 +8,41 @@
 
 <h1>Users</h1>
 
-<form method="get">
-    <button type="submit" class="btn btn-primary mt-2 mb-2" asp-page="Create">Create New</button>
-</form>
+<div class="d-flex">
+    <form method="get">
+        <button type="submit" class="btn btn-primary mt-2 mb-2 mr-2" asp-page="Create">Create New</button>
+    </form>
 
-<table id="users" class="display table table-bordered table-hover" style="width:100%">
+    <div class="input-group mt-2 mb-2 mr-2 w-25">
+        <div class="input-group-prepend">
+            <span class="input-group-text" id="basic-addon1">Search</span>
+        </div>
+        <input id="searchbox" type="text" class="form-control" aria-describedby="basic-addon1">
+    </div>
+</div>
+
+<table id="users" class="display table table-bordered table-hover table-responsive" style="width:100%">
     <thead>
         <tr>
             <th>
                 @Html.DisplayNameFor(model => model.Users.First().Email)
             </th>
-            <th>
+            <th class="col-3">
                 @Html.DisplayNameFor(model => model.Users.First().UserName)
             </th>
-            <th>
+            <th class="col-2">
                 @Html.DisplayNameFor(model => model.Users.First().PhoneNumber)
             </th>
-            <th>
+            <th class="col-1">
                 @Html.DisplayNameFor(model => model.Users.First().LockoutEnabled)
             </th>
-            <th>
+            <th class="col-1">
                 @Html.DisplayNameFor(model => model.Users.First().LockoutEnd)
             </th>
-            <th>
+            <th class="col-1">
                 @Html.DisplayNameFor(model => model.Users.First().AccessFailedCount)
             </th>
-            <th></th>
+            <th class="col-1"></th>
         </tr>
     </thead>
     <tbody>
@@ -43,22 +52,22 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.Email)
                 </td>
-                <td>
+                <td class="col-3">
                     @Html.DisplayFor(modelItem => item.UserName)
                 </td>
-                <td>
+                <td class="col-2">
                     @Html.DisplayFor(modelItem => item.PhoneNumber)
                 </td>
-                <td>
+                <td class="col-1">
                     @Html.DisplayFor(modelItem => item.LockoutEnabled)
                 </td>
-                <td>
+                <td class="col-1">
                     @Html.DisplayFor(modelItem => item.LockoutEnd)
                 </td>
-                <td>
+                <td class="col-1">
                     @Html.DisplayFor(modelItem => item.AccessFailedCount)
                 </td>
-                <td>
+                <td class="col-1">
                     @*
                         <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
                         <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
@@ -81,10 +90,34 @@
     </tbody>
 </table>
 
+@* Bottom table items *@
+<div class="row align-items-center">
+    <div class="col d-flex justify-content-start">
+        <span class=" d-flex align-items-center m-1">Show entries</span>
+        <div id="newEntriesPlace"></div>
+    </div>
+    <div id="newShowingPlace" class="col d-flex justify-content-center"></div>
+    <div id="newPaginationPlace" class="col d-flex justify-content-end"></div>
+</div>
+
 @section scripts{
     <script>
         $(document).ready(function () {
+            // Init DT
             $('#users').DataTable();
+            // Override search box
+            $('.dataTables_filter').addClass('d-none');
+            var dataTable = $('#users').dataTable();
+            $('#searchbox').keyup(function () {
+                dataTable.fnFilter(this.value);
+            });
+            // Length
+            $('#users_length').addClass('d-none');
+            $('#newEntriesPlace').html($('.dataTables_length select').removeClass('custom-select-sm form-control-sm'));
+            // Info
+            $('#newShowingPlace').html($('.dataTables_info'));
+            // Paginate
+            $('#newPaginationPlace').html($('.dataTables_paginate'));
         });
     </script>
 }

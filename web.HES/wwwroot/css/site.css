@@ -7,7 +7,7 @@ a.navbar-brand {
     word-break: break-all;
 }
 
-/* Sticky footer styles -------------------------------------------------- */
+/* Sticky footer styles  */
 html {
     font-size: 14px;
 }
@@ -35,7 +35,7 @@ button.accept-policy {
     line-height: inherit;
 }
 
-/* Sticky footer styles -------------------------------------------------- */
+/* Sticky footer styles  */
 html {
     position: relative;
     min-height: 100%;
@@ -81,21 +81,10 @@ body {
     display: none;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/* Custom pagination */
+.pagination {
+    margin: 0;
+}
 
 
 /* Dashboard 
@@ -1371,9 +1360,6 @@ a:focus {
     -ms-flex-direction: column-reverse !important;
     flex-direction: column-reverse !important;
 }*/
-
-
-
 /*
 :root {
     --blue: #4e73df;
