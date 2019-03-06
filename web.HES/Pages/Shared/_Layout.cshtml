@@ -23,7 +23,7 @@
 </head>
 <body>
     <header>
-        <nav class="navbar fixed-top navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-page="/Users/Index">
                     <svg width="133" height="24" viewBox="0 0 133 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -51,27 +51,41 @@
             </div>
         </nav>
     </header>
-    <div class="container-fluid main-container">
+    @*<div class="container-fluid main-container">
+            <partial name="_CookieConsentPartial" />
+            <main role="main">
+                <div class="d-flex flex-nowrap">
+                    <div class="custom-nav border-right">
+                        <partial name="_ManageNav" />
+                    </div>
+                    <div class="flex-fill p-2">
+                        @RenderBody()
+                    </div>
+                </div>
+            </main>
+        </div>*@
+
+    <div class="d-flex custom-main">
         <partial name="_CookieConsentPartial" />
-        <main role="main">
-            <div class="row flex-nowrap">
-                <div class="col custom-nav border-right" >
-                    <partial name="_ManageNav" />
-                </div>
-                <div class="col">
-                    @RenderBody()
-                </div>
-            </div>
-        </main>
+        @* Sidebar *@
+        <div class="custom-sidebar border-right">
+            <partial name="_ManageNav" />
+        </div>
+        @* Content *@
+        <div class="flex-fill custom-content ">
+            @RenderBody()
+        </div>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            <div class="row justify-content-center">
-                &copy; 2019 - HES
+    @*
+            <footer class="border-top footer text-muted">
+            <div class="container">
+                <div class="row justify-content-center">
+                    &copy; 2019 - HES
+                </div>
             </div>
-        </div>
-    </footer>
+        </footer>
+    *@
 
     <environment include="Development">
         <script src="~/lib/jquery/dist/jquery.js"></script>

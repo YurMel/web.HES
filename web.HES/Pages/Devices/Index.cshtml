@@ -8,7 +8,7 @@
 
 <h1>Devices</h1>
 
-<div class="d-flex justify-content-start ">
+<div class="d-flex justify-content-start">
     @*
         <form method="get">
             <button type="submit" class="btn btn-primary mt-2 mb-2 mr-2" asp-page="Create">
@@ -30,87 +30,89 @@
     </div>
 </div>
 
-<table id="devices" class="display table table-bordered table-hover" style="width:100%">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Device[0].Id)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Device[0].MAC)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Device[0].Model)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Device[0].ImportedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Device[0].DeviceKey)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Device[0].RFID)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Device[0].DeviceKey)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Device[0].User)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.Device)
-        {
+<div class="table-responsive">
+    <table id="devices" class="display table table-bordered table-hover" style="width:100%">
+        <thead>
             <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Id)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.MAC)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Model)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ImportedAt)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.DeviceKey)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.RFID)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.DeviceKey)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.User.Id)
-                </td>
-                <td>
-                    <div class="dropdown no-arrow">
-                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-black-400"></i>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
-                            <a class="dropdown-item" asp-page="./Edit" asp-route-id="@item.Id">
-                                <i class="fas fa-pen"></i>
-                                <span class="ml-2">Edit</span>
-                            </a>
-                            <a class="dropdown-item" asp-page="./Details" asp-route-id="@item.Id">Details</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
-                        </div>
-                    </div>
-                </td>
+                <th>
+                    @Html.DisplayNameFor(model => model.Device[0].Id)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Device[0].MAC)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Device[0].Model)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Device[0].ImportedAt)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Device[0].DeviceKey)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Device[0].RFID)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Device[0].DeviceKey)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Device[0].User)
+                </th>
+                <th></th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Device)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Id)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.MAC)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Model)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ImportedAt)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.DeviceKey)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.RFID)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.DeviceKey)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.User.Id)
+                    </td>
+                    <td>
+                        <div class="dropdown no-arrow">
+                            <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v fa-sm fa-fw text-black-400"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
+                                <a class="dropdown-item" asp-page="./Edit" asp-route-id="@item.Id">
+                                    <i class="fas fa-pen"></i>
+                                    <span class="ml-2">Edit</span>
+                                </a>
+                                <a class="dropdown-item" asp-page="./Details" asp-route-id="@item.Id">Details</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
 
 @* Bottom table items *@
-<div class="row align-items-center">
+<div class="row align-items-center mb-2">
     <div class="col d-flex justify-content-start">
         <span class=" d-flex align-items-center m-1">Show entries</span>
         <div id="newEntriesPlace"></div>
@@ -123,7 +125,11 @@
     <script>
         $(document).ready(function () {
             // Init DT
-            $('#devices').DataTable();
+            $('#devices').DataTable({
+                "columnDefs": [
+                    { "orderable": false, "targets": 8 }
+                ]
+            });
             // Override search box
             $('.dataTables_filter').addClass('d-none');
             var dataTable = $('#devices').dataTable();
