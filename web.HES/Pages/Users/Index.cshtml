@@ -8,18 +8,22 @@
 
 <h1>Users</h1>
 
-<div class="d-flex justify-content-start">
-    <form method="get">
-        <button type="submit" class="btn btn-primary mt-2 mb-2 mr-2" asp-page="Create">Create New</button>
-    </form>
-
-    <div class="input-group mt-2 mb-2 mr-2 w-25">
-        <div class="input-group-prepend">
-            <span class="input-group-text" id="basic-addon1">Search</span>
+<div class="row">
+    <div class="col-auto mb-2">
+        <form method="get">
+            <button type="submit" class="btn btn-primary" asp-page="Create">Create New</button>
+        </form>
+    </div>
+    <div class="col-auto mb-2">
+        <div class="input-group ">
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="basic-addon1">Search</span>
+            </div>
+            <input id="searchbox" type="text" class="form-control" aria-describedby="basic-addon1">
         </div>
-        <input id="searchbox" type="text" class="form-control" aria-describedby="basic-addon1">
     </div>
 </div>
+
 <div class="table-responsive">
     <table id="users" class="display table table-bordered table-hover" style="width:100%">
         <thead>
@@ -85,14 +89,15 @@
         </tbody>
     </table>
 </div>
+
 @* Bottom table items *@
-<div class="row align-items-center mb-2">
-    <div class="col d-flex justify-content-start">
+<div class="row">
+    <div class="col-sm-12 col-md-4  d-flex justify-content-start">
         <span class=" d-flex align-items-center m-1">Show entries</span>
         <div id="newEntriesPlace"></div>
     </div>
-    <div id="newShowingPlace" class="col d-flex justify-content-center"></div>
-    <div id="newPaginationPlace" class="col d-flex justify-content-end"></div>
+    <div id="newShowingPlace" class="col-sm-12 col-md-4 d-flex justify-content-md-center"></div>
+    <div id="newPaginationPlace" class="col-sm-12 col-md-4 d-flex justify-content-md-end"></div>
 </div>
 
 @section scripts{

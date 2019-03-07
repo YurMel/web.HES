@@ -9,10 +9,14 @@ namespace web.HES.Pages
 
         public static string Devices => "./Devices/Index";
 
+        public static string Settings => "./Settings/Index";
+
 
         public static string UsersNavClass(ViewContext viewContext) => PageNavClass(viewContext, Users);
 
         public static string DevicesNavClass(ViewContext viewContext) => PageNavClass(viewContext, Devices);
+
+        public static string SettingsNavClass(ViewContext viewContext) => PageNavClass(viewContext, Settings);
 
 
         private static string PageNavClass(ViewContext viewContext, string page)

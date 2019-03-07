@@ -89,6 +89,8 @@ namespace web.HES
             app.UseAuthentication();
 
             app.UseMvc();
+
+            app.UseStatusCodePages("text/html", "<h1>Error! Status Code {0}</h1>");
         }
     }
 }
