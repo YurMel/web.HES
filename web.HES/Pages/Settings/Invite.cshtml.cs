@@ -1,0 +1,85 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text.Encodings.Web;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using web.HES.Data;
+
+namespace web.HES.Pages.Settings
+{
+    public class InviteModel : PageModel
+    {
+
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IEmailSender _emailSender;
+
+        [BindProperty]
+        public InputModel Input { get; set; }
+
+        public class InputModel
+        {
+            [Required]
+            [EmailAddress]
+            public string Email { get; set; }
+        }
+
+        public InviteModel(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IEmailSender emailSender)
+        {  
+            _userManager = userManager;
+            _emailSender = emailSender;
+        }
+
+        public void OnGet()
+        {
+
+        }
+
+        public async Task<IActionResult> OnPost()
+        {
+            return RedirectToPage();
+        }
+
+        //public async Task<IActionResult> OnPostAsync()
+        //{
+        //    //if (!ModelState.IsValid)
+        //    //{
+        //    //    return Page();
+        //    //}
+        //    //return Page();
+        //    if (ModelState.IsValid)
+        //    {
+        //        var user = await _userManager.FindByEmailAsync(Input.Email);
+        //        if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
+        //        {
+        //            // Don't reveal that the user does not exist or is not confirmed
+        //            return RedirectToPage("./ForgotPasswordConfirmation");
+        //        }
+
+        //        var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+        //        var email = Input.Email;
+        //        var callbackUrl = Url.Page(
+        //            "/Account/ResetPassword",
+        //            pageHandler: null,
+        //            values: new { code, email },
+        //            protocol: Request.Scheme);
+
+        //        await _emailSender.SendEmailAsync(
+        //            Input.Email,
+        //            "Reset Password",
+        //            $"Please reset your password by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+
+        //        //return RedirectToPage("./ForgotPasswordConfirmation");
+        //        return Page();
+
+        //    }
+
+        //    return Page();
+        //}
+
+    }
+}

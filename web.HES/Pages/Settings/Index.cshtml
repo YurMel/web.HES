@@ -2,60 +2,137 @@
 @model web.HES.Pages.Settings.IndexModel
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Settings";
     ViewData["ActivePage"] = ManageNavPages.Settings;
 }
 
-<h1>Index</h1>
+<h1>Settings</h1>
 
-<p>
-    <a asp-page="Create">Create New</a>
-</p>
-<table class="display table table-bordered table-hover" style="width:100%">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.ApplicationUser[0].UserName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ApplicationUser[0].Email)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ApplicationUser[0].EmailConfirmed)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ApplicationUser[0].PhoneNumber)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ApplicationUser[0].TwoFactorEnabled)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model.ApplicationUser) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.UserName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Email)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.EmailConfirmed)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PhoneNumber)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TwoFactorEnabled)
-            </td>
-            <td>
-                <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
+@*<p>
+        <a asp-page="Create">Create New</a>
+    </p>*@
+<div class="row">
+    <div class="col-auto mb-2">
+        <form method="post">
+            <div class="form-group">
+                <label asp-for="Input.Email"></label>
+                <input asp-for="Input.Email" class="form-control" />
+                <span asp-validation-for="Input.Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Invite</button>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="row">
+    <div class="col-auto mb-2">
+        <form method="get">
+            <button type="submit" class="btn btn-primary" asp-page="Create">Create New</button>
+        </form>
+    </div>
+    <div class="col-auto mb-2">
+        <div class="input-group ">
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="basic-addon1">Search</span>
+            </div>
+            <input id="searchbox" type="text" class="form-control" aria-describedby="basic-addon1">
+        </div>
+    </div>
+</div>
+<div class="table-responsive">
+    <table id="users" class="display table table-bordered table-hover" style="width:100%">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.ApplicationUser[0].UserName)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.ApplicationUser[0].Email)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.ApplicationUser[0].EmailConfirmed)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.ApplicationUser[0].PhoneNumber)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.ApplicationUser[0].TwoFactorEnabled)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.ApplicationUser)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.UserName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Email)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.EmailConfirmed)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.PhoneNumber)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.TwoFactorEnabled)
+                    </td>
+                    <td>
+                        <div class="dropdown no-arrow">
+                            <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v fa-sm fa-fw text-black-400"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
+                                <a class="dropdown-item" asp-page="./Edit" asp-route-id="@item.Id">Edit</a>
+                                <a class="dropdown-item" asp-page="./Details" asp-route-id="@item.Id">Details</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@* Bottom table items *@
+<div class="row">
+    <div class="col-sm-12 col-md-4  d-flex justify-content-start">
+        <span class=" d-flex align-items-center m-1">Show entries</span>
+        <div id="newEntriesPlace"></div>
+    </div>
+    <div id="newShowingPlace" class="col-sm-12 col-md-4 d-flex justify-content-md-center"></div>
+    <div id="newPaginationPlace" class="col-sm-12 col-md-4 d-flex justify-content-md-end"></div>
+</div>
+
+@section scripts{
+    <script>
+        $(document).ready(function () {
+            // Init DT
+            $('#users').DataTable({
+                "columnDefs": [
+                    { "orderable": false, "targets": 5 }
+                ]
+            });
+            // Override search box
+            $('.dataTables_filter').addClass('d-none');
+            var dataTable = $('#users').dataTable();
+            $('#searchbox').keyup(function () {
+                dataTable.fnFilter(this.value);
+            });
+            // Length
+            $('#users_length').addClass('d-none');
+            $('#newEntriesPlace').html($('.dataTables_length select').removeClass('custom-select-sm form-control-sm'));
+            // Info
+            $('#newShowingPlace').html($('.dataTables_info'));
+            // Paginate
+            $('#newPaginationPlace').html($('.dataTables_paginate'));
+        });
+    </script>
+    <partial name="_ValidationScriptsPartial" />
 }
-    </tbody>
-</table>

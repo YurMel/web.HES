@@ -61,6 +61,10 @@ body {
     margin-top: 58px;
 }*/
 
+.vh-90 {
+    height: 90vh;
+}
+
 /* Custom content */
 .custom-main {
     position: relative;
@@ -90,7 +94,6 @@ body {
 .custom-content {
     overflow-y: auto;
     overflow-x: hidden;
-    /*background: #F970E4;*/
     min-height: 100%;
     padding: 7px;
 }
@@ -124,8 +127,8 @@ body {
 /* Table */
 .table thead th {
     vertical-align: bottom;
-     border-top: 0;
-     border-bottom: 0;
+    border-top: 0;
+    border-bottom: 0;
 }
 
 /* Dashboard 

@@ -9,8 +9,8 @@ using web.HES.Data;
 namespace web.HES.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20190304141508_upd_device")]
-    partial class upd_device
+    [Migration("20190312085841_Identity")]
+    partial class Identity
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

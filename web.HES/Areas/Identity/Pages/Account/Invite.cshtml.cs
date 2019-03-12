@@ -1,24 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Logging;
+using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
 using web.HES.Data;
 
 namespace web.HES.Areas.Identity.Pages.Account
 {
     [AllowAnonymous]
-    public class ResetPasswordModel : PageModel
+    public class InviteModel : PageModel
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly ILogger<LoginModel> _logger;
 
-        public ResetPasswordModel(UserManager<ApplicationUser> userManager)
+        public InviteModel(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, ILogger<LoginModel> logger)
         {
             _userManager = userManager;
+            _signInManager = signInManager;
+            _logger = logger;
         }
 
         [BindProperty]
@@ -54,7 +56,7 @@ namespace web.HES.Areas.Identity.Pages.Account
                 Input = new InputModel
                 {
                     Code = code,
-                    Email = email                    
+                    Email = email
                 };
                 return Page();
             }
@@ -70,14 +72,18 @@ namespace web.HES.Areas.Identity.Pages.Account
             var user = await _userManager.FindByEmailAsync(Input.Email);
             if (user == null)
             {
-                // Don't reveal that the user does not exist
-                return RedirectToPage("./ResetPasswordConfirmation");
+                return BadRequest("Email address does not exist.");
             }
 
             var result = await _userManager.ResetPasswordAsync(user, Input.Code, Input.Password);
             if (result.Succeeded)
             {
-                return RedirectToPage("./ResetPasswordConfirmation");
+                var login_result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, false, lockoutOnFailure: true);
+                if (login_result.Succeeded)
+                {
+                    _logger.LogInformation("User logged in.");
+                    return LocalRedirect("/");
+                }
             }
 
             foreach (var error in result.Errors)

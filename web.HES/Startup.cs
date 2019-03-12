@@ -15,6 +15,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using web.HES.Helpers.Interfaces;
 using web.HES.Helpers.Services;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 namespace web.HES
 {
@@ -65,6 +66,13 @@ namespace web.HES
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             services.AddTransient<IAesCryptography, AesCryptography>();
+            services.AddTransient<IEmailSender, EmailSender>(i =>
+                 new EmailSender(
+                     Configuration["EmailSender:Host"],
+                     Configuration.GetValue<int>("EmailSender:Port"),
+                     Configuration.GetValue<bool>("EmailSender:EnableSSL"),
+                     Configuration["EmailSender:UserName"],
+                     Configuration["EmailSender:Password"]));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

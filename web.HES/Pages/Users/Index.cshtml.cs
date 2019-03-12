@@ -22,6 +22,6 @@ namespace web.HES.Pages.Users
         public async Task OnGetAsync()
         {
             Users = await _context.Users.ToListAsync();
-        }
+        }      
     }
 }
