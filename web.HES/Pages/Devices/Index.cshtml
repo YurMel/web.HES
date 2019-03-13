@@ -53,12 +53,10 @@
                     @Html.DisplayNameFor(model => model.Device[0].RFID)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.Device[0].DeviceKey)
-                </th>
-                <th>
                     @Html.DisplayNameFor(model => model.Device[0].User)
                 </th>
-                <th></th>
+                <th>
+                </th>
             </tr>
         </thead>
         <tbody>
@@ -82,9 +80,6 @@
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.RFID)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.DeviceKey)
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.User.Id)

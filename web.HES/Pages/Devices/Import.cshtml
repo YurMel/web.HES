@@ -43,7 +43,7 @@
                     Such devices are successfully imported in the system (count: @Model.DevicesImported.Count)
                 </div>
                 <ul class="list-group list-group-flush">
-                    @foreach (var item in @Model.DevicesExist)
+                    @foreach (var item in @Model.DevicesImported)
                     {
                         <li class="list-group-item">@item.Id</li>
                     }

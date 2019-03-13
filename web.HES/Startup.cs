@@ -50,7 +50,8 @@ namespace web.HES
             // Identity
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddDefaultUI(UIFramework.Bootstrap4)
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders(); 
             // Mvc
             services.AddMvc()
                 .AddRazorPagesOptions(options =>
