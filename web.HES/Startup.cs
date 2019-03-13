@@ -1,21 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using web.HES.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using web.HES.Data;
 using web.HES.Helpers.Interfaces;
 using web.HES.Helpers.Services;
-using Microsoft.AspNetCore.Identity.UI.Services;
 
 namespace web.HES
 {
@@ -49,24 +44,28 @@ namespace web.HES
                 options.Password.RequireNonAlphanumeric = false;
 
             });
-
+            // Database
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseMySql(Configuration.GetConnectionString("DefaultConnection")));
-            services.AddDefaultIdentity<ApplicationUser>()
+            // Identity
+            services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddDefaultUI(UIFramework.Bootstrap4)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
-
+            // Mvc
             services.AddMvc()
                 .AddRazorPagesOptions(options =>
                 {
+                    //options.Conventions.AuthorizeAreaFolder("", "/Manage");
                     options.Conventions.AuthorizeFolder("/Devices");
+                    options.Conventions.AuthorizeFolder("/Settings");
                     options.Conventions.AuthorizeFolder("/Users");
                     options.Conventions.AddPageRoute("/Users/Index", "");
                 })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-
+            // Crypto
             services.AddTransient<IAesCryptography, AesCryptography>();
-            services.AddTransient<IEmailSender, EmailSender>(i =>
+            // Email sender
+            services.AddSingleton<IEmailSender, EmailSender>(i =>
                  new EmailSender(
                      Configuration["EmailSender:Host"],
                      Configuration.GetValue<int>("EmailSender:Port"),
@@ -93,12 +92,18 @@ namespace web.HES
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
-
             app.UseAuthentication();
-
             app.UseMvc();
+            app.UseStatusCodePages("text/html", "<h1>HTTP status code {0}</h1>");
 
-            app.UseStatusCodePages("text/html", "<h1>Error! Status Code {0}</h1>");
+            // Init administrator
+            using (var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            {
+                var userManager = scope.ServiceProvider.GetService<UserManager<ApplicationUser>>();
+                var roleManager = scope.ServiceProvider.GetService<RoleManager<IdentityRole>>();
+
+                new DbSeed(userManager, roleManager).Initialize();
+            }
         }
     }
 }

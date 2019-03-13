@@ -49,6 +49,7 @@ namespace web.HES.Pages.Settings
                 var user = new ApplicationUser { UserName = Input.Email, Email = Input.Email };
                 var password = Guid.NewGuid().ToString();
                 var result = await _userManager.CreateAsync(user, password);
+                await _userManager.AddToRoleAsync(user, Roles.AdminRole);
 
                 // Create "invite" link
                 var code = await _userManager.GeneratePasswordResetTokenAsync(user);
