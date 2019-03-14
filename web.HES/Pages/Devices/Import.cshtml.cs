@@ -93,7 +93,7 @@ namespace web.HES.Pages.Devices
                                         ImportedAt = d.Manufactured,
                                         DeviceKey = d.DeviceKey,
                                         RFID = null,
-                                        UserId = d.RegisteredUserId
+                                        EmployeeId = d.RegisteredUserId
                                     }).ToList();
 
                                     // Add devices if count > 0

@@ -53,7 +53,7 @@
                     @Html.DisplayNameFor(model => model.Device[0].RFID)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.Device[0].User)
+                    @Html.DisplayNameFor(model => model.Device[0].Employee)
                 </th>
                 <th>
                 </th>
@@ -82,7 +82,7 @@
                         @Html.DisplayFor(modelItem => item.RFID)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.User.Id)
+                        @Html.DisplayFor(modelItem => item.Employee.FullName)
                     </td>
                     <td>
                         <div class="dropdown no-arrow">

@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using web.HES.Data;
 
-namespace web.HES.Pages.Devices
+namespace web.HES.Pages.Employees
 {
     public class EditModel : PageModel
     {
@@ -20,7 +20,7 @@ namespace web.HES.Pages.Devices
         }
 
         [BindProperty]
-        public Device Device { get; set; }
+        public Employee Employee { get; set; }
 
         public async Task<IActionResult> OnGetAsync(string id)
         {
@@ -29,14 +29,18 @@ namespace web.HES.Pages.Devices
                 return NotFound();
             }
 
-            Device = await _context.Devices
-                .Include(d => d.Employee).FirstOrDefaultAsync(m => m.Id == id);
+            Employee = await _context.Employee
+                .Include(e => e.Company)
+                .Include(e => e.Department)
+                .Include(e => e.Position).FirstOrDefaultAsync(m => m.Id == id);
 
-            if (Device == null)
+            if (Employee == null)
             {
                 return NotFound();
             }
-           ViewData["RegisteredUserId"] = new SelectList(_context.Users, "Id", "Id");
+           ViewData["CompanyId"] = new SelectList(_context.Set<Company>(), "Id", "Id");
+           ViewData["DepartmentId"] = new SelectList(_context.Set<Department>(), "Id", "Id");
+           ViewData["PositionId"] = new SelectList(_context.Set<Position>(), "Id", "Id");
             return Page();
         }
 
@@ -47,7 +51,7 @@ namespace web.HES.Pages.Devices
                 return Page();
             }
 
-            _context.Attach(Device).State = EntityState.Modified;
+            _context.Attach(Employee).State = EntityState.Modified;
 
             try
             {
@@ -55,7 +59,7 @@ namespace web.HES.Pages.Devices
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!DeviceExists(Device.Id))
+                if (!EmployeeExists(Employee.Id))
                 {
                     return NotFound();
                 }
@@ -68,9 +72,9 @@ namespace web.HES.Pages.Devices
             return RedirectToPage("./Index");
         }
 
-        private bool DeviceExists(string id)
+        private bool EmployeeExists(string id)
         {
-            return _context.Devices.Any(e => e.Id == id);
+            return _context.Employee.Any(e => e.Id == id);
         }
     }
 }

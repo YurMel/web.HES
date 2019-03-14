@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using web.HES.Data;
 
-namespace web.HES.Pages.Devices
+namespace web.HES.Pages.Employees
 {
     public class DetailsModel : PageModel
     {
@@ -18,7 +18,7 @@ namespace web.HES.Pages.Devices
             _context = context;
         }
 
-        public Device Device { get; set; }
+        public Employee Employee { get; set; }
 
         public async Task<IActionResult> OnGetAsync(string id)
         {
@@ -27,10 +27,12 @@ namespace web.HES.Pages.Devices
                 return NotFound();
             }
 
-            Device = await _context.Devices
-                .Include(d => d.Employee).FirstOrDefaultAsync(m => m.Id == id);
+            Employee = await _context.Employee
+                .Include(e => e.Company)
+                .Include(e => e.Department)
+                .Include(e => e.Position).FirstOrDefaultAsync(m => m.Id == id);
 
-            if (Device == null)
+            if (Employee == null)
             {
                 return NotFound();
             }

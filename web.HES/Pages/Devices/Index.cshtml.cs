@@ -18,7 +18,7 @@ namespace web.HES.Pages.Devices
 
         public async Task OnGetAsync()
         {
-            Device = await _context.Devices.Include(d => d.User).ToListAsync();
+            Device = await _context.Devices.Include(d => d.Employee).ToListAsync();
         }
     }
 }

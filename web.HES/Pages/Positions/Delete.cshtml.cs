@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using web.HES.Data;
 
-namespace web.HES.Pages.Devices
+namespace web.HES.Pages.Positions
 {
     public class DeleteModel : PageModel
     {
@@ -19,7 +19,7 @@ namespace web.HES.Pages.Devices
         }
 
         [BindProperty]
-        public Device Device { get; set; }
+        public Position Position { get; set; }
 
         public async Task<IActionResult> OnGetAsync(string id)
         {
@@ -28,10 +28,9 @@ namespace web.HES.Pages.Devices
                 return NotFound();
             }
 
-            Device = await _context.Devices
-                .Include(d => d.Employee).FirstOrDefaultAsync(m => m.Id == id);
+            Position = await _context.Position.FirstOrDefaultAsync(m => m.Id == id);
 
-            if (Device == null)
+            if (Position == null)
             {
                 return NotFound();
             }
@@ -45,11 +44,11 @@ namespace web.HES.Pages.Devices
                 return NotFound();
             }
 
-            Device = await _context.Devices.FindAsync(id);
+            Position = await _context.Position.FindAsync(id);
 
-            if (Device != null)
+            if (Position != null)
             {
-                _context.Devices.Remove(Device);
+                _context.Position.Remove(Position);
                 await _context.SaveChangesAsync();
             }
 
