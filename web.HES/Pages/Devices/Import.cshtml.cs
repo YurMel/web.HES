@@ -90,10 +90,13 @@ namespace web.HES.Pages.Devices
                                         Id = d.Id,
                                         MAC = d.MAC,
                                         Model = d.Model,
-                                        ImportedAt = d.Manufactured,
+                                        ImportedAt = DateTime.Now,
                                         DeviceKey = d.DeviceKey,
                                         RFID = null,
-                                        EmployeeId = d.RegisteredUserId
+                                        EmployeeId = null,
+                                        Battery = 0,
+                                        Firmware = null,
+                                        LastSynced = DateTime.Now
                                     }).ToList();
 
                                     // Add devices if count > 0

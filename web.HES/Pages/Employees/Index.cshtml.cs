@@ -25,7 +25,8 @@ namespace web.HES.Pages.Employees
             Employee = await _context.Employee
                 .Include(e => e.Company)
                 .Include(e => e.Department)
-                .Include(e => e.Position).ToListAsync();
+                .Include(e => e.Position)
+                .Include(e => e.Devices).ToListAsync();
         }
     }
 }

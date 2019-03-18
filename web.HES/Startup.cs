@@ -56,11 +56,11 @@ namespace web.HES
             services.AddMvc()
                 .AddRazorPagesOptions(options =>
                 {
-                    //options.Conventions.AuthorizeAreaFolder("", "/Manage");
+                    options.Conventions.AddPageRoute("/Dashboard/Index", "");
+                    options.Conventions.AuthorizeFolder("/Dashboard");
+                    options.Conventions.AuthorizeFolder("/Employees");
                     options.Conventions.AuthorizeFolder("/Devices");
                     options.Conventions.AuthorizeFolder("/Settings");
-                    options.Conventions.AuthorizeFolder("/Users");
-                    options.Conventions.AddPageRoute("/Users/Index", "");
                 })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             // Crypto

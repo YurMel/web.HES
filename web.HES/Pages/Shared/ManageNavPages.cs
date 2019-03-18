@@ -5,14 +5,18 @@ namespace web.HES.Pages
 {
     public static class ManageNavPages
     {
-        public static string Users => "./Users/Index";
+        public static string Dashboard => "./Dashboard/Index";
+
+        public static string Employees => "./Employees/Index";
 
         public static string Devices => "./Devices/Index";
 
         public static string Settings => "./Settings/Index";
+               
 
+        public static string DashboardNavClass(ViewContext viewContext) => PageNavClass(viewContext, Dashboard);
 
-        public static string UsersNavClass(ViewContext viewContext) => PageNavClass(viewContext, Users);
+        public static string EmployeesNavClass(ViewContext viewContext) => PageNavClass(viewContext, Employees);
 
         public static string DevicesNavClass(ViewContext viewContext) => PageNavClass(viewContext, Devices);
 

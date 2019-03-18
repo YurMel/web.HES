@@ -6,32 +6,31 @@
     ViewData["ActivePage"] = ManageNavPages.Devices;
 }
 
-<h1>Devices</h1>
-
-<div class="d-flex justify-content-start">
-    @*
+<div class="row align-items-center">
+    <div class="col">
+        <h1>Devices</h1>
+    </div>
+    <div class="col-sm-auto col-12 m-1">
+        <div class="input-group">
+            <input id="searchbox" type="text" class="form-control" aria-describedby="search" placeholder="Search">
+            <div class="input-group-append">
+                <span class="input-group-text custom-size" id="search">
+                    <img src="~/svg/baseline-search.svg" />
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="col-auto m-1">
         <form method="get">
-            <button type="submit" class="btn btn-primary mt-2 mb-2 mr-2" asp-page="Create">
-                Create New
+            <button type="submit" class="btn btn-primary" asp-page="Import">
+                Import
             </button>
         </form>
-    *@
-    <form method="get">
-        <button type="submit" class="btn btn-primary mt-2 mb-2 mr-2" asp-page="Import">
-            Import
-        </button>
-    </form>
-
-    <div class="input-group mt-2 mb-2 mr-2 w-25">
-        <div class="input-group-prepend">
-            <span class="input-group-text" id="basic-addon1">Search</span>
-        </div>
-        <input id="searchbox" type="text" class="form-control" aria-describedby="basic-addon1">
     </div>
 </div>
 
 <div class="table-responsive">
-    <table id="devices" class="display table table-bordered table-hover" style="width:100%">
+    <table id="devices" class="display table table-hover border rounded" style="width:100%">
         <thead>
             <tr>
                 <th>
@@ -44,19 +43,21 @@
                     @Html.DisplayNameFor(model => model.Device[0].Model)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.Device[0].ImportedAt)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Device[0].DeviceKey)
-                </th>
-                <th>
                     @Html.DisplayNameFor(model => model.Device[0].RFID)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Device[0].Battery)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Device[0].Firmware)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Device[0].LastSynced)
                 </th>
                 <th>
                     @Html.DisplayNameFor(model => model.Device[0].Employee)
                 </th>
-                <th>
-                </th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
@@ -73,21 +74,24 @@
                         @Html.DisplayFor(modelItem => item.Model)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.ImportedAt)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.DeviceKey)
-                    </td>
-                    <td>
                         @Html.DisplayFor(modelItem => item.RFID)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Battery)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Firmware)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.LastSynced)
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.Employee.FullName)
                     </td>
-                    <td>
+                    <td align="right">
                         <div class="dropdown no-arrow">
                             <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-ellipsis-v fa-sm fa-fw text-black-400"></i>
+                                <img src="~/svg/baseline-more_vertical.svg" />
                             </a>
                             <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
                                 <a class="dropdown-item" asp-page="./Edit" asp-route-id="@item.Id">

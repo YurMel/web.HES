@@ -12,9 +12,9 @@ namespace web.HES.Pages.Employees
 {
     public class EditModel : PageModel
     {
-        private readonly web.HES.Data.ApplicationDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public EditModel(web.HES.Data.ApplicationDbContext context)
+        public EditModel(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -38,9 +38,10 @@ namespace web.HES.Pages.Employees
             {
                 return NotFound();
             }
-           ViewData["CompanyId"] = new SelectList(_context.Set<Company>(), "Id", "Id");
-           ViewData["DepartmentId"] = new SelectList(_context.Set<Department>(), "Id", "Id");
-           ViewData["PositionId"] = new SelectList(_context.Set<Position>(), "Id", "Id");
+
+            ViewData["CompanyId"] = new SelectList(_context.Set<Company>(), "Id", "Name");
+            ViewData["DepartmentId"] = new SelectList(_context.Set<Department>(), "Id", "Name");
+            ViewData["PositionId"] = new SelectList(_context.Set<Position>(), "Id", "Name");
             return Page();
         }
 

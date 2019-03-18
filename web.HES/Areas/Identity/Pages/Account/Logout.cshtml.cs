@@ -38,7 +38,8 @@ namespace web.HES.Areas.Identity.Pages.Account
             else
             {
                 //return Page();
-                return RedirectToPage("/Users/Index");
+                //return RedirectToPage("/Users/Index");
+                return LocalRedirect("/");
             }
         }
     }
