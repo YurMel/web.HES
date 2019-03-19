@@ -20,12 +20,13 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.18/datatables.min.css" />
     <!-- Main CSS-->
     <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="~/css/icon.css" />
 </head>
 <body>
     <div class="d-flex">
         <!-- Sidebar -->
         <div class="custom-sidebar">
-            <partial name="_ManageNav" />
+            <partial name="_MainManageNav" />
         </div>
         <!-- Content -->
         <div class="d-flex flex-column custom-main">
@@ -39,10 +40,6 @@
                         </a>
                         <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
                             <a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/Index">
-                                <img src="~/svg/account/round-person.svg" />
-                                Profile
-                            </a>
-                            <a class="dropdown-item" id="page_devices1" asp-area="Identity" asp-page="/Account/Manage/Index">
                                 <img src="~/svg/account/round-person.svg" />
                                 Profile
                             </a>

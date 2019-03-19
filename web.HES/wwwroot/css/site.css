@@ -1,5 +1,8 @@
 ﻿/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
 for details on configuring this project to bundle and minify static web assets. */
+.bg-white {
+    background: #fff;
+}
 
 a.navbar-brand {
     white-space: normal;
@@ -70,7 +73,6 @@ body {
 .custom-main {
     width: 100%;
     overflow-x: hidden;
-    /*background-color: #beffaa;*/
 }
 
 .custom-content {
@@ -80,28 +82,80 @@ body {
     background: #F7F8FC;
 }
 
-/*.custom-main {
-    height: 100vh;
-}*/
+/* Sidebar */
+.custom-pills .nav-link.active, .nav-pills .show > .nav-link {
+    color: #0E3059;
+    background-color: #FFFFFF;
+    font-weight: 500;
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
 
-/*.custom-sidebar {
-    padding: 7px;
-    min-width: 250px;
-    max-width: 250px;
-    min-height: 100vh;
-    background: linear-gradient(to top, #081C33, #0E3059);
-}*/
+.custom-pills .nav-link, .nav-pills .show > .nav-link {
+    color: #B6C0CB;
+    font-weight: 500;
+}
 
-/*.custom-content {
-    padding: 7px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    background: #F7F8FC;
-    height: calc(100vh - 59px);
-}*/
+    .custom-pills .nav-link > .i-sidebar {
+        background: #B6C0CB;
+    }
 
+    .custom-pills .nav-link.active > .i-sidebar {
+        background: #0E3059;
+    }
+
+    .custom-pills .nav-link:hover {
+        color: #FFF;
+        background-color: #304966;
+        font-weight: 500;
+    }
+
+        .custom-pills .nav-link:hover > .i-sidebar {
+            background: #FFF;
+        }
+
+.expand-pills .nav-link.active, .nav-pills .show > .nav-link {
+    color: #FFFFFF;
+    background-color: #0E3059;
+    font-weight: 500;
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
+.expand-pills .nav-link, .nav-pills .show > .nav-link {
+    color: #0E3059;
+    font-weight: 500;
+}
+
+    .expand-pills .nav-link:hover {
+        color: #0E3059;
+        background-color: #E7EAEE;
+        font-weight: 500;
+    }
+
+        .expand-pills .nav-link:hover > .i-sidebar {
+            background: #FFF;
+        }
+
+.sidebar-settings {
+    margin: 2px 2px;
+}
+
+@media (max-width: 768px) {
+    .sidebar-settings {
+        position: absolute;
+        left: 70px;
+        z-index: 1;
+    }
+}
+
+/* Size */
 .vh-90 {
     height: 90vh;
+}
+
+.max-w-400 {
+    max-width: 400px;
 }
 
 /* Buttom menu dots */
@@ -148,6 +202,22 @@ td {
     width: 20px;
 }
 
+.copyright {
+    position: absolute;
+    left: 34px;
+    bottom: 15px;
+    color: #FFFFFF;
+    opacity: 0.8;
+    font-size: 14px;
+    width: 180px;
+}
+
+@media (max-width: 768px) {
+    .copyright {
+        display: none;
+    }
+}
+
 @media screen and (max-width: 768px) {
     .custom-sidebar {
         min-width: 68px;
@@ -161,83 +231,4 @@ td {
     .custom-size {
         height: 33.5px;
     }
-
-    /*.sidebar.toggled .nav-item .collapse {
-        position: absolute;
-        left: calc(6.5rem + 1.5rem / 2);
-        z-index: 1;
-        top: 2px;
-    }*/
-
-    #collapseExample {
-        position: absolute;
-        left: 70px;
-        z-index: 1;
-        /*top: 2px;*/
-    }
-
-
-    /*.sidebar*/
-    #mynav {
-        position: absolute;
-        left: 70px;
-        z-index: 1;
-    }
 }
-
-
-/*.dropdown-menu {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    z-index: 1000;
-    display: none;
-    float: left;
-    min-width: 10rem;
-    padding: 0.5rem 0;
-    margin: 0.125rem 0 0;
-    font-size: 0.85rem;
-    color: #858796;
-    text-align: left;
-    list-style: none;
-    background-color: #fff;
-    background-clip: padding-box;
-    border: 1px solid #e3e6f0;
-    border-radius: 0.35rem;
-}
-
-.dropdown-menu-left {
-    right: auto;
-    left: 0;
-}
-
-.dropdown-menu-right {
-    right: 0;
-    left: auto;
-}*/
-
-/*.topbar .nav-item.dropdown .dropdown-toggle::after {
-    width: 1rem;
-    text-align: center;
-    float: right;
-    vertical-align: 0;
-    border: 0;
-    font-weight: 900;
-    content: '\f105';
-    font-family: 'Font Awesome 5 Free';
-}*/
-
-
-/*.dropdown-toggle::after {
-    display: none;
-    width: 0;
-    height: 0;
-    margin-left: 0.255em;
-    vertical-align: 0.255em;
-    content: "";
-    border-top: 0.3em solid;
-    border-right: 0.3em solid transparent;
-    border-bottom: 0;
-    border-left: 0.3em solid transparent;
-}*/
-

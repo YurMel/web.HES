@@ -1,0 +1,57 @@
+﻿<a class="navbar-brand mt-3 mb-3 w-100" asp-area="" asp-page="/Dashboard/Index">
+    @*<img src="~/svg/hideez-full.svg" />*@
+    <img class="icon-hideez"/>
+</a>
+
+<ul class="nav nav-pills custom-pills flex-column" id="accordionSidebar">
+    <li class="nav-item">
+        <a class="nav-link @ManageNavPages.DashboardNavClass(ViewContext)" asp-page="/Dashboard/Index">
+            <img class="icon-dashboard i-sidebar">
+            <span class="page_labels">Dashboard</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @ManageNavPages.EmployeesNavClass(ViewContext)" asp-page="/Employees/Index">
+            <img class="icon-employees i-sidebar" />
+            <span class="page_labels">Employees</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @ManageNavPages.DevicesNavClass(ViewContext)" asp-page="/Devices/Index">
+            <img class="icon-devices i-sidebar" />
+            <span class="page_labels">Devices</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @ManageNavPages.SettingsNavClass(ViewContext)" data-toggle="collapse" href="#collapseSettings" role="button" aria-expanded="false" aria-controls="collapseSettings">
+            <img class="icon-settings i-sidebar" />
+            <span class="page_labels">Settings</span>
+        </a>
+    </li>
+</ul>
+
+<div class="collapse shadow sidebar-settings" id="collapseSettings">
+    <div class="card card-body">
+        <ul class="nav nav-pills flex-column expand-pills">
+            <li class="nav-item">
+                <a class="nav-link @SettingsNavPages.AdministratorsNavClass(ViewContext)" asp-page="/Settings/Index">
+                    <span>Administrators</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link @SettingsNavPages.OrgStructureNavClass(ViewContext)" asp-page="/Companies/Index">
+                    <span>Companies</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link @SettingsNavPages.PositionsNavClass(ViewContext)" asp-page="/Positions/Index">
+                    <span>Positions</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<span class="copyright text-center text-wrap">
+    © 2019 - Hideez.Enterprise All rights reserved.
+</span>
