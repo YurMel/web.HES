@@ -4,7 +4,23 @@ for details on configuring this project to bundle and minify static web assets. 
     background: #fff;
 }
 
-/* Override */
+.text-navyblue {
+    color: #0E3059 !important;
+}
+
+.text-gray {
+    color: #7A7C8B !important;
+}
+
+/* #region Override colors */
+a {
+    color: #0396D6;
+}
+
+    a:hover {
+        color: #027EB2;
+    }
+
 .btn-primary {
     color: #fff;
     background-color: #0396D6;
@@ -78,14 +94,9 @@ for details on configuring this project to bundle and minify static web assets. 
     border-color: #0396D6;
 }
 
-/* Title logo */
-a.navbar-brand {
-    white-space: normal;
-    text-align: center;
-    word-break: break-all;
-}
+/*#endregion */
 
-/* Sticky footer styles  */
+/* #region Main */
 html {
     font-size: 14px;
 }
@@ -121,8 +132,6 @@ html {
 }
 
 body {
-    /* Margin bottom by footer height */
-    /*margin-bottom: 60px;*/
     background: #F7F8FC;
 }
 
@@ -136,7 +145,15 @@ body {
     line-height: 60px; /* Vertically center the text there */
 }
 
-/* Dashboard */
+/* Title logo */
+a.navbar-brand {
+    white-space: normal;
+    text-align: center;
+    word-break: break-all;
+}
+/*#endregion */
+
+/*#region Dashboard */
 .custom-sidebar {
     padding: 7px;
     min-width: 250px;
@@ -157,8 +174,9 @@ body {
     height: calc(100vh - 59px);
     background: #F7F8FC;
 }
+/*#endregion */
 
-/* Sidebar */
+/*#region Sidebar */
 .custom-pills .nav-link.active, .nav-pills .show > .nav-link {
     color: #0E3059;
     background-color: #FFFFFF;
@@ -166,6 +184,15 @@ body {
     margin-top: 2px;
     margin-bottom: 2px;
 }
+
+    .custom-pills .nav-link.active:hover {
+        color: #0E3059;
+        background-color: #FFF;
+    }
+
+        .custom-pills .nav-link.active:hover > .i-sidebar {
+            background: #0E3059;
+        }
 
 .custom-pills .nav-link, .nav-pills .show > .nav-link {
     color: #B6C0CB;
@@ -198,6 +225,11 @@ body {
     margin-bottom: 2px;
 }
 
+    .expand-pills .nav-link.active:hover {
+        color: #FFFFFF;
+        background-color: #0E3059;
+    }
+
 .expand-pills .nav-link, .nav-pills .show > .nav-link {
     color: #0E3059;
     font-weight: 500;
@@ -224,14 +256,34 @@ body {
         z-index: 1;
     }
 }
+/*#endregion */
 
-/* Size */
+/* #region Size */
 .vh-90 {
     height: 90vh;
 }
 
-.max-w-400 {
-    max-width: 400px;
+.vh-100 {
+    height: 100vh;
+}
+
+.max-w-350 {
+    max-width: 350px;
+}
+/* #endregion */
+
+.custom-card {
+    background: #FFF;
+    border-radius: 0.25rem !important;
+    width: 388px;
+    max-width: 388px;
+    padding: 30px;
+    border: 1px solid #dee2e6 !important;
+}
+
+.custom-card-bottom {
+    max-width: 388px;
+    padding-top: 25px;
 }
 
 /* Buttom menu dots */
