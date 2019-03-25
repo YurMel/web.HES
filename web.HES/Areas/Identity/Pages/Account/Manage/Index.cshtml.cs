@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
@@ -28,7 +26,7 @@ namespace web.HES.Areas.Identity.Pages.Account.Manage
             _emailSender = emailSender;
         }
 
-        public string Username { get; set; }
+        //public string Username { get; set; }
 
         public bool IsEmailConfirmed { get; set; }
 
@@ -40,6 +38,10 @@ namespace web.HES.Areas.Identity.Pages.Account.Manage
 
         public class InputModel
         {
+            //[Required]
+            //[Display(Name = "User name")]
+            //public string Username { get; set; }
+
             [Required]
             [EmailAddress]
             public string Email { get; set; }
@@ -61,10 +63,11 @@ namespace web.HES.Areas.Identity.Pages.Account.Manage
             var email = await _userManager.GetEmailAsync(user);
             var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
 
-            Username = userName;
+            //Username = userName;
 
             Input = new InputModel
             {
+                //Username = userName,
                 Email = email,
                 PhoneNumber = phoneNumber
             };
@@ -86,6 +89,17 @@ namespace web.HES.Areas.Identity.Pages.Account.Manage
             {
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
+
+            //var name = await _userManager.GetUserNameAsync(user);
+            //if (Input.Username != name)
+            //{
+            //    var setNameResult = await _userManager.SetUserNameAsync(user, Input.Username);
+            //    if (!setNameResult.Succeeded)
+            //    {
+            //        var userId = await _userManager.GetUserIdAsync(user);
+            //        throw new InvalidOperationException($"Unexpected error occurred setting name for user with ID '{userId}'.");
+            //    }
+            //}
 
             var email = await _userManager.GetEmailAsync(user);
             if (Input.Email != email)

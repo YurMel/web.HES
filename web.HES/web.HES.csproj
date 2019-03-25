@@ -4,6 +4,7 @@
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <UserSecretsId>aspnet-web.HES-32DA1693-7AC1-4608-9CF0-B48E70236612</UserSecretsId>
     <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
+    <ApplicationIcon>wwwroot\favicon.ico</ApplicationIcon>
   </PropertyGroup>
 
 
@@ -12,13 +13,6 @@
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.3" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.2.0" />
-  </ItemGroup>
-
-
-  <ItemGroup>
-    <Folder Include="Pages\Settings\Administrators\" />
-    <Folder Include="Pages\Settings\Positions\" />
-    <Folder Include="Pages\Settings\OrgStructure\" />
   </ItemGroup>
 
 </Project>

@@ -4,6 +4,7 @@ for details on configuring this project to bundle and minify static web assets. 
     background: #fff;
 }
 
+/*#region Text color */
 .text-navyblue {
     color: #0E3059 !important;
 }
@@ -11,6 +12,7 @@ for details on configuring this project to bundle and minify static web assets. 
 .text-gray {
     color: #7A7C8B !important;
 }
+/*#endregion*/
 
 /* #region Override colors */
 a {
@@ -272,6 +274,7 @@ a.navbar-brand {
 }
 /* #endregion */
 
+/*#region Cards */
 .custom-card {
     background: #FFF;
     border-radius: 0.25rem !important;
@@ -284,6 +287,33 @@ a.navbar-brand {
 .custom-card-bottom {
     max-width: 388px;
     padding-top: 25px;
+}
+
+.custom-wide-card {
+    background: #FFF;
+    border-radius: 0.25rem !important;
+    /*width: 730px;*/
+    max-width: 730px;
+    padding: 30px;
+    border: 1px solid #dee2e6 !important;
+}
+
+.modal-card {
+    padding: 30px;
+}
+/*#endregion*/
+
+.has-search .form-control-feedback {
+    position: absolute;
+    right: 18px;
+    z-index: 2;
+    display: block;
+    width: 18px;
+    height: 18px;
+    text-align: center;
+    pointer-events: none;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 /* Buttom menu dots */
@@ -310,12 +340,17 @@ a.navbar-brand {
     margin: 0;
 }
 
-/* Table */
-.table thead th {
-    vertical-align: bottom;
-    border-top: 0;
-    border-bottom: 0;
+/*#region Table */
+.table {
+    background: #fff;
+    color: #0E3059 !important;
 }
+
+    .table thead th {
+        vertical-align: bottom;
+        border-top: 0;
+        border-bottom: 0;
+    }
 
 td {
     white-space: nowrap;
@@ -326,9 +361,11 @@ td {
     background-color: #007bff;
 }*/
 
-.menu-dots-col {
-    width: 20px;
+.table-col-menu {
+    width: 24px;
 }
+
+/*#endregion*/
 
 .copyright {
     position: absolute;

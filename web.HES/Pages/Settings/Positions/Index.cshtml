@@ -1,0 +1,102 @@
+﻿@page
+@model web.HES.Pages.Settings.Positions.IndexModel
+
+@{
+    ViewData["Title"] = "Positions";
+    ViewData["ActivePage"] = ManageNavPages.Settings;
+    ViewData["SettingsPage"] = SettingsNavPages.Positions;
+}
+
+<div class="row align-items-center">
+    <div class="col">
+        <h1 class="text-navyblue">Positions</h1>
+    </div>
+    <div class="col-auto p-1">
+        <div class="form-group m-0 has-search">
+            <img class="form-control-feedback" src="~/svg/action/search.svg" />
+            <input id="searchbox" type="text" class="form-control" placeholder="Search">
+        </div>
+    </div>
+    <div class="col-auto p-1">
+        <form method="get">
+            <button type="submit" class="btn btn-primary" asp-page="Create">New Position</button>
+        </form>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table id="positions" class="display table table-hover border rounded">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Position[0].Name)
+                </th>
+                <th class="table-col-menu"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Position)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td>
+                        <div class="dropdown no-arrow">
+                            <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <img src="~/svg/action/more.svg" />
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
+                                <a class="dropdown-item" asp-page="./Edit" asp-route-id="@item.Id">
+                                    <img src="~/svg/action/edit.svg" />
+                                    Edit
+                                </a>
+                                <a class="dropdown-item" asp-page="./Delete" asp-route-id="@item.Id">
+                                    <img src="~/svg/action/delete.svg" />
+                                    Delete
+                                </a>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@* Bottom table items *@
+<div class="row mt-2">
+    <div class="col-sm-12 col-md-auto d-flex justify-content-start align-items-center mb-1">
+        <span class="d-flex align-items-center mr-1 text-navyblue">Show entries</span>
+        <div id="newEntriesPlace"></div>
+    </div>
+    <div id="newShowingPlace" class="col-sm-12 col-md d-flex justify-content-md-center align-items-center mb-1 text-navyblue"></div>
+    <div id="newPaginationPlace" class="col-sm-12 col-md-auto d-flex justify-content-md-end align-items-center mb-1"></div>
+</div>
+
+@section Scripts{
+    <script>
+        $(document).ready(function () {
+            // Init DT
+            $('#positions').DataTable({
+                "columnDefs": [
+                    { "orderable": false, "targets": 1 }
+                ]
+            });
+            // Override search box
+            $('.dataTables_filter').addClass('d-none');
+            var dataTable = $('#positions').dataTable();
+            $('#searchbox').keyup(function () {
+                dataTable.fnFilter(this.value);
+            });
+            // Length
+            $('#positions_length').addClass('d-none');
+            $('#newEntriesPlace').html($('.dataTables_length select').removeClass('custom-select-sm form-control-sm'));
+            // Info
+            $('#newShowingPlace').html($('.dataTables_info'));
+            // Paginate
+            $('#newPaginationPlace').html($('.dataTables_paginate'));
+        });
+    </script>
+    <partial name="_ValidationScriptsPartial" />
+}
