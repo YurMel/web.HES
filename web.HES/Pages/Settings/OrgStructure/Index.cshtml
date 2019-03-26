@@ -8,20 +8,25 @@
 
 <div class="row align-items-center mb-3">
     <div class="col">
-        <h1 class="text-navyblue">Org structure</h1>
+        <h1 class="text-navyblue text-nowrap">Org structure</h1>
     </div>
     <div class="col-auto p-1">
-        <button type="button" class="btn btn-primary" onclick="OpenModal('', 'CreateCompany', 'Create company')">
+        <button type="button" class="btn btn-primary open-modal-dialog" data-id="" data-action="CreateCompany" data-title="Create company">
             Create company
+        </button>
+    </div>
+    <div class="col-auto p-1">
+        <button type="button" class="btn btn-primary open-modal-dialog" data-id="" data-action="CreateDepartment" data-title="Create department">
+            Create department
         </button>
     </div>
 </div>
 
-@foreach (var item in Model.Companies)
+@foreach (var company in Model.Companies)
 {
-    <div class="row align-items-center">
+    <div class="row align-items-center m-1">
         <div class="col-auto p-1">
-            <h3 class="text-navyblue m-0">@item.Name</h3>
+            <h3 class="text-navyblue m-0">@company.Name</h3>
         </div>
         <div class="col-auto p-1">
             <div class="dropdown no-arrow">
@@ -29,11 +34,11 @@
                     <img src="~/svg/action/more.svg" />
                 </a>
                 <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
-                    <a class="dropdown-item" onclick="OpenModal('@item.Id', 'EditCompany', 'Edit company')">
+                    <a class="dropdown-item open-modal-dialog" data-id="@company.Id" data-action="EditCompany" data-title="Edit company">
                         <img src="~/svg/action/edit.svg" />
                         Edit
                     </a>
-                    <a class="dropdown-item" onclick="OpenModal('@item.Id', 'DeleteCompany', 'Delete company')">
+                    <a class="dropdown-item open-modal-dialog" data-id="@company.Id" data-action="DeleteCompany" data-title="Delete company">
                         <img src="~/svg/action/delete.svg" />
                         Delete
                     </a>
@@ -41,71 +46,71 @@
             </div>
         </div>
         <div class="col"></div>
-        @*<div class="col-auto p-1">
+        @*
+            <div class="col-auto p-1">
                 <div class="form-group m-0 has-search">
                     <img class="form-control-feedback" src="~/svg/action/search.svg" />
                     <input id="searchbox @item.Id" type="text" class="form-control" placeholder="Search">
                 </div>
-            </div>*@
-        <div class="col-auto p-1">
-            <form method="get">
-                <button type="submit" class="btn btn-primary" asp-page="CreateDepartment">New department</button>
-            </form>
+            </div>
+        *@
+    </div>
+    <div class="row m-1">
+        <div class="table-responsive">
+            <table id="@company.Id" class="display table table-hover border rounded" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Departments[0].Name)
+                        </th>
+                        <th class="table-col-menu"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var department in Model.Departments.Where(d => d.CompanyId == company.Id))
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => department.Name)
+                            </td>
+
+                            <td>
+                                <div class="dropdown no-arrow">
+                                    <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <img src="~/svg/action/more.svg" />
+                                    </a>
+                                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
+                                        <a class="dropdown-item open-modal-dialog" data-id="@department.Id" data-action="EditDepartment" data-title="Edit department">
+                                            <img src="~/svg/action/edit.svg" />
+                                            Edit
+                                        </a>
+                                        <a class="dropdown-item open-modal-dialog" data-id="@department.Id" data-action="DeleteDepartment" data-title="Delete department">
+                                            <img src="~/svg/action/delete.svg" />
+                                            Delete
+                                        </a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
     </div>
-
-    <div class="table-responsive">
-        <table id="@item.Id" class="display table table-hover border rounded" style="width:100%">
-            <thead>
-                <tr>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Departments[0].Name)
-                    </th>
-                    <th class="table-col-menu"></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var department in Model.Departments.Where(d => d.CompanyId == item.Id))
-                {
-                    <tr>
-                        <td>
-                            @Html.DisplayFor(modelItem => department.Name)
-                        </td>
-
-                        <td>
-                            <div class="dropdown no-arrow">
-                                <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <img src="~/svg/action/more.svg" />
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
-                                    <a class="dropdown-item" asp-page="./Delete" asp-route-id="@department.Id">
-                                        <img src="~/svg/action/delete.svg" />
-                                        Delete
-                                    </a>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-
-
-
     @* Bottom table items *@
-    @*<div class="row mt-2">
+    @*
+        <div class="row mt-2">
             <div class="col-sm-12 col-md-auto d-flex justify-content-start align-items-center mb-1">
                 <span class="d-flex align-items-center mr-1 text-navyblue">Show entries</span>
                 <div id="newEntriesPlace @item.Id"></div>
             </div>
             <div id="newShowingPlace @item.Id" class="col-sm-12 col-md d-flex justify-content-md-center align-items-center mb-1 text-navyblue"></div>
             <div id="newPaginationPlace @item.Id" class="col-sm-12 col-md-auto d-flex justify-content-md-end align-items-center mb-1"></div>
-        </div>*@
+        </div>
+    *@
 }
 
 <!-- Modal -->
-
 <div class="modal" id="modalDialog" tabindex="-1" role="dialog" aria-labelledby="modalDialogTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -122,7 +127,12 @@
 
 @section Scripts{
     <script>
-        function OpenModal(id, action, title) {
+        $(document).on('click', '.open-modal-dialog', function (event) {
+            var btn = $(this);
+            var id = btn.data("id");
+            var action = btn.data("action");
+            var title = btn.data("title");
+
             $.ajax({
                 url: "/Settings/OrgStructure?handler=" + action,
                 type: "Get",
@@ -134,7 +144,7 @@
                     $('#modalDialog').modal('toggle');
                 }
             });
-        }
+        });
 
         $(document).ready(function () {
 

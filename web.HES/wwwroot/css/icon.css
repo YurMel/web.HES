@@ -9,7 +9,7 @@
 
 @media (max-width: 768px) {
     .icon-hideez {
-        width: 36px;
+        width: 35px;
         -webkit-mask: url('../svg/hideez-logo.svg');
         mask: url('../svg/hideez-logo.svg');
     }

@@ -7,9 +7,11 @@ namespace web.HES.Data
     {
         [Key]
         public string Id { get; set; }
+        [Display(Name = "Company")]
         public string CompanyId { get; set; }
         [Required]
-        public string Name { get; set; }
+        [Display(Name = "Department")]
+        public string Name { get; set; } = "default";
 
         [ForeignKey("CompanyId")]
         public Company Company { get; set; }

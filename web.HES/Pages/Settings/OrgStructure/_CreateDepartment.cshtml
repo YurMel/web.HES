@@ -1,0 +1,22 @@
+﻿@model web.HES.Pages.Settings.OrgStructure.IndexModel
+
+<form method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="form-group">
+        <label asp-for="Department.CompanyId" class="control-label text-gray"></label>
+        <select asp-for="Department.CompanyId" class="form-control text-navyblue" asp-items="ViewBag.CompanyId"></select>
+    </div>
+    <div class="form-group mb-4">
+        <label asp-for="Department.Name" class="control-label text-gray"></label>
+        <input asp-for="Department.Name" class="form-control text-navyblue" />
+        <span asp-validation-for="Department.Name" class="text-danger"></span>
+    </div>
+    <div class="form-group m-0 text-right">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <input type="submit" value="Create" class="btn btn-primary" asp-page-handler="CreateDepartment" />
+    </div>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
