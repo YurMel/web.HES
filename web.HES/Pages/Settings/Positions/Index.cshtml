@@ -1,4 +1,4 @@
-﻿@page
+﻿@page "{handler?}"
 @model web.HES.Pages.Settings.Positions.IndexModel
 
 @{
@@ -18,9 +18,9 @@
         </div>
     </div>
     <div class="col-auto p-1">
-        <form method="get">
-            <button type="submit" class="btn btn-primary" asp-page="Create">New Position</button>
-        </form>
+        <button type="button" class="btn btn-primary open-modal-dialog" data-id="" data-action="CreatePosition" data-title="Create position">
+            Create position
+        </button>
     </div>
 </div>
 
@@ -29,13 +29,13 @@
         <thead>
             <tr>
                 <th>
-                    @Html.DisplayNameFor(model => model.Position[0].Name)
+                    @Html.DisplayNameFor(model => model.Positions[0].Name)
                 </th>
                 <th class="table-col-menu"></th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var item in Model.Position)
+            @foreach (var item in Model.Positions)
             {
                 <tr>
                     <td>
@@ -47,11 +47,11 @@
                                 <img src="~/svg/action/more.svg" />
                             </a>
                             <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
-                                <a class="dropdown-item" asp-page="./Edit" asp-route-id="@item.Id">
+                                <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="EditPosition" data-title="Edit position">
                                     <img src="~/svg/action/edit.svg" />
                                     Edit
                                 </a>
-                                <a class="dropdown-item" asp-page="./Delete" asp-route-id="@item.Id">
+                                <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="DeletePosition" data-title="Delete position">
                                     <img src="~/svg/action/delete.svg" />
                                     Delete
                                 </a>
@@ -72,6 +72,21 @@
     </div>
     <div id="newShowingPlace" class="col-sm-12 col-md d-flex justify-content-md-center align-items-center mb-1 text-navyblue"></div>
     <div id="newPaginationPlace" class="col-sm-12 col-md-auto d-flex justify-content-md-end align-items-center mb-1"></div>
+</div>
+
+<!-- Modal -->
+<div class="modal" id="modalDialog" tabindex="-1" role="dialog" aria-labelledby="modalDialogTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-navyblue" id="modalDialogTitle">Dialog</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div id="modalBody" class="modal-body"></div>
+        </div>
+    </div>
 </div>
 
 @section Scripts{
@@ -96,6 +111,25 @@
             $('#newShowingPlace').html($('.dataTables_info'));
             // Paginate
             $('#newPaginationPlace').html($('.dataTables_paginate'));
+        });
+
+        $(document).on('click', '.open-modal-dialog', function () {
+            var btn = $(this);
+            var id = btn.data("id");
+            var action = btn.data("action");
+            var title = btn.data("title");
+
+            $.ajax({
+                url: "/Settings/Positions?handler=" + action,
+                type: "Get",
+                data: { id: id },
+                async: true,
+                success: function (response) {
+                    $('#modalDialogTitle').html(title);
+                    $("#modalBody").html(response);
+                    $('#modalDialog').modal('toggle');
+                }
+            });
         });
     </script>
     <partial name="_ValidationScriptsPartial" />
