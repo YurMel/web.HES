@@ -32,6 +32,14 @@
     mask: url('../svg/sidebar/round-supervisor_account.svg');
 }
 
+.icon-templates {
+    width: 24px;
+    height: 24px;
+    background: #FFF;
+    -webkit-mask: url('../svg/sidebar/round-list.svg');
+    mask: url('../svg/sidebar/round-list.svg');
+}
+
 .icon-devices {
     width: 24px;
     height: 24px;
@@ -46,4 +54,13 @@
     background: #FFF;
     -webkit-mask: url('../svg/sidebar/round-settings.svg');
     mask: url('../svg/sidebar/round-settings.svg');
+}
+
+.icon-arrow {
+    width: 24px;
+    height: 24px;
+    float: right;
+    background: #FFF;
+    -webkit-mask: url('../svg/sidebar/arrow_drop.svg');
+    mask: url('../svg/sidebar/arrow_drop.svg');
 }

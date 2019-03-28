@@ -39,7 +39,7 @@ namespace web.HES.Pages.Employees
             }
 
             // Add employee
-            _context.Employee.Add(Employee);
+            _context.Employees.Add(Employee);
             await _context.SaveChangesAsync();
 
             // Add devive to employee

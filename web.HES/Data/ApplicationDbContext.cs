@@ -14,9 +14,10 @@ namespace web.HES.Data
         {
         }
         public DbSet<Device> Devices { get; set; }
-        public DbSet<web.HES.Data.Employee> Employee { get; set; }
-        public DbSet<web.HES.Data.Company> Company { get; set; }
-        public DbSet<web.HES.Data.Position> Position { get; set; }
-        public DbSet<web.HES.Data.Department> Department { get; set; }
+        public DbSet<Employee> Employees { get; set; }
+        public DbSet<Company> Companies { get; set; }
+        public DbSet<Position> Positions { get; set; }
+        public DbSet<Department> Departments { get; set; }
+        public DbSet<Template> Templates { get; set; }
     }
 }

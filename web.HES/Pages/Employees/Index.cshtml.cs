@@ -22,7 +22,7 @@ namespace web.HES.Pages.Employees
 
         public async Task OnGetAsync()
         {
-            Employee = await _context.Employee
+            Employee = await _context.Employees
                 .Include(e => e.Company)
                 .Include(e => e.Department)
                 .Include(e => e.Position)

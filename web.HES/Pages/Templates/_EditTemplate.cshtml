@@ -1,0 +1,29 @@
+﻿@model web.HES.Pages.Templates.IndexModel
+
+<form method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="Template.Id" name="id" />
+    <div class="form-group">
+        <label asp-for="Template.Name" class="control-label text-gray"></label>
+        <input asp-for="Template.Name" class="form-control text-navyblue" />
+        <span asp-validation-for="Template.Name" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Template.Urls" class="control-label text-gray"></label>
+        <input asp-for="Template.Urls" class="form-control text-navyblue" data-role="tags-input"/>
+        <span asp-validation-for="Template.Urls" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Template.Apps" class="control-label text-gray"></label>
+        <input asp-for="Template.Apps" class="form-control text-navyblue" data-role="tags-input"/>
+        <span asp-validation-for="Template.Apps" class="text-danger"></span>
+    </div>
+    <div class="form-group m-0 text-right">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <input type="submit" value="Save" class="btn btn-primary" asp-page-handler="EditTemplate" />
+    </div>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

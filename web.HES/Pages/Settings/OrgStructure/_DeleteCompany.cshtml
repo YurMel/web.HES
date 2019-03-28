@@ -7,3 +7,7 @@
     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
     <input type="submit" value="Delete" class="btn btn-danger" asp-page-handler="DeleteCompany" />
 </form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

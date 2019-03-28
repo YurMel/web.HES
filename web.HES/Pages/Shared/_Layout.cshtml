@@ -21,8 +21,6 @@
     <!-- Main CSS-->
     <link rel="stylesheet" href="~/css/site.css" />
     <link rel="stylesheet" href="~/css/icon.css" />
-    <!-- Material CSS-->
-    @*<link rel="stylesheet" href="~/css/material.min.css" />*@
 
 </head>
 <body>
@@ -75,6 +73,7 @@
             </nav>
             <!-- Main -->
             <div class="custom-content p-4">
+                <partial name="_Loading" />
                 @RenderBody()
             </div>
         </div>
@@ -102,15 +101,14 @@
     <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.18/datatables.min.js"></script>
     <!-- Main JS -->
     <script src="~/js/site.js" asp-append-version="true"></script>
-    <!-- Material JS -->
-    @*<script src="~/js/material.min.js"></script>*@
-    <!-- Fontawesome-->
-    <script src="~/font/fontawesome.min.js"></script>
-    <script src="~/font/solid.min.js"></script>
     <!-- bs-custom-file-input JS -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
-
-
+    <script>
+        $(document).ready(function () {
+            $('.loading').removeClass('d-flex');
+            $('.loading').addClass('d-none');
+        });
+    </script>
     @RenderSection("Scripts", required: false)
 </body>
 </html>

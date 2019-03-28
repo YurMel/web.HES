@@ -27,8 +27,8 @@ namespace web.HES.Pages.Settings.OrgStructure
 
         public async Task OnGetAsync()
         {
-            Companies = await _context.Company.ToListAsync();
-            Departments = await _context.Department.Include(d => d.Company).ToListAsync();
+            Companies = await _context.Companies.ToListAsync();
+            Departments = await _context.Departments.Include(d => d.Company).ToListAsync();
         }
 
         #region Company
@@ -45,7 +45,7 @@ namespace web.HES.Pages.Settings.OrgStructure
                 return RedirectToPage("./Index");
             }
 
-            _context.Company.Add(Company);
+            _context.Companies.Add(Company);
             await _context.SaveChangesAsync();
 
             return RedirectToPage("./Index");
@@ -58,7 +58,7 @@ namespace web.HES.Pages.Settings.OrgStructure
                 return NotFound();
             }
 
-            Company = await _context.Company.FirstOrDefaultAsync(m => m.Id == id);
+            Company = await _context.Companies.FirstOrDefaultAsync(m => m.Id == id);
 
             if (Company == null)
             {
@@ -99,7 +99,7 @@ namespace web.HES.Pages.Settings.OrgStructure
 
         private bool CompanyExists(string id)
         {
-            return _context.Company.Any(e => e.Id == id);
+            return _context.Companies.Any(e => e.Id == id);
         }
 
         public async Task<IActionResult> OnGetDeleteCompanyAsync(string id)
@@ -109,7 +109,7 @@ namespace web.HES.Pages.Settings.OrgStructure
                 return NotFound();
             }
 
-            Company = await _context.Company.FirstOrDefaultAsync(m => m.Id == id);
+            Company = await _context.Companies.FirstOrDefaultAsync(m => m.Id == id);
 
             if (Company == null)
             {
@@ -126,11 +126,11 @@ namespace web.HES.Pages.Settings.OrgStructure
                 return NotFound();
             }
 
-            Company = await _context.Company.FindAsync(id);
+            Company = await _context.Companies.FindAsync(id);
 
             if (Company != null)
             {
-                _context.Company.Remove(Company);
+                _context.Companies.Remove(Company);
                 await _context.SaveChangesAsync();
             }
 
@@ -143,7 +143,7 @@ namespace web.HES.Pages.Settings.OrgStructure
 
         public IActionResult OnGetCreateDepartment()
         {
-            ViewData["CompanyId"] = new SelectList(_context.Company, "Id", "Name");
+            ViewData["CompanyId"] = new SelectList(_context.Companies, "Id", "Name");
             return Partial("_CreateDepartment", this);
         }
 
@@ -154,7 +154,7 @@ namespace web.HES.Pages.Settings.OrgStructure
                 return RedirectToPage("./Index");
             }
 
-            _context.Department.Add(Department);
+            _context.Departments.Add(Department);
             await _context.SaveChangesAsync();
 
             return RedirectToPage("./Index");
@@ -167,14 +167,14 @@ namespace web.HES.Pages.Settings.OrgStructure
                 return NotFound();
             }
 
-            Department = await _context.Department
+            Department = await _context.Departments
                 .Include(d => d.Company).FirstOrDefaultAsync(m => m.Id == id);
 
             if (Department == null)
             {
                 return NotFound();
             }
-            ViewData["CompanyId"] = new SelectList(_context.Company, "Id", "Name");
+            ViewData["CompanyId"] = new SelectList(_context.Companies, "Id", "Name");
             return Partial("_EditDepartment", this);
         }
 
@@ -209,7 +209,7 @@ namespace web.HES.Pages.Settings.OrgStructure
 
         private bool DepartmentExists(string id)
         {
-            return _context.Department.Any(e => e.Id == id);
+            return _context.Departments.Any(e => e.Id == id);
         }
 
         public async Task<IActionResult> OnGetDeleteDepartmentAsync(string id)
@@ -219,7 +219,7 @@ namespace web.HES.Pages.Settings.OrgStructure
                 return NotFound();
             }
 
-            Department = await _context.Department
+            Department = await _context.Departments
                 .Include(d => d.Company).FirstOrDefaultAsync(m => m.Id == id);
 
             if (Department == null)
@@ -236,11 +236,11 @@ namespace web.HES.Pages.Settings.OrgStructure
                 return NotFound();
             }
 
-            Department = await _context.Department.FindAsync(id);
+            Department = await _context.Departments.FindAsync(id);
 
             if (Department != null)
             {
-                _context.Department.Remove(Department);
+                _context.Departments.Remove(Department);
                 await _context.SaveChangesAsync();
             }
 

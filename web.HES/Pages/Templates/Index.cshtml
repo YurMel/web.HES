@@ -1,15 +1,23 @@
-﻿@page "{handler?}"
-@model web.HES.Pages.Settings.Positions.IndexModel
+﻿@page
+@model web.HES.Pages.Templates.IndexModel
 
 @{
-    ViewData["Title"] = "Positions";
-    ViewData["ActivePage"] = ManageNavPages.Settings;
-    ViewData["SettingsPage"] = SettingsNavPages.Positions;
+    ViewData["Title"] = "Templates";
+    ViewData["ActivePage"] = ManageNavPages.Templates;
 }
+@* Tags CSS *@
+<link href="~/lib/tagsinput/jquery-tagsinput.min.css" rel="stylesheet" />
+
+@*<div class="loading d-flex justify-content-center align-items-center">
+        <div class="spinner-grow text-primary" style="width: 3rem; height: 3rem;" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>*@
+<partial name="_Loading" />
 
 <div class="row align-items-center">
     <div class="col">
-        <h1 class="text-navyblue">Positions</h1>
+        <h1 class="text-navyblue">Templates</h1>
     </div>
     <div class="col-auto p-1">
         <div class="form-group m-0 has-search">
@@ -18,40 +26,52 @@
         </div>
     </div>
     <div class="col-auto p-1">
-        <button type="button" class="btn btn-primary open-modal-dialog" data-id="" data-action="CreatePosition" data-title="Create position">
-            Create position
+        <button type="button" class="btn btn-primary open-modal-dialog" data-id="" data-action="CreateTemplate" data-title="Create template">
+            Create template
         </button>
     </div>
 </div>
 
 <div class="table-responsive">
-    <table id="positions" class="display table table-hover border rounded">
+    <table id="templates" class="display table table-hover border rounded">
         <thead>
             <tr>
                 <th>
-                    @Html.DisplayNameFor(model => model.Positions[0].Name)
+                    @Html.DisplayNameFor(model => model.Templates[0].Name)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Templates[0].Urls)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Templates[0].Apps)
                 </th>
                 <th class="table-col-menu"></th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var item in Model.Positions)
+            @foreach (var item in Model.Templates)
             {
                 <tr>
                     <td>
                         @Html.DisplayFor(modelItem => item.Name)
                     </td>
+                    <td style="white-space: normal">
+                        <input data-role="tags-input" value="@Html.DisplayFor(modelItem => item.Urls)" disabled />
+                    </td>
+                    <td style="white-space: normal">
+                        <input data-role="tags-input" value="@Html.DisplayFor(modelItem => item.Apps)" disabled />
+                    </td>
                     <td>
                         <div class="dropdown no-arrow">
-                            <a class="dropdown-toggle" href="" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <a class="dropdown-toggle" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <img src="~/svg/action/more.svg" />
                             </a>
                             <div class="dropdown-menu dropdown-menu-right shadow" aria-labelledby="dropdownMenuLink">
-                                <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="EditPosition" data-title="Edit position">
+                                <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="EditTemplate" data-title="Edit template">
                                     <img src="~/svg/action/edit.svg" />
                                     Edit
                                 </a>
-                                <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="DeletePosition" data-title="Delete position">
+                                <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="DeleteTemplate" data-title="Delete template">
                                     <img src="~/svg/action/delete.svg" />
                                     Delete
                                 </a>
@@ -90,29 +110,35 @@
 </div>
 
 @section Scripts{
+    <script src="~/lib/tagsinput/jquery-tagsinput.min.js"></script>
     <script>
         $(document).ready(function () {
             // Init DT
-            $('#positions').DataTable({
+            $('#templates').DataTable({
                 "columnDefs": [
-                    { "orderable": false, "targets": 1 }
+                    { "orderable": false, "targets": 3 }
                 ]
             });
             // Override search box
             $('.dataTables_filter').addClass('d-none');
-            var dataTable = $('#positions').dataTable();
+            var dataTable = $('#templates').dataTable();
             $('#searchbox').keyup(function () {
                 dataTable.fnFilter(this.value);
             });
             // Length
-            $('#positions_length').addClass('d-none');
+            $('#templates_length').addClass('d-none');
             $('#newEntriesPlace').html($('.dataTables_length select').removeClass('custom-select-sm form-control-sm'));
             // Info
             $('#newShowingPlace').html($('.dataTables_info'));
             // Paginate
             $('#newPaginationPlace').html($('.dataTables_paginate'));
+
+            // Enable tags
+            $('[data-role="tags-input"]').tagsInput();
+            // Set CSS for disable Tags
+            $('.tags-container.disabled').css({ "background-color": "transparent", "border": "0px", "padding": "0px" });
         });
-        
+
         $(document).on('click', '.open-modal-dialog', function () {
             var btn = $(this);
             var id = btn.data("id");
@@ -120,7 +146,7 @@
             var title = btn.data("title");
 
             $.ajax({
-                url: "/Settings/Positions?handler=" + action,
+                url: "/Templates?handler=" + action,
                 type: "Get",
                 data: { id: id },
                 async: true,
@@ -128,6 +154,14 @@
                     $('#modalDialogTitle').html(title);
                     $("#modalBody").html(response);
                     $('#modalDialog').modal('toggle');
+                    // Enable tags
+                    $('[data-role="tags-input"]').tagsInput();
+                    // Set tooltip
+                    $('.tags-container').attr('data-toggle', "tooltip");
+                    $('.tags-container').attr('data-placement', "bottom");
+                    $('.tags-container').attr('title', "Input value and press enter");
+                    // Enable tooltip
+                    $('[data-toggle="tooltip"]').tooltip();
                 }
             });
         });

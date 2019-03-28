@@ -11,3 +11,7 @@
         <input type="submit" value="Invite" class="btn btn-primary" asp-page-handler="InviteAdmin" />
     </div>
 </form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

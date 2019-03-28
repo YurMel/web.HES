@@ -1,20 +1,20 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using web.HES.Data;
 
-namespace web.HES.Pages.Settings.Positions
+namespace web.HES.Pages.Templates
 {
     public class IndexModel : PageModel
     {
         private readonly ApplicationDbContext _context;
-        public IList<Position> Positions { get; set; }
+        public IList<Template> Templates { get; set; }
 
         [BindProperty]
-        public Position Position { get; set; }
+        public Template Template { get; set; }
 
         public IndexModel(ApplicationDbContext context)
         {
@@ -23,55 +23,54 @@ namespace web.HES.Pages.Settings.Positions
 
         public async Task OnGetAsync()
         {
-            Positions = await _context.Positions.ToListAsync();
+            Templates = await _context.Templates.ToListAsync();
         }
 
-        #region Position
+        #region Tempalate
 
-        public IActionResult OnGetCreatePosition()
+        public IActionResult OnGetCreateTemplate()
         {
-            return Partial("_CreatePosition", this);
+            return Partial("_CreateTemplate", this);
         }
 
-        public async Task<IActionResult> OnPostCreatePositionAsync()
+        public async Task<IActionResult> OnPostCreateTemplateAsync()
         {
             if (!ModelState.IsValid)
             {
                 return RedirectToPage("./Index");
             }
 
-            _context.Positions.Add(Position);
+            _context.Templates.Add(Template);
             await _context.SaveChangesAsync();
 
             return RedirectToPage("./Index");
         }
 
-        public async Task<IActionResult> OnGetEditPositionAsync(string id)
+        public async Task<IActionResult> OnGetEditTemplateAsync(string id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            Position = await _context.Positions.FirstOrDefaultAsync(m => m.Id == id);
+            Template = await _context.Templates.FirstOrDefaultAsync(m => m.Id == id);
 
-            if (Position == null)
+            if (Template == null)
             {
                 return NotFound();
             }
-
-            return Partial("_EditPosition", this);
+            return Partial("_EditTemplate", this);
         }
 
-        public async Task<IActionResult> OnPostEditPositionAsync(string id)
+        public async Task<IActionResult> OnPostEditTemplateAsync(string id)
         {
             if (!ModelState.IsValid)
             {
-                return RedirectToPage("./Index");
+                return Page();
             }
 
-            Position.Id = id;
-            _context.Attach(Position).State = EntityState.Modified;
+            Template.Id = id;
+            _context.Attach(Template).State = EntityState.Modified;
 
             try
             {
@@ -79,7 +78,7 @@ namespace web.HES.Pages.Settings.Positions
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!PositionExists(Position.Id))
+                if (!TemplateExists(Template.Id))
                 {
                     return NotFound();
                 }
@@ -92,39 +91,40 @@ namespace web.HES.Pages.Settings.Positions
             return RedirectToPage("./Index");
         }
 
-        private bool PositionExists(string id)
+        private bool TemplateExists(string id)
         {
-            return _context.Positions.Any(e => e.Id == id);
+            return _context.Templates.Any(e => e.Id == id);
         }
 
-        public async Task<IActionResult> OnGetDeletePositionAsync(string id)
+        public async Task<IActionResult> OnGetDeleteTemplateAsync(string id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            Position = await _context.Positions.FirstOrDefaultAsync(m => m.Id == id);
+            Template = await _context.Templates.FirstOrDefaultAsync(m => m.Id == id);
 
-            if (Position == null)
+            if (Template == null)
             {
                 return NotFound();
             }
-            return Partial("_DeletePosition", this);
+            return Partial("_DeleteTemplate", this);
+
         }
 
-        public async Task<IActionResult> OnPostDeletePositionAsync(string id)
+        public async Task<IActionResult> OnPostDeleteTemplateAsync(string id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            Position = await _context.Positions.FindAsync(id);
+            Template = await _context.Templates.FindAsync(id);
 
-            if (Position != null)
+            if (Template != null)
             {
-                _context.Positions.Remove(Position);
+                _context.Templates.Remove(Template);
                 await _context.SaveChangesAsync();
             }
 

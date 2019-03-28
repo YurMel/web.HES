@@ -32,7 +32,6 @@ namespace web.HES
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
-
             // Dismiss strong password
             services.Configure<IdentityOptions>(options =>
             {

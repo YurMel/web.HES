@@ -25,7 +25,7 @@ namespace web.HES.Pages.Employees
                 return NotFound();
             }
 
-            Employee = await _context.Employee
+            Employee = await _context.Employees
                 .Include(e => e.Company)
                 .Include(e => e.Department)
                 .Include(e => e.Position).FirstOrDefaultAsync(m => m.Id == id);
@@ -44,11 +44,11 @@ namespace web.HES.Pages.Employees
                 return NotFound();
             }
 
-            Employee = await _context.Employee.FindAsync(id);
+            Employee = await _context.Employees.FindAsync(id);
 
             if (Employee != null)
             {
-                _context.Employee.Remove(Employee);
+                _context.Employees.Remove(Employee);
                 await _context.SaveChangesAsync();
             }
 

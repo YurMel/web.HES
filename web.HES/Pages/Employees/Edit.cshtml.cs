@@ -29,7 +29,7 @@ namespace web.HES.Pages.Employees
                 return NotFound();
             }
 
-            Employee = await _context.Employee
+            Employee = await _context.Employees
                 .Include(e => e.Company)
                 .Include(e => e.Department)
                 .Include(e => e.Position).FirstOrDefaultAsync(m => m.Id == id);
@@ -75,7 +75,7 @@ namespace web.HES.Pages.Employees
 
         private bool EmployeeExists(string id)
         {
-            return _context.Employee.Any(e => e.Id == id);
+            return _context.Employees.Any(e => e.Id == id);
         }
     }
 }
