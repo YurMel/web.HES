@@ -1,16 +1,17 @@
-﻿@page
-@model web.HES.Pages.Templates.IndexModel
+﻿@page "{handler?}"
+@model web.HES.Pages.SharedAccounts.IndexModel
 
 @{
-    ViewData["Title"] = "Templates";
-    ViewData["ActivePage"] = ManageNavPages.Templates;
+    ViewData["Title"] = "Shared Accounts";
+    ViewData["ActivePage"] = ManageNavPages.SharedAccounts;
 }
+
 @* Tags CSS *@
 <link href="~/lib/tagsinput/jquery-tagsinput.min.css" rel="stylesheet" />
 
 <div class="row align-items-center">
     <div class="col">
-        <h1 class="text-navyblue">Templates</h1>
+        <h1 class="text-navyblue">Shared Accounts</h1>
     </div>
     <div class="col-auto p-1">
         <div class="form-group m-0 has-search">
@@ -19,30 +20,39 @@
         </div>
     </div>
     <div class="col-auto p-1">
-        <button type="button" class="btn btn-primary open-modal-dialog" data-id="" data-action="CreateTemplate" data-title="Create template">
-            Create template
+        <button type="button" class="btn btn-primary open-modal-dialog" data-id="" data-action="CreateSharedAccount" data-title="Create shared account">
+            Create shared account
         </button>
     </div>
 </div>
 
 <div class="table-responsive">
-    <table id="templates" class="display table table-hover border rounded">
+    <table id="sharedaccounts" class="display table table-hover border rounded">
         <thead>
             <tr>
                 <th>
-                    @Html.DisplayNameFor(model => model.Templates[0].Name)
+                    @Html.DisplayNameFor(model => model.SharedAccounts[0].Name)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.Templates[0].Urls)
+                    @Html.DisplayNameFor(model => model.SharedAccounts[0].Urls)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.Templates[0].Apps)
+                    @Html.DisplayNameFor(model => model.SharedAccounts[0].Apps)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.SharedAccounts[0].Login)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.SharedAccounts[0].PasswordChangedAt)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.SharedAccounts[0].OtpSecretChangedAt)
                 </th>
                 <th class="table-col-menu"></th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var item in Model.Templates)
+            @foreach (var item in Model.SharedAccounts)
             {
                 <tr>
                     <td>
@@ -71,16 +81,65 @@
                         }
                     </td>
                     <td>
+                        @Html.DisplayFor(modelItem => item.Login)
+                    </td>
+                    <td>
+                        @{
+                            var pwd = (DateTime.Now.Date - item.PasswordChangedAt?.Date)?.TotalDays;
+                            if (pwd == 1)
+                            {
+                                var text = $"{pwd} day";
+                                @text
+                            }
+                            else
+                            {
+                                var text = $"{pwd} days";
+                                @text
+                            }
+                        }
+                    </td>
+                    <td>
+                        @{
+                            if (item.OtpSecretChangedAt != null)
+                            {
+                                var otp = (DateTime.Now.Date - item.OtpSecretChangedAt?.Date)?.TotalDays;
+                                if (otp == 1)
+                                {
+                                    var text = $"{otp} day";
+                                    @text
+                                }
+                                else
+                                {
+                                    var text = $"{otp} days";
+                                    @text
+                                }
+                            }
+                            else
+                            {
+                                <span>-</span>
+                            }
+
+                        }
+                    </td>
+                    <td>
                         <div class="dropdown no-arrow">
                             <a class="dropdown-toggle" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <img src="~/svg/action/more.svg" />
                             </a>
                             <div class="dropdown-menu dropdown-menu-right shadow" aria-labelledby="dropdownMenuLink">
-                                <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="EditTemplate" data-title="Edit template">
+                                <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="EditSharedAccount" data-title="Edit shared account">
                                     <img src="~/svg/action/edit.svg" />
                                     Edit
                                 </a>
-                                <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="DeleteTemplate" data-title="Delete template">
+                                <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="EditSharedAccountPwd" data-title="Edit shared account password">
+                                    <img src="~/svg/action/password.svg" />
+                                    Edit password
+                                </a>
+                                <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="EditSharedAccountOtp" data-title="Edit shared account OTP">
+                                    <img src="~/svg/action/otp.svg" />
+                                    Edit OTP
+                                </a>
+                                <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="DeleteSharedAccount" data-title="Delete shared account">
                                     <img src="~/svg/action/delete.svg" />
                                     Delete
                                 </a>
@@ -103,7 +162,7 @@
     <div id="newPaginationPlace" class="col-sm-12 col-md-auto d-flex justify-content-md-end align-items-center mb-1"></div>
 </div>
 
-<!-- Modal -->
+@* Modal *@
 <div class="modal" id="modalDialog" tabindex="-1" role="dialog" aria-labelledby="modalDialogTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -123,29 +182,24 @@
     <script>
         $(document).ready(function () {
             // Init DT
-            $('#templates').DataTable({
+            $('#sharedaccounts').DataTable({
                 "columnDefs": [
-                    { "orderable": false, "targets": 3 }
+                    { "orderable": false, "targets": 6 }
                 ]
             });
             // Override search box
             $('.dataTables_filter').addClass('d-none');
-            var dataTable = $('#templates').dataTable();
+            var dataTable = $('#sharedaccounts').dataTable();
             $('#searchbox').keyup(function () {
                 dataTable.fnFilter(this.value);
             });
             // Length
-            $('#templates_length').addClass('d-none');
+            $('#sharedaccounts_length').addClass('d-none');
             $('#newEntriesPlace').html($('.dataTables_length select').removeClass('custom-select-sm form-control-sm'));
             // Info
             $('#newShowingPlace').html($('.dataTables_info'));
             // Paginate
             $('#newPaginationPlace').html($('.dataTables_paginate'));
-
-            // Enable tags
-            $('[data-role="tags-input"]').tagsInput();
-            // Set CSS for disable Tags
-            $('.tags-container.disabled').css({ "background-color": "transparent", "border": "0px", "padding": "0px" });
         });
 
         $(document).on('click', '.open-modal-dialog', function () {
@@ -155,7 +209,7 @@
             var title = btn.data("title");
 
             $.ajax({
-                url: "/Templates?handler=" + action,
+                url: "/SharedAccounts?handler=" + action,
                 type: "Get",
                 data: { id: id },
                 async: true,

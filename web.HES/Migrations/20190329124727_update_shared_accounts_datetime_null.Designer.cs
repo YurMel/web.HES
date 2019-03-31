@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using web.HES.Data;
 
 namespace web.HES.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190329124727_update_shared_accounts_datetime_null")]
+    partial class update_shared_accounts_datetime_null
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -299,9 +301,9 @@ namespace web.HES.Migrations
 
                     b.Property<DateTime?>("OtpSecretChangedAt");
 
-                    b.Property<string>("Password");
-
                     b.Property<DateTime?>("PasswordChangedAt");
+
+                    b.Property<string>("PasswordHash");
 
                     b.Property<string>("Urls");
 

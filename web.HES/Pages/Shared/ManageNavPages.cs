@@ -9,6 +9,8 @@ namespace web.HES.Pages
 
         public static string Employees => "./Employees/Index";
 
+        public static string SharedAccounts => "./SharedAccounts/Index";
+
         public static string Templates => "./Templates/Index";
 
         public static string Devices => "./Devices/Index";
@@ -19,6 +21,8 @@ namespace web.HES.Pages
         public static string DashboardNavClass(ViewContext viewContext) => PageNavClass(viewContext, Dashboard);
 
         public static string EmployeesNavClass(ViewContext viewContext) => PageNavClass(viewContext, Employees);
+
+        public static string SharedAccountsNavClass(ViewContext viewContext) => PageNavClass(viewContext, SharedAccounts);
 
         public static string TemplatesNavClass(ViewContext viewContext) => PageNavClass(viewContext, Templates);
 

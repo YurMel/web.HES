@@ -8,28 +8,20 @@
 
 <div class="row align-items-center">
     <div class="col">
-        <h1>Devices</h1>
+        <h1 class="text-navyblue">Devices</h1>
     </div>
-    <div class="col-sm-auto col-12 m-1">
-        <div class="input-group">
-            <input id="searchbox" type="text" class="form-control" aria-describedby="search" placeholder="Search">
-            <div class="input-group-append">
-                <span class="input-group-text custom-size" id="search">
-                    <img src="~/svg/baseline-search.svg" />
-                </span>
-            </div>
+    <div class="col-auto p-1">
+        <div class="form-group m-0 has-search">
+            <img class="form-control-feedback" src="~/svg/action/search.svg" />
+            <input id="searchbox" type="text" class="form-control" placeholder="Search">
         </div>
     </div>
-    <div class="col-auto m-1">
-        <form method="get">
-            <button type="submit" class="btn btn-primary" asp-page="Import">
-                Import
-            </button>
-        </form>
+    <div class="col-auto p-1">
+        <a class="btn btn-primary" asp-page="Import">Import</a>
     </div>
 </div>
 
-<div class="table-responsive1">
+<div class="table-responsive">
     <table id="devices" class="display table table-hover border rounded" style="width:100%">
         <thead>
             <tr>
@@ -57,7 +49,7 @@
                 <th>
                     @Html.DisplayNameFor(model => model.Device[0].Employee)
                 </th>
-                <th></th>
+                <th class="table-col-menu"></th>
             </tr>
         </thead>
         <tbody>
@@ -88,21 +80,7 @@
                     <td>
                         @Html.DisplayFor(modelItem => item.Employee.FullName)
                     </td>
-                    <td align="right">
-                        <div class="dropdown no-arrow">
-                            <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <img src="~/svg/baseline-more_vertical.svg" />
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
-                                <a class="dropdown-item" asp-page="./Edit" asp-route-id="@item.Id">
-                                    <i class="fas fa-pen"></i>
-                                    <span class="ml-2">Edit</span>
-                                </a>
-                                <a class="dropdown-item" asp-page="./Details" asp-route-id="@item.Id">Details</a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
-                            </div>
-                        </div>
+                    <td>
                     </td>
                 </tr>
             }
@@ -111,13 +89,13 @@
 </div>
 
 @* Bottom table items *@
-<div class="row align-items-center mb-2">
-    <div class="col d-flex justify-content-start">
-        <span class=" d-flex align-items-center m-1">Show entries</span>
+<div class="row mt-2">
+    <div class="col-sm-12 col-md-auto d-flex justify-content-start align-items-center mb-1">
+        <span class="d-flex align-items-center mr-1 text-navyblue">Show entries</span>
         <div id="newEntriesPlace"></div>
     </div>
-    <div id="newShowingPlace" class="col d-flex justify-content-center"></div>
-    <div id="newPaginationPlace" class="col d-flex justify-content-end"></div>
+    <div id="newShowingPlace" class="col-sm-12 col-md d-flex justify-content-md-center align-items-center mb-1 text-navyblue"></div>
+    <div id="newPaginationPlace" class="col-sm-12 col-md-auto d-flex justify-content-md-end align-items-center mb-1"></div>
 </div>
 
 @section scripts{

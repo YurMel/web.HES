@@ -27,6 +27,7 @@ namespace web.HES.Pages.Devices
         public class InputModel
         {
             [Required]
+            [Display(Name = "Choose file")]
             public IFormFile FileToUpload { get; set; }
 
             [Required]

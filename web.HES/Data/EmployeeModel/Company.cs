@@ -7,6 +7,6 @@ namespace web.HES.Data
         [Key]
         public string Id { get; set; }
         [Required]
-        public string Name { get; set; } = "default";
+        public string Name { get; set; }
     }
 }

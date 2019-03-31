@@ -15,9 +15,9 @@ namespace web.HES.Pages.Settings.OrgStructure
         public IList<Company> Companies { get; set; }
         public IList<Department> Departments { get; set; }
 
-        [BindProperty]
+        //[BindProperty]
         public Company Company { get; set; }
-        [BindProperty]
+        //[BindProperty]
         public Department Department { get; set; }
 
         public IndexModel(ApplicationDbContext context)
@@ -38,7 +38,7 @@ namespace web.HES.Pages.Settings.OrgStructure
             return Partial("_CreateCompany", this);
         }
 
-        public async Task<IActionResult> OnPostCreateCompanyAsync()
+        public async Task<IActionResult> OnPostCreateCompanyAsync(Company Company)
         {
             if (!ModelState.IsValid)
             {
@@ -68,7 +68,7 @@ namespace web.HES.Pages.Settings.OrgStructure
             return Partial("_EditCompany", this);
         }
 
-        public async Task<IActionResult> OnPostEditCompanyAsync(string id)
+        public async Task<IActionResult> OnPostEditCompanyAsync(string id, Company Company)
         {
             if (!ModelState.IsValid)
             {
@@ -147,7 +147,7 @@ namespace web.HES.Pages.Settings.OrgStructure
             return Partial("_CreateDepartment", this);
         }
 
-        public async Task<IActionResult> OnPostCreateDepartmentAsync()
+        public async Task<IActionResult> OnPostCreateDepartmentAsync(Department Department)
         {
             if (!ModelState.IsValid)
             {
@@ -178,7 +178,7 @@ namespace web.HES.Pages.Settings.OrgStructure
             return Partial("_EditDepartment", this);
         }
 
-        public async Task<IActionResult> OnPostEditDepartmentAsync(string id)
+        public async Task<IActionResult> OnPostEditDepartmentAsync(string id, Department Department)
         {
             if (!ModelState.IsValid)
             {

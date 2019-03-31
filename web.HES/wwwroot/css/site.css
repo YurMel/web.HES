@@ -340,10 +340,15 @@ a.navbar-brand {
 .custom-wide-card {
     background: #FFF;
     border-radius: 0.25rem !important;
-    /*width: 730px;*/
-    max-width: 730px;
+    max-width: 540px;
     padding: 30px;
     border: 1px solid #dee2e6 !important;
+    margin-bottom: 20px;
+}
+
+.custom-wide-clear-card {
+    max-width: 540px;
+    margin-bottom: 20px;
 }
 
 .modal-card {
@@ -393,6 +398,11 @@ td {
     top: 50%;
     transform: translateY(-50%);
 }
+
+.custom-badge {
+    padding: 0.4em 0.4em;
+    font-size: 85%;
+}
 /*#endregion*/
 
 /*#region Dropdown menu */
@@ -420,8 +430,6 @@ td {
     top: 0;
     left: 250px;
     z-index: 1051;
-    /*margin-left: 250px;*/
-    /*display: none;*/
     width: calc(100vw - 250px);
     height: 100%;
     overflow: hidden;

@@ -66,7 +66,7 @@ namespace web.HES.Pages.Templates
         {
             if (!ModelState.IsValid)
             {
-                return Page();
+                return RedirectToPage("./Index");
             }
 
             Template.Id = id;

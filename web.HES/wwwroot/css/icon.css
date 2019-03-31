@@ -32,6 +32,14 @@
     mask: url('../svg/sidebar/round-supervisor_account.svg');
 }
 
+.icon-shared-accounts {
+    width: 24px;
+    height: 24px;
+    background: #FFF;
+    -webkit-mask: url('../svg/sidebar/round-shared_account.svg');
+    mask: url('../svg/sidebar/round-shared_account.svg');
+}
+
 .icon-templates {
     width: 24px;
     height: 24px;
