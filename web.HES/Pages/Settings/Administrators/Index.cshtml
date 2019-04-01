@@ -3,7 +3,7 @@
 
 @{
     ViewData["Title"] = "Administrators";
-    ViewData["ActivePage"] = ManageNavPages.Settings;
+    ViewData["ActivePage"] = MenuNavPages.Settings;
     ViewData["SettingsPage"] = SettingsNavPages.Administrators;
 }
 
@@ -92,16 +92,9 @@
 
 
 @* Bottom table items *@
-<div class="row mt-2">
-    <div class="col-sm-12 col-md-auto d-flex justify-content-start align-items-center mb-1">
-        <span class="d-flex align-items-center mr-1 text-navyblue">Show entries</span>
-        <div id="newEntriesPlace"></div>
-    </div>
-    <div id="newShowingPlace" class="col-sm-12 col-md d-flex justify-content-md-center align-items-center mb-1 text-navyblue"></div>
-    <div id="newPaginationPlace" class="col-sm-12 col-md-auto d-flex justify-content-md-end align-items-center mb-1"></div>
-</div>
+<partial name="_DataTablesItemsPartial" />
 
-<!-- Modal -->
+@* Modal *@
 <div class="modal" id="modalDialog" tabindex="-1" role="dialog" aria-labelledby="modalDialogTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -118,28 +111,14 @@
 
 @section Scripts{
     <script>
-        $(document).ready(function () {
-            // Init DT
-            $('#users').DataTable({
-                "columnDefs": [
-                    { "orderable": false, "targets": 4 }
-                ]
-            });
-            // Override search box
-            $('.dataTables_filter').addClass('d-none');
-            var dataTable = $('#users').dataTable();
-            $('#searchbox').keyup(function () {
-                dataTable.fnFilter(this.value);
-            });
-            // Length
-            $('#users_length').addClass('d-none');
-            $('#newEntriesPlace').html($('.dataTables_length select').removeClass('custom-select-sm form-control-sm'));
-            // Info
-            $('#newShowingPlace').html($('.dataTables_info'));
-            // Paginate
-            $('#newPaginationPlace').html($('.dataTables_paginate'));
+        // Init DataTables
+        var table_name = '#users';
+        $(table_name).DataTable({
+            "columnDefs": [
+                { "orderable": false, "targets": 4 }
+            ]
         });
-
+        // Open modal dialog
         $(document).on('click', '.open-modal-dialog', function () {
             var btn = $(this);
             var id = btn.data("id");
@@ -164,5 +143,6 @@
             });
         });
     </script>
+    <partial name="_DataTablesScriptsPartial" />
     <partial name="_ValidationScriptsPartial" />
 }

@@ -3,11 +3,8 @@
 
 @{
     ViewData["Title"] = "Shared Accounts";
-    ViewData["ActivePage"] = ManageNavPages.SharedAccounts;
+    ViewData["ActivePage"] = MenuNavPages.SharedAccounts;
 }
-
-@* Tags CSS *@
-<link href="~/lib/tagsinput/jquery-tagsinput.min.css" rel="stylesheet" />
 
 <div class="row align-items-center">
     <div class="col">
@@ -153,14 +150,7 @@
 </div>
 
 @* Bottom table items *@
-<div class="row mt-2">
-    <div class="col-sm-12 col-md-auto d-flex justify-content-start align-items-center mb-1">
-        <span class="d-flex align-items-center mr-1 text-navyblue">Show entries</span>
-        <div id="newEntriesPlace"></div>
-    </div>
-    <div id="newShowingPlace" class="col-sm-12 col-md d-flex justify-content-md-center align-items-center mb-1 text-navyblue"></div>
-    <div id="newPaginationPlace" class="col-sm-12 col-md-auto d-flex justify-content-md-end align-items-center mb-1"></div>
-</div>
+<partial name="_DataTablesItemsPartial" />
 
 @* Modal *@
 <div class="modal" id="modalDialog" tabindex="-1" role="dialog" aria-labelledby="modalDialogTitle" aria-hidden="true">
@@ -178,30 +168,15 @@
 </div>
 
 @section Scripts{
-    <script src="~/lib/tagsinput/jquery-tagsinput.min.js"></script>
     <script>
-        $(document).ready(function () {
-            // Init DT
-            $('#sharedaccounts').DataTable({
-                "columnDefs": [
-                    { "orderable": false, "targets": 6 }
-                ]
-            });
-            // Override search box
-            $('.dataTables_filter').addClass('d-none');
-            var dataTable = $('#sharedaccounts').dataTable();
-            $('#searchbox').keyup(function () {
-                dataTable.fnFilter(this.value);
-            });
-            // Length
-            $('#sharedaccounts_length').addClass('d-none');
-            $('#newEntriesPlace').html($('.dataTables_length select').removeClass('custom-select-sm form-control-sm'));
-            // Info
-            $('#newShowingPlace').html($('.dataTables_info'));
-            // Paginate
-            $('#newPaginationPlace').html($('.dataTables_paginate'));
-        });
-
+        // Init DataTables 
+        var table_name = '#sharedaccounts';
+        $(table_name).DataTable({
+            "columnDefs": [
+                { "orderable": false, "targets": 6 }
+            ]
+        });        
+        // Open modal dialog
         $(document).on('click', '.open-modal-dialog', function () {
             var btn = $(this);
             var id = btn.data("id");
@@ -237,5 +212,6 @@
             });
         });
     </script>
+    <partial name="_DataTablesScriptsPartial" />
     <partial name="_ValidationScriptsPartial" />
 }

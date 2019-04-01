@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace web.HES.Pages
 {
-    public static class ManageNavPages
+    public static class MenuNavPages
     {
         public static string Dashboard => "./Dashboard/Index";
 

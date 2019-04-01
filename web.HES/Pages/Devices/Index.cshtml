@@ -3,7 +3,7 @@
 
 @{
     ViewData["Title"] = "Devices";
-    ViewData["ActivePage"] = ManageNavPages.Devices;
+    ViewData["ActivePage"] = MenuNavPages.Devices;
 }
 
 <div class="row align-items-center">
@@ -80,8 +80,7 @@
                     <td>
                         @Html.DisplayFor(modelItem => item.Employee.FullName)
                     </td>
-                    <td>
-                    </td>
+                    <td></td>
                 </tr>
             }
         </tbody>
@@ -89,47 +88,17 @@
 </div>
 
 @* Bottom table items *@
-<div class="row mt-2">
-    <div class="col-sm-12 col-md-auto d-flex justify-content-start align-items-center mb-1">
-        <span class="d-flex align-items-center mr-1 text-navyblue">Show entries</span>
-        <div id="newEntriesPlace"></div>
-    </div>
-    <div id="newShowingPlace" class="col-sm-12 col-md d-flex justify-content-md-center align-items-center mb-1 text-navyblue"></div>
-    <div id="newPaginationPlace" class="col-sm-12 col-md-auto d-flex justify-content-md-end align-items-center mb-1"></div>
-</div>
+<partial name="_DataTablesItemsPartial" />
 
 @section scripts{
     <script>
-        $(document).ready(function () {
-            // Init DT
-            $('#devices').DataTable({
-                "columnDefs": [
-                    { "orderable": false, "targets": 8 }
-                ]
-            });
-            // Override search box
-            $('.dataTables_filter').addClass('d-none');
-            var dataTable = $('#devices').dataTable();
-            $('#searchbox').keyup(function () {
-                dataTable.fnFilter(this.value);
-            });
-            // Length
-            $('#devices_length').addClass('d-none');
-            $('#newEntriesPlace').html($('.dataTables_length select').removeClass('custom-select-sm form-control-sm'));
-            // Info
-            $('#newShowingPlace').html($('.dataTables_info'));
-            // Paginate
-            $('#newPaginationPlace').html($('.dataTables_paginate'));
-
-
-            //$('.table-responsive').on('show.bs.dropdown', function () {
-            //    $('.table-responsive').css("overflow", "visible");
-            //});
-
-            //$('.table-responsive').on('hide.bs.dropdown', function () {
-            //    $('.table-responsive').css("overflow", "auto");
-            //})
-
-        });       
+        // Init DataTables
+        var table_name = '#devices';
+        $(table_name).DataTable({
+            "columnDefs": [
+                { "orderable": false, "targets": 8 }
+            ]
+        });
     </script>
+    <partial name="_DataTablesScriptsPartial" />
 }
