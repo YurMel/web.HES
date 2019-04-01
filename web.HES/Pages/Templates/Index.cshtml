@@ -141,11 +141,6 @@
             $('#newShowingPlace').html($('.dataTables_info'));
             // Paginate
             $('#newPaginationPlace').html($('.dataTables_paginate'));
-
-            // Enable tags
-            $('[data-role="tags-input"]').tagsInput();
-            // Set CSS for disable Tags
-            $('.tags-container.disabled').css({ "background-color": "transparent", "border": "0px", "padding": "0px" });
         });
 
         $(document).on('click', '.open-modal-dialog', function () {
@@ -163,14 +158,22 @@
                     $('#modalDialogTitle').html(title);
                     $("#modalBody").html(response);
                     $('#modalDialog').modal('toggle');
+
                     // Enable tags
                     $('[data-role="tags-input"]').tagsInput();
+
                     // Set tooltip
                     $('.tags-container').attr('data-toggle', "tooltip");
                     $('.tags-container').attr('data-placement', "bottom");
                     $('.tags-container').attr('title', "Input value and press enter");
+
                     // Enable tooltip
                     $('[data-toggle="tooltip"]').tooltip();
+
+                    // Validation partial view
+                    $('form').removeData('validator');
+                    $('form').removeData('unobtrusiveValidation');
+                    $.validator.unobtrusive.parse('form');
                 }
             });
         });

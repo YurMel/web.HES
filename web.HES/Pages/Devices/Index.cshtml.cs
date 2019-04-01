@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.RazorPages;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -20,5 +21,44 @@ namespace web.HES.Pages.Devices
         {
             Device = await _context.Devices.Include(d => d.Employee).ToListAsync();
         }
+
+        #region Unpair
+
+        //public async Task<IActionResult> OnGetDeleteTemplateAsync(string id)
+        //{
+        //    if (id == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    Template = await _context.Templates.FirstOrDefaultAsync(m => m.Id == id);
+
+        //    if (Template == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    return Partial("_DeleteTemplate", this);
+
+        //}
+
+        //public async Task<IActionResult> OnPostDeleteTemplateAsync(string id)
+        //{
+        //    if (id == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    Template = await _context.Templates.FindAsync(id);
+
+        //    if (Template != null)
+        //    {
+        //        _context.Templates.Remove(Template);
+        //        await _context.SaveChangesAsync();
+        //    }
+
+        //    return RedirectToPage("./Index");
+        //}
+
+        #endregion
     }
 }

@@ -155,6 +155,11 @@
                     $('#modalDialogTitle').html(title);
                     $("#modalBody").html(response);
                     $('#modalDialog').modal('toggle');
+
+                    // Validation partial view
+                    $('form').removeData('validator');
+                    $('form').removeData('unobtrusiveValidation');
+                    $.validator.unobtrusive.parse('form');
                 }
             });
         });
