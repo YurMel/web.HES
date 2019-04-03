@@ -17,5 +17,7 @@ namespace web.HES.Data
         public DbSet<Department> Departments { get; set; }
         public DbSet<Template> Templates { get; set; }
         public DbSet<SharedAccount> SharedAccounts { get; set; }
+        public DbSet<DeviceAccount> DeviceAccounts { get; set; }
+        public DbSet<DeviceTask> DeviceTasks { get; set; }
     }
 }

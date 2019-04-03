@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using web.HES.Data;
 
 namespace web.HES.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190403134455_add_device_accounts_table")]
+    partial class add_device_accounts_table
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -282,32 +284,6 @@ namespace web.HES.Migrations
                     b.ToTable("DeviceAccounts");
                 });
 
-            modelBuilder.Entity("web.HES.Data.DeviceTask", b =>
-                {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<DateTime>("CreatedAt");
-
-                    b.Property<string>("DeviceAccountId");
-
-                    b.Property<string>("DeviceId");
-
-                    b.Property<int>("Operation");
-
-                    b.Property<string>("OtpSecret");
-
-                    b.Property<string>("Password");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DeviceAccountId");
-
-                    b.HasIndex("DeviceId");
-
-                    b.ToTable("DeviceTasks");
-                });
-
             modelBuilder.Entity("web.HES.Data.Employee", b =>
                 {
                     b.Property<string>("Id")
@@ -471,17 +447,6 @@ namespace web.HES.Migrations
                     b.HasOne("web.HES.Data.SharedAccount", "SharedAccount")
                         .WithMany()
                         .HasForeignKey("SharedAccountId");
-                });
-
-            modelBuilder.Entity("web.HES.Data.DeviceTask", b =>
-                {
-                    b.HasOne("web.HES.Data.DeviceAccount", "DeviceAccount")
-                        .WithMany()
-                        .HasForeignKey("DeviceAccountId");
-
-                    b.HasOne("web.HES.Data.Device", "Device")
-                        .WithMany()
-                        .HasForeignKey("DeviceId");
                 });
 
             modelBuilder.Entity("web.HES.Data.Employee", b =>
