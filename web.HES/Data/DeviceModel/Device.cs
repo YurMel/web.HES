@@ -6,6 +6,7 @@ namespace web.HES.Data
 {
     public class Device
     {
+        [Display(Name = "ID")]
         [Key]
         public string Id { get; set; }
         public string MAC { get; set; }

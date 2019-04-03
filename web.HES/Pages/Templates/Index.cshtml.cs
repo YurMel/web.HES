@@ -109,8 +109,8 @@ namespace web.HES.Pages.Templates
             {
                 return NotFound();
             }
-            return Partial("_DeleteTemplate", this);
 
+            return Partial("_DeleteTemplate", this);
         }
 
         public async Task<IActionResult> OnPostDeleteTemplateAsync(string id)

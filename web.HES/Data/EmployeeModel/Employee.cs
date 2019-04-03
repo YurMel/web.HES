@@ -21,26 +21,26 @@ namespace web.HES.Data
         [Required]
         public string Email { get; set; }
 
-        [Display(Name = "Position")]
-        public string PositionId { get; set; }
-
-        [Display(Name = "Company")]
-        public string CompanyId { get; set; }
+        [Display(Name = "Phone Number")]
+        public string PhoneNumber { get; set; }
 
         [Display(Name = "Department")]
+        [Required]
         public string DepartmentId { get; set; }
 
+        [Display(Name = "Position")]
+        [Required]
+        public string PositionId { get; set; }
+
         [Display(Name = "Last Seen")]
-        public DateTime LastSeen { get; set; }
+        public DateTime? LastSeen { get; set; }
 
         public List<Device> Devices { get; set; }
 
-        [ForeignKey("PositionId")]
-        public Position Position { get; set; }
-        [ForeignKey("CompanyId")]
-        public Company Company { get; set; }
         [ForeignKey("DepartmentId")]
         public Department Department { get; set; }
+        [ForeignKey("PositionId")]
+        public Position Position { get; set; }
 
         [NotMapped]
         [Display(Name = "Name")]

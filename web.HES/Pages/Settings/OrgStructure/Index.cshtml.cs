@@ -15,9 +15,7 @@ namespace web.HES.Pages.Settings.OrgStructure
         public IList<Company> Companies { get; set; }
         public IList<Department> Departments { get; set; }
 
-        //[BindProperty]
         public Company Company { get; set; }
-        //[BindProperty]
         public Department Department { get; set; }
 
         public IndexModel(ApplicationDbContext context)
