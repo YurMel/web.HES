@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -13,9 +14,29 @@ namespace web.HES.Pages.Employees
     {
         private readonly ApplicationDbContext _context;
         public IList<Device> Devices { get; set; }
+        public IList<DeviceAccount> DeviceAccounts { get; set; }
 
         [BindProperty]
         public Employee Employee { get; set; }
+        public DeviceAccount DeviceAccount { get; set; }
+        public InputModel Input { get; set; }
+
+        public class InputModel
+        {
+            [Required]
+            [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 3)]
+            [DataType(DataType.Password)]
+            [Display(Name = "Password")]
+            public string Password { get; set; }
+
+            [DataType(DataType.Password)]
+            [Display(Name = "Confirm password")]
+            [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+            public string ConfirmPassword { get; set; }
+
+            [Display(Name = "OTP secret")]
+            public string OtpSecret { get; set; }
+        }
 
         public DetailsModel(ApplicationDbContext context)
         {
@@ -39,6 +60,11 @@ namespace web.HES.Pages.Employees
             {
                 return NotFound();
             }
+
+            DeviceAccounts = await _context.DeviceAccounts
+               .Include(d => d.Device)
+               .Include(d => d.Employee)
+               .Include(d => d.SharedAccount).ToListAsync();
 
             return Page();
         }
@@ -157,6 +183,32 @@ namespace web.HES.Pages.Employees
 
         #endregion
 
+        #region Personal Account
 
+        public async Task<IActionResult> OnGetCreateAccountAsync(string id)
+        {
+            ViewData["DeviceId"] = new SelectList(_context.Devices, "Id", "Id");
+            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id");
+            ViewData["SharedAccountId"] = new SelectList(_context.SharedAccounts, "Id", "Id");
+
+            Devices = await _context.Devices.Where(d => d.EmployeeId == id).ToListAsync();
+
+            return Partial("_CreateAccount", this);
+        }
+
+        public async Task<IActionResult> OnPostCreateAccountAsync(string id, DeviceAccount DeviceAccount, InputModel Input, string[] SelectedDevices)
+        {
+            if (!ModelState.IsValid)
+            {
+                return Page();
+            }
+
+            //_context.DeviceAccounts.Add(DeviceAccount);
+            //await _context.SaveChangesAsync();
+
+            return RedirectToPage("./Details", new { id });
+        }
+
+        #endregion
     }
 }

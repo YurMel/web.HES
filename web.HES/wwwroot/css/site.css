@@ -394,6 +394,32 @@ td {
     transform: translateY(-50%);
 }
 
+/* Input with icon */
+.has-search-right {
+    position: relative;
+}
+
+    .has-search-right .form-control {
+        padding-right: 2.375rem;
+    }
+
+    .has-search-right .form-control-feedback {
+        position: absolute;
+        top: 0;
+        right: 0;
+        z-index: 2;
+        display: block;
+        width: 2.375rem;
+        height: 2.375rem;
+        line-height: 2.375rem;
+        text-align: center;
+        color: #aaa;
+    }
+
+        .has-search-right .form-control-feedback .img-size {
+            width: 20px;
+        }
+
 .custom-badge {
     padding: 0.4em 0.4em;
     font-size: 85%;
@@ -422,7 +448,7 @@ div.dataTables_scrollHead table.dataTable {
 
 .custom-control-label {
     vertical-align: top;
-    cursor:pointer;
+    cursor: pointer;
 }
 
 /*#endregion*/

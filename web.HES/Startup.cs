@@ -58,6 +58,8 @@ namespace web.HES
                     options.Conventions.AddPageRoute("/Dashboard/Index", "");
                     options.Conventions.AuthorizeFolder("/Dashboard");
                     options.Conventions.AuthorizeFolder("/Employees");
+                    options.Conventions.AuthorizeFolder("/SharedAccounts");
+                    options.Conventions.AuthorizeFolder("/Templates");
                     options.Conventions.AuthorizeFolder("/Devices");
                     options.Conventions.AuthorizeFolder("/Settings");
                 })
@@ -102,7 +104,7 @@ namespace web.HES
                 var userManager = scope.ServiceProvider.GetService<UserManager<ApplicationUser>>();
                 var roleManager = scope.ServiceProvider.GetService<RoleManager<IdentityRole>>();
 
-                new DbSeed(userManager, roleManager).Initialize();
+                new ApplicationDbSeed(userManager, roleManager).Initialize();
             }
         }
     }

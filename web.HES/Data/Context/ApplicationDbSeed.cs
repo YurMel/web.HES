@@ -3,12 +3,12 @@ using System.Threading.Tasks;
 
 namespace web.HES.Data
 {
-    public class DbSeed
+    public class ApplicationDbSeed
     {
         readonly UserManager<ApplicationUser> _userManager;
         readonly RoleManager<IdentityRole> _roleManager;
 
-        public DbSeed(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+        public ApplicationDbSeed(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
             _roleManager = roleManager;

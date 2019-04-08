@@ -31,7 +31,7 @@
         </button>
     </div>
     <div class="col-auto p-1">
-        <button type="button" class="btn btn-primary open-modal-dialog" data-id="" data-action="CreatePersonalAccount" data-title="Create personal account">
+        <button type="button" class="btn btn-primary open-modal-dialog" data-id="@Model.Employee.Id" data-action="CreateAccount" data-title="Create personal account" data-type="Personal">
             Create personal account
         </button>
     </div>
@@ -183,6 +183,94 @@
             </table>
         </div>
     </div>
+
+    <div class="row align-items-center m-1">
+        <div class="col-auto p-1">
+            <h4 class="text-navyblue m-0">Accounts</h4>
+        </div>
+        <div class="col"></div>
+    </div>
+
+    @*DeviceAccounts table*@
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.DeviceAccounts[0].Name)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.DeviceAccounts[0].Urls)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.DeviceAccounts[0].Apps)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.DeviceAccounts[0].Login)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.DeviceAccounts[0].Type)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.DeviceAccounts[0].Status)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.DeviceAccounts[0].LastSyncedAt)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.DeviceAccounts[0].CreatedAt)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.DeviceAccounts[0].PasswordUpdatedAt)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.DeviceAccounts[0].OtpUpdatedAt)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.DeviceAccounts.Where(e => e.EmployeeId == Model.Employee.Id).Where(d => d.DeviceId == device.Id))
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Urls)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Apps)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Login)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Type)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Status)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.LastSyncedAt)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.CreatedAt)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.PasswordUpdatedAt)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.OtpUpdatedAt)
+                    </td>
+                    <td>
+                        <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
+                        <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
+                        <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 }
 
 @* Modal *@
@@ -195,7 +283,13 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div id="modalBody" class="modal-body"></div>
+            <div id="modalBody" class="modal-body">
+                <div class="d-flex justify-content-center align-items-center">
+                    <div class="spinner-grow text-primary" style="width: 3rem; height: 3rem;" role="status">
+                        <span class="sr-only"></span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -208,6 +302,17 @@
             var id = btn.data("id");
             var action = btn.data("action");
             var title = btn.data("title");
+            var type = btn.data("type");
+
+            if (type == "Personal") {
+                $('.modal-dialog').addClass('modal-lg');
+            }
+            else {
+                $('.modal-dialog').removeClass('modal-lg');
+            }
+
+            $('#modalDialogTitle').html(title);
+            $('#modalDialog').modal('toggle');
 
             $.ajax({
                 url: "/Employees/Details?handler=" + action,
@@ -215,9 +320,7 @@
                 data: { id: id },
                 async: true,
                 success: function (response) {
-                    $('#modalDialogTitle').html(title);
                     $("#modalBody").html(response);
-                    $('#modalDialog').modal('toggle');
 
                     InitDevicesTable();
 
