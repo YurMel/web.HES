@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using HES.Infrastructure;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -8,7 +9,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
-using web.HES.Data;
+//using web.HES.Data;
 
 namespace web.HES.Pages.Settings.Administrators
 {
@@ -62,7 +63,7 @@ namespace web.HES.Pages.Settings.Administrators
                 var user = new ApplicationUser { UserName = Input.Email, Email = Input.Email };
                 var password = Guid.NewGuid().ToString();
                 var result = await _userManager.CreateAsync(user, password);
-                await _userManager.AddToRoleAsync(user, Roles.AdminRole);
+                await _userManager.AddToRoleAsync(user, ApplicationRoles.AdminRole);
 
                 // Create "invite" link
                 var code = await _userManager.GeneratePasswordResetTokenAsync(user);

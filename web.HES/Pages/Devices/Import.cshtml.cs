@@ -5,10 +5,12 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using HES.Core.Entities;
+using HES.Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using web.HES.Data;
+//using web.HES.Data;
 using web.HES.Helpers.Interfaces;
 
 namespace web.HES.Pages.Devices

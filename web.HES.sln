@@ -5,6 +5,10 @@ VisualStudioVersion = 15.0.28307.421
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "web.HES", "web.HES\web.HES.csproj", "{A415E6E0-C479-40CA-B885-92077247C299}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HES.Infrastructure", "HES.Infrastructure\HES.Infrastructure.csproj", "{76FDB5B9-52BE-4996-9505-30E61492D920}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HES.Core", "HES.Core\HES.Core.csproj", "{FC63834D-4C33-4869-AF7B-6A0951DCDD49}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{A415E6E0-C479-40CA-B885-92077247C299}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A415E6E0-C479-40CA-B885-92077247C299}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A415E6E0-C479-40CA-B885-92077247C299}.Release|Any CPU.Build.0 = Release|Any CPU
+		{76FDB5B9-52BE-4996-9505-30E61492D920}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{76FDB5B9-52BE-4996-9505-30E61492D920}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{76FDB5B9-52BE-4996-9505-30E61492D920}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{76FDB5B9-52BE-4996-9505-30E61492D920}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FC63834D-4C33-4869-AF7B-6A0951DCDD49}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FC63834D-4C33-4869-AF7B-6A0951DCDD49}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FC63834D-4C33-4869-AF7B-6A0951DCDD49}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FC63834D-4C33-4869-AF7B-6A0951DCDD49}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

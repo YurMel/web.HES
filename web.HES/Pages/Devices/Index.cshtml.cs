@@ -1,64 +1,31 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using HES.Core.Entities;
+using HES.Core.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using web.HES.Data;
 
 namespace web.HES.Pages.Devices
 {
     public class IndexModel : PageModel
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IDeviceService _deviceService;
+
+        //private readonly ApplicationDbContext _context;
         public IList<Device> Device { get; set; }
 
-        public IndexModel(ApplicationDbContext context)
+        public IndexModel(/*ApplicationDbContext context, */IDeviceService deviceService)
         {
-            _context = context;
+            //_context = context;
+            _deviceService = deviceService;
+
         }
 
         public async Task OnGetAsync()
         {
-            Device = await _context.Devices.Include(d => d.Employee).ToListAsync();
+            //Device = await _context.Devices.Include(d => d.Employee).ToListAsync();
+            Device = await _deviceService.GetDevices();
         }
-
-        #region Unpair
-
-        //public async Task<IActionResult> OnGetDeleteTemplateAsync(string id)
-        //{
-        //    if (id == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    Template = await _context.Templates.FirstOrDefaultAsync(m => m.Id == id);
-
-        //    if (Template == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    return Partial("_DeleteTemplate", this);
-
-        //}
-
-        //public async Task<IActionResult> OnPostDeleteTemplateAsync(string id)
-        //{
-        //    if (id == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    Template = await _context.Templates.FindAsync(id);
-
-        //    if (Template != null)
-        //    {
-        //        _context.Templates.Remove(Template);
-        //        await _context.SaveChangesAsync();
-        //    }
-
-        //    return RedirectToPage("./Index");
-        //}
-
-        #endregion
     }
 }
