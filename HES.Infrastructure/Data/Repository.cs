@@ -22,7 +22,22 @@ namespace HES.Infrastructure
             return await _context.Set<T>().ToListAsync();
         }
 
-        public virtual async Task<T> GetByIdAsync(int id)
+        public async Task<IList<T>> GetAllIncludeAsync(params Expression<Func<T, object>>[] navigationProperties)
+        {
+            IQueryable<T> dbQuery = _context.Set<T>();
+
+            foreach (Expression<Func<T, object>> navigationProperty in navigationProperties)
+                dbQuery = dbQuery.Include<T, object>(navigationProperty);
+
+            return await dbQuery.AsNoTracking().ToListAsync();
+        }
+
+        public async Task<IList<T>> GetAllWhereAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await _context.Set<T>().Where(predicate).ToListAsync();
+        }
+
+        public async Task<T> GetByIdAsync(int id)
         {
             return await _context.Set<T>().FindAsync(id);
         }
@@ -30,6 +45,14 @@ namespace HES.Infrastructure
         public async Task<T> AddAsync(T entity)
         {
             _context.Set<T>().Add(entity);
+            await _context.SaveChangesAsync();
+
+            return entity;
+        }
+
+        public async Task<IList<T>> AddRangeAsync(IList<T> entity)
+        {
+            _context.Set<T>().AddRange(entity);
             await _context.SaveChangesAsync();
 
             return entity;
@@ -45,17 +68,6 @@ namespace HES.Infrastructure
         {
             _context.Set<T>().Remove(entity);
             await _context.SaveChangesAsync();
-        }
-
-        public async Task<IList<T>> GetAllIncludeAsync(params Expression<Func<T, object>>[] navigationProperties)
-        {
-            IQueryable<T> dbQuery = _context.Set<T>();
-
-            //Apply eager loading
-            foreach (Expression<Func<T, object>> navigationProperty in navigationProperties)
-                dbQuery = dbQuery.Include<T, object>(navigationProperty);
-
-            return await dbQuery.AsNoTracking().ToListAsync();
         }
     }
 }

@@ -1,24 +1,24 @@
-﻿using System;
+﻿using HES.Core.Entities;
+using HES.Core.Interfaces;
+using HES.Infrastructure;
+using HES.Web.Helpers.Interfaces;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using HES.Core.Entities;
-using HES.Infrastructure;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-//using HES.Web.Data;
-using HES.Web.Helpers.Interfaces;
 
 namespace HES.Web.Pages.Devices
 {
     public class ImportModel : PageModel
     {
         private readonly IAesCryptography _aes;
-        private readonly ApplicationDbContext _context;
+        private readonly IDeviceService _deviceService;
         public IList<Device> DevicesExist { get; set; }
         public IList<Device> DevicesImported { get; set; }
         public string Message { get; set; }
@@ -52,9 +52,9 @@ namespace HES.Web.Pages.Devices
             public virtual ApplicationUser User { get; set; }
         }
 
-        public ImportModel(ApplicationDbContext context, IAesCryptography aes)
+        public ImportModel(IDeviceService deviceService, IAesCryptography aes)
         {
-            _context = context;
+            _deviceService = deviceService;
             _aes = aes;
         }
 
@@ -80,8 +80,9 @@ namespace HES.Web.Pages.Devices
                                 var objects = _aes.DecryptObject<List<MyHideezDevice>>(fileContent, Encoding.Unicode.GetBytes(key));
                                 if (objects.Count > 0)
                                 {
-                                    // Get all exist devices in system
-                                    var isExist = _context.Devices.Where(z => objects.Select(m => m.Id).Contains(z.Id)).ToList();
+                                    // Get all exist devices in db
+                                    //var isExist = _context.Devices.Where(z => objects.Select(m => m.Id).Contains(z.Id)).ToList();
+                                    var isExist = await _deviceService.GetAllWhereAsync(d => objects.Select(o => o.Id).Contains(d.Id));
                                     if (isExist.Count > 0)
                                     {
                                         DevicesExist = isExist;
@@ -106,8 +107,9 @@ namespace HES.Web.Pages.Devices
                                     if (toImport.Count > 0)
                                     {
                                         // Save devices to DB
-                                        _context.AddRange(toImport);
-                                        _context.SaveChanges();
+                                        //_context.AddRange(toImport);
+                                        //_context.SaveChanges();
+                                        await _deviceService.ImportDevices(toImport);
 
                                         DevicesImported = toImport;
                                         //Logger.SaveActionAsync(new ApplicationLog(_userManager.GetUserId(User), action: "Import devices", issuccess: true, message: Serializer.SerializeToXML(toImport)));
@@ -123,7 +125,7 @@ namespace HES.Web.Pages.Devices
                                 Message = $"There is a problem with device import. Exception: " +
                                           $"{Environment.NewLine} {ex.Message} " +
                                           $"Please, check if you select a correct file, enter correct encryption key and try again.";
-                             }
+                            }
                         }
                     }
                 }

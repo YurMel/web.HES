@@ -2,6 +2,7 @@
 using HES.Core.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -16,14 +17,24 @@ namespace HES.Core.Services
             _deviceRepository = deviceRepository;
         }
 
-        public async Task<IList<Device>> GetDevices()
+        public async Task<IList<Device>> GetAllAsync()
         {
-            return await _deviceRepository.GetAllIncludeAsync(d => d.Employee);
+            return await _deviceRepository.GetAllAsync();
         }
 
-        public Task<string> ImportDevices(IList<Device> devices)
+        public async Task<IList<Device>> GetAllWhereAsync(Expression<Func<Device, bool>> predicate)
         {
-            throw new NotImplementedException();
+            return await _deviceRepository.GetAllWhereAsync(predicate);
+        }
+
+        public async Task<IList<Device>> GetAllIncludeAsync(params Expression<Func<Device, object>>[] navigationProperties)
+        {
+            return await _deviceRepository.GetAllIncludeAsync(navigationProperties);
+        }
+
+        public async Task ImportDevices(IList<Device> devices)
+        {
+            await _deviceRepository.AddRangeAsync(devices);
         }
     }
 }
