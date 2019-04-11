@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
-//using HES.Web.Data;
 
 namespace HES.Web.Pages.Settings.Administrators
 {
@@ -63,6 +62,16 @@ namespace HES.Web.Pages.Settings.Administrators
                 var user = new ApplicationUser { UserName = Input.Email, Email = Input.Email };
                 var password = Guid.NewGuid().ToString();
                 var result = await _userManager.CreateAsync(user, password);
+                if (!result.Succeeded)
+                {
+                    string errors = string.Empty;
+                    foreach (var item in result.Errors)
+                    {
+                        errors += $"Error {Environment.NewLine} Code: {item.Code} Description: {item.Description} {Environment.NewLine}";
+                    }
+                    StatusMessage = errors;
+                    return RedirectToPage("./Index");
+                }
                 await _userManager.AddToRoleAsync(user, ApplicationRoles.AdminRole);
 
                 // Create "invite" link

@@ -446,6 +446,7 @@ div.dataTables_scrollHead table.dataTable {
     border-top: 1px solid #ccc;
 }
 
+/*checkbox*/
 .custom-control-label {
     vertical-align: top;
     cursor: pointer;
@@ -555,8 +556,3 @@ div.dataTables_scrollHead table.dataTable {
     white-space: normal;
 }
 /*#endregion*/
-
-
-
-
-

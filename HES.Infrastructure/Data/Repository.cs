@@ -37,7 +37,26 @@ namespace HES.Infrastructure
             return await _context.Set<T>().Where(predicate).ToListAsync();
         }
 
-        public async Task<T> GetByIdAsync(int id)
+        public async Task<T> GetFirstOrDefaulAsync(Expression<Func<T, bool>> match)
+        {
+            return await _context.Set<T>().FirstOrDefaultAsync(match);
+        }
+
+        public async Task<T> GetFirstOrDefaulIncludeAsync(Expression<Func<T, bool>> where, params Expression<Func<T, object>>[] navigationProperties)
+        {
+            T item = null;
+            IQueryable<T> dbQuery = _context.Set<T>();
+
+            foreach (Expression<Func<T, object>> navigationProperty in navigationProperties)
+                dbQuery = dbQuery.Include<T, object>(navigationProperty);
+
+            item = await dbQuery
+                .AsNoTracking() //Don't track any changes for the selected item
+                .FirstOrDefaultAsync(where); //Apply where clause
+            return item;
+        }
+
+        public async Task<T> GetByIdAsync(dynamic id)
         {
             return await _context.Set<T>().FindAsync(id);
         }
@@ -64,10 +83,25 @@ namespace HES.Infrastructure
             await _context.SaveChangesAsync();
         }
 
+        public async Task UpdateOnlyPropAsync(T entity, string[] properties)
+        {
+            foreach (var prop in properties)
+            {
+                _context.Entry(entity).Property(prop).IsModified = true;
+            }
+            await _context.SaveChangesAsync();
+        }
+
         public async Task DeleteAsync(T entity)
         {
             _context.Set<T>().Remove(entity);
             await _context.SaveChangesAsync();
+        }
+
+        public bool Exist(Expression<Func<T, bool>> predicate)
+        {
+            var exist = _context.Set<T>().Where(predicate);
+            return exist.Any();
         }
     }
 }

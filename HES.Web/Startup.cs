@@ -31,6 +31,18 @@ namespace HES.Web
             // Add Services
             services.AddScoped(typeof(IAsyncRepository<>), typeof(Repository<>));
             services.AddScoped<IDeviceService, DeviceService>();
+            services.AddScoped<IDeviceAccountService, DeviceAccountService>();
+
+            // Crypto
+            services.AddTransient<IAesCryptography, AesCryptography>();
+            // Email sender
+            services.AddSingleton<IEmailSender, EmailSender>(i =>
+                 new EmailSender(
+                     Configuration["EmailSender:Host"],
+                     Configuration.GetValue<int>("EmailSender:Port"),
+                     Configuration.GetValue<bool>("EmailSender:EnableSSL"),
+                     Configuration["EmailSender:UserName"],
+                     Configuration["EmailSender:Password"]));
 
             services.Configure<CookiePolicyOptions>(options =>
             {
@@ -70,16 +82,6 @@ namespace HES.Web
                     options.Conventions.AuthorizeFolder("/Settings");
                 })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-            // Crypto
-            services.AddTransient<IAesCryptography, AesCryptography>();
-            // Email sender
-            services.AddSingleton<IEmailSender, EmailSender>(i =>
-                 new EmailSender(
-                     Configuration["EmailSender:Host"],
-                     Configuration.GetValue<int>("EmailSender:Port"),
-                     Configuration.GetValue<bool>("EmailSender:EnableSSL"),
-                     Configuration["EmailSender:UserName"],
-                     Configuration["EmailSender:Password"]));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

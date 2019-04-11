@@ -1,0 +1,76 @@
+﻿@model HES.Web.Pages.Employees.DetailsModel
+
+<form method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="DeviceAccount.EmployeeId" value="@ViewBag.EmployeeId" />
+    <div class="row">
+        <div class="form-group col">
+            <label asp-for="DeviceAccount.Name" class="control-label text-gray"></label>
+            <input asp-for="DeviceAccount.Name" class="form-control text-navyblue" />
+            <span asp-validation-for="DeviceAccount.Name" class="text-danger"></span>
+        </div>
+        <div class="form-group col">
+            <label asp-for="DeviceAccount.Login" class="control-label text-gray"></label>
+            <input asp-for="DeviceAccount.Login" class="form-control text-navyblue" />
+            <span asp-validation-for="DeviceAccount.Login" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group col">
+            <label asp-for="DeviceAccount.Urls" class="control-label text-gray"></label>
+            <input asp-for="DeviceAccount.Urls" class="form-control" data-role="tags-input" />
+            <span asp-validation-for="DeviceAccount.Urls" class="text-danger"></span>
+        </div>
+        <div class="form-group col">
+            <label asp-for="Input.Password" class="text-gray"></label>
+            <input asp-for="Input.Password" class="form-control text-navyblue" />
+            <span asp-validation-for="Input.Password" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group col">
+            <label asp-for="DeviceAccount.Apps" class="control-label text-gray"></label>
+            <input asp-for="DeviceAccount.Apps" class="form-control" data-role="tags-input" />
+            <span asp-validation-for="DeviceAccount.Apps" class="text-danger"></span>
+        </div>
+        <div class="form-group col">
+            <label asp-for="Input.ConfirmPassword" class="text-gray"></label>
+            <input asp-for="Input.ConfirmPassword" class="form-control text-navyblue" />
+            <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group col">
+            <label asp-for="Input.OtpSecret" class="control-label text-gray"></label>
+            <input asp-for="Input.OtpSecret" class="form-control text-navyblue" />
+            <span asp-validation-for="Input.OtpSecret" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group col mb-4">
+            @if (Model.Devices.Count > 1)
+            {
+                <label class="control-label text-gray">Choose device</label>
+                <ul class="list-group">
+                    @foreach (var device in Model.Devices)
+                    {
+                        <li class="list-group-item">
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" name="SelectedDevices" class="custom-control-input" id="p_@device.Id" value="@device.Id">
+                                <label class="custom-control-label" for="p_@device.Id">@device.Id</label>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <input hidden name="SelectedDevices" value="@Model.Devices.FirstOrDefault().Id">
+            }
+        </div>
+    </div>
+    <div class="form-group m-0 text-right">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <input type="submit" value="Create" class="btn btn-primary" asp-page-handler="CreatePersonalAccount" />
+    </div>
+</form>

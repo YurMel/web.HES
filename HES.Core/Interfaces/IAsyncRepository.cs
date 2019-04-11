@@ -10,10 +10,14 @@ namespace HES.Core.Interfaces
         Task<IList<T>> GetAllAsync();
         Task<IList<T>> GetAllWhereAsync(Expression<Func<T, bool>> predicate);
         Task<IList<T>> GetAllIncludeAsync(params Expression<Func<T, object>>[] navigationProperties);
-        Task<T> GetByIdAsync(int id);
+        Task<T> GetFirstOrDefaulAsync(Expression<Func<T, bool>> match);
+        Task<T> GetFirstOrDefaulIncludeAsync(Expression<Func<T, bool>> where, params Expression<Func<T, object>>[] navigationProperties);
+        Task<T> GetByIdAsync(dynamic id);
         Task<T> AddAsync(T entity);
         Task<IList<T>> AddRangeAsync(IList<T> entity);
         Task UpdateAsync(T entity);
+        Task UpdateOnlyPropAsync(T entity, string[] properties);
         Task DeleteAsync(T entity);
+        bool Exist(Expression<Func<T, bool>> predicate);
     }
 }
