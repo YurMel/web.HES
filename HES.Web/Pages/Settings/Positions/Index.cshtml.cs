@@ -6,10 +6,11 @@ using HES.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-//using HES.Web.Data;
+using SmartBreadcrumbs.Attributes;
 
 namespace HES.Web.Pages.Settings.Positions
 {
+    [Breadcrumb("Positions")]
     public class IndexModel : PageModel
     {
         private readonly ApplicationDbContext _context;

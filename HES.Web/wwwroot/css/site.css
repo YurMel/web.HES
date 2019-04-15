@@ -556,3 +556,16 @@ div.dataTables_scrollHead table.dataTable {
     white-space: normal;
 }
 /*#endregion*/
+
+/*#region Breadcrumb */
+.breadcrumb {
+    padding: 0.5rem 1rem;
+    margin-bottom: 0;
+}
+
+@media screen and (max-width: 768px) {
+    .breadcrumb {
+        display: none;
+    }
+}
+/*#endregion*/

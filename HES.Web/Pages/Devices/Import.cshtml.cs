@@ -5,6 +5,7 @@ using HES.Web.Helpers.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using SmartBreadcrumbs.Attributes;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -15,6 +16,7 @@ using System.Threading.Tasks;
 
 namespace HES.Web.Pages.Devices
 {
+    [Breadcrumb("Import", FromPage = typeof(Devices.IndexModel))]
     public class ImportModel : PageModel
     {
         private readonly IAesCryptography _aes;

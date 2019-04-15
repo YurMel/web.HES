@@ -4,12 +4,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using SmartBreadcrumbs.Attributes;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 //using HES.Web.Data;
 
 namespace HES.Web.Pages.Employees
 {
+    [DefaultBreadcrumb("Home")]
     public class IndexModel : PageModel
     {
         private readonly ApplicationDbContext _context;
@@ -23,6 +25,7 @@ namespace HES.Web.Pages.Employees
             _context = context;
         }
 
+        //[Breadcrumb("Employee")]
         public async Task OnGetAsync()
         {
             Employees = await _context.Employees

@@ -1,11 +1,13 @@
 ﻿using HES.Core.Entities;
 using HES.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using SmartBreadcrumbs.Attributes;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace HES.Web.Pages.Devices
 {
+    [Breadcrumb("Devices")]
     public class IndexModel : PageModel
     {
         private readonly IDeviceService _deviceService;

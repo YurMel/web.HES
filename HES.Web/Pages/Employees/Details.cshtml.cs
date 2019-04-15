@@ -11,9 +11,11 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using SmartBreadcrumbs.Attributes;
 
 namespace HES.Web.Pages.Employees
 {
+    [Breadcrumb("Details", FromPage = typeof(Employees.IndexModel))]
     public class DetailsModel : PageModel
     {
         private readonly ApplicationDbContext _context;

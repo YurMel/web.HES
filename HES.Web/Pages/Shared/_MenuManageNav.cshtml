@@ -3,12 +3,14 @@
 </a>
 
 <ul class="nav nav-pills custom-pills flex-column" id="accordionSidebar">
-    <li class="nav-item">
-        <a class="nav-link @MenuNavPages.DashboardNavClass(ViewContext)" asp-page="/Dashboard/Index">
-            <img class="icon-dashboard i-sidebar">
-            <span class="page_labels">Dashboard</span>
-        </a>
-    </li>
+    @*
+         <li class="nav-item">
+            <a class="nav-link @MenuNavPages.DashboardNavClass(ViewContext)" asp-page="/Dashboard/Index">
+                <img class="icon-dashboard i-sidebar">
+                <span class="page_labels">Dashboard</span>
+            </a>
+        </li>
+    *@
     <li class="nav-item">
         <a class="nav-link @MenuNavPages.EmployeesNavClass(ViewContext)" asp-page="/Employees/Index">
             <img class="icon-employees i-sidebar" />
@@ -16,10 +18,10 @@
         </a>
     </li>
     <li class="nav-item">
-    <a class="nav-link @MenuNavPages.SharedAccountsNavClass(ViewContext)" asp-page="/SharedAccounts/Index">
-        <img class="icon-shared-accounts i-sidebar" />
-        <span class="page_labels">Shared Accounts</span>
-    </a>
+        <a class="nav-link @MenuNavPages.SharedAccountsNavClass(ViewContext)" asp-page="/SharedAccounts/Index">
+            <img class="icon-shared-accounts i-sidebar" />
+            <span class="page_labels">Shared Accounts</span>
+        </a>
     </li>
     <li class="nav-item">
         <a class="nav-link @MenuNavPages.TemplatesNavClass(ViewContext)" asp-page="/Templates/Index">

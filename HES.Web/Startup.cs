@@ -13,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using HES.Web.Helpers.Interfaces;
 using HES.Web.Helpers.Services;
+using SmartBreadcrumbs.Extensions;
 
 namespace HES.Web
 {
@@ -33,7 +34,7 @@ namespace HES.Web
             services.AddScoped<IDeviceService, DeviceService>();
             services.AddScoped<IDeviceAccountService, DeviceAccountService>();
             services.AddScoped<ISharedAccountService, SharedAccountService>();
-
+            
             // Crypto
             services.AddTransient<IAesCryptography, AesCryptography>();
             // Email sender
@@ -44,6 +45,9 @@ namespace HES.Web
                      Configuration.GetValue<bool>("EmailSender:EnableSSL"),
                      Configuration["EmailSender:UserName"],
                      Configuration["EmailSender:Password"]));
+
+            // Breadcrumbs
+            services.AddBreadcrumbs(GetType().Assembly);
 
             services.Configure<CookiePolicyOptions>(options =>
             {
@@ -74,7 +78,8 @@ namespace HES.Web
             services.AddMvc()
                 .AddRazorPagesOptions(options =>
                 {
-                    options.Conventions.AddPageRoute("/Dashboard/Index", "");
+                    //options.Conventions.AddPageRoute("/Dashboard/Index", "");
+                    options.Conventions.AddPageRoute("/Employees/Index", "");
                     options.Conventions.AuthorizeFolder("/Dashboard");
                     options.Conventions.AuthorizeFolder("/Employees");
                     options.Conventions.AuthorizeFolder("/SharedAccounts");
