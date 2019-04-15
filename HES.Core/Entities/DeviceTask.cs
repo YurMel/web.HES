@@ -18,11 +18,8 @@ namespace HES.Core.Entities
         public bool LoginChanged { get; set; }
         public bool PasswordChanged { get; set; }
         public bool OtpSecretChanged { get; set; }
-        public string DeviceId { get; set; }
         public string DeviceAccountId { get; set; }
 
-        [ForeignKey("DeviceId")]
-        public Device Device { get; set; }
         [ForeignKey("DeviceAccountId")]
         public DeviceAccount DeviceAccount { get; set; }
     }

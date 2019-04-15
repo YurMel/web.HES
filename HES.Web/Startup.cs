@@ -32,6 +32,7 @@ namespace HES.Web
             services.AddScoped(typeof(IAsyncRepository<>), typeof(Repository<>));
             services.AddScoped<IDeviceService, DeviceService>();
             services.AddScoped<IDeviceAccountService, DeviceAccountService>();
+            services.AddScoped<ISharedAccountService, SharedAccountService>();
 
             // Crypto
             services.AddTransient<IAesCryptography, AesCryptography>();

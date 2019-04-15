@@ -37,6 +37,11 @@ namespace HES.Infrastructure
             return await _context.Set<T>().Where(predicate).ToListAsync();
         }
 
+        public async Task<T> GetFirstOrDefaulAsync()
+        {
+            return await _context.Set<T>().FirstOrDefaultAsync();
+        }
+
         public async Task<T> GetFirstOrDefaulAsync(Expression<Func<T, bool>> match)
         {
             return await _context.Set<T>().FirstOrDefaultAsync(match);

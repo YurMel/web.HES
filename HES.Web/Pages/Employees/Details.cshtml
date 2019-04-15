@@ -345,7 +345,7 @@
                                             Edit OTP
                                         </a>
                                     }
-                                    <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="DeletePersonalAccount" data-title="Delete personal account">
+                                    <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="DeleteAccount" data-title="Delete account">
                                         <img src="~/svg/action/delete.svg" />
                                         Delete
                                     </a>
@@ -481,6 +481,17 @@
                 }
             }
         }
+        // Dropdown list
+        function GetSharedAccount(id) {
+            $.getJSON('/Employees/Details?handler=JsonSharedAccount', { id: id },
+                function (data) {
+                    $('#SharedAccountName').val(data.name);
+                    $('#SharedAccountUrls').val(data.urls);
+                    $('#SharedAccountApps').val(data.apps);
+                    $('#SharedAccountLogin').val(data.login);
+                    $('#SharedAccountOtp').val(data.otpSecret);
+                });
+        }
         // Set DataTables
         $("table").each(function () {
             var currentTable = $(this);
@@ -507,7 +518,10 @@
                 $('#pagination_place_' + currentId).html($('#' + currentId + '_paginate'));
             }
         });
-
+        // Clear content on modal hide
+        $('#modalDialog').on('hidden.bs.modal', function (e) {
+            $("#modalBody").html("<div class='d-flex justify-content-center align-items-center'><div class='spinner-grow text-primary' style='width: 3rem; height: 3rem;' role='status'><span class='sr-only'></span></div></div>");
+        })
     </script>
     <partial name="_ValidationScriptsPartial" />
 }

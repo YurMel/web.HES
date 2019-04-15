@@ -18,12 +18,12 @@ namespace HES.Core.Services
             _deviceTaskRepository = deviceTaskRepository;
         }
 
-        public async Task<DeviceAccount> GetByIdAsync(dynamic id)
+        public async Task<IList<DeviceAccount>> GetAllAsync()
         {
-            return await _deviceAccountRepository.GetByIdAsync(id);
+            return await _deviceAccountRepository.GetAllAsync();
         }
 
-        public async Task<IList<DeviceAccount>> GetWhereAsync(Expression<Func<DeviceAccount, bool>> predicate)
+        public async Task<IList<DeviceAccount>> GetAllWhereAsync(Expression<Func<DeviceAccount, bool>> predicate)
         {
             return await _deviceAccountRepository.GetAllWhereAsync(predicate);
         }
@@ -31,6 +31,11 @@ namespace HES.Core.Services
         public async Task<IList<DeviceAccount>> GetAllIncludeAsync(params Expression<Func<DeviceAccount, object>>[] navigationProperties)
         {
             return await _deviceAccountRepository.GetAllIncludeAsync(navigationProperties);
+        }
+
+        public async Task<DeviceAccount> GetFirstOrDefaulAsync()
+        {
+            return await _deviceAccountRepository.GetFirstOrDefaulAsync();
         }
 
         public async Task<DeviceAccount> GetFirstOrDefaulAsync(Expression<Func<DeviceAccount, bool>> match)
@@ -41,6 +46,11 @@ namespace HES.Core.Services
         public async Task<DeviceAccount> GetFirstOrDefaulIncludeAsync(Expression<Func<DeviceAccount, bool>> where, params Expression<Func<DeviceAccount, object>>[] navigationProperties)
         {
             return await _deviceAccountRepository.GetFirstOrDefaulIncludeAsync(where, navigationProperties);
+        }
+
+        public async Task<DeviceAccount> GetByIdAsync(dynamic id)
+        {
+            return await _deviceAccountRepository.GetByIdAsync(id);
         }
 
         public async Task<DeviceAccount> AddAsync(DeviceAccount entity)
@@ -63,6 +73,11 @@ namespace HES.Core.Services
             return await _deviceTaskRepository.AddRangeAsync(entity);
         }
 
+        public async Task UpdateAsync(DeviceAccount entity)
+        {
+            await _deviceAccountRepository.UpdateAsync(entity);
+        }
+
         public async Task UpdateOnlyPropAsync(DeviceAccount entity, string[] properties)
         {
             await _deviceAccountRepository.UpdateOnlyPropAsync(entity, properties);
@@ -76,51 +91,6 @@ namespace HES.Core.Services
         public bool Exist(Expression<Func<DeviceAccount, bool>> predicate)
         {
             return _deviceAccountRepository.Exist(predicate);
-        }
-
-        public DeviceAccount CreateDeviceAccount(string Id, string Name, string Urls, string Apps, string Login, AccountType Type, AccountStatus Status, string OtpUpdatedAt, string EmployeeId, string DeviceId, string SharedAccount)
-        {
-            var deviceAccount = new DeviceAccount();
-            DateTime? date = DateTime.Now;
-
-            deviceAccount.Id = Id;
-            deviceAccount.Name = Name;
-            deviceAccount.Urls = Urls;
-            deviceAccount.Apps = Apps;
-            deviceAccount.Login = Login;
-            deviceAccount.Type = Type;
-            deviceAccount.Status = Status;
-            deviceAccount.LastSyncedAt = null;
-            deviceAccount.CreatedAt = DateTime.Now;
-            deviceAccount.PasswordUpdatedAt = DateTime.Now;
-            deviceAccount.OtpUpdatedAt = OtpUpdatedAt != null ? date : null;
-            deviceAccount.Deleted = false;
-            deviceAccount.EmployeeId = EmployeeId;
-            deviceAccount.DeviceId = DeviceId;
-            deviceAccount.SharedAccountId = SharedAccount;
-
-            return deviceAccount;
-        }
-
-        public DeviceTask CreateDeviceTask(string DeviceId, string DeviceAccountId, string Password, string OtpSecret, DateTime CreatedAt, TaskOperation Operation, bool NameChanged, bool UrlsChanged, bool AppsChanged, bool LoginChanged, bool PasswordChanged, bool OtpSecretChanged)
-        {
-            var deviceTask = new DeviceTask();
-
-            deviceTask.DeviceId = DeviceId;
-            deviceTask.DeviceAccountId = DeviceAccountId;
-            deviceTask.Password = Password;
-            deviceTask.OtpSecret = OtpSecretChanged == true ? OtpSecret : null;
-            deviceTask.OtpSecret = OtpSecret;
-            deviceTask.CreatedAt = CreatedAt;
-            deviceTask.Operation = Operation;
-            deviceTask.NameChanged = NameChanged;
-            deviceTask.UrlsChanged = UrlsChanged;
-            deviceTask.AppsChanged = AppsChanged;
-            deviceTask.LoginChanged = LoginChanged;
-            deviceTask.PasswordChanged = PasswordChanged;
-            deviceTask.OtpSecretChanged = OtpSecretChanged;
-
-            return deviceTask;
         }
     }
 }

@@ -18,6 +18,7 @@ namespace HES.Core.Entities
         public AccountStatus Status { get; set; }
         public DateTime? LastSyncedAt { get; set; }
         public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
         public DateTime PasswordUpdatedAt { get; set; }
         public DateTime? OtpUpdatedAt { get; set; }
         public bool Deleted { get; set; }
