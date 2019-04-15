@@ -46,14 +46,12 @@
             </div>
         </div>
         <div class="col"></div>
-
-        @*<div class="col-auto p-1">
+        <div class="col-auto p-1">
             <div class="form-group m-0 has-search">
                 <img class="form-control-feedback" src="~/svg/action/search.svg" />
                 <input id="searchbox_@company.Id" type="text" class="form-control" placeholder="Search">
             </div>
-        </div>*@
-
+        </div>
     </div>
     <div class="row m-1">
         <div class="table-responsive">
@@ -98,14 +96,14 @@
         </div>
     </div>
     @* Bottom table items *@
-    @*<div class="row mt-2">
+    <div class="row mt-2 mb-4">
         <div class="col-sm-12 col-md-auto d-flex justify-content-start align-items-center mb-1">
             <span class="d-flex align-items-center mr-1 text-navyblue">Show entries</span>
             <div id="entries_place_@company.Id"></div>
         </div>
         <div id="showing_place_@company.Id" class="col-sm-12 col-md d-flex justify-content-md-center align-items-center mb-1 text-navyblue"></div>
         <div id="pagination_place_@company.Id" class="col-sm-12 col-md-auto d-flex justify-content-md-end align-items-center mb-1"></div>
-    </div>*@
+    </div>
 }
 
 @* Modal *@
@@ -118,52 +116,28 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div id="modalBody" class="modal-body"></div>
+            <div id="modalBody" class="modal-body">
+                <div class="d-flex justify-content-center align-items-center">
+                    <div class="spinner-grow text-primary" style="width: 3rem; height: 3rem;" role="status">
+                        <span class="sr-only"></span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 @section Scripts{
     <script>
-       
-
-        //$("table").each(function () {
-        //    var currentTable = $(this);
-        //    var currentId = currentTable.attr('id');
-        //    //alert(currentId);
-        //    $('#' + currentId).DataTable({
-        //        "columnDefs": [
-        //            { "orderable": false, "targets": 1 }
-        //        ]
-        //    });
-
-            //a = 'varname';
-            //str = a + ' = ' + 'currentId';
-            //eval(str)
-            //alert(varname);
-
-            ////var table = 'table_';
-            ////this[table + currentId] = $(table_name).dataTable();
-            //var dataTable = $('#' + varname).dataTable();
-            //// Search box
-            //$('#searchbox').keyup(function () {
-            //    dataTable.fnFilter(this.value);
-            //});
-            //$('.dataTables_filter').addClass('d-none');
-            //// Length
-            //$('#entries_place_' + currentId).html($('.dataTables_length select').removeClass('custom-select-sm form-control-sm'));
-            //$('.dataTables_length').addClass('d-none');
-            //// Info
-            //$('#showing_place_' + currentId).html($('.dataTables_info'));
-            //// Paginate
-            //$('#pagination_place_' + currentId).html($('.dataTables_paginate'));
-        //});
-
+        // Open modal dialog
         $(document).on('click', '.open-modal-dialog', function () {
             var btn = $(this);
             var id = btn.data("id");
             var action = btn.data("action");
             var title = btn.data("title");
+
+            $('#modalDialogTitle').html(title);
+            $('#modalDialog').modal('toggle');
 
             $.ajax({
                 url: "/Settings/OrgStructure?handler=" + action,
@@ -171,9 +145,7 @@
                 data: { id: id },
                 async: true,
                 success: function (response) {
-                    $('#modalDialogTitle').html(title);
                     $("#modalBody").html(response);
-                    $('#modalDialog').modal('toggle');
 
                     // Validation partial view
                     $('form').removeData('validator');
@@ -183,9 +155,37 @@
             });
         });
 
-        $(document).ready(function () {
+        // Set DataTables
+        $("table").each(function () {
+            var currentTable = $(this);
+            var currentId = currentTable.attr('id');
 
+            if (currentId != 'undefined') {
+                $('#' + currentId).DataTable({
+                    "columnDefs": [
+                        { "orderable": false, "targets": 1 }
+                    ]
+                });
+                var dataTable = $('#' + currentId).dataTable();
+                // Search box
+                $('#searchbox_' + currentId).keyup(function () {
+                    dataTable.fnFilter(this.value);
+                });
+                $('.dataTables_filter').addClass('d-none');
+                // Length
+                $('#entries_place_' + currentId).html($('.dataTables_length select').removeClass('custom-select-sm form-control-sm'));
+                $('.dataTables_length').addClass('d-none');
+                // Info
+                $('#showing_place_' + currentId).html($('#' + currentId + '_info'));
+                // Paginate
+                $('#pagination_place_' + currentId).html($('#' + currentId + '_paginate'));
+            }
         });
+
+        // Clear content on modal hide
+        $('#modalDialog').on('hidden.bs.modal', function (e) {
+            $("#modalBody").html("<div class='d-flex justify-content-center align-items-center'><div class='spinner-grow text-primary' style='width: 3rem; height: 3rem;' role='status'><span class='sr-only'></span></div></div>");
+        })
     </script>
     <partial name="_ValidationScriptsPartial" />
 }

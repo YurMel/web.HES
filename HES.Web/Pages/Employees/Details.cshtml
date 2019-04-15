@@ -437,11 +437,13 @@
                 }
             });
         });
+
         // On submit clear search results
         $(document).on('submit', 'form', function () {
             var table = $('#devices').DataTable();
             table.search('').columns().search('').draw();
         });
+
         // Init devices
         function InitDevicesTable() {
             var table_name = '#devices';
@@ -463,6 +465,7 @@
             });
             $('.dataTables_filter').addClass('d-none');
         }
+
         // Check all
         function checkAll(e) {
             var checkboxes = document.getElementsByTagName('input');
@@ -481,6 +484,7 @@
                 }
             }
         }
+
         // Dropdown list
         function GetSharedAccount(id) {
             $.getJSON('/Employees/Details?handler=JsonSharedAccount', { id: id },
@@ -492,6 +496,7 @@
                     $('#SharedAccountOtp').val(data.otpSecret);
                 });
         }
+
         // Set DataTables
         $("table").each(function () {
             var currentTable = $(this);
@@ -518,6 +523,7 @@
                 $('#pagination_place_' + currentId).html($('#' + currentId + '_paginate'));
             }
         });
+
         // Clear content on modal hide
         $('#modalDialog').on('hidden.bs.modal', function (e) {
             $("#modalBody").html("<div class='d-flex justify-content-center align-items-center'><div class='spinner-grow text-primary' style='width: 3rem; height: 3rem;' role='status'><span class='sr-only'></span></div></div>");

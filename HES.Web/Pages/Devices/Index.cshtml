@@ -88,7 +88,14 @@
 </div>
 
 @* Bottom table items *@
-<partial name="_DataTablesItemsPartial" />
+<div class="row mt-2">
+    <div class="col-sm-12 col-md-auto d-flex justify-content-start align-items-center mb-1">
+        <span class="d-flex align-items-center mr-1 text-navyblue">Show entries</span>
+        <div id="entries_place"></div>
+    </div>
+    <div id="showing_place" class="col-sm-12 col-md d-flex justify-content-md-center align-items-center mb-1 text-navyblue"></div>
+    <div id="pagination_place" class="col-sm-12 col-md-auto d-flex justify-content-md-end align-items-center mb-1"></div>
+</div>
 
 @section scripts{
     <script>
@@ -99,6 +106,18 @@
                 { "orderable": false, "targets": 8 }
             ]
         });
+        var dataTable = $(table_name).dataTable();
+        // Search box
+        $('#searchbox').keyup(function () {
+            dataTable.fnFilter(this.value);
+        });
+        $('.dataTables_filter').addClass('d-none');
+        // Length
+        $('#entries_place').html($('.dataTables_length select').removeClass('custom-select-sm form-control-sm'));
+        $('.dataTables_length').addClass('d-none');
+        // Info
+        $('#showing_place').html($('.dataTables_info'));
+        // Paginate
+        $('#pagination_place').html($('.dataTables_paginate'));
     </script>
-    <partial name="_DataTablesScriptsPartial" />
 }
