@@ -18,7 +18,7 @@ for details on configuring this project to bundle and minify static web assets. 
 /*#endregion*/
 
 /* #region Override colors */
-a {
+/*a {
     color: #0396D6;
 }
 
@@ -69,7 +69,7 @@ a {
         color: #027EB2;
         text-decoration: underline;
     }
-
+    */
 .dropdown-item:hover, .dropdown-item:focus {
     color: #16181b;
     text-decoration: none;
@@ -84,7 +84,7 @@ a {
     cursor: pointer;
 }
 
-
+/*
 .page-link {
     color: #0396D6;
     background-color: #fff;
@@ -99,7 +99,7 @@ a {
     color: #fff;
     background-color: #0396D6;
     border-color: #0396D6;
-}
+}*/
 
 /*#endregion */
 
@@ -452,6 +452,9 @@ div.dataTables_scrollHead table.dataTable {
     cursor: pointer;
 }
 
+.table-responsive {
+    overflow: visible;
+}
 /*#endregion*/
 
 /*#region Dropdown menu */
@@ -466,10 +469,6 @@ div.dataTables_scrollHead table.dataTable {
 .dropdown-menu-right {
     right: 2px;
     left: auto;
-}
-
-.table-responsive {
-    overflow: visible;
 }
 /*#endregion*/
 
@@ -567,5 +566,37 @@ div.dataTables_scrollHead table.dataTable {
     .breadcrumb {
         display: none;
     }
+}
+/*#endregion*/
+
+/*#region Toggled */
+.custom-sidebar.toggled {
+    min-width: 68px;
+    max-width: 68px;
+}
+
+.page_labels.toggled {
+    display: none;
+}
+
+.sidebar-settings.toggled {
+    position: absolute;
+    left: 70px;
+    z-index: 500;
+}
+.icon-arrow.toggled {
+    display: none;
+}
+.copyright.toggled {
+    display: none;
+}
+.loading.toggled {
+    left: 68px;
+    width: calc(100vw - 68px);
+}
+.icon-hideez.toggled {
+    width: 35px;
+    -webkit-mask: url('../svg/hideez-logo.svg');
+    mask: url('../svg/hideez-logo.svg');
 }
 /*#endregion*/
