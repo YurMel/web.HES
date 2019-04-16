@@ -1,4 +1,5 @@
 ﻿using HES.Core.Entities;
+using HES.Core.Interfaces;
 using HES.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -16,6 +17,7 @@ namespace HES.Web.Pages.SharedAccounts
     public class IndexModel : PageModel
     {
         private readonly ApplicationDbContext _context;
+        private readonly ISharedAccountService _sharedAccountService;
         public IList<SharedAccount> SharedAccounts { get; set; }
         public SharedAccount SharedAccount { get; set; }
 
@@ -35,14 +37,17 @@ namespace HES.Web.Pages.SharedAccounts
             public string ConfirmPassword { get; set; }
         }
 
-        public IndexModel(ApplicationDbContext context)
+        public IndexModel(ApplicationDbContext context, ISharedAccountService sharedAccountService)
         {
             _context = context;
+            _sharedAccountService = sharedAccountService;
         }
 
         public async Task OnGetAsync()
         {
-            SharedAccounts = await _context.SharedAccounts.ToListAsync();
+            SharedAccounts = await _context.SharedAccounts
+                .Where(d => d.Deleted == false)
+                .ToListAsync();
         }
 
         #region Shared Account
@@ -262,8 +267,8 @@ namespace HES.Web.Pages.SharedAccounts
 
             if (SharedAccount != null)
             {
-                _context.SharedAccounts.Remove(SharedAccount);
-                await _context.SaveChangesAsync();
+                SharedAccount.Deleted = true;
+                await _sharedAccountService.UpdateOnlyPropAsync(SharedAccount, new string[] { "Deleted" });
             }
 
             return RedirectToPage("./Index");

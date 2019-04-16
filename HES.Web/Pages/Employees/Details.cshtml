@@ -200,7 +200,7 @@
             </div>
         </div>
         @*DeviceAccounts table*@
-        <div class="table-responsive1 overflow-auto" >
+        <div class="table-responsive1 overflow-auto">
             <table id="@device.Id" class="table display table table-hover border rounded">
                 <thead>
                     <tr>
@@ -227,6 +227,9 @@
                         </th>
                         <th>
                             @Html.DisplayNameFor(model => model.DeviceAccounts[0].CreatedAt)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.DeviceAccounts[0].UpdatedAt)
                         </th>
                         <th>
                             @Html.DisplayNameFor(model => model.DeviceAccounts[0].PasswordUpdatedAt)
@@ -287,6 +290,9 @@
                             </td>
                             <td>
                                 @Html.DisplayFor(modelItem => item.CreatedAt)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.UpdatedAt)
                             </td>
                             <td>
                                 @{
@@ -486,8 +492,10 @@
             }
         }
 
-        // Dropdown list
+        // Dropdown SharedAccount
         function GetSharedAccount(id) {
+            alert(id);
+
             $.getJSON('/Employees/Details?handler=JsonSharedAccount', { id: id },
                 function (data) {
                     $('#SharedAccountName').val(data.name);
@@ -495,6 +503,16 @@
                     $('#SharedAccountApps').val(data.apps);
                     $('#SharedAccountLogin').val(data.login);
                     $('#SharedAccountOtp').val(data.otpSecret);
+                });
+        }
+
+        // Dropdown Template
+        function GetTemplate(id) {
+            $.getJSON('/Employees/Details?handler=JsonTemplate', { id: id },
+                function (data) {
+                    $('#PersonalAccName').val(data.name); 
+                    $('#PersonalAccUrls').val(data.urls);
+                    $('#PersonalAccApps').val(data.apps);
                 });
         }
 
@@ -530,12 +548,13 @@
             $("#modalBody").html("<div class='d-flex justify-content-center align-items-center'><div class='spinner-grow text-primary' style='width: 3rem; height: 3rem;' role='status'><span class='sr-only'></span></div></div>");
         })
 
+        // Set btn disable if device count 0
         $(document).ready(function () {
             if (@Model.Employee.Devices.Count() == 0) {
                 $('#personal_acc').attr("disabled", true);
                 $('#shared_acc').attr("disabled", true);
             }
-        });       
+        });
     </script>
     <partial name="_ValidationScriptsPartial" />
 }

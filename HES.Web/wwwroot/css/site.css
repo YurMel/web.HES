@@ -584,19 +584,29 @@ div.dataTables_scrollHead table.dataTable {
     left: 70px;
     z-index: 500;
 }
+
 .icon-arrow.toggled {
     display: none;
 }
+
 .copyright.toggled {
     display: none;
 }
+
 .loading.toggled {
     left: 68px;
     width: calc(100vw - 68px);
 }
+
 .icon-hideez.toggled {
     width: 35px;
     -webkit-mask: url('../svg/hideez-logo.svg');
     mask: url('../svg/hideez-logo.svg');
+}
+
+@media (max-width: 768px) {
+    #BtnToggleSidebar {
+        display: none;
+    }
 }
 /*#endregion*/

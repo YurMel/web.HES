@@ -20,6 +20,7 @@ namespace HES.Web.Pages.Settings.OrgStructure
 
         public Company Company { get; set; }
         public Department Department { get; set; }
+        public bool Bind { get; set; }
 
         public IndexModel(ApplicationDbContext context)
         {
@@ -116,6 +117,8 @@ namespace HES.Web.Pages.Settings.OrgStructure
             {
                 return NotFound();
             }
+
+            Bind = await _context.Departments.AnyAsync(x => x.CompanyId == id);
 
             return Partial("_DeleteCompany", this);
         }
@@ -221,12 +224,16 @@ namespace HES.Web.Pages.Settings.OrgStructure
             }
 
             Department = await _context.Departments
-                .Include(d => d.Company).FirstOrDefaultAsync(m => m.Id == id);
+                .Include(d => d.Company)
+                .FirstOrDefaultAsync(m => m.Id == id);
 
             if (Department == null)
             {
                 return NotFound();
             }
+
+            Bind = await _context.Employees.AnyAsync(x => x.DepartmentId == id);
+
             return Partial("_DeleteDepartment", this);
         }
 

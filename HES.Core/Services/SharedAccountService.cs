@@ -36,17 +36,17 @@ namespace HES.Core.Services
             return await _sharedAccountRepository.GetAllIncludeAsync(navigationProperties);
         }
 
-        public async Task<SharedAccount> FirstOrDefaulAsync()
+        public async Task<SharedAccount> GetFirstOrDefaulAsync()
         {
             return await _sharedAccountRepository.GetFirstOrDefaulAsync();
         }
 
-        public async Task<SharedAccount> FirstOrDefaulAsync(Expression<Func<SharedAccount, bool>> match)
+        public async Task<SharedAccount> GetFirstOrDefaulAsync(Expression<Func<SharedAccount, bool>> match)
         {
             return await _sharedAccountRepository.GetFirstOrDefaulAsync(match);
         }
 
-        public async Task<SharedAccount> FirstOrDefaulIncludeAsync(Expression<Func<SharedAccount, bool>> where, params Expression<Func<SharedAccount, object>>[] navigationProperties)
+        public async Task<SharedAccount> GetFirstOrDefaulIncludeAsync(Expression<Func<SharedAccount, bool>> where, params Expression<Func<SharedAccount, object>>[] navigationProperties)
         {
             return await _sharedAccountRepository.GetFirstOrDefaulIncludeAsync(where, navigationProperties);
         }

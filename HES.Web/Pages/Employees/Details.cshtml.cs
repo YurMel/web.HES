@@ -22,11 +22,13 @@ namespace HES.Web.Pages.Employees
         private readonly IDeviceService _deviceService;
         private readonly IDeviceAccountService _deviceAccountService;
         private readonly ISharedAccountService _sharedAccountService;
+        private readonly ITemplateService _templateService;
 
         public IList<Device> Devices { get; set; }
         public IList<DeviceAccount> DeviceAccounts { get; set; }
         public IList<SharedAccount> SharedAccounts { get; set; }
 
+        public Device Device { get; set; }
         public Employee Employee { get; set; }
         public DeviceAccount DeviceAccount { get; set; }
         public SharedAccount SharedAccount { get; set; }
@@ -50,12 +52,13 @@ namespace HES.Web.Pages.Employees
             public string OtpSecret { get; set; }
         }
 
-        public DetailsModel(ApplicationDbContext context, IDeviceService deviceService, IDeviceAccountService deviceAccountService, ISharedAccountService sharedAccountService)
+        public DetailsModel(ApplicationDbContext context, IDeviceService deviceService, IDeviceAccountService deviceAccountService, ISharedAccountService sharedAccountService, ITemplateService templateService)
         {
             _context = context;
             _deviceService = deviceService;
             _deviceAccountService = deviceAccountService;
             _sharedAccountService = sharedAccountService;
+            _templateService = templateService;
         }
 
         public async Task<IActionResult> OnGetAsync(string id)
@@ -202,13 +205,69 @@ namespace HES.Web.Pages.Employees
             return RedirectToPage("./Details", new { id });
         }
 
+        public async Task<IActionResult> OnGetDeleteDeviceAsync(string id)
+        {
+
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            Device = await _deviceService.GetFirstOrDefaulAsync(x => x.Id == id);
+
+            if (Device == null)
+            {
+                return NotFound();
+            }
+
+            return Partial("_DeleteDevice", this);
+        }
+
+        public async Task<IActionResult> OnPostDeleteDeviceAsync(Device device)
+        {
+            if (device == null)
+            {
+                return NotFound();
+            }
+
+            var id = device.EmployeeId;
+
+            try
+            {
+                // Remove employee from device
+                device.EmployeeId = null;
+                await _deviceService.UpdateOnlyPropAsync(device, new string[] { "EmployeeId" });
+               
+                // TODO: Wipe Task                
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!DeviceAccountExists(device.Id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return RedirectToPage("./Details", new { id });
+        }
+
         #endregion
 
         #region Personal Account
 
+        public async Task<JsonResult> OnGetJsonTemplateAsync(string id)
+        {
+            return new JsonResult(await _templateService.GetByIdAsync(id));
+        }
+
         public async Task<IActionResult> OnGetCreatePersonalAccountAsync(string id)
         {
             ViewData["EmployeeId"] = id;
+            ViewData["Templates"] = new SelectList(await _templateService.GetAllAsync(), "Id", "Name");
 
             Devices = await _deviceService.GetAllWhereAsync(d => d.EmployeeId == id);
 
@@ -443,9 +502,9 @@ namespace HES.Web.Pages.Employees
         public async Task<IActionResult> OnGetAddSharedAccountAsync(string id)
         {
             ViewData["EmployeeId"] = id;
-            ViewData["SharedAccountId"] = new SelectList(await _sharedAccountService.GetAllAsync(), "Id", "Name");
+            ViewData["SharedAccountId"] = new SelectList(await _sharedAccountService.GetAllWhereAsync(d => d.Deleted == false), "Id", "Name");
 
-            SharedAccount = await _sharedAccountService.FirstOrDefaulAsync();
+            SharedAccount = await _sharedAccountService.GetFirstOrDefaulAsync(d => d.Deleted == false);
             Devices = await _deviceService.GetAllWhereAsync(d => d.EmployeeId == id);
 
             return Partial("_AddSharedAccount", this);

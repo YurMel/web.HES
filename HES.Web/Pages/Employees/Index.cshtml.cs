@@ -19,6 +19,7 @@ namespace HES.Web.Pages.Employees
 
         [BindProperty]
         public Employee Employee { get; set; }
+        public bool Bind { get; set; }
 
         public IndexModel(ApplicationDbContext context)
         {
@@ -72,6 +73,8 @@ namespace HES.Web.Pages.Employees
                 return NotFound();
             }
 
+            Bind = await _context.Devices.AnyAsync(x => x.EmployeeId == id);
+            
             return Partial("_DeleteEmployee", this);
         }
 

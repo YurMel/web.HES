@@ -15,7 +15,8 @@ namespace HES.Web.Pages.Settings.Positions
     {
         private readonly ApplicationDbContext _context;
         public IList<Position> Positions { get; set; }
-
+        public bool Bind { get; set; }
+        
         [BindProperty]
         public Position Position { get; set; }
 
@@ -113,6 +114,9 @@ namespace HES.Web.Pages.Settings.Positions
             {
                 return NotFound();
             }
+
+            Bind = await _context.Employees.AnyAsync(x => x.PositionId == id);
+
             return Partial("_DeletePosition", this);
         }
 

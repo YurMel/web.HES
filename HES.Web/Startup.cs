@@ -34,6 +34,7 @@ namespace HES.Web
             services.AddScoped<IDeviceService, DeviceService>();
             services.AddScoped<IDeviceAccountService, DeviceAccountService>();
             services.AddScoped<ISharedAccountService, SharedAccountService>();
+            services.AddScoped<ITemplateService, TemplateService>();
             
             // Crypto
             services.AddTransient<IAesCryptography, AesCryptography>();

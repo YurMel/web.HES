@@ -3,46 +3,57 @@
 <form method="post">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <input type="hidden" asp-for="DeviceAccount.EmployeeId" value="@ViewBag.EmployeeId" />
+    <div class="row align-items-center">
+        <div class="col-auto pr-0">
+            <h6 class="text-navyblue m-0">Enter data manually or select from the template:</h6>
+        </div>
+        <div class="col-auto">
+            <select onchange="GetTemplate(this.value)" class="form-control text-navyblue" asp-items="ViewBag.Templates">
+                <option disabled selected></option>
+            </select>
+        </div>
+    </div>
+    <hr />
     <div class="row">
         <div class="form-group col">
             <label asp-for="DeviceAccount.Name" class="control-label text-gray"></label>
-            <input asp-for="DeviceAccount.Name" class="form-control text-navyblue" tabindex="0" />
+            <input id="PersonalAccName" asp-for="DeviceAccount.Name" class="form-control text-navyblue" />
             <span asp-validation-for="DeviceAccount.Name" class="text-danger"></span>
         </div>
         <div class="form-group col">
             <label asp-for="DeviceAccount.Login" class="control-label text-gray"></label>
-            <input asp-for="DeviceAccount.Login" class="form-control text-navyblue" tabindex="3" />
+            <input asp-for="DeviceAccount.Login" class="form-control text-navyblue" />
             <span asp-validation-for="DeviceAccount.Login" class="text-danger"></span>
         </div>
     </div>
     <div class="row">
         <div class="form-group col">
             <label asp-for="DeviceAccount.Urls" class="control-label text-gray"></label>
-            <input asp-for="DeviceAccount.Urls" class="form-control" data-role="tags-input" tabindex="1" />
+            <input id="PersonalAccUrls" asp-for="DeviceAccount.Urls" class="form-control" @*data-role="tags-input" *@ />
             <span asp-validation-for="DeviceAccount.Urls" class="text-danger"></span>
         </div>
         <div class="form-group col">
             <label asp-for="Input.Password" class="text-gray"></label>
-            <input asp-for="Input.Password" class="form-control text-navyblue" tabindex="4" />
+            <input asp-for="Input.Password" class="form-control text-navyblue" />
             <span asp-validation-for="Input.Password" class="text-danger"></span>
         </div>
     </div>
     <div class="row">
         <div class="form-group col">
             <label asp-for="DeviceAccount.Apps" class="control-label text-gray"></label>
-            <input asp-for="DeviceAccount.Apps" class="form-control" data-role="tags-input" tabindex="2" />
+            <input id="PersonalAccApps" asp-for="DeviceAccount.Apps" class="form-control" @*data-role="tags-input" *@ />
             <span asp-validation-for="DeviceAccount.Apps" class="text-danger"></span>
         </div>
         <div class="form-group col">
             <label asp-for="Input.ConfirmPassword" class="text-gray"></label>
-            <input asp-for="Input.ConfirmPassword" class="form-control text-navyblue" tabindex="5" />
+            <input asp-for="Input.ConfirmPassword" class="form-control text-navyblue" />
             <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
         </div>
     </div>
     <div class="row">
         <div class="form-group col">
             <label asp-for="Input.OtpSecret" class="control-label text-gray"></label>
-            <input asp-for="Input.OtpSecret" class="form-control text-navyblue" tabindex="6" />
+            <input asp-for="Input.OtpSecret" class="form-control text-navyblue" />
             <span asp-validation-for="Input.OtpSecret" class="text-danger"></span>
         </div>
     </div>
