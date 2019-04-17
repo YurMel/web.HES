@@ -82,7 +82,7 @@
                     </td>
                     <td>
                         @{
-                            var pwd = (DateTime.Now.Date - item.PasswordChangedAt?.Date)?.TotalDays;
+                            var pwd = (DateTime.UtcNow.Date - item.PasswordChangedAt?.Date)?.TotalDays;
                             if (pwd == 1)
                             {
                                 var text = $"{pwd} day";
@@ -99,7 +99,7 @@
                         @{
                             if (item.OtpSecretChangedAt != null)
                             {
-                                var otp = (DateTime.Now.Date - item.OtpSecretChangedAt?.Date)?.TotalDays;
+                                var otp = (DateTime.UtcNow.Date - item.OtpSecretChangedAt?.Date)?.TotalDays;
                                 if (otp == 1)
                                 {
                                     var text = $"{otp} day";

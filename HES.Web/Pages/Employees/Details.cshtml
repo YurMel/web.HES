@@ -95,7 +95,14 @@
                     @Html.DisplayFor(model => model.Employee.Position.Name)
                 </td>
                 <td>
-                    @Html.DisplayFor(model => model.Employee.LastSeen)
+                    @if (Model.Employee.LastSeen != null)
+                    {
+                        @TimeZoneInfo.ConvertTimeFromUtc((DateTime)Model.Employee.LastSeen, TimeZoneInfo.Local)
+                    }
+                    else
+                    {
+                        <span>-</span>
+                    }
                 </td>
                 <td>
                     @Html.DisplayFor(model => model.Employee.Devices.Count)
@@ -176,7 +183,14 @@
                             @Html.DisplayFor(modelItem => device.Firmware)
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => device.LastSynced)
+                            @if (device.LastSynced != null)
+                            {
+                                @TimeZoneInfo.ConvertTimeFromUtc((DateTime)device.LastSynced, TimeZoneInfo.Local)
+                            }
+                            else
+                            {
+                                <span>-</span>
+                            }
                         </td>
                     </tr>
                 </tbody>
@@ -281,7 +295,7 @@
                             <td>
                                 @if (item.LastSyncedAt != null)
                                 {
-                                    @Html.DisplayFor(modelItem => item.LastSyncedAt)
+                                    @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.LastSyncedAt, TimeZoneInfo.Local)
                                 }
                                 else
                                 {
@@ -289,14 +303,28 @@
                                 }
                             </td>
                             <td>
-                                @Html.DisplayFor(modelItem => item.CreatedAt)
+                                @if (item.CreatedAt != null)
+                                {
+                                    @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.CreatedAt, TimeZoneInfo.Local)
+                                }
+                                else
+                                {
+                                    <span>-</span>
+                                }
                             </td>
                             <td>
-                                @Html.DisplayFor(modelItem => item.UpdatedAt)
+                                @if (item.UpdatedAt != null)
+                                {
+                                    @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.UpdatedAt, TimeZoneInfo.Local)
+                                }
+                                else
+                                {
+                                    <span>-</span>
+                                }
                             </td>
                             <td>
                                 @{
-                                    var pwd = (DateTime.Now.Date - item.PasswordUpdatedAt.Date).TotalDays;
+                                    var pwd = (DateTime.UtcNow.Date - item.PasswordUpdatedAt.Date).TotalDays;
                                     if (pwd == 1)
                                     {
                                         var text = $"{pwd} day";
@@ -313,7 +341,7 @@
                                 @{
                                     if (item.OtpUpdatedAt != null)
                                     {
-                                        var otp = (DateTime.Now.Date - item.OtpUpdatedAt?.Date)?.TotalDays;
+                                        var otp = (DateTime.UtcNow.Date - item.OtpUpdatedAt?.Date)?.TotalDays;
                                         if (otp == 1)
                                         {
                                             var text = $"{otp} day";
@@ -494,8 +522,6 @@
 
         // Dropdown SharedAccount
         function GetSharedAccount(id) {
-            alert(id);
-
             $.getJSON('/Employees/Details?handler=JsonSharedAccount', { id: id },
                 function (data) {
                     $('#SharedAccountName').val(data.name);
@@ -510,7 +536,7 @@
         function GetTemplate(id) {
             $.getJSON('/Employees/Details?handler=JsonTemplate', { id: id },
                 function (data) {
-                    $('#PersonalAccName').val(data.name); 
+                    $('#PersonalAccName').val(data.name);
                     $('#PersonalAccUrls').val(data.urls);
                     $('#PersonalAccApps').val(data.apps);
                 });

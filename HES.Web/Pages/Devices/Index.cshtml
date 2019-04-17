@@ -75,7 +75,14 @@
                         @Html.DisplayFor(modelItem => item.Firmware)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.LastSynced)
+                        @if (item.LastSynced != null)
+                        {
+                            @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.LastSynced, TimeZoneInfo.Local)
+                        }
+                        else
+                        {
+                            <span>-</span>
+                        }
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.Employee.FullName)

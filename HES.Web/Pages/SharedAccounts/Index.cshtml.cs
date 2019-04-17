@@ -67,11 +67,11 @@ namespace HES.Web.Pages.SharedAccounts
             // Set password
             SharedAccount.Password = Input.Password;
             // Set password date change
-            SharedAccount.PasswordChangedAt = DateTime.Now;
+            SharedAccount.PasswordChangedAt = DateTime.UtcNow;
             // Set otp date change
             if (!string.IsNullOrWhiteSpace(SharedAccount.OtpSecret))
             {
-                SharedAccount.OtpSecretChangedAt = DateTime.Now;
+                SharedAccount.OtpSecretChangedAt = DateTime.UtcNow;
             }
 
             _context.SharedAccounts.Add(SharedAccount);
@@ -158,7 +158,7 @@ namespace HES.Web.Pages.SharedAccounts
             // Set password
             SharedAccount.Password = Input.Password;
             // Set password date change
-            SharedAccount.PasswordChangedAt = DateTime.Now;
+            SharedAccount.PasswordChangedAt = DateTime.UtcNow;
             // Set modified
             _context.Entry(SharedAccount).Property("Password").IsModified = true;
             _context.Entry(SharedAccount).Property("PasswordChangedAt").IsModified = true;
@@ -206,7 +206,7 @@ namespace HES.Web.Pages.SharedAccounts
             // Set otp date change
             if (!string.IsNullOrWhiteSpace(SharedAccount.OtpSecret))
             {
-                SharedAccount.OtpSecretChangedAt = DateTime.Now;
+                SharedAccount.OtpSecretChangedAt = DateTime.UtcNow;
             }
             else
             {

@@ -78,7 +78,14 @@
                         @Html.DisplayFor(modelItem => item.Position.Name)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.LastSeen)
+                        @if (item.LastSeen != null)
+                        {
+                            @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.LastSeen, TimeZoneInfo.Local)
+                        }
+                        else
+                        {
+                            <span>-</span>
+                        }
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.Devices.Count)
