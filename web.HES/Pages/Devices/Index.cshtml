@@ -80,7 +80,12 @@
                     <td>
                         @Html.DisplayFor(modelItem => item.Employee.FullName)
                     </td>
-                    <td></td>
+                    <td>
+                        <form method="post">           
+                            <input hidden value="@item.Id" name="id"/>
+                                <input type="submit" value="PING" class="btn btn-primary" asp-page-handler="Ping" />
+                        </form>
+                    </td>
                 </tr>
             }
         </tbody>

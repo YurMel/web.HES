@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using web.HES.Data;
 using web.HES.Helpers.Interfaces;
 using web.HES.Helpers.Services;
+using web.HES.Services;
 
 namespace web.HES
 {
@@ -72,6 +73,8 @@ namespace web.HES
                      Configuration.GetValue<bool>("EmailSender:EnableSSL"),
                      Configuration["EmailSender:UserName"],
                      Configuration["EmailSender:Password"]));
+
+            services.AddSignalR();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -93,6 +96,11 @@ namespace web.HES
             app.UseStaticFiles();
             app.UseCookiePolicy();
             app.UseAuthentication();
+            app.UseSignalR(routes =>
+            {
+                routes.MapHub<DeviceHub>("/deviceHub");
+                routes.MapHub<AppHub>("/appHub");
+            });
             app.UseMvc();
             app.UseStatusCodePages("text/html", "<h1>HTTP status code {0}</h1>");
 
