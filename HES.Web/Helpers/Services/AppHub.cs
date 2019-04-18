@@ -86,16 +86,24 @@ namespace web.HES.Services
 
         internal static async Task<RemoteDevice> EstablishRemoteConnection(string id, byte channelNo)
         {
-            var device = DeviceHub.FindDevice(id);
-            if (device != null)
-                return device;
+            try
+            {
+                var device = DeviceHub.FindDevice(id);
+                if (device != null)
+                    return device;
 
-            var deviceDescr = FindDeviceDescription(id);
-            if (deviceDescr == null)
-                throw new HideezException(HideezErrorCode.DeviceNotConnectedToAnyHost);
+                var deviceDescr = FindDeviceDescription(id);
+                if (deviceDescr == null)
+                    throw new HideezException(HideezErrorCode.DeviceNotConnectedToAnyHost);
 
-            await deviceDescr.Connection.EstablishRemoteDeviceConnection(id, channelNo);
-            return await DeviceHub.WaitDeviceConnection(id, timeout: 3000);
+                await deviceDescr.Connection.EstablishRemoteDeviceConnection(id, channelNo);
+                return await DeviceHub.WaitDeviceConnection(id, timeout: 3000);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                throw new HubException(ex.Message);
+            }
         }
 
         internal static bool IsDeviceConnectedToHost(string id)

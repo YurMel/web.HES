@@ -47,11 +47,18 @@ namespace web.HES.Services
                 {
                     var t = Task.Run(async () =>
                     {
-                        await device.Authenticate(channelNo);
-                        if (_pendingConnections.TryGetValue(mac, out PendingConnectionDescription pendingConnection))
+                        try
                         {
-                            pendingConnection.Tcs.TrySetResult(device);
-                            _pendingConnections.TryRemove(mac, out PendingConnectionDescription removedPendingConnection);
+                            await device.Authenticate(channelNo);
+                            if (_pendingConnections.TryGetValue(mac, out PendingConnectionDescription pendingConnection))
+                            {
+                                pendingConnection.Tcs.TrySetResult(device);
+                                _pendingConnections.TryRemove(mac, out PendingConnectionDescription removedPendingConnection);
+                            }
+                        }
+                        catch(Exception ex)
+                        {
+                            Debug.WriteLine(ex.Message);
                         }
                     });
                 }
@@ -128,6 +135,7 @@ namespace web.HES.Services
             catch(Exception ex)
             {
                 Debug.WriteLine(ex.Message);
+                throw new HubException(ex.Message);
             }
             return Task.CompletedTask;
         }
@@ -139,9 +147,10 @@ namespace web.HES.Services
                 RemoteDevice device = GetDevice();
                 device.OnCommandResponse(data);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
+                throw new HubException(ex.Message);
             }
             return Task.CompletedTask;
         }

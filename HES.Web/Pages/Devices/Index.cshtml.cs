@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -30,17 +31,24 @@ namespace HES.Web.Pages.Devices
         {
             id = "D0A89E6BCD8D";
 
-            if (AppHub.IsDeviceConnectedToHost(id))
+            try
             {
-                var device = await AppHub.EstablishRemoteConnection(id, 4);
-
-                if (device != null)
+                if (AppHub.IsDeviceConnectedToHost(id))
                 {
-                    var pingData = new byte[] { 0x00, 0x01, 0x02, 0x03, 0x04 };
-                    var respData = await device.Ping(pingData);
+                    var device = await AppHub.EstablishRemoteConnection(id, 4);
 
-                    Debug.Assert(pingData.SequenceEqual(respData.Result));
+                    if (device != null)
+                    {
+                        var pingData = new byte[] { 0x00, 0x01, 0x02, 0x03, 0x04 };
+                        var respData = await device.Ping(pingData);
+
+                        Debug.Assert(pingData.SequenceEqual(respData.Result));
+                    }
                 }
+            }
+            catch(Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
             }
 
             return RedirectToPage("./Index");
