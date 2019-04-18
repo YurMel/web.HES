@@ -7,7 +7,7 @@ using Hideez.SDK.Communication.Remote;
 using Microsoft.AspNetCore.SignalR;
 using Hideez.SDK.Communication.Utils;
 
-namespace web.HES.Services
+namespace HES.Core.Services
 {
     public class DeviceHub : Hub<IRemoteDeviceConnection>
     {
@@ -25,7 +25,7 @@ namespace web.HES.Services
         static readonly ConcurrentDictionary<string, PendingConnectionDescription> _pendingConnections
             = new ConcurrentDictionary<string, PendingConnectionDescription>();
 
-        static readonly ConcurrentDictionary<string, RemoteDevice> _connections 
+        static readonly ConcurrentDictionary<string, RemoteDevice> _connections
             = new ConcurrentDictionary<string, RemoteDevice>();
 
         public override async Task OnConnectedAsync()
@@ -56,7 +56,7 @@ namespace web.HES.Services
                                 _pendingConnections.TryRemove(mac, out PendingConnectionDescription removedPendingConnection);
                             }
                         }
-                        catch(Exception ex)
+                        catch (Exception ex)
                         {
                             Debug.WriteLine(ex.Message);
                         }
@@ -132,7 +132,7 @@ namespace web.HES.Services
                 RemoteDevice device = GetDevice();
                 device.OnAuthResponse(data);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
                 throw new HubException(ex.Message);

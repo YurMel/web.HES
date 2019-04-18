@@ -6,7 +6,7 @@ using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.Remote;
 using Microsoft.AspNetCore.SignalR;
 
-namespace web.HES.Services
+namespace HES.Core.Services
 {
     public class AppHub : Hub<IRemoteAppConnection>
     {
@@ -57,7 +57,7 @@ namespace web.HES.Services
 
         public Task OnDeviceConnected(string mac)
         {
-            _deviceConnections.AddOrUpdate(mac, new DeviceDescription(Clients.Caller), (deviceMac, oldDescr) => 
+            _deviceConnections.AddOrUpdate(mac, new DeviceDescription(Clients.Caller), (deviceMac, oldDescr) =>
             {
                 return new DeviceDescription(Clients.Caller);
             });
@@ -84,7 +84,7 @@ namespace web.HES.Services
             return device;
         }
 
-        internal static async Task<RemoteDevice> EstablishRemoteConnection(string id, byte channelNo)
+        public static async Task<RemoteDevice> EstablishRemoteConnection(string id, byte channelNo)
         {
             try
             {
@@ -106,7 +106,7 @@ namespace web.HES.Services
             }
         }
 
-        internal static bool IsDeviceConnectedToHost(string id)
+        public static bool IsDeviceConnectedToHost(string id)
         {
             var device = FindDeviceDescription(id);
             return device != null;

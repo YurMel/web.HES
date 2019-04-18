@@ -265,11 +265,11 @@ namespace HES.Core.Services
             }
             // Update Device Account
             deviceAccount.Status = AccountStatus.Removing;
-            string[] properties = { "Status" };
+            deviceAccount.UpdatedAt = DateTime.UtcNow;
+            string[] properties = { "Status", "UpdatedAt" };
             await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties);
             // Create Device Task
             await _deviceTaskRepository.AddAsync(new DeviceTask { DeviceAccountId = accountId, CreatedAt = DateTime.UtcNow, Operation = TaskOperation.Delete });
-
         }
 
     }

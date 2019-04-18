@@ -5,10 +5,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using HES.Core.Entities;
 using HES.Core.Interfaces;
+using HES.Core.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SmartBreadcrumbs.Attributes;
-using web.HES.Services;
 
 namespace HES.Web.Pages.Devices
 {
@@ -27,6 +27,7 @@ namespace HES.Web.Pages.Devices
         {
             Device = await _deviceService.GetAllIncludeAsync(d => d.Employee);
         }
+
         public async Task<IActionResult> OnPostPing(string id)
         {
             id = "D0A89E6BCD8D";
@@ -46,7 +47,7 @@ namespace HES.Web.Pages.Devices
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
             }
