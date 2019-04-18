@@ -1,0 +1,49 @@
+﻿using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
+using HES.Core.Entities;
+using HES.Core.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using SmartBreadcrumbs.Attributes;
+using web.HES.Services;
+
+namespace HES.Web.Pages.Devices
+{
+    [Breadcrumb("Devices")]
+    public class IndexModel : PageModel
+    {
+        private readonly IDeviceService _deviceService;
+        public IList<Device> Device { get; set; }
+
+        public IndexModel(IDeviceService deviceService)
+        {
+            _deviceService = deviceService;
+        }
+
+        public async Task OnGetAsync()
+        {
+            Device = await _deviceService.GetAllIncludeAsync(d => d.Employee);
+        }
+        public async Task<IActionResult> OnPostPing(string id)
+        {
+            id = "D0A89E6BCD8D";
+
+            if (AppHub.IsDeviceConnectedToHost(id))
+            {
+                var device = await AppHub.EstablishRemoteConnection(id, 4);
+
+                if (device != null)
+                {
+                    var pingData = new byte[] { 0x00, 0x01, 0x02, 0x03, 0x04 };
+                    var respData = await device.Ping(pingData);
+
+                    Debug.Assert(pingData.SequenceEqual(respData.Result));
+                }
+            }
+
+            return RedirectToPage("./Index");
+        }
+    }
+}

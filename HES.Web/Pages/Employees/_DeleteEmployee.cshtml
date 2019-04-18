@@ -1,0 +1,22 @@
+﻿@model HES.Web.Pages.Employees.IndexModel
+
+@if (Model.Bind)
+{
+<h5 class="text-gray mb-4 ">The employee @Model.Employee.FullName is tied device, first untie the device to remove the employee.</h5>
+    <div class="text-right">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+    </div>
+}
+else
+{
+    <h5 class="text-gray mb-4 ">You want to delete employee @Model.Employee.FullName?</h5>
+
+    <form method="post" class="text-right">
+        <input type="hidden" asp-for="Employee.Id" name="id" />
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <input type="submit" value="Delete" class="btn btn-danger" asp-page-handler="DeleteEmployee" />
+    </form>
+}
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
