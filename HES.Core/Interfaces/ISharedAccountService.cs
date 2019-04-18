@@ -15,11 +15,16 @@ namespace HES.Core.Interfaces
         Task<SharedAccount> GetFirstOrDefaulAsync(Expression<Func<SharedAccount, bool>> match);
         Task<SharedAccount> GetFirstOrDefaulIncludeAsync(Expression<Func<SharedAccount, bool>> where, params Expression<Func<SharedAccount, object>>[] navigationProperties);
         Task<SharedAccount> GetByIdAsync(dynamic id);
-        Task<SharedAccount> AddAsync(SharedAccount entity);
-        Task<IList<SharedAccount>> AddRangeAsync(IList<SharedAccount> entity);
-        Task UpdateAsync(SharedAccount entity);
-        Task UpdateOnlyPropAsync(SharedAccount entity, string[] properties);
-        Task DeleteAsync(SharedAccount entity);
+        Task<SharedAccount> CreateSharedAccountAsync(SharedAccount sharedAccount, InputModel input);
+        Task EditSharedAccountAsync(SharedAccount sharedAccount);
+        Task EditSharedAccountPwdAsync(SharedAccount sharedAccount, InputModel input);
+        Task EditSharedAccountOtpAsync(SharedAccount sharedAccount);
+        Task DeleteSharedAccountAsync(string id);
+        //Task<SharedAccount> AddAsync(SharedAccount entity);
+        //Task<IList<SharedAccount>> AddRangeAsync(IList<SharedAccount> entity);
+        //Task UpdateAsync(SharedAccount entity);
+        //Task UpdateOnlyPropAsync(SharedAccount entity, string[] properties);
+        //Task DeleteAsync(SharedAccount entity);
         bool Exist(Expression<Func<SharedAccount, bool>> predicate);
     }
 }

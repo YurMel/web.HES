@@ -154,6 +154,5 @@ namespace HES.Core.Services
             }
             return Task.CompletedTask;
         }
-
     }
 }

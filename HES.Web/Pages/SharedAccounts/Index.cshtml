@@ -6,6 +6,8 @@
     ViewData["ActivePage"] = MenuNavPages.SharedAccounts;
 }
 
+<partial name="_ErrorMessage" for="ErrorMessage" />
+
 <div class="row align-items-center">
     <div class="col">
         <h1 class="text-navyblue">Shared Accounts</h1>
@@ -114,7 +116,7 @@
                             else
                             {
                                 <span>-</span>
-                            }                    
+                            }
                         }
                     </td>
                     <td>
@@ -181,13 +183,13 @@
 
 @section Scripts{
     <script>
-        // Init DataTables 
+        // Init DataTables
         var table_name = '#sharedaccounts';
         $(table_name).DataTable({
             "columnDefs": [
                 { "orderable": false, "targets": 6 }
             ]
-        });  
+        });
         var dataTable = $(table_name).dataTable();
         // Search box
         $('#searchbox').keyup(function () {

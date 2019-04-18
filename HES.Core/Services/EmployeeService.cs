@@ -3,7 +3,6 @@ using HES.Core.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace HES.Core.Services
@@ -14,26 +13,19 @@ namespace HES.Core.Services
         private readonly IAsyncRepository<Device> _deviceRepository;
         private readonly IAsyncRepository<DeviceAccount> _deviceAccountRepository;
         private readonly IAsyncRepository<DeviceTask> _deviceTaskRepository;
-
         private readonly IAsyncRepository<SharedAccount> _sharedAccountRepository;
-        //private readonly IAsyncRepository<SharedAccount> _sharedAccountRepository;
 
         public EmployeeService(IAsyncRepository<Employee> employeeRepository,
                                IAsyncRepository<Device> deviceRepository,
                                IAsyncRepository<DeviceAccount> deviceAccountRepository,
                                IAsyncRepository<DeviceTask> deviceTaskRepository,
-
-                               IAsyncRepository<SharedAccount> sharedAccountRepository
-                               //IAsyncRepository<SharedAccount> sharedAccountRepository)
-                               )
+                               IAsyncRepository<SharedAccount> sharedAccountRepository)
         {
             _employeeRepository = employeeRepository;
             _deviceRepository = deviceRepository;
             _deviceAccountRepository = deviceAccountRepository;
             _deviceTaskRepository = deviceTaskRepository;
             _sharedAccountRepository = sharedAccountRepository;
-
-            //_sharedAccountRepository = sharedAccountRepository;
         }
 
         public async Task<IList<Employee>> GetAllAsync()
@@ -96,7 +88,7 @@ namespace HES.Core.Services
             if (employee == null)
             {
                 throw new Exception("Employee does not exist.");
-            }            
+            }
             await _employeeRepository.DeleteAsync(employee);
         }
 
@@ -257,11 +249,10 @@ namespace HES.Core.Services
             {
                 throw new Exception("The parameter must not be null.");
             }
-
             var deviceAccount = await _deviceAccountRepository.GetByIdAsync(accountId);
             if (deviceAccount == null)
             {
-                throw new Exception("DeviceAccount does not exist.");
+                throw new Exception("Device account does not exist.");
             }
             // Update Device Account
             deviceAccount.Status = AccountStatus.Removing;
@@ -271,6 +262,5 @@ namespace HES.Core.Services
             // Create Device Task
             await _deviceTaskRepository.AddAsync(new DeviceTask { DeviceAccountId = accountId, CreatedAt = DateTime.UtcNow, Operation = TaskOperation.Delete });
         }
-
     }
 }

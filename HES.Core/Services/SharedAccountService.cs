@@ -51,30 +51,99 @@ namespace HES.Core.Services
             return await _sharedAccountRepository.GetByIdAsync(id);
         }
 
-        public async Task<SharedAccount> AddAsync(SharedAccount entity)
+        public async Task<SharedAccount> CreateSharedAccountAsync(SharedAccount sharedAccount, InputModel input)
         {
-            return await _sharedAccountRepository.AddAsync(entity);
+            if (sharedAccount == null || input == null)
+            {
+                throw new Exception("The parameter must not be null.");
+            }
+            // Set password
+            sharedAccount.Password = input.Password;
+            // Set password date change
+            sharedAccount.PasswordChangedAt = DateTime.UtcNow;
+            // Set otp date change
+            if (!string.IsNullOrWhiteSpace(sharedAccount.OtpSecret))
+                sharedAccount.OtpSecretChangedAt = DateTime.UtcNow;
+
+            return await _sharedAccountRepository.AddAsync(sharedAccount);
         }
 
-        public async Task<IList<SharedAccount>> AddRangeAsync(IList<SharedAccount> entity)
+        public async Task EditSharedAccountAsync(SharedAccount sharedAccount)
         {
-            return await _sharedAccountRepository.AddRangeAsync(entity);
+            if (sharedAccount == null)
+            {
+                throw new Exception("The parameter must not be null.");
+            }
+            // Update Shared Account
+            string[] properties = { "Name", "Urls", "Apps", "Login" };
+            await _sharedAccountRepository.UpdateOnlyPropAsync(sharedAccount, properties);
         }
 
-        public async Task UpdateAsync(SharedAccount entity)
+        public async Task EditSharedAccountPwdAsync(SharedAccount sharedAccount, InputModel input)
         {
-            await _sharedAccountRepository.UpdateAsync(entity);
+            if (sharedAccount == null || input == null)
+            {
+                throw new Exception("The parameter must not be null.");
+            }
+            // Update Shared Account
+            sharedAccount.Password = input.Password;
+            sharedAccount.PasswordChangedAt = DateTime.UtcNow;
+            string[] properties = { "Password", "PasswordChangedAt" };
+            await _sharedAccountRepository.UpdateOnlyPropAsync(sharedAccount, properties);
         }
 
-        public async Task UpdateOnlyPropAsync(SharedAccount entity, string[] properties)
+        public async Task EditSharedAccountOtpAsync(SharedAccount sharedAccount)
         {
-            await _sharedAccountRepository.UpdateOnlyPropAsync(entity, properties);
+            if (sharedAccount == null)
+            {
+                throw new Exception("The parameter must not be null.");
+            }
+            // Update Shared Account
+            sharedAccount.OtpSecretChangedAt = !string.IsNullOrWhiteSpace(sharedAccount.OtpSecret) ? new DateTime?(DateTime.UtcNow) : null;
+            string[] properties = { "OtpSecret", "OtpSecretChangedAt" };
+            await _sharedAccountRepository.UpdateOnlyPropAsync(sharedAccount, properties);
         }
 
-        public async Task DeleteAsync(SharedAccount entity)
+        public async Task DeleteSharedAccountAsync(string id)
         {
-            await _sharedAccountRepository.DeleteAsync(entity);
+            if (id == null)
+            {
+                throw new Exception("The parameter must not be null.");
+            }
+            var sharedAccount = await _sharedAccountRepository.GetByIdAsync(id);
+            if (sharedAccount == null)
+            {
+                throw new Exception("Shared account does not exist.");
+            }
+            
+            sharedAccount.Deleted = true;
+            await _sharedAccountRepository.UpdateOnlyPropAsync(sharedAccount, new string[] { "Deleted" });
         }
+
+        //public async Task<SharedAccount> AddAsync(SharedAccount entity)
+        //{
+        //    return await _sharedAccountRepository.AddAsync(entity);
+        //}
+
+        //public async Task<IList<SharedAccount>> AddRangeAsync(IList<SharedAccount> entity)
+        //{
+        //    return await _sharedAccountRepository.AddRangeAsync(entity);
+        //}
+
+        //public async Task UpdateAsync(SharedAccount entity)
+        //{
+        //    await _sharedAccountRepository.UpdateAsync(entity);
+        //}
+
+        //public async Task UpdateOnlyPropAsync(SharedAccount entity, string[] properties)
+        //{
+        //    await _sharedAccountRepository.UpdateOnlyPropAsync(entity, properties);
+        //}
+
+        //public async Task DeleteAsync(SharedAccount entity)
+        //{
+        //    await _sharedAccountRepository.DeleteAsync(entity);
+        //}
 
         public bool Exist(Expression<Func<SharedAccount, bool>> predicate)
         {

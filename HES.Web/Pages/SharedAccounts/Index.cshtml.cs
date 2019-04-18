@@ -1,14 +1,10 @@
 ﻿using HES.Core.Entities;
 using HES.Core.Interfaces;
-using HES.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
 using SmartBreadcrumbs.Attributes;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace HES.Web.Pages.SharedAccounts
@@ -16,38 +12,21 @@ namespace HES.Web.Pages.SharedAccounts
     [Breadcrumb("SharedAccounts")]
     public class IndexModel : PageModel
     {
-        private readonly ApplicationDbContext _context;
         private readonly ISharedAccountService _sharedAccountService;
         public IList<SharedAccount> SharedAccounts { get; set; }
         public SharedAccount SharedAccount { get; set; }
-
         public InputModel Input { get; set; }
+        [TempData]
+        public string ErrorMessage { get; set; }
 
-        public class InputModel
+        public IndexModel(ISharedAccountService sharedAccountService)
         {
-            [Required]
-            [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 3)]
-            [DataType(DataType.Password)]
-            [Display(Name = "Password")]
-            public string Password { get; set; }
-
-            [DataType(DataType.Password)]
-            [Display(Name = "Confirm password")]
-            [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
-            public string ConfirmPassword { get; set; }
-        }
-
-        public IndexModel(ApplicationDbContext context, ISharedAccountService sharedAccountService)
-        {
-            _context = context;
             _sharedAccountService = sharedAccountService;
         }
 
         public async Task OnGetAsync()
         {
-            SharedAccounts = await _context.SharedAccounts
-                .Where(d => d.Deleted == false)
-                .ToListAsync();
+            SharedAccounts = await _sharedAccountService.GetAllWhereAsync(d => d.Deleted == false);
         }
 
         #region Shared Account
@@ -57,25 +36,21 @@ namespace HES.Web.Pages.SharedAccounts
             return Partial("_CreateSharedAccount", this);
         }
 
-        public async Task<IActionResult> OnPostCreateSharedAccountAsync(SharedAccount SharedAccount, InputModel Input)
+        public async Task<IActionResult> OnPostCreateSharedAccountAsync(SharedAccount sharedAccount, InputModel input)
         {
             if (!ModelState.IsValid)
             {
                 return RedirectToPage("./Index");
             }
 
-            // Set password
-            SharedAccount.Password = Input.Password;
-            // Set password date change
-            SharedAccount.PasswordChangedAt = DateTime.UtcNow;
-            // Set otp date change
-            if (!string.IsNullOrWhiteSpace(SharedAccount.OtpSecret))
+            try
             {
-                SharedAccount.OtpSecretChangedAt = DateTime.UtcNow;
+                await _sharedAccountService.CreateSharedAccountAsync(sharedAccount, input);
             }
-
-            _context.SharedAccounts.Add(SharedAccount);
-            await _context.SaveChangesAsync();
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.Message;
+            }
 
             return RedirectToPage("./Index");
         }
@@ -87,44 +62,30 @@ namespace HES.Web.Pages.SharedAccounts
                 return NotFound();
             }
 
-            SharedAccount = await _context.SharedAccounts.FirstOrDefaultAsync(m => m.Id == id);
+            SharedAccount = await _sharedAccountService.GetFirstOrDefaulAsync(m => m.Id == id);
 
             if (SharedAccount == null)
             {
                 return NotFound();
             }
+
             return Partial("_EditSharedAccount", this);
         }
 
-        public async Task<IActionResult> OnPostEditSharedAccountAsync(string id, SharedAccount SharedAccount)
+        public async Task<IActionResult> OnPostEditSharedAccountAsync(SharedAccount sharedAccount)
         {
             if (!ModelState.IsValid)
             {
                 return RedirectToPage("./Index");
             }
 
-            // Set id
-            SharedAccount.Id = id;
-            // Set modified
-            _context.Entry(SharedAccount).Property("Name").IsModified = true;
-            _context.Entry(SharedAccount).Property("Urls").IsModified = true;
-            _context.Entry(SharedAccount).Property("Apps").IsModified = true;
-            _context.Entry(SharedAccount).Property("Login").IsModified = true;
-
             try
             {
-                await _context.SaveChangesAsync();
+                await _sharedAccountService.EditSharedAccountAsync(sharedAccount);
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception ex)
             {
-                if (!SharedAccountExists(SharedAccount.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                ErrorMessage = ex.Message;
             }
 
             return RedirectToPage("./Index");
@@ -137,7 +98,7 @@ namespace HES.Web.Pages.SharedAccounts
                 return NotFound();
             }
 
-            SharedAccount = await _context.SharedAccounts.FirstOrDefaultAsync(m => m.Id == id);
+            SharedAccount = await _sharedAccountService.GetFirstOrDefaulAsync(m => m.Id == id);
 
             if (SharedAccount == null)
             {
@@ -146,37 +107,20 @@ namespace HES.Web.Pages.SharedAccounts
             return Partial("_EditSharedAccountPwd", this);
         }
 
-        public async Task<IActionResult> OnPostEditSharedAccountPwdAsync(string id, SharedAccount SharedAccount, InputModel Input)
+        public async Task<IActionResult> OnPostEditSharedAccountPwdAsync(SharedAccount sharedAccount, InputModel input)
         {
             if (!ModelState.IsValid)
             {
                 return RedirectToPage("./Index");
             }
 
-            // Set id
-            SharedAccount.Id = id;
-            // Set password
-            SharedAccount.Password = Input.Password;
-            // Set password date change
-            SharedAccount.PasswordChangedAt = DateTime.UtcNow;
-            // Set modified
-            _context.Entry(SharedAccount).Property("Password").IsModified = true;
-            _context.Entry(SharedAccount).Property("PasswordChangedAt").IsModified = true;
-
             try
             {
-                await _context.SaveChangesAsync();
+                await _sharedAccountService.EditSharedAccountPwdAsync(sharedAccount, input);
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception ex)
             {
-                if (!SharedAccountExists(SharedAccount.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                ErrorMessage = ex.Message;
             }
 
             return RedirectToPage("./Index");
@@ -189,7 +133,7 @@ namespace HES.Web.Pages.SharedAccounts
                 return NotFound();
             }
 
-            SharedAccount = await _context.SharedAccounts.FirstOrDefaultAsync(m => m.Id == id);
+            SharedAccount = await _sharedAccountService.GetFirstOrDefaulAsync(m => m.Id == id);
 
             if (SharedAccount == null)
             {
@@ -199,47 +143,20 @@ namespace HES.Web.Pages.SharedAccounts
             return Partial("_EditSharedAccountOtp", this);
         }
 
-        public async Task<IActionResult> OnPostEditSharedAccountOtpAsync(string id, SharedAccount SharedAccount)
+        public async Task<IActionResult> OnPostEditSharedAccountOtpAsync(SharedAccount sharedAccount)
         {
-            // Set id
-            SharedAccount.Id = id;
-            // Set otp date change
-            if (!string.IsNullOrWhiteSpace(SharedAccount.OtpSecret))
-            {
-                SharedAccount.OtpSecretChangedAt = DateTime.UtcNow;
-            }
-            else
-            {
-                SharedAccount.OtpSecretChangedAt = null;
-            }
-            // Set modified
-            _context.Entry(SharedAccount).Property("OtpSecret").IsModified = true;
-            _context.Entry(SharedAccount).Property("OtpSecretChangedAt").IsModified = true;
-
             try
             {
-                await _context.SaveChangesAsync();
+                await _sharedAccountService.EditSharedAccountOtpAsync(sharedAccount);
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception ex)
             {
-                if (!SharedAccountExists(SharedAccount.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                ErrorMessage = ex.Message;
             }
 
             return RedirectToPage("./Index");
         }
-
-        private bool SharedAccountExists(string id)
-        {
-            return _context.SharedAccounts.Any(e => e.Id == id);
-        }
-
+               
         public async Task<IActionResult> OnGetDeleteSharedAccountAsync(string id)
         {
             if (id == null)
@@ -247,7 +164,7 @@ namespace HES.Web.Pages.SharedAccounts
                 return NotFound();
             }
 
-            SharedAccount = await _context.SharedAccounts.FirstOrDefaultAsync(m => m.Id == id);
+            SharedAccount = await _sharedAccountService.GetFirstOrDefaulAsync(m => m.Id == id);
 
             if (SharedAccount == null)
             {
@@ -263,12 +180,13 @@ namespace HES.Web.Pages.SharedAccounts
                 return NotFound();
             }
 
-            SharedAccount = await _context.SharedAccounts.FindAsync(id);
-
-            if (SharedAccount != null)
+            try
             {
-                SharedAccount.Deleted = true;
-                await _sharedAccountService.UpdateOnlyPropAsync(SharedAccount, new string[] { "Deleted" });
+                await _sharedAccountService.DeleteSharedAccountAsync(id);
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.Message;
             }
 
             return RedirectToPage("./Index");
