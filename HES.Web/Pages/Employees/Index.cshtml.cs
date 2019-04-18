@@ -1,13 +1,14 @@
 ﻿using HES.Core.Entities;
+using HES.Core.Interfaces;
 using HES.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SmartBreadcrumbs.Attributes;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-//using HES.Web.Data;
 
 namespace HES.Web.Pages.Employees
 {
@@ -15,25 +16,25 @@ namespace HES.Web.Pages.Employees
     public class IndexModel : PageModel
     {
         private readonly ApplicationDbContext _context;
+        private readonly IEmployeeService _employeeService;
+        private readonly IDeviceService _deviceService;
         public IList<Employee> Employees { get; set; }
-
+        public bool HasForeignKey { get; set; }
         [BindProperty]
         public Employee Employee { get; set; }
-        public bool Bind { get; set; }
+        [TempData]
+        public string ErrorMessage { get; set; }
 
-        public IndexModel(ApplicationDbContext context)
+        public IndexModel(ApplicationDbContext context, IEmployeeService employeeService, IDeviceService deviceService)
         {
             _context = context;
+            _employeeService = employeeService;
+            _deviceService = deviceService;
         }
 
-        //[Breadcrumb("Employee")]
         public async Task OnGetAsync()
         {
-            Employees = await _context.Employees
-                .Include(e => e.Department.Company)
-                .Include(e => e.Department)
-                .Include(e => e.Position)
-                .Include(e => e.Devices).ToListAsync();
+            Employees = await _employeeService.GetAllIncludeAsync(e => e.Department.Company, e => e.Department, e => e.Position, e => e.Devices);
         }
 
         #region Employee
@@ -53,8 +54,14 @@ namespace HES.Web.Pages.Employees
                 return RedirectToPage("./Index");
             }
 
-            _context.Employees.Add(Employee);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _employeeService.CreateEmployeeAsync(Employee);
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.Message;
+            }
 
             return RedirectToPage("./Index");
         }
@@ -66,15 +73,15 @@ namespace HES.Web.Pages.Employees
                 return NotFound();
             }
 
-            Employee = await _context.Employees.FirstOrDefaultAsync(m => m.Id == id);
+            Employee = await _employeeService.GetFirstOrDefaulAsync(m => m.Id == id);
 
             if (Employee == null)
             {
                 return NotFound();
             }
 
-            Bind = await _context.Devices.AnyAsync(x => x.EmployeeId == id);
-            
+            HasForeignKey = _deviceService.Exist(x => x.EmployeeId == id);
+
             return Partial("_DeleteEmployee", this);
         }
 
@@ -85,12 +92,13 @@ namespace HES.Web.Pages.Employees
                 return NotFound();
             }
 
-            Employee = await _context.Employees.FindAsync(id);
-
-            if (Employee != null)
+            try
             {
-                _context.Employees.Remove(Employee);
-                await _context.SaveChangesAsync();
+                await _employeeService.DeleteEmployeeAsync(id);
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.Message;
             }
 
             return RedirectToPage("./Index");

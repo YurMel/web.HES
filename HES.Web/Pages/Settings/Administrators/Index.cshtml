@@ -36,22 +36,22 @@
                     </th>
                 *@
                 <th>
-                    @Html.DisplayNameFor(model => model.ApplicationUser[0].Email)
+                    @Html.DisplayNameFor(model => model.ApplicationUsers[0].Email)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.ApplicationUser[0].EmailConfirmed)
+                    @Html.DisplayNameFor(model => model.ApplicationUsers[0].EmailConfirmed)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.ApplicationUser[0].PhoneNumber)
+                    @Html.DisplayNameFor(model => model.ApplicationUsers[0].PhoneNumber)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.ApplicationUser[0].TwoFactorEnabled)
+                    @Html.DisplayNameFor(model => model.ApplicationUsers[0].TwoFactorEnabled)
                 </th>
                 <th class="table-col-menu"></th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var item in Model.ApplicationUser)
+            @foreach (var item in Model.ApplicationUsers)
             {
                 <tr>
                     @*

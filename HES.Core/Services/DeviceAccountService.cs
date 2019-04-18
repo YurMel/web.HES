@@ -33,6 +33,11 @@ namespace HES.Core.Services
             return await _deviceAccountRepository.GetAllIncludeAsync(navigationProperties);
         }
 
+        public async Task<IList<DeviceAccount>> GetAllWhereIncludeAsync(Expression<Func<DeviceAccount, bool>> where, params Expression<Func<DeviceAccount, object>>[] navigationProperties)
+        {
+            return await _deviceAccountRepository.GetAllWhereIncludeAsync(where, navigationProperties);
+        }
+
         public async Task<DeviceAccount> GetFirstOrDefaulAsync()
         {
             return await _deviceAccountRepository.GetFirstOrDefaulAsync();

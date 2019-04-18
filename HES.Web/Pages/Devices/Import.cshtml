@@ -45,15 +45,15 @@
     </div>
 }
 
-@* Devices exist *@
-@if (@Model.DevicesExist != null)
+@* Devices exists *@
+@if (@Model.DevicesExists != null)
 {
     <div class="card custom-wide-clear-card">
         <div class="card-header text-white bg-danger">
-            Such devices are exist in the system and not imported (count: @Model.DevicesExist.Count)
+            Such devices are exist in the system and not imported (count: @Model.DevicesExists.Count)
         </div>
         <ul class="list-group list-group-flush">
-            @foreach (var item in @Model.DevicesExist)
+            @foreach (var item in @Model.DevicesExists)
             {
                 <li class="list-group-item">@item.Id</li>
             }

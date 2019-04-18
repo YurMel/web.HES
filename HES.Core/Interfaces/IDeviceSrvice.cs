@@ -15,12 +15,7 @@ namespace HES.Core.Interfaces
         Task<Device> GetFirstOrDefaulAsync(Expression<Func<Device, bool>> match);
         Task<Device> GetFirstOrDefaulIncludeAsync(Expression<Func<Device, bool>> where, params Expression<Func<Device, object>>[] navigationProperties);
         Task<Device> GetByIdAsync(dynamic id);
-        Task<Device> AddAsync(Device entity);
-        Task<IList<Device>> AddRangeAsync(IList<Device> entity);
-        Task UpdateAsync(Device entity);
-        Task UpdateOnlyPropAsync(Device entity, string[] properties);
-        Task DeleteAsync(Device entity);
+        Task<(IList<Device> devicesExists, IList<Device> devicesImported, string message)> ImportDevices(string key, byte[] fileContent);
         bool Exist(Expression<Func<Device, bool>> predicate);
-        Task ImportDevices(IList<Device> devices);
     }
 }

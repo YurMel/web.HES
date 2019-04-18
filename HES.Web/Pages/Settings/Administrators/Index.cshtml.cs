@@ -19,13 +19,13 @@ namespace HES.Web.Pages.Settings.Administrators
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEmailSender _emailSender;
         private readonly ApplicationDbContext _context;
-        public IList<ApplicationUser> ApplicationUser { get; set; }
+        public IList<ApplicationUser> ApplicationUsers { get; set; }
 
         [TempData]
         public string StatusMessage { get; set; }
 
         [BindProperty]
-        public ApplicationUser User { get; set; }
+        public ApplicationUser ApplicationUser { get; set; }
 
         [BindProperty]
         public InputModel Input { get; set; }
@@ -46,7 +46,7 @@ namespace HES.Web.Pages.Settings.Administrators
 
         public async Task OnGetAsync()
         {
-            ApplicationUser = await _context.Users.ToListAsync();
+            ApplicationUsers = await _context.Users.ToListAsync();
         }
 
         #region Invite
@@ -107,9 +107,9 @@ namespace HES.Web.Pages.Settings.Administrators
                 return NotFound();
             }
 
-            User = await _context.Users.FirstOrDefaultAsync(m => m.Id == id);
+            ApplicationUser = await _context.Users.FirstOrDefaultAsync(m => m.Id == id);
 
-            if (User == null)
+            if (ApplicationUser == null)
             {
                 return NotFound();
             }
@@ -124,11 +124,11 @@ namespace HES.Web.Pages.Settings.Administrators
                 return NotFound();
             }
 
-            User = await _context.Users.FindAsync(id);
+            ApplicationUser = await _context.Users.FindAsync(id);
 
-            if (User != null)
+            if (ApplicationUser != null)
             {
-                _context.Users.Remove(User);
+                _context.Users.Remove(ApplicationUser);
                 await _context.SaveChangesAsync();
             }
 

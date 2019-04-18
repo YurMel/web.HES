@@ -1,6 +1,6 @@
 ﻿@model HES.Web.Pages.Employees.IndexModel
 
-@if (Model.Bind)
+@if (Model.HasForeignKey)
 {
 <h5 class="text-gray mb-4 ">The employee @Model.Employee.FullName is tied device, first untie the device to remove the employee.</h5>
     <div class="text-right">

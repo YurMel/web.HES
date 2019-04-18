@@ -11,7 +11,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using HES.Web.Helpers.Interfaces;
 using HES.Web.Helpers.Services;
 using SmartBreadcrumbs.Extensions;
 using web.HES.Services;
@@ -32,6 +31,7 @@ namespace HES.Web
         {
             // Add Services
             services.AddScoped(typeof(IAsyncRepository<>), typeof(Repository<>));
+            services.AddScoped<IEmployeeService, EmployeeService>();
             services.AddScoped<IDeviceService, DeviceService>();
             services.AddScoped<IDeviceAccountService, DeviceAccountService>();
             services.AddScoped<ISharedAccountService, SharedAccountService>();

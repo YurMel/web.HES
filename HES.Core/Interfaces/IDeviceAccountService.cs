@@ -11,6 +11,7 @@ namespace HES.Core.Interfaces
         Task<IList<DeviceAccount>> GetAllAsync();
         Task<IList<DeviceAccount>> GetAllWhereAsync(Expression<Func<DeviceAccount, bool>> predicate);
         Task<IList<DeviceAccount>> GetAllIncludeAsync(params Expression<Func<DeviceAccount, object>>[] navigationProperties);
+        Task<IList<DeviceAccount>> GetAllWhereIncludeAsync(Expression<Func<DeviceAccount, bool>> where, params Expression<Func<DeviceAccount, object>>[] navigationProperties);
         Task<DeviceAccount> GetFirstOrDefaulAsync();
         Task<DeviceAccount> GetFirstOrDefaulAsync(Expression<Func<DeviceAccount, bool>> match);
         Task<DeviceAccount> GetFirstOrDefaulIncludeAsync(Expression<Func<DeviceAccount, bool>> where, params Expression<Func<DeviceAccount, object>>[] navigationProperties);

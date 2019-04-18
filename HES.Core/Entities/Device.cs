@@ -14,7 +14,7 @@ namespace HES.Core.Entities
         public string RFID { get; set; }
         public int Battery { get; set; }
         public string Firmware { get; set; }
-        public DateTime LastSynced { get; set; }
+        public DateTime? LastSynced { get; set; }
         public string EmployeeId { get; set; }
         public DateTime ImportedAt { get; set; }
         public byte[] DeviceKey { get; set; }

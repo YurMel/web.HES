@@ -1,4 +1,4 @@
-﻿namespace HES.Web.Helpers.Interfaces
+﻿namespace HES.Core.Interfaces
 {
     public interface IAesCryptography
     {

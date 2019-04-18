@@ -23,6 +23,7 @@ namespace HES.Web.Pages.Employees
         private readonly IDeviceAccountService _deviceAccountService;
         private readonly ISharedAccountService _sharedAccountService;
         private readonly ITemplateService _templateService;
+        private readonly IEmployeeService _employeeService;
 
         public IList<Device> Devices { get; set; }
         public IList<DeviceAccount> DeviceAccounts { get; set; }
@@ -32,33 +33,24 @@ namespace HES.Web.Pages.Employees
         public Employee Employee { get; set; }
         public DeviceAccount DeviceAccount { get; set; }
         public SharedAccount SharedAccount { get; set; }
-
         public InputModel Input { get; set; }
 
-        public class InputModel
-        {
-            [Required]
-            [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 3)]
-            [DataType(DataType.Password)]
-            [Display(Name = "Password")]
-            public string Password { get; set; }
+        [TempData]
+        public string ErrorMessage { get; set; }
 
-            [DataType(DataType.Password)]
-            [Display(Name = "Confirm password")]
-            [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
-            public string ConfirmPassword { get; set; }
-
-            [Display(Name = "OTP secret")]
-            public string OtpSecret { get; set; }
-        }
-
-        public DetailsModel(ApplicationDbContext context, IDeviceService deviceService, IDeviceAccountService deviceAccountService, ISharedAccountService sharedAccountService, ITemplateService templateService)
+        public DetailsModel(ApplicationDbContext context,
+            IDeviceService deviceService,
+            IDeviceAccountService deviceAccountService,
+            ISharedAccountService sharedAccountService,
+            ITemplateService templateService,
+            IEmployeeService employeeService)
         {
             _context = context;
             _deviceService = deviceService;
             _deviceAccountService = deviceAccountService;
             _sharedAccountService = sharedAccountService;
             _templateService = templateService;
+            _employeeService = employeeService;
         }
 
         public async Task<IActionResult> OnGetAsync(string id)
@@ -68,24 +60,14 @@ namespace HES.Web.Pages.Employees
                 return NotFound();
             }
 
-            Employee = await _context.Employees
-                .Include(e => e.Department.Company)
-                .Include(e => e.Department)
-                .Include(e => e.Position)
-                .Include(e => e.Devices)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            Employee = await _employeeService.GetFirstOrDefaulIncludeAsync(m => m.Id == id, e => e.Department.Company, e => e.Department, e => e.Position, e => e.Devices);
 
             if (Employee == null)
             {
                 return NotFound();
             }
 
-            DeviceAccounts = await _context.DeviceAccounts
-               .Include(d => d.Device)
-               .Include(d => d.Employee)
-               .Include(d => d.SharedAccount)
-               .Where(d => d.Deleted == false)
-               .ToListAsync();
+            DeviceAccounts = await _deviceAccountService.GetAllWhereIncludeAsync(d => d.Deleted == false, d => d.Device, d => d.Employee, d => d.SharedAccount);
 
             return Page();
         }
@@ -99,9 +81,7 @@ namespace HES.Web.Pages.Employees
                 return NotFound();
             }
 
-            Employee = await _context.Employees
-                .Include(e => e.Department)
-                .Include(e => e.Position).FirstOrDefaultAsync(m => m.Id == id);
+            Employee = await _employeeService.GetFirstOrDefaulIncludeAsync(m => m.Id == id, e => e.Department, e => e.Position);
 
             if (Employee == null)
             {
@@ -114,29 +94,27 @@ namespace HES.Web.Pages.Employees
             return Partial("_EditEmployee", this);
         }
 
-        public async Task<IActionResult> OnPostEditEmployeeAsync(string id, Employee Employee)
+        public async Task<IActionResult> OnPostEditEmployeeAsync(Employee employee)
         {
+            var id = employee.Id;
             if (!ModelState.IsValid)
             {
                 return RedirectToPage("./Details", new { id });
             }
 
-            Employee.Id = id;
-            _context.Attach(Employee).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                await _employeeService.EditEmployeeAsync(employee);
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception ex)
             {
-                if (!EmployeeExists(Employee.Id))
+                if (!EmployeeExists(employee.Id))
                 {
                     return NotFound();
                 }
                 else
                 {
-                    throw;
+                    ErrorMessage = ex.Message;
                 }
             }
 
@@ -145,7 +123,7 @@ namespace HES.Web.Pages.Employees
 
         private bool EmployeeExists(string id)
         {
-            return _context.Employees.Any(e => e.Id == id);
+            return _employeeService.Exist(e => e.Id == id);
         }
 
         #endregion
@@ -159,55 +137,47 @@ namespace HES.Web.Pages.Employees
                 return NotFound();
             }
 
-            Employee = await _context.Employees.FirstOrDefaultAsync(m => m.Id == id);
+            Employee = await _employeeService.GetFirstOrDefaulAsync(m => m.Id == id);
 
             if (Employee == null)
             {
                 return NotFound();
             }
 
-            Devices = await _context.Devices.Where(d => d.EmployeeId == null).ToListAsync();
+            Devices = await _deviceService.GetAllWhereAsync(d => d.EmployeeId == null);
 
             return Partial("_AddDevice", this);
         }
 
-        public async Task<IActionResult> OnPostAddDeviceAsync(string id, string[] selectedDevices)
+        public async Task<IActionResult> OnPostAddDeviceAsync(string employeeId, string[] selectedDevices)
         {
-            if (id == null && selectedDevices == null)
+            if (employeeId == null)
             {
                 return NotFound();
             }
 
-            Employee = await _context.Employees.FindAsync(id);
-
-            if (Employee != null)
+            try
             {
-                foreach (var deviceId in selectedDevices)
+                await _employeeService.AddDeviceAsync(employeeId, selectedDevices);
+            }
+            catch (Exception ex)
+            {
+                if (!EmployeeExists(employeeId))
                 {
-                    var currentDevice = new Device
-                    {
-                        Id = deviceId,
-                        EmployeeId = Employee.Id
-                    };
-                    _context.Entry(currentDevice).Property("EmployeeId").IsModified = true;
+                    return NotFound();
                 }
-
-                try
+                else
                 {
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    throw;
+                    ErrorMessage = ex.Message;
                 }
             }
 
+            var id = employeeId;
             return RedirectToPage("./Details", new { id });
         }
 
         public async Task<IActionResult> OnGetDeleteDeviceAsync(string id)
         {
-
             if (id == null)
             {
                 return NotFound();
@@ -230,28 +200,24 @@ namespace HES.Web.Pages.Employees
                 return NotFound();
             }
 
-            var id = device.EmployeeId;
-
             try
             {
-                // Remove employee from device
-                device.EmployeeId = null;
-                await _deviceService.UpdateOnlyPropAsync(device, new string[] { "EmployeeId" });
-               
+                await _employeeService.RemoveDeviceAsync(device.EmployeeId, device.Id);
                 // TODO: Wipe Task                
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception ex)
             {
-                if (!DeviceAccountExists(device.Id))
+                if (!EmployeeExists(device.EmployeeId))
                 {
                     return NotFound();
                 }
                 else
                 {
-                    throw;
+                    ErrorMessage = ex.Message;
                 }
             }
 
+            var id = device.EmployeeId;
             return RedirectToPage("./Details", new { id });
         }
 
@@ -274,30 +240,30 @@ namespace HES.Web.Pages.Employees
             return Partial("_CreatePersonalAccount", this);
         }
 
-        public async Task<IActionResult> OnPostCreatePersonalAccountAsync(DeviceAccount DeviceAccount, InputModel Input, string[] selectedDevices)
+        public async Task<IActionResult> OnPostCreatePersonalAccountAsync(DeviceAccount deviceAccount, InputModel input, string[] selectedDevices)
         {
-            var id = DeviceAccount.EmployeeId;
+            var id = deviceAccount.EmployeeId;
 
             if (!ModelState.IsValid)
             {
                 return RedirectToPage("./Details", new { id });
             }
 
-            List<DeviceAccount> Accounts = new List<DeviceAccount>();
-            List<DeviceTask> Tasks = new List<DeviceTask>();
-
-            foreach (var deviceId in selectedDevices)
+            try
             {
-                // Device Account id
-                var deviceAccountId = Guid.NewGuid().ToString();
-                // Create Device Account
-                Accounts.Add(new DeviceAccount { Id = deviceAccountId, Name = DeviceAccount.Name, Urls = DeviceAccount.Urls, Apps = DeviceAccount.Apps, Login = DeviceAccount.Login, Type = AccountType.Personal, Status = AccountStatus.Creating, CreatedAt = DateTime.UtcNow, PasswordUpdatedAt = DateTime.UtcNow, OtpUpdatedAt = Input.OtpSecret != null ? new DateTime?(DateTime.UtcNow) : null, EmployeeId = DeviceAccount.EmployeeId, DeviceId = deviceId, SharedAccountId = null });
-                // Create Device Task - add
-                Tasks.Add(new DeviceTask { DeviceAccountId = deviceAccountId, Password = Input.Password, OtpSecret = Input.OtpSecret, CreatedAt = DateTime.UtcNow, Operation = TaskOperation.Create, NameChanged = true, UrlsChanged = true, AppsChanged = true, LoginChanged = true, PasswordChanged = true, OtpSecretChanged = true });
+                await _employeeService.CreatePersonalAccountAsync(deviceAccount, input, selectedDevices);
             }
-
-            await _deviceAccountService.AddRangeAsync(Accounts);
-            await _deviceAccountService.AddRangeAsync(Tasks);
+            catch (Exception ex)
+            {
+                if (!EmployeeExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    ErrorMessage = ex.Message;
+                }
+            }
 
             return RedirectToPage("./Details", new { id });
         }
@@ -319,9 +285,9 @@ namespace HES.Web.Pages.Employees
             return Partial("_EditPersonalAccount", this);
         }
 
-        public async Task<IActionResult> OnPostEditPersonalAccountAsync(DeviceAccount DeviceAccount)
+        public async Task<IActionResult> OnPostEditPersonalAccountAsync(DeviceAccount deviceAccount)
         {
-            var id = DeviceAccount.EmployeeId;
+            var id = deviceAccount.EmployeeId;
 
             if (!ModelState.IsValid)
             {
@@ -330,24 +296,11 @@ namespace HES.Web.Pages.Employees
 
             try
             {
-                // Update Device Account
-                DeviceAccount.UpdatedAt = DateTime.UtcNow;
-                DeviceAccount.Status = AccountStatus.Updating;
-                string[] properties = { "Name", "Urls", "Apps", "Login", "Status", "UpdatedAt" };
-                await _deviceAccountService.UpdateOnlyPropAsync(DeviceAccount, properties);
-                // Create Device Task - update    
-                await _deviceAccountService.AddAsync(new DeviceTask { DeviceAccountId = DeviceAccount.Id, Password = null, OtpSecret = null, CreatedAt = DateTime.UtcNow, Operation = TaskOperation.Update, NameChanged = true, UrlsChanged = true, AppsChanged = true, LoginChanged = true, PasswordChanged = false, OtpSecretChanged = false });
+                await _employeeService.EditPersonalAccountAsync(deviceAccount);
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception ex)
             {
-                if (!DeviceAccountExists(DeviceAccount.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                ErrorMessage = ex.Message;
             }
 
             return RedirectToPage("./Details", new { id });
@@ -370,9 +323,9 @@ namespace HES.Web.Pages.Employees
             return Partial("_EditPersonalAccountPwd", this);
         }
 
-        public async Task<IActionResult> OnPostEditPersonalAccountPwdAsync(DeviceAccount DeviceAccount, InputModel Input)
+        public async Task<IActionResult> OnPostEditPersonalAccountPwdAsync(DeviceAccount deviceAccount, InputModel input)
         {
-            var id = DeviceAccount.EmployeeId;
+            var id = deviceAccount.EmployeeId;
 
             if (!ModelState.IsValid)
             {
@@ -381,22 +334,11 @@ namespace HES.Web.Pages.Employees
 
             try
             {
-                // Update Device Account
-                string[] properties = { "Status", "UpdatedAt", "PasswordUpdatedAt" };
-                await _deviceAccountService.UpdateOnlyPropAsync(new DeviceAccount { Id = DeviceAccount.Id, UpdatedAt = DateTime.UtcNow, PasswordUpdatedAt = DateTime.UtcNow, Status = AccountStatus.Updating, EmployeeId = DeviceAccount.EmployeeId, DeviceId = DeviceAccount.DeviceId, SharedAccountId = null }, properties);
-                // Create Device Task - update
-                await _deviceAccountService.AddAsync(new DeviceTask { DeviceAccountId = DeviceAccount.Id, Password = Input.Password, CreatedAt = DateTime.UtcNow, Operation = TaskOperation.Update, PasswordChanged = true });
+                await _employeeService.EditPersonalAccountPwdAsync(deviceAccount, input);
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception ex)
             {
-                if (!DeviceAccountExists(DeviceAccount.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                ErrorMessage = ex.Message;
             }
 
             return RedirectToPage("./Details", new { id });
@@ -419,76 +361,21 @@ namespace HES.Web.Pages.Employees
             return Partial("_EditPersonalAccountOtp", this);
         }
 
-        public async Task<IActionResult> OnPostEditPersonalAccountOtpAsync(DeviceAccount DeviceAccount, InputModel Input)
+        public async Task<IActionResult> OnPostEditPersonalAccountOtpAsync(DeviceAccount deviceAccount, InputModel input)
         {
-            var id = DeviceAccount.EmployeeId;
-
-            if (string.IsNullOrWhiteSpace(Input.OtpSecret))
-            {
-                Input.OtpSecret = null;
-            }
+            var id = deviceAccount.EmployeeId;
 
             try
             {
-                // Update Device Account
-                string[] properties = { "Status", "UpdatedAt", "OtpUpdatedAt" };
-                await _deviceAccountService.UpdateOnlyPropAsync(new DeviceAccount { Id = DeviceAccount.Id, UpdatedAt = DateTime.UtcNow, OtpUpdatedAt = Input.OtpSecret != null ? new DateTime?(DateTime.UtcNow) : null, Status = AccountStatus.Updating, EmployeeId = DeviceAccount.EmployeeId, DeviceId = DeviceAccount.DeviceId, SharedAccountId = null }, properties);
-                // Create Device Task - update
-                await _deviceAccountService.AddAsync(new DeviceTask { DeviceAccountId = DeviceAccount.Id, OtpSecret = Input.OtpSecret, CreatedAt = DateTime.UtcNow, Operation = TaskOperation.Update, OtpSecretChanged = true });
+                await _employeeService.EditPersonalAccountOtpAsync(deviceAccount, input);
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception ex)
             {
-                if (!DeviceAccountExists(DeviceAccount.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                ErrorMessage = ex.Message;
             }
 
             return RedirectToPage("./Details", new { id });
         }
-
-        private bool DeviceAccountExists(string id)
-        {
-            return _deviceAccountService.Exist(e => e.Id == id);
-        }
-
-        //public async Task<IActionResult> OnGetDeletePersonalAccountAsync(string id)
-        //{
-        //    if (id == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    DeviceAccount = await _deviceAccountService.FirstOrDefaulAsync(m => m.Id == id);
-
-        //    if (DeviceAccount == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    return Partial("_DeletePersonalAccount", this);
-        //}
-
-        //public async Task<IActionResult> OnPostDeletePersonalAccountAsync(string id)
-        //{
-        //    if (id == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    DeviceAccount = await _deviceAccountService.GetByIdAsync(id);
-        //    id = DeviceAccount.EmployeeId;
-        //    if (DeviceAccount != null)
-        //    {
-        //        await _deviceAccountService.DeleteAsync(DeviceAccount);
-        //    }
-
-        //    return RedirectToPage("./Details", new { id });
-        //}
 
         #endregion
 
@@ -512,30 +399,14 @@ namespace HES.Web.Pages.Employees
 
         public async Task<IActionResult> OnPostAddSharedAccountAsync(string employeeId, string sharedAccountId, string[] selectedDevices)
         {
+            if (employeeId == null)
+            {
+                return NotFound();
+            }
+
+            await _employeeService.AddSharedAccount(employeeId, sharedAccountId, selectedDevices);
+
             var id = employeeId;
-
-            if (employeeId == null && sharedAccountId == null)
-            {
-                return RedirectToPage("./Details", new { id });
-            }
-
-            List<DeviceAccount> Accounts = new List<DeviceAccount>();
-            List<DeviceTask> Tasks = new List<DeviceTask>();
-
-            foreach (var deviceId in selectedDevices)
-            {
-                // Get Shared Account
-                var sharedAccount = await _sharedAccountService.GetByIdAsync(sharedAccountId);
-                // Create Device Account
-                var deviceAccountId = Guid.NewGuid().ToString();
-                Accounts.Add(new DeviceAccount { Id = deviceAccountId, Name = sharedAccount.Name, Urls = sharedAccount.Urls, Apps = sharedAccount.Apps, Login = sharedAccount.Login, Type = AccountType.Shared, Status = AccountStatus.Creating, CreatedAt = DateTime.UtcNow, PasswordUpdatedAt = DateTime.UtcNow, OtpUpdatedAt = sharedAccount.OtpSecret != null ? new DateTime?(DateTime.UtcNow) : null, EmployeeId = employeeId, DeviceId = deviceId, SharedAccountId = sharedAccountId });
-                // Create Device Task - add
-                Tasks.Add(new DeviceTask { DeviceAccountId = deviceAccountId, Password = sharedAccount.Password, OtpSecret = sharedAccount.OtpSecret, CreatedAt = DateTime.UtcNow, Operation = TaskOperation.Create, NameChanged = true, UrlsChanged = true, AppsChanged = true, LoginChanged = true, PasswordChanged = true, OtpSecretChanged = true });
-            }
-
-            await _deviceAccountService.AddRangeAsync(Accounts);
-            await _deviceAccountService.AddRangeAsync(Tasks);
-
             return RedirectToPage("./Details", new { id });
         }
 
@@ -569,26 +440,12 @@ namespace HES.Web.Pages.Employees
 
             try
             {
-                // Set "Removing" status
-                string[] properties = { "Status" };
-                await _deviceAccountService.UpdateOnlyPropAsync(new DeviceAccount { Id = accountId, Status = AccountStatus.Removing }, properties);
-
-                // TODO: delete acc after removing on device
-                //await _deviceAccountService.UpdateOnlyPropAsync(new DeviceAccount() { Id = accountId, Deleted = true }, new string[] { "Deleted" });
-
-                // Create Device Task - delete    
-                await _deviceAccountService.AddAsync(new DeviceTask { DeviceAccountId = accountId, CreatedAt = DateTime.UtcNow, Operation = TaskOperation.Delete });
+                await _employeeService.DeleteAccount(accountId);
+                // TODO: delete 
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception ex)
             {
-                if (!DeviceAccountExists(accountId))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                ErrorMessage = ex.Message;
             }
 
             var id = employeeId;

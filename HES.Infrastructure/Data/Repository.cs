@@ -37,6 +37,16 @@ namespace HES.Infrastructure
             return await _context.Set<T>().Where(predicate).ToListAsync();
         }
 
+        public async Task<IList<T>> GetAllWhereIncludeAsync(Expression<Func<T, bool>> where, params Expression<Func<T, object>>[] navigationProperties)
+        {
+            IQueryable<T> dbQuery = _context.Set<T>().Where(where);
+
+            foreach (Expression<Func<T, object>> navigationProperty in navigationProperties)
+                dbQuery = dbQuery.Include<T, object>(navigationProperty);
+
+            return await dbQuery.AsNoTracking().ToListAsync();
+        }
+
         public async Task<T> GetFirstOrDefaulAsync()
         {
             return await _context.Set<T>().FirstOrDefaultAsync();

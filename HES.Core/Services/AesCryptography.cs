@@ -2,9 +2,8 @@
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
-using HES.Web.Helpers.Interfaces;
 
-namespace HES.Web.Helpers.Services
+namespace HES.Core.Interfaces
 {
     public class AesCryptography : IAesCryptography
     {

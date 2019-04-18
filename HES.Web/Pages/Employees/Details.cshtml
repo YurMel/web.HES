@@ -6,6 +6,8 @@
     ViewData["ActivePage"] = MenuNavPages.Employees;
 }
 
+<partial name="_ErrorMessage" for="ErrorMessage" />
+
 @* Employee items *@
 <div class="row align-items-center mb-2">
     <div class="col-auto p-1">
@@ -580,7 +582,9 @@
                 $('#personal_acc').attr("disabled", true);
                 $('#shared_acc').attr("disabled", true);
             }
+            $('.toast').toast('show');
         });
+
     </script>
     <partial name="_ValidationScriptsPartial" />
 }
