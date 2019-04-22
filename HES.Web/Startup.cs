@@ -1,7 +1,6 @@
 using HES.Core.Interfaces;
 using HES.Core.Services;
 using HES.Infrastructure;
-using HES.Web.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
