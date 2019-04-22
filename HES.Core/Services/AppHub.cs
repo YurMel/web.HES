@@ -97,7 +97,13 @@ namespace HES.Core.Services
                     throw new HideezException(HideezErrorCode.DeviceNotConnectedToAnyHost);
 
                 await deviceDescr.Connection.EstablishRemoteDeviceConnection(id, channelNo);
-                return await DeviceHub.WaitDeviceConnection(id, timeout: 3000);
+
+                var remoteDevice =  await DeviceHub.WaitDeviceConnection(id, timeout: 3000);
+
+                if (remoteDevice != null)
+                    await remoteDevice.WaitAuthentication(timeout: 3000);
+
+                return remoteDevice;
             }
             catch (Exception ex)
             {
