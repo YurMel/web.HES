@@ -120,31 +120,6 @@ namespace HES.Core.Services
             await _sharedAccountRepository.UpdateOnlyPropAsync(sharedAccount, new string[] { "Deleted" });
         }
 
-        //public async Task<SharedAccount> AddAsync(SharedAccount entity)
-        //{
-        //    return await _sharedAccountRepository.AddAsync(entity);
-        //}
-
-        //public async Task<IList<SharedAccount>> AddRangeAsync(IList<SharedAccount> entity)
-        //{
-        //    return await _sharedAccountRepository.AddRangeAsync(entity);
-        //}
-
-        //public async Task UpdateAsync(SharedAccount entity)
-        //{
-        //    await _sharedAccountRepository.UpdateAsync(entity);
-        //}
-
-        //public async Task UpdateOnlyPropAsync(SharedAccount entity, string[] properties)
-        //{
-        //    await _sharedAccountRepository.UpdateOnlyPropAsync(entity, properties);
-        //}
-
-        //public async Task DeleteAsync(SharedAccount entity)
-        //{
-        //    await _sharedAccountRepository.DeleteAsync(entity);
-        //}
-
         public bool Exist(Expression<Func<SharedAccount, bool>> predicate)
         {
             return _sharedAccountRepository.Exist(predicate);

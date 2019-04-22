@@ -1,11 +1,10 @@
 ﻿using HES.Core.Entities;
-using HES.Infrastructure;
+using HES.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
 using SmartBreadcrumbs.Attributes;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace HES.Web.Pages.Templates
@@ -13,20 +12,22 @@ namespace HES.Web.Pages.Templates
     [Breadcrumb("Templates")]
     public class IndexModel : PageModel
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ITemplateService _templateService;
         public IList<Template> Templates { get; set; }
 
         [BindProperty]
         public Template Template { get; set; }
+        [TempData]
+        public string ErrorMessage { get; set; }
 
-        public IndexModel(ApplicationDbContext context)
+        public IndexModel(ITemplateService templateService)
         {
-            _context = context;
+            _templateService = templateService;
         }
 
         public async Task OnGetAsync()
         {
-            Templates = await _context.Templates.ToListAsync();
+            Templates = await _templateService.GetAllAsync();
         }
 
         #region Tempalate
@@ -43,8 +44,14 @@ namespace HES.Web.Pages.Templates
                 return RedirectToPage("./Index");
             }
 
-            _context.Templates.Add(Template);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _templateService.CreateTmplateAsync(Template);
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.Message;
+            }
 
             return RedirectToPage("./Index");
         }
@@ -56,47 +63,33 @@ namespace HES.Web.Pages.Templates
                 return NotFound();
             }
 
-            Template = await _context.Templates.FirstOrDefaultAsync(m => m.Id == id);
+            Template = await _templateService.GetFirstOrDefaulAsync(m => m.Id == id);
 
             if (Template == null)
             {
                 return NotFound();
             }
+
             return Partial("_EditTemplate", this);
         }
 
-        public async Task<IActionResult> OnPostEditTemplateAsync(string id)
+        public async Task<IActionResult> OnPostEditTemplateAsync()
         {
             if (!ModelState.IsValid)
             {
                 return RedirectToPage("./Index");
             }
 
-            Template.Id = id;
-            _context.Attach(Template).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                await _templateService.EditTemplateAsync(Template);
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception ex)
             {
-                if (!TemplateExists(Template.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                ErrorMessage = ex.Message;
             }
 
             return RedirectToPage("./Index");
-        }
-
-        private bool TemplateExists(string id)
-        {
-            return _context.Templates.Any(e => e.Id == id);
         }
 
         public async Task<IActionResult> OnGetDeleteTemplateAsync(string id)
@@ -106,7 +99,7 @@ namespace HES.Web.Pages.Templates
                 return NotFound();
             }
 
-            Template = await _context.Templates.FirstOrDefaultAsync(m => m.Id == id);
+            Template = await _templateService.GetFirstOrDefaulAsync(m => m.Id == id);
 
             if (Template == null)
             {
@@ -123,12 +116,13 @@ namespace HES.Web.Pages.Templates
                 return NotFound();
             }
 
-            Template = await _context.Templates.FindAsync(id);
-
-            if (Template != null)
+            try
             {
-                _context.Templates.Remove(Template);
-                await _context.SaveChangesAsync();
+                await _templateService.DeleteTemplateAsync(id);
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.Message;
             }
 
             return RedirectToPage("./Index");

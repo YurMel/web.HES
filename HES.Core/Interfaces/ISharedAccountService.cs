@@ -20,11 +20,6 @@ namespace HES.Core.Interfaces
         Task EditSharedAccountPwdAsync(SharedAccount sharedAccount, InputModel input);
         Task EditSharedAccountOtpAsync(SharedAccount sharedAccount);
         Task DeleteSharedAccountAsync(string id);
-        //Task<SharedAccount> AddAsync(SharedAccount entity);
-        //Task<IList<SharedAccount>> AddRangeAsync(IList<SharedAccount> entity);
-        //Task UpdateAsync(SharedAccount entity);
-        //Task UpdateOnlyPropAsync(SharedAccount entity, string[] properties);
-        //Task DeleteAsync(SharedAccount entity);
         bool Exist(Expression<Func<SharedAccount, bool>> predicate);
     }
 }

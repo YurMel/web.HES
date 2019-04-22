@@ -15,11 +15,9 @@ namespace HES.Core.Interfaces
         Task<Template> GetFirstOrDefaulAsync(Expression<Func<Template, bool>> match);
         Task<Template> GetFirstOrDefaulIncludeAsync(Expression<Func<Template, bool>> where, params Expression<Func<Template, object>>[] navigationProperties);
         Task<Template> GetByIdAsync(dynamic id);
-        Task<Template> AddAsync(Template entity);
-        Task<IList<Template>> AddRangeAsync(IList<Template> entity);
-        Task UpdateAsync(Template entity);
-        Task UpdateOnlyPropAsync(Template entity, string[] properties);
-        Task DeleteAsync(Template entity);
+        Task<Template> CreateTmplateAsync(Template entity);
+        Task EditTemplateAsync(Template template);
+        Task DeleteTemplateAsync(string id);
         bool Exist(Expression<Func<Template, bool>> predicate);
     }
 }

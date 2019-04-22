@@ -6,6 +6,8 @@
     ViewData["ActivePage"] = MenuNavPages.Templates;
 }
 
+<partial name="_ErrorMessage" for="ErrorMessage" />
+
 @* Top table items *@
 <div class="row align-items-center">
     <div class="col">
@@ -125,7 +127,7 @@
 
 @section Scripts{
     <script>
-        // Init DataTables 
+        // Init DataTables
         var table_name = '#templates';
         $(table_name).DataTable({
             "columnDefs": [
