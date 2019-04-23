@@ -15,18 +15,22 @@ namespace HES.Core.Services
         private readonly IAsyncRepository<DeviceAccount> _deviceAccountRepository;
         private readonly IAsyncRepository<DeviceTask> _deviceTaskRepository;
         private readonly IAsyncRepository<SharedAccount> _sharedAccountRepository;
+        private readonly IRemoteTaskService _remoteTaskService;
+
 
         public EmployeeService(IAsyncRepository<Employee> employeeRepository,
                                IAsyncRepository<Device> deviceRepository,
                                IAsyncRepository<DeviceAccount> deviceAccountRepository,
                                IAsyncRepository<DeviceTask> deviceTaskRepository,
-                               IAsyncRepository<SharedAccount> sharedAccountRepository)
+                               IAsyncRepository<SharedAccount> sharedAccountRepository,
+                               IRemoteTaskService remoteTaskService)
         {
             _employeeRepository = employeeRepository;
             _deviceRepository = deviceRepository;
             _deviceAccountRepository = deviceAccountRepository;
             _deviceTaskRepository = deviceTaskRepository;
             _sharedAccountRepository = sharedAccountRepository;
+            _remoteTaskService = remoteTaskService;
         }
 
         public async Task<IList<Employee>> GetAllAsync()
@@ -160,11 +164,21 @@ namespace HES.Core.Services
                 // Create Device Account
                 Accounts.Add(new DeviceAccount { Id = deviceAccountId, Name = deviceAccount.Name, Urls = deviceAccount.Urls, Apps = deviceAccount.Apps, Login = deviceAccount.Login, Type = AccountType.Personal, Status = AccountStatus.Creating, CreatedAt = DateTime.UtcNow, PasswordUpdatedAt = DateTime.UtcNow, OtpUpdatedAt = input.OtpSecret != null ? new DateTime?(DateTime.UtcNow) : null, EmployeeId = deviceAccount.EmployeeId, DeviceId = deviceId, SharedAccountId = null });
                 // Create Device Task
-                Tasks.Add(new DeviceTask { DeviceAccountId = deviceAccountId, Password = input.Password, OtpSecret = input.OtpSecret, CreatedAt = DateTime.UtcNow, Operation = TaskOperation.Create, NameChanged = true, UrlsChanged = true, AppsChanged = true, LoginChanged = true, PasswordChanged = true, OtpSecretChanged = true });
+                //Tasks.Add(new DeviceTask { DeviceAccountId = deviceAccountId, Password = input.Password, OtpSecret = input.OtpSecret, CreatedAt = DateTime.UtcNow, Operation = TaskOperation.Create, NameChanged = true, UrlsChanged = true, AppsChanged = true, LoginChanged = true, PasswordChanged = true, OtpSecretChanged = true });
+                Tasks.Add(new DeviceTask { DeviceAccountId = deviceAccountId, Name = deviceAccount.Name, Urls = deviceAccount.Urls, Apps = deviceAccount.Apps, Login = deviceAccount.Login, Password = input.Password, OtpSecret = input.OtpSecret, CreatedAt = DateTime.UtcNow, Operation = TaskOperation.Create });
             }
 
             await _deviceAccountRepository.AddRangeAsync(Accounts);
-            await _deviceTaskRepository.AddRangeAsync(Tasks);
+
+            try
+            {
+                await _remoteTaskService.AddRangeTaskAsync(Tasks);
+            }
+            catch (Exception ex)
+            {
+                await _deviceAccountRepository.DeleteRangeAsync(Accounts);
+                throw new Exception(ex.Message);
+            }
         }
 
         public async Task EditPersonalAccountAsync(DeviceAccount deviceAccount)
@@ -179,12 +193,23 @@ namespace HES.Core.Services
                 throw new Exception("An account with the same name and login exists.");
             }
             // Update Device Account
-            deviceAccount.UpdatedAt = DateTime.UtcNow;
+            //deviceAccount.UpdatedAt = DateTime.UtcNow;
             deviceAccount.Status = AccountStatus.Updating;
-            string[] properties = { "Name", "Urls", "Apps", "Login", "Status", "UpdatedAt" };
+            //string[] properties = { "Name", "Urls", "Apps", "Login", "Status", "UpdatedAt" };
+            string[] properties = { "Status" };
             await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties);
             // Create Device Task
-            await _deviceTaskRepository.AddAsync(new DeviceTask { DeviceAccountId = deviceAccount.Id, Password = null, OtpSecret = null, CreatedAt = DateTime.UtcNow, Operation = TaskOperation.Update, NameChanged = true, UrlsChanged = true, AppsChanged = true, LoginChanged = true, PasswordChanged = false, OtpSecretChanged = false });
+            //await _deviceTaskRepository.AddAsync(new DeviceTask { DeviceAccountId = deviceAccount.Id, Password = null, OtpSecret = null, CreatedAt = DateTime.UtcNow, Operation = TaskOperation.Update, NameChanged = true, UrlsChanged = true, AppsChanged = true, LoginChanged = true, PasswordChanged = false, OtpSecretChanged = false });
+            try
+            {
+                await _remoteTaskService.AddTaskAsync(new DeviceTask { DeviceAccountId = deviceAccount.Id, Name = deviceAccount.Name, Urls = deviceAccount.Urls, Apps = deviceAccount.Apps, Login = deviceAccount.Login, Password = null, OtpSecret = null, CreatedAt = DateTime.UtcNow, Operation = TaskOperation.Update });
+            }
+            catch (Exception ex)
+            {
+                deviceAccount.Status = AccountStatus.Done;
+                await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties);
+                throw new Exception(ex.Message);
+            }
         }
 
         public async Task EditPersonalAccountPwdAsync(DeviceAccount deviceAccount, InputModel input)
@@ -194,13 +219,24 @@ namespace HES.Core.Services
                 throw new Exception("The parameter must not be null.");
             }
             // Update Device Account
-            deviceAccount.UpdatedAt = DateTime.UtcNow;
-            deviceAccount.PasswordUpdatedAt = DateTime.UtcNow;
+            //deviceAccount.UpdatedAt = DateTime.UtcNow;
+            //deviceAccount.PasswordUpdatedAt = DateTime.UtcNow;
             deviceAccount.Status = AccountStatus.Updating;
-            string[] properties = { "Status", "UpdatedAt", "PasswordUpdatedAt" };
+            //string[] properties = { "Status", "UpdatedAt", "PasswordUpdatedAt" };
+            string[] properties = { "Status" };
             await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties);
             // Create Device Task
-            await _deviceTaskRepository.AddAsync(new DeviceTask { DeviceAccountId = deviceAccount.Id, Password = input.Password, CreatedAt = DateTime.UtcNow, Operation = TaskOperation.Update, PasswordChanged = true });
+            //await _deviceTaskRepository.AddAsync(new DeviceTask { DeviceAccountId = deviceAccount.Id, Password = input.Password, CreatedAt = DateTime.UtcNow, Operation = TaskOperation.Update, PasswordChanged = true });
+            try
+            {
+                await _remoteTaskService.AddTaskAsync(new DeviceTask { DeviceAccountId = deviceAccount.Id, Password = input.Password, CreatedAt = DateTime.UtcNow, Operation = TaskOperation.Update });
+            }
+            catch (Exception ex)
+            {
+                deviceAccount.Status = AccountStatus.Done;
+                await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties);
+                throw new Exception(ex.Message);
+            }
         }
 
         public async Task EditPersonalAccountOtpAsync(DeviceAccount deviceAccount, InputModel input)
@@ -216,13 +252,24 @@ namespace HES.Core.Services
             }
 
             // Update Device Account
-            deviceAccount.UpdatedAt = DateTime.UtcNow;
-            deviceAccount.OtpUpdatedAt = input.OtpSecret != null ? new DateTime?(DateTime.UtcNow) : null;
+            //deviceAccount.UpdatedAt = DateTime.UtcNow;
+            //deviceAccount.OtpUpdatedAt = input.OtpSecret != null ? new DateTime?(DateTime.UtcNow) : null;
             deviceAccount.Status = AccountStatus.Updating;
-            string[] properties = { "Status", "UpdatedAt", "OtpUpdatedAt" };
+            //string[] properties = { "Status", "UpdatedAt", "OtpUpdatedAt" };
+            string[] properties = { "Status" };
             await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties);
             // Create Device Task
-            await _deviceTaskRepository.AddAsync(new DeviceTask { DeviceAccountId = deviceAccount.Id, OtpSecret = input.OtpSecret, CreatedAt = DateTime.UtcNow, Operation = TaskOperation.Update, OtpSecretChanged = true });
+            //await _deviceTaskRepository.AddAsync(new DeviceTask { DeviceAccountId = deviceAccount.Id, OtpSecret = input.OtpSecret, CreatedAt = DateTime.UtcNow, Operation = TaskOperation.Update, OtpSecretChanged = true });
+            try
+            {
+                await _remoteTaskService.AddTaskAsync(new DeviceTask { DeviceAccountId = deviceAccount.Id, OtpSecret = input.OtpSecret, CreatedAt = DateTime.UtcNow, Operation = TaskOperation.Update });
+            }
+            catch (Exception ex)
+            {
+                deviceAccount.Status = AccountStatus.Done;
+                await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties);
+                throw new Exception(ex.Message);
+            }
         }
 
         public async Task AddSharedAccount(string employeeId, string sharedAccountId, string[] selectedDevices)
@@ -247,11 +294,22 @@ namespace HES.Core.Services
                 var deviceAccountId = Guid.NewGuid().ToString();
                 Accounts.Add(new DeviceAccount { Id = deviceAccountId, Name = sharedAccount.Name, Urls = sharedAccount.Urls, Apps = sharedAccount.Apps, Login = sharedAccount.Login, Type = AccountType.Shared, Status = AccountStatus.Creating, CreatedAt = DateTime.UtcNow, PasswordUpdatedAt = DateTime.UtcNow, OtpUpdatedAt = sharedAccount.OtpSecret != null ? new DateTime?(DateTime.UtcNow) : null, EmployeeId = employeeId, DeviceId = deviceId, SharedAccountId = sharedAccountId });
                 // Create Device Task
-                Tasks.Add(new DeviceTask { DeviceAccountId = deviceAccountId, Password = sharedAccount.Password, OtpSecret = sharedAccount.OtpSecret, CreatedAt = DateTime.UtcNow, Operation = TaskOperation.Create, NameChanged = true, UrlsChanged = true, AppsChanged = true, LoginChanged = true, PasswordChanged = true, OtpSecretChanged = true });
+                //Tasks.Add(new DeviceTask { DeviceAccountId = deviceAccountId, Password = sharedAccount.Password, OtpSecret = sharedAccount.OtpSecret, CreatedAt = DateTime.UtcNow, Operation = TaskOperation.Create, NameChanged = true, UrlsChanged = true, AppsChanged = true, LoginChanged = true, PasswordChanged = true, OtpSecretChanged = true });
+                Tasks.Add(new DeviceTask { DeviceAccountId = deviceAccountId, Name = sharedAccount.Name, Urls = sharedAccount.Urls, Apps = sharedAccount.Apps, Login = sharedAccount.Login, Password = sharedAccount.Password, OtpSecret = sharedAccount.OtpSecret, CreatedAt = DateTime.UtcNow, Operation = TaskOperation.Create });
             }
 
             await _deviceAccountRepository.AddRangeAsync(Accounts);
-            await _deviceTaskRepository.AddRangeAsync(Tasks);
+            //await _deviceTaskRepository.AddRangeAsync(Tasks);
+
+            try
+            {
+                await _remoteTaskService.AddRangeTaskAsync(Tasks);
+            }
+            catch (Exception ex)
+            {
+                await _deviceAccountRepository.DeleteRangeAsync(Accounts);
+                throw new Exception(ex.Message);
+            }
         }
 
         public async Task DeleteAccount(string accountId)
@@ -267,11 +325,23 @@ namespace HES.Core.Services
             }
             // Update Device Account
             deviceAccount.Status = AccountStatus.Removing;
-            deviceAccount.UpdatedAt = DateTime.UtcNow;
-            string[] properties = { "Status", "UpdatedAt" };
+            //deviceAccount.UpdatedAt = DateTime.UtcNow;
+            //string[] properties = { "Status", "UpdatedAt" };
+            string[] properties = { "Status" };
             await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties);
             // Create Device Task
-            await _deviceTaskRepository.AddAsync(new DeviceTask { DeviceAccountId = accountId, CreatedAt = DateTime.UtcNow, Operation = TaskOperation.Delete });
+            //await _deviceTaskRepository.AddAsync(new DeviceTask { DeviceAccountId = accountId, CreatedAt = DateTime.UtcNow, Operation = TaskOperation.Delete });
+            try
+            {
+                // Create Device Task
+                await _remoteTaskService.AddTaskAsync(new DeviceTask { DeviceAccountId = accountId, CreatedAt = DateTime.UtcNow, Operation = TaskOperation.Delete });
+            }
+            catch (Exception ex)
+            {
+                deviceAccount.Status = AccountStatus.Done;
+                await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties);
+                throw new Exception(ex.Message);
+            }
         }
     }
 }

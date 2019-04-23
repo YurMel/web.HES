@@ -1,5 +1,6 @@
 ﻿using HES.Core.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -110,6 +111,12 @@ namespace HES.Infrastructure
         public async Task DeleteAsync(T entity)
         {
             _context.Set<T>().Remove(entity);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteRangeAsync(IList<T> entity)
+        {
+            _context.Set<T>().RemoveRange(entity);
             await _context.SaveChangesAsync();
         }
 

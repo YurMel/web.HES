@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace HES.Core.Services
 {
-    class RemoteTaskService : IRemoteTaskService
+    public class RemoteTaskService : IRemoteTaskService
     {
         public async Task AddRangeTaskAsync(IList<DeviceTask> deviceTask)
         {
