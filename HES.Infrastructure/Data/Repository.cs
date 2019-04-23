@@ -118,5 +118,10 @@ namespace HES.Infrastructure
             var exist = _context.Set<T>().Where(predicate);
             return exist.Any();
         }
+
+        public IQueryable<T> Query()
+        {
+            return _context.Set<T>().AsQueryable();
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using HES.Core.Entities;
+using HES.Core.Interfaces;
 using HES.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -15,6 +16,7 @@ namespace HES.Web.Pages.Settings.OrgStructure
     public class IndexModel : PageModel
     {
         private readonly ApplicationDbContext _context;
+        private readonly ISettingsService _settingsService;
         public IList<Company> Companies { get; set; }
         public IList<Department> Departments { get; set; }
 
@@ -22,15 +24,17 @@ namespace HES.Web.Pages.Settings.OrgStructure
         public Department Department { get; set; }
         public bool Bind { get; set; }
 
-        public IndexModel(ApplicationDbContext context)
+        public IndexModel(ApplicationDbContext context, ISettingsService settingsService)
         {
             _context = context;
+            _settingsService = settingsService;
         }
 
         public async Task OnGetAsync()
         {
             Companies = await _context.Companies.ToListAsync();
             Departments = await _context.Departments.Include(d => d.Company).ToListAsync();
+            Departments = await _settingsService.DepartmentQuery().Include(d => d.Company).ToListAsync();// _context.Departments.Include(d => d.Company).ToListAsync();
         }
 
         #region Company
@@ -171,8 +175,9 @@ namespace HES.Web.Pages.Settings.OrgStructure
                 return NotFound();
             }
 
-            Department = await _context.Departments
-                .Include(d => d.Company).FirstOrDefaultAsync(m => m.Id == id);
+            //Department = await _context.Departments
+            //    .Include(d => d.Company).FirstOrDefaultAsync(m => m.Id == id);
+            Department = await _settingsService.DepartmentQuery().Include(d => d.Company).FirstOrDefaultAsync(m => m.Id == id);
 
             if (Department == null)
             {

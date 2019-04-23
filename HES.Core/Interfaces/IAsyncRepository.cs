@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
@@ -21,5 +22,6 @@ namespace HES.Core.Interfaces
         Task UpdateOnlyPropAsync(T entity, string[] properties);
         Task DeleteAsync(T entity);
         bool Exist(Expression<Func<T, bool>> predicate);
+        IQueryable<T> Query();
     }
 }

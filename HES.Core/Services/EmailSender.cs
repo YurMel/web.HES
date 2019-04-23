@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity.UI.Services;
+﻿using HES.Core.Interfaces;
 using System.Net;
 using System.Net.Mail;
 using System.Threading.Tasks;
