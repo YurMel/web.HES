@@ -22,9 +22,9 @@ namespace HES.Core.Services
            return _departmentRepository.Query();
         }
 
-        public async Task CreateDepartment()
+        public Task CreateDepartment()
         {
-           
+            return Task.CompletedTask;
         }
     }
 }

@@ -46,6 +46,8 @@ namespace HES.Web
                      Configuration["EmailSender:UserName"],
                      Configuration["EmailSender:Password"]));
 
+            services.AddScoped<IRemoteTaskService, RemoteTaskService>();
+
             // Breadcrumbs
             services.AddBreadcrumbs(GetType().Assembly);
 

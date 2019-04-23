@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using HES.Core.Interfaces;
 using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.Remote;
 using Microsoft.AspNetCore.SignalR;
@@ -22,6 +23,13 @@ namespace HES.Core.Services
 
         static readonly ConcurrentDictionary<string, DeviceDescription> _deviceConnections
             = new ConcurrentDictionary<string, DeviceDescription>();
+
+        readonly IRemoteTaskService _remoteTaskService;
+
+        public AppHub(IRemoteTaskService remoteTaskService)
+        {
+            _remoteTaskService = remoteTaskService;
+        }
 
         public override Task OnConnectedAsync()
         {
@@ -55,7 +63,7 @@ namespace HES.Core.Services
             return list;
         }
 
-        public Task OnDeviceConnected(string mac)
+        public async Task OnDeviceConnected(string mac)
         {
             _deviceConnections.AddOrUpdate(mac, new DeviceDescription(Clients.Caller), (deviceMac, oldDescr) =>
             {
@@ -65,7 +73,7 @@ namespace HES.Core.Services
             var deviceList = GetDeviceMacList();
             deviceList.TryAdd(mac, mac);
 
-            return Task.CompletedTask;
+            await _remoteTaskService.ExecuteRemoteTasks(mac);
         }
 
         public Task OnDeviceDisconnected(string mac)
