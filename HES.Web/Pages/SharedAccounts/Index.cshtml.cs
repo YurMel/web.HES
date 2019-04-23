@@ -2,6 +2,7 @@
 using HES.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 using SmartBreadcrumbs.Attributes;
 using System;
 using System.Collections.Generic;

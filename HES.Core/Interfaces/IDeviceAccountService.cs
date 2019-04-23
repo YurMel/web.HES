@@ -1,6 +1,7 @@
 ﻿using HES.Core.Entities;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
@@ -8,6 +9,7 @@ namespace HES.Core.Interfaces
 {
     public interface IDeviceAccountService
     {
+        IQueryable<DeviceAccount> DeviceAccountQuery();
         Task<IList<DeviceAccount>> GetAllAsync();
         Task<IList<DeviceAccount>> GetAllWhereAsync(Expression<Func<DeviceAccount, bool>> predicate);
         Task<IList<DeviceAccount>> GetAllIncludeAsync(params Expression<Func<DeviceAccount, object>>[] navigationProperties);

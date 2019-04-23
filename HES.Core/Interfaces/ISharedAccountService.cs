@@ -1,6 +1,7 @@
 ﻿using HES.Core.Entities;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
@@ -8,6 +9,7 @@ namespace HES.Core.Interfaces
 {
     public interface ISharedAccountService
     {
+        IQueryable<SharedAccount> SharedAccountQuery();
         Task<IList<SharedAccount>> GetAllAsync();
         Task<IList<SharedAccount>> GetAllWhereAsync(Expression<Func<SharedAccount, bool>> predicate);
         Task<IList<SharedAccount>> GetAllIncludeAsync(params Expression<Func<SharedAccount, object>>[] navigationProperties);

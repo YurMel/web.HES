@@ -33,8 +33,8 @@ namespace HES.Web.Pages.Settings.OrgStructure
         public async Task OnGetAsync()
         {
             Companies = await _context.Companies.ToListAsync();
-            Departments = await _context.Departments.Include(d => d.Company).ToListAsync();
-            Departments = await _settingsService.DepartmentQuery().Include(d => d.Company).ToListAsync();// _context.Departments.Include(d => d.Company).ToListAsync();
+            //Departments = await _context.Departments.Include(d => d.Company).ToListAsync();
+            Departments = await _settingsService.DepartmentQuery().Include(d => d.Company).ToListAsync();
         }
 
         #region Company

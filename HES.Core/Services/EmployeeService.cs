@@ -2,6 +2,7 @@
 using HES.Core.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
@@ -143,6 +144,11 @@ namespace HES.Core.Services
             {
                 throw new Exception("The parameter must not be null.");
             }
+            var exist = _deviceAccountRepository.Query().Where(s => s.Name == deviceAccount.Name).Where(s => s.Login == deviceAccount.Login).Where(s => s.Deleted == false).Any();
+            if (exist)
+            {
+                throw new Exception("An account with the same name and login exists.");
+            }
 
             List<DeviceAccount> Accounts = new List<DeviceAccount>();
             List<DeviceTask> Tasks = new List<DeviceTask>();
@@ -166,6 +172,11 @@ namespace HES.Core.Services
             if (deviceAccount == null)
             {
                 throw new Exception("The parameter must not be null.");
+            }
+            var exist = _deviceAccountRepository.Query().Where(s => s.Name == deviceAccount.Name).Where(s => s.Login == deviceAccount.Login).Where(s => s.Deleted == false).Where(s =>s.Id != deviceAccount.Id).Any();
+            if (exist)
+            {
+                throw new Exception("An account with the same name and login exists.");
             }
             // Update Device Account
             deviceAccount.UpdatedAt = DateTime.UtcNow;

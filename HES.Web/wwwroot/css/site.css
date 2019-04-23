@@ -610,3 +610,15 @@ div.dataTables_scrollHead table.dataTable {
     }
 }
 /*#endregion*/
+
+/*#region Alert */
+.custom-alert {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 380px;
+    z-index: 500;
+}
+/*#endregion*/
+

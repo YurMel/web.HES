@@ -2,6 +2,7 @@
 using HES.Core.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
@@ -12,10 +13,16 @@ namespace HES.Core.Services
         private readonly IAsyncRepository<DeviceAccount> _deviceAccountRepository;
         private readonly IAsyncRepository<DeviceTask> _deviceTaskRepository;
 
-        public DeviceAccountService(IAsyncRepository<DeviceAccount> deviceAccountRepository, IAsyncRepository<DeviceTask> deviceTaskRepository)
+        public DeviceAccountService(IAsyncRepository<DeviceAccount> deviceAccountRepository,
+                                    IAsyncRepository<DeviceTask> deviceTaskRepository)
         {
             _deviceAccountRepository = deviceAccountRepository;
             _deviceTaskRepository = deviceTaskRepository;
+        }
+
+        public IQueryable<DeviceAccount> DeviceAccountQuery()
+        {
+            return _deviceAccountRepository.Query();
         }
 
         public async Task<IList<DeviceAccount>> GetAllAsync()

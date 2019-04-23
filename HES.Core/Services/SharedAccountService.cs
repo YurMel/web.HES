@@ -2,6 +2,7 @@
 using HES.Core.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
@@ -14,6 +15,11 @@ namespace HES.Core.Services
         public SharedAccountService(IAsyncRepository<SharedAccount> sharedAccountRepository)
         {
             _sharedAccountRepository = sharedAccountRepository;
+        }
+
+        public IQueryable<SharedAccount> SharedAccountQuery()
+        {
+            return _sharedAccountRepository.Query();
         }
 
         public async Task<IList<SharedAccount>> GetAllAsync()
@@ -57,6 +63,11 @@ namespace HES.Core.Services
             {
                 throw new Exception("The parameter must not be null.");
             }
+            var exist = _sharedAccountRepository.Query().Where(s => s.Name == sharedAccount.Name).Where(s => s.Login == sharedAccount.Login).Where(s => s.Deleted == false).Any();
+            if (exist)
+            {
+                throw new Exception("An account with the same name and login exists.");
+            }
             // Set password
             sharedAccount.Password = input.Password;
             // Set password date change
@@ -73,6 +84,11 @@ namespace HES.Core.Services
             if (sharedAccount == null)
             {
                 throw new Exception("The parameter must not be null.");
+            }
+            var exist = _sharedAccountRepository.Query().Where(s => s.Name == sharedAccount.Name).Where(s => s.Login == sharedAccount.Login).Where(s => s.Deleted == false).Where(s => s.Id != sharedAccount.Id).Any();
+            if (exist)
+            {
+                throw new Exception("An account with the same name and login exists.");
             }
             // Update Shared Account
             string[] properties = { "Name", "Urls", "Apps", "Login" };
@@ -115,7 +131,7 @@ namespace HES.Core.Services
             {
                 throw new Exception("Shared account does not exist.");
             }
-            
+
             sharedAccount.Deleted = true;
             await _sharedAccountRepository.UpdateOnlyPropAsync(sharedAccount, new string[] { "Deleted" });
         }

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace HES.Core.Services
 {
@@ -19,6 +20,11 @@ namespace HES.Core.Services
         public IQueryable<Department> DepartmentQuery()
         {
            return _departmentRepository.Query();
+        }
+
+        public async Task CreateDepartment()
+        {
+           
         }
     }
 }
