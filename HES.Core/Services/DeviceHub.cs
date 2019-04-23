@@ -6,6 +6,7 @@ using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.Remote;
 using Microsoft.AspNetCore.SignalR;
 using Hideez.SDK.Communication.Utils;
+using HES.Core.Interfaces;
 
 namespace HES.Core.Services
 {
@@ -27,6 +28,13 @@ namespace HES.Core.Services
 
         static readonly ConcurrentDictionary<string, RemoteDevice> _connections
             = new ConcurrentDictionary<string, RemoteDevice>();
+
+        readonly IRemoteTaskService _remoteTaskService;
+
+        public DeviceHub(IRemoteTaskService remoteTaskService)
+        {
+            _remoteTaskService = remoteTaskService;
+        }
 
         public override async Task OnConnectedAsync()
         {
