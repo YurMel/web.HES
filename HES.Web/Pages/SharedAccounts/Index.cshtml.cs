@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using SmartBreadcrumbs.Attributes;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace HES.Web.Pages.SharedAccounts
@@ -27,7 +28,7 @@ namespace HES.Web.Pages.SharedAccounts
 
         public async Task OnGetAsync()
         {
-            SharedAccounts = await _sharedAccountService.GetAllWhereAsync(d => d.Deleted == false);
+            SharedAccounts = await _sharedAccountService.SharedAccountQuery().Where(d => d.Deleted == false).ToListAsync();
         }
 
         #region Shared Account
@@ -63,7 +64,7 @@ namespace HES.Web.Pages.SharedAccounts
                 return NotFound();
             }
 
-            SharedAccount = await _sharedAccountService.GetFirstOrDefaulAsync(m => m.Id == id);
+            SharedAccount = await _sharedAccountService.SharedAccountQuery().FirstOrDefaultAsync(m => m.Id == id);
 
             if (SharedAccount == null)
             {
@@ -99,7 +100,7 @@ namespace HES.Web.Pages.SharedAccounts
                 return NotFound();
             }
 
-            SharedAccount = await _sharedAccountService.GetFirstOrDefaulAsync(m => m.Id == id);
+            SharedAccount = await _sharedAccountService.SharedAccountQuery().FirstOrDefaultAsync(m => m.Id == id);
 
             if (SharedAccount == null)
             {
@@ -134,7 +135,7 @@ namespace HES.Web.Pages.SharedAccounts
                 return NotFound();
             }
 
-            SharedAccount = await _sharedAccountService.GetFirstOrDefaulAsync(m => m.Id == id);
+            SharedAccount = await _sharedAccountService.SharedAccountQuery().FirstOrDefaultAsync(m => m.Id == id);
 
             if (SharedAccount == null)
             {
@@ -165,7 +166,7 @@ namespace HES.Web.Pages.SharedAccounts
                 return NotFound();
             }
 
-            SharedAccount = await _sharedAccountService.GetFirstOrDefaulAsync(m => m.Id == id);
+            SharedAccount = await _sharedAccountService.SharedAccountQuery().FirstOrDefaultAsync(m => m.Id == id);
 
             if (SharedAccount == null)
             {

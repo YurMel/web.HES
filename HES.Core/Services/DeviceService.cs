@@ -20,37 +20,42 @@ namespace HES.Core.Services
             _aes = aes;
         }
 
-        public async Task<IList<Device>> GetAllAsync()
+        //public async Task<IList<Device>> GetAllAsync()
+        //{
+        //    return await _deviceRepository.GetAllIncludeAsync(d => d.Employee);
+        //}
+
+        //public async Task<IList<Device>> GetAllWhereAsync(Expression<Func<Device, bool>> predicate)
+        //{
+        //    return await _deviceRepository.GetAllWhereAsync(predicate);
+        //}
+
+        //public async Task<IList<Device>> GetAllIncludeAsync(params Expression<Func<Device, object>>[] navigationProperties)
+        //{
+        //    return await _deviceRepository.GetAllIncludeAsync(navigationProperties);
+        //}
+
+        //public async Task<Device> GetFirstOrDefaulAsync()
+        //{
+        //    return await _deviceRepository.GetFirstOrDefaulAsync();
+        //}
+
+        //public async Task<Device> GetFirstOrDefaulAsync(Expression<Func<Device, bool>> match)
+        //{
+        //    return await _deviceRepository.GetFirstOrDefaulAsync(match);
+        //}
+
+        //public async Task<Device> GetFirstOrDefaulIncludeAsync(Expression<Func<Device, bool>> where, params Expression<Func<Device, object>>[] navigationProperties)
+        //{
+        //    return await _deviceRepository.GetFirstOrDefaulIncludeAsync(where, navigationProperties);
+        //}
+
+        public IQueryable<Device> DeviceQuery()
         {
-            return await _deviceRepository.GetAllIncludeAsync(d => d.Employee);
+            return _deviceRepository.Query();
         }
 
-        public async Task<IList<Device>> GetAllWhereAsync(Expression<Func<Device, bool>> predicate)
-        {
-            return await _deviceRepository.GetAllWhereAsync(predicate);
-        }
-
-        public async Task<IList<Device>> GetAllIncludeAsync(params Expression<Func<Device, object>>[] navigationProperties)
-        {
-            return await _deviceRepository.GetAllIncludeAsync(navigationProperties);
-        }
-
-        public async Task<Device> GetFirstOrDefaulAsync()
-        {
-            return await _deviceRepository.GetFirstOrDefaulAsync();
-        }
-
-        public async Task<Device> GetFirstOrDefaulAsync(Expression<Func<Device, bool>> match)
-        {
-            return await _deviceRepository.GetFirstOrDefaulAsync(match);
-        }
-
-        public async Task<Device> GetFirstOrDefaulIncludeAsync(Expression<Func<Device, bool>> where, params Expression<Func<Device, object>>[] navigationProperties)
-        {
-            return await _deviceRepository.GetFirstOrDefaulIncludeAsync(where, navigationProperties);
-        }
-
-        public async Task<Device> GetByIdAsync(dynamic id)
+        public async Task<Device> DeviceGetByIdAsync(dynamic id)
         {
             return await _deviceRepository.GetByIdAsync(id);
         }

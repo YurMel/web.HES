@@ -15,6 +15,9 @@ namespace HES.Core.Services
         private readonly IAsyncRepository<DeviceAccount> _deviceAccountRepository;
         private readonly IAsyncRepository<DeviceTask> _deviceTaskRepository;
         private readonly IAsyncRepository<SharedAccount> _sharedAccountRepository;
+        private readonly IAsyncRepository<Template> _templateRepository;
+        private readonly IAsyncRepository<Department> _departmentRepository;
+        private readonly IAsyncRepository<Position> _positionRepository;
         private readonly IRemoteTaskService _remoteTaskService;
 
 
@@ -23,6 +26,9 @@ namespace HES.Core.Services
                                IAsyncRepository<DeviceAccount> deviceAccountRepository,
                                IAsyncRepository<DeviceTask> deviceTaskRepository,
                                IAsyncRepository<SharedAccount> sharedAccountRepository,
+                               IAsyncRepository<Template> templateRepository,
+                               IAsyncRepository<Department> departmentRepository,
+                               IAsyncRepository<Position> positionRepository,
                                IRemoteTaskService remoteTaskService)
         {
             _employeeRepository = employeeRepository;
@@ -30,6 +36,9 @@ namespace HES.Core.Services
             _deviceAccountRepository = deviceAccountRepository;
             _deviceTaskRepository = deviceTaskRepository;
             _sharedAccountRepository = sharedAccountRepository;
+            _templateRepository = templateRepository;
+            _departmentRepository = departmentRepository;
+            _positionRepository = positionRepository;
             _remoteTaskService = remoteTaskService;
         }
 
@@ -58,40 +67,85 @@ namespace HES.Core.Services
             return _sharedAccountRepository.Query();
         }
 
-        public async Task<IList<Employee>> GetAllAsync()
+        public IQueryable<Template> TemplateQuery()
         {
-            return await _employeeRepository.GetAllAsync();
+            return _templateRepository.Query();
         }
 
-        public async Task<IList<Employee>> GetAllWhereAsync(Expression<Func<Employee, bool>> predicate)
+        public IQueryable<Department> DepartmentQuery()
         {
-            return await _employeeRepository.GetAllWhereAsync(predicate);
+            return _departmentRepository.Query();
         }
 
-        public async Task<IList<Employee>> GetAllIncludeAsync(params Expression<Func<Employee, object>>[] navigationProperties)
+        public IQueryable<Position> PositionQuery()
         {
-            return await _employeeRepository.GetAllIncludeAsync(navigationProperties);
+            return _positionRepository.Query();
         }
 
-        public async Task<Employee> GetFirstOrDefaulAsync()
-        {
-            return await _employeeRepository.GetFirstOrDefaulAsync();
-        }
-
-        public async Task<Employee> GetFirstOrDefaulAsync(Expression<Func<Employee, bool>> match)
-        {
-            return await _employeeRepository.GetFirstOrDefaulAsync(match);
-        }
-
-        public async Task<Employee> GetFirstOrDefaulIncludeAsync(Expression<Func<Employee, bool>> where, params Expression<Func<Employee, object>>[] navigationProperties)
-        {
-            return await _employeeRepository.GetFirstOrDefaulIncludeAsync(where, navigationProperties);
-        }
-
-        public async Task<Employee> GetByIdAsync(dynamic id)
+        public async Task<Employee> EmployeeGetByIdAsync(dynamic id)
         {
             return await _employeeRepository.GetByIdAsync(id);
         }
+
+        public async Task<Device> DeviceGetByIdAsync(dynamic id)
+        {
+            return await _deviceRepository.GetByIdAsync(id);
+        }
+
+        public async Task<DeviceAccount> DeviceAccountGetByIdAsync(dynamic id)
+        {
+            return await _deviceAccountRepository.GetByIdAsync(id);
+        }
+
+        public async Task<DeviceTask> DeviceTaskGetByIdAsync(dynamic id)
+        {
+            return await _deviceTaskRepository.GetByIdAsync(id);
+        }
+
+        public async Task<SharedAccount> SharedAccountGetByIdAsync(dynamic id)
+        {
+            return await _sharedAccountRepository.GetByIdAsync(id);
+        }
+
+        public async Task<Template> TemplateGetByIdAsync(dynamic id)
+        {
+            return await _templateRepository.GetByIdAsync(id);
+        }
+
+        //public async Task<IList<Employee>> GetAllAsync()
+        //{
+        //    return await _employeeRepository.GetAllAsync();
+        //}
+
+        //public async Task<IList<Employee>> GetAllWhereAsync(Expression<Func<Employee, bool>> predicate)
+        //{
+        //    return await _employeeRepository.GetAllWhereAsync(predicate);
+        //}
+
+        //public async Task<IList<Employee>> GetAllIncludeAsync(params Expression<Func<Employee, object>>[] navigationProperties)
+        //{
+        //    return await _employeeRepository.GetAllIncludeAsync(navigationProperties);
+        //}
+
+        //public async Task<Employee> GetFirstOrDefaulAsync()
+        //{
+        //    return await _employeeRepository.GetFirstOrDefaulAsync();
+        //}
+
+        //public async Task<Employee> GetFirstOrDefaulAsync(Expression<Func<Employee, bool>> match)
+        //{
+        //    return await _employeeRepository.GetFirstOrDefaulAsync(match);
+        //}
+
+        //public async Task<Employee> GetFirstOrDefaulIncludeAsync(Expression<Func<Employee, bool>> where, params Expression<Func<Employee, object>>[] navigationProperties)
+        //{
+        //    return await _employeeRepository.GetFirstOrDefaulIncludeAsync(where, navigationProperties);
+        //}
+
+        //public async Task<Employee> GetByIdAsync(dynamic id)
+        //{
+        //    return await _employeeRepository.GetByIdAsync(id);
+        //}
 
         public async Task CreateEmployeeAsync(Employee employee)
         {
@@ -296,7 +350,7 @@ namespace HES.Core.Services
             if (employeeId == null || sharedAccountId == null || selectedDevices == null)
             {
                 throw new Exception("The parameter must not be null.");
-            }     
+            }
 
             List<DeviceAccount> Accounts = new List<DeviceAccount>();
             List<DeviceTask> Tasks = new List<DeviceTask>();

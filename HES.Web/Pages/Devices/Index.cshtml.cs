@@ -8,6 +8,7 @@ using HES.Core.Interfaces;
 using HES.Core.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 using SmartBreadcrumbs.Attributes;
 
 namespace HES.Web.Pages.Devices
@@ -16,6 +17,7 @@ namespace HES.Web.Pages.Devices
     public class IndexModel : PageModel
     {
         private readonly IDeviceService _deviceService;
+
         public IList<Device> Device { get; set; }
 
         public IndexModel(IDeviceService deviceService)
@@ -25,7 +27,7 @@ namespace HES.Web.Pages.Devices
 
         public async Task OnGetAsync()
         {
-            Device = await _deviceService.GetAllIncludeAsync(d => d.Employee);
+            Device = await _deviceService.DeviceQuery().Include(d => d.Employee).ToListAsync();
         }
 
         public async Task<IActionResult> OnPostPing(string id)

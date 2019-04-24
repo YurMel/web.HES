@@ -1,7 +1,7 @@
 ﻿using HES.Core.Entities;
 using HES.Core.Interfaces;
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
@@ -16,37 +16,12 @@ namespace HES.Core.Services
             _templateRepository = repository;
         }
 
-        public async Task<IList<Template>> GetAllAsync()
+        public IQueryable<Template> TemplateQuery()
         {
-            return await _templateRepository.GetAllAsync();
+            return _templateRepository.Query();
         }
 
-        public async Task<IList<Template>> GetAllWhereAsync(Expression<Func<Template, bool>> predicate)
-        {
-            return await _templateRepository.GetAllWhereAsync(predicate);
-        }
-
-        public async Task<IList<Template>> GetAllIncludeAsync(params Expression<Func<Template, object>>[] navigationProperties)
-        {
-            return await _templateRepository.GetAllIncludeAsync(navigationProperties);
-        }
-
-        public async Task<Template> GetFirstOrDefaulAsync()
-        {
-            return await _templateRepository.GetFirstOrDefaulAsync();
-        }
-
-        public async Task<Template> GetFirstOrDefaulAsync(Expression<Func<Template, bool>> match)
-        {
-            return await _templateRepository.GetFirstOrDefaulAsync(match);
-        }
-
-        public async Task<Template> GetFirstOrDefaulIncludeAsync(Expression<Func<Template, bool>> where, params Expression<Func<Template, object>>[] navigationProperties)
-        {
-            return await _templateRepository.GetFirstOrDefaulIncludeAsync(where, navigationProperties);
-        }
-
-        public async Task<Template> GetByIdAsync(dynamic id)
+        public async Task<Template> TemplateGetByIdAsync(dynamic id)
         {
             return await _templateRepository.GetByIdAsync(id);
         }

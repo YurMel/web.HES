@@ -16,6 +16,7 @@ namespace HES.Web.Pages.Devices
     public class ImportModel : PageModel
     {
         private readonly IDeviceService _deviceService;
+
         public IList<Device> DevicesExists { get; set; }
         public IList<Device> DevicesImported { get; set; }
         public string Message { get; set; }

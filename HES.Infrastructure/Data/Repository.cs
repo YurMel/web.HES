@@ -17,6 +17,11 @@ namespace HES.Infrastructure
             _context = context;
         }
 
+        public IQueryable<T> Query()
+        {
+            return _context.Set<T>().AsQueryable();
+        }
+
         public async Task<IList<T>> GetAllAsync()
         {
             return await _context.Set<T>().ToListAsync();
@@ -123,11 +128,6 @@ namespace HES.Infrastructure
         {
             var exist = _context.Set<T>().Where(predicate);
             return exist.Any();
-        }
-
-        public IQueryable<T> Query()
-        {
-            return _context.Set<T>().AsQueryable();
         }
     }
 }

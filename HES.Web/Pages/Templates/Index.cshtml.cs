@@ -2,6 +2,7 @@
 using HES.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 using SmartBreadcrumbs.Attributes;
 using System;
 using System.Collections.Generic;
@@ -27,7 +28,7 @@ namespace HES.Web.Pages.Templates
 
         public async Task OnGetAsync()
         {
-            Templates = await _templateService.GetAllAsync();
+            Templates = await _templateService.TemplateQuery().ToListAsync();
         }
 
         #region Tempalate
@@ -63,7 +64,7 @@ namespace HES.Web.Pages.Templates
                 return NotFound();
             }
 
-            Template = await _templateService.GetFirstOrDefaulAsync(m => m.Id == id);
+            Template = await _templateService.TemplateQuery().FirstOrDefaultAsync(m => m.Id == id);
 
             if (Template == null)
             {
@@ -99,7 +100,7 @@ namespace HES.Web.Pages.Templates
                 return NotFound();
             }
 
-            Template = await _templateService.GetFirstOrDefaulAsync(m => m.Id == id);
+            Template = await _templateService.TemplateQuery().FirstOrDefaultAsync(m => m.Id == id);
 
             if (Template == null)
             {
