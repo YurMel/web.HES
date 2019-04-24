@@ -33,6 +33,31 @@ namespace HES.Core.Services
             _remoteTaskService = remoteTaskService;
         }
 
+        public IQueryable<Employee> EmployeeQuery()
+        {
+            return _employeeRepository.Query();
+        }
+
+        public IQueryable<Device> DeviceQuery()
+        {
+            return _deviceRepository.Query();
+        }
+
+        public IQueryable<DeviceAccount> DeviceAccountQuery()
+        {
+            return _deviceAccountRepository.Query();
+        }
+
+        public IQueryable<DeviceTask> DeviceTaskQuery()
+        {
+            return _deviceTaskRepository.Query();
+        }
+
+        public IQueryable<SharedAccount> SharedAccountQuery()
+        {
+            return _sharedAccountRepository.Query();
+        }
+
         public async Task<IList<Employee>> GetAllAsync()
         {
             return await _employeeRepository.GetAllAsync();
@@ -271,7 +296,7 @@ namespace HES.Core.Services
             if (employeeId == null || sharedAccountId == null || selectedDevices == null)
             {
                 throw new Exception("The parameter must not be null.");
-            }
+            }     
 
             List<DeviceAccount> Accounts = new List<DeviceAccount>();
             List<DeviceTask> Tasks = new List<DeviceTask>();
@@ -283,6 +308,11 @@ namespace HES.Core.Services
                 if (sharedAccount == null)
                 {
                     throw new Exception("SharedAccount does not exist.");
+                }
+                var exist = _deviceAccountRepository.Query().Where(s => s.Name == sharedAccount.Name).Where(s => s.Login == sharedAccount.Login).Where(s => s.Deleted == false).Any();
+                if (exist)
+                {
+                    throw new Exception("An account with the same name and login exists.");
                 }
                 // Create Device Account
                 var deviceAccountId = Guid.NewGuid().ToString();

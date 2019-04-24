@@ -1,6 +1,7 @@
 ﻿using HES.Core.Entities;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
@@ -8,6 +9,11 @@ namespace HES.Core.Interfaces
 {
     public interface IEmployeeService
     {
+        IQueryable<Employee> EmployeeQuery();
+        IQueryable<Device> DeviceQuery();
+        IQueryable<DeviceAccount> DeviceAccountQuery();
+        IQueryable<DeviceTask> DeviceTaskQuery();
+        IQueryable<SharedAccount> SharedAccountQuery();
         Task<IList<Employee>> GetAllAsync();
         Task<IList<Employee>> GetAllWhereAsync(Expression<Func<Employee, bool>> predicate);
         Task<IList<Employee>> GetAllIncludeAsync(params Expression<Func<Employee, object>>[] navigationProperties);

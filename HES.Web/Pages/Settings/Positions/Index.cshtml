@@ -12,8 +12,10 @@
         <h1 class="text-navyblue">Positions</h1>
     </div>
     <div class="col-auto p-1">
-        <div class="form-group m-0 has-search">
-            <img class="form-control-feedback" src="~/svg/action/search.svg" />
+        <div class="form-group has-search-right m-0">
+            <div class="form-control-feedback">
+                <img class="img-size" src="~/svg/action/search.svg" />
+            </div>
             <input id="searchbox" type="text" class="form-control" placeholder="Search">
         </div>
     </div>
@@ -118,7 +120,7 @@
         // Paginate
         $('#pagination_place').html($('.dataTables_paginate'));
 
-        // Open modal dialog        
+        // Open modal dialog
         $(document).on('click', '.open-modal-dialog', function () {
             var btn = $(this);
             var id = btn.data("id");

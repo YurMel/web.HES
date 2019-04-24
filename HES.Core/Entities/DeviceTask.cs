@@ -16,12 +16,6 @@ namespace HES.Core.Entities
         public string OtpSecret { get; set; }
         public TaskOperation Operation { get; set; }
         public DateTime CreatedAt { get; set; }
-        //public bool NameChanged { get; set; }
-        //public bool UrlsChanged { get; set; }
-        //public bool AppsChanged { get; set; }
-        //public bool LoginChanged { get; set; }
-        //public bool PasswordChanged { get; set; }
-        //public bool OtpSecretChanged { get; set; }
         public string DeviceAccountId { get; set; }
 
         [ForeignKey("DeviceAccountId")]

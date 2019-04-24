@@ -16,10 +16,15 @@ namespace HES.Core.Entities
         public string Login { get; set; }
         public AccountType Type { get; set; }
         public AccountStatus Status { get; set; }
+        [Display(Name = "LastSynced")]
         public DateTime? LastSyncedAt { get; set; }
+        [Display(Name = "Created")]
         public DateTime CreatedAt { get; set; }
+        [Display(Name = "Updated")]
         public DateTime? UpdatedAt { get; set; }
+        [Display(Name = "PasswordUpdated")]
         public DateTime PasswordUpdatedAt { get; set; }
+        [Display(Name = "OtpUpdated")]
         public DateTime? OtpUpdatedAt { get; set; }
         public bool Deleted { get; set; }
         public string EmployeeId { get; set; }

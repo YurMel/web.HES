@@ -404,7 +404,14 @@ namespace HES.Web.Pages.Employees
                 return NotFound();
             }
 
-            await _employeeService.AddSharedAccount(employeeId, sharedAccountId, selectedDevices);
+            try
+            {
+                await _employeeService.AddSharedAccount(employeeId, sharedAccountId, selectedDevices);
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.Message;
+            }
 
             var id = employeeId;
             return RedirectToPage("./Details", new { id });
@@ -421,7 +428,8 @@ namespace HES.Web.Pages.Employees
                 return NotFound();
             }
 
-            DeviceAccount = await _deviceAccountService.GetFirstOrDefaulAsync(x => x.Id == id);
+            //DeviceAccount = await _deviceAccountService.GetFirstOrDefaultAsync(x => x.Id == id);
+            DeviceAccount = await _employeeService.DeviceAccountQuery().FirstOrDefaultAsync(x => x.Id == id);
 
             if (DeviceAccount == null)
             {

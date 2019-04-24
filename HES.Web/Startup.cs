@@ -30,11 +30,10 @@ namespace HES.Web
             services.AddScoped(typeof(IAsyncRepository<>), typeof(Repository<>));
             services.AddScoped<IEmployeeService, EmployeeService>();
             services.AddScoped<IDeviceService, DeviceService>();
-            services.AddScoped<IDeviceAccountService, DeviceAccountService>();
+            services.AddScoped<IDeviceAccountService, DeviceAccountService>();//
             services.AddScoped<ISharedAccountService, SharedAccountService>();
             services.AddScoped<ITemplateService, TemplateService>();
             services.AddScoped<ISettingsService, SettingsService>();
-
             services.AddScoped<IRemoteTaskService, RemoteTaskService>();
             
             // Crypto

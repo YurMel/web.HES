@@ -9,32 +9,24 @@ namespace HES.Core.Entities
     {
         [Key]
         public string Id { get; set; }
-
         [Display(Name = "First Name")]
         [Required]
         public string FirstName { get; set; }
-
         [Display(Name = "Last Name")]
         [Required]
         public string LastName { get; set; }
-
         [Required]
         public string Email { get; set; }
-
         [Display(Name = "Phone Number")]
         public string PhoneNumber { get; set; }
-
         [Display(Name = "Department")]
         [Required]
         public string DepartmentId { get; set; }
-
         [Display(Name = "Position")]
         [Required]
         public string PositionId { get; set; }
-
         [Display(Name = "Last Seen")]
         public DateTime? LastSeen { get; set; }
-
         public List<Device> Devices { get; set; }
 
         [ForeignKey("DepartmentId")]

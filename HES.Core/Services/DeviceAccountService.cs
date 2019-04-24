@@ -50,7 +50,7 @@ namespace HES.Core.Services
             return await _deviceAccountRepository.GetFirstOrDefaulAsync();
         }
 
-        public async Task<DeviceAccount> GetFirstOrDefaulAsync(Expression<Func<DeviceAccount, bool>> match)
+        public async Task<DeviceAccount> GetFirstOrDefaultAsync(Expression<Func<DeviceAccount, bool>> match)
         {
             return await _deviceAccountRepository.GetFirstOrDefaulAsync(match);
         }

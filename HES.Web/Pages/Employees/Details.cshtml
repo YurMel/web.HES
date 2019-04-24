@@ -39,7 +39,7 @@
     </div>
 
     <div class="col-auto p-1">
-        <button id="shared_acc" type="button" class="btn btn-primary open-modal-dialog" data-id="@Model.Employee.Id" data-action="AddSharedAccount" data-title="Add shared account" data-type="Account">
+        <button id="shared_acc" type="button" class="btn btn-primary open-modal-dialog" data-id="@Model.Employee.Id" data-action="AddSharedAccount" data-title="Add shared account">
             Add shared account
         </button>
     </div>
@@ -209,8 +209,10 @@
             </div>
             <div class="col"></div>
             <div class="col-auto p-1">
-                <div class="form-group m-0 has-search">
-                    <img class="form-control-feedback" src="~/svg/action/search.svg" />
+                <div class="form-group has-search-right m-0">
+                    <div class="form-control-feedback">
+                        <img class="img-size" src="~/svg/action/search.svg" />
+                    </div>
                     <input id="searchbox_@device.Id" type="text" class="form-control" placeholder="Search">
                 </div>
             </div>
@@ -529,8 +531,7 @@
                     $('#SharedAccountName').val(data.name);
                     $('#SharedAccountUrls').val(data.urls);
                     $('#SharedAccountApps').val(data.apps);
-                    $('#SharedAccountLogin').val(data.login);
-                    $('#SharedAccountOtp').val(data.otpSecret);
+                    $('#SharedAccountLogin').val(data.login);                
                 });
         }
 

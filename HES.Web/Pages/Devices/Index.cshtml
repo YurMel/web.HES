@@ -11,8 +11,10 @@
         <h1 class="text-navyblue">Devices</h1>
     </div>
     <div class="col-auto p-1">
-        <div class="form-group m-0 has-search">
-            <img class="form-control-feedback" src="~/svg/action/search.svg" />
+        <div class="form-group has-search-right m-0">
+            <div class="form-control-feedback">
+                <img class="img-size" src="~/svg/action/search.svg" />
+            </div>
             <input id="searchbox" type="text" class="form-control" placeholder="Search">
         </div>
     </div>
@@ -88,9 +90,9 @@
                         @Html.DisplayFor(modelItem => item.Employee.FullName)
                     </td>
                     <td>
-                        <form method="post">           
-                            <input hidden value="@item.Id" name="id"/>
-                                <input type="submit" value="PING" class="btn btn-primary" asp-page-handler="Ping" />
+                        <form method="post">
+                            <input hidden value="@item.Id" name="id" />
+                            <input type="submit" value="PING" class="btn btn-primary" asp-page-handler="Ping" />
                         </form>
                     </td>
                 </tr>
