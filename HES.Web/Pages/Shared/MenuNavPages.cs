@@ -5,8 +5,6 @@ namespace HES.Web.Pages
 {
     public static class MenuNavPages
     {
-        //public static string Dashboard => "./Dashboard/Index";
-
         public static string Employees => "./Employees/Index";
 
         public static string SharedAccounts => "./SharedAccounts/Index";
@@ -17,8 +15,6 @@ namespace HES.Web.Pages
 
         public static string Settings => "./Settings/Index";
                
-
-        //public static string DashboardNavClass(ViewContext viewContext) => PageNavClass(viewContext, Dashboard);
 
         public static string EmployeesNavClass(ViewContext viewContext) => PageNavClass(viewContext, Employees);
 

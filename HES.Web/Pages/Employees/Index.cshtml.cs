@@ -1,6 +1,5 @@
 ﻿using HES.Core.Entities;
 using HES.Core.Interfaces;
-using HES.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -16,26 +15,24 @@ namespace HES.Web.Pages.Employees
     [DefaultBreadcrumb("Home")]
     public class IndexModel : PageModel
     {
-        //private readonly ApplicationDbContext _context;
         private readonly IEmployeeService _employeeService;
-        //private readonly IDeviceService _deviceService;
+
         public IList<Employee> Employees { get; set; }
         public bool HasForeignKey { get; set; }
+
         [BindProperty]
         public Employee Employee { get; set; }
+
         [TempData]
         public string ErrorMessage { get; set; }
 
-        public IndexModel(ApplicationDbContext context, IEmployeeService employeeService, IDeviceService deviceService)
+        public IndexModel(IEmployeeService employeeService)
         {
-            //_context = context;
             _employeeService = employeeService;
-            //_deviceService = deviceService;
         }
 
         public async Task OnGetAsync()
         {
-            //Employees = await _employeeService.GetAllIncludeAsync(e => e.Department.Company, e => e.Department, e => e.Position, e => e.Devices);
             Employees = await _employeeService
                 .EmployeeQuery()
                 .Include(e => e.Department.Company)
@@ -49,8 +46,6 @@ namespace HES.Web.Pages.Employees
 
         public async Task<IActionResult> OnGetCreateEmployee()
         {
-            //ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Name");
-            //ViewData["PositionId"] = new SelectList(_context.Positions, "Id", "Name");
             ViewData["DepartmentId"] = new SelectList(await _employeeService.DepartmentQuery().ToListAsync(), "Id", "Name");
             ViewData["PositionId"] = new SelectList(await _employeeService.PositionQuery().ToListAsync(), "Id", "Name");
 
@@ -83,16 +78,19 @@ namespace HES.Web.Pages.Employees
                 return NotFound();
             }
 
-            //Employee = await _employeeService.GetFirstOrDefaulAsync(m => m.Id == id);
-            Employee = await _employeeService.EmployeeQuery().FirstOrDefaultAsync(m => m.Id == id);
+            Employee = await _employeeService
+                .EmployeeQuery()
+                .FirstOrDefaultAsync(m => m.Id == id);
 
             if (Employee == null)
             {
                 return NotFound();
             }
 
-            //HasForeignKey = _deviceService.Exist(x => x.EmployeeId == id);     
-            HasForeignKey = _employeeService.DeviceQuery().Where(x => x.EmployeeId == id).Any();
+            HasForeignKey = _employeeService
+                .DeviceQuery()
+                .Where(x => x.EmployeeId == id)
+                .Any();
 
             return Partial("_DeleteEmployee", this);
         }

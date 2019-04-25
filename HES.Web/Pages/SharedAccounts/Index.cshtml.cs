@@ -15,9 +15,11 @@ namespace HES.Web.Pages.SharedAccounts
     public class IndexModel : PageModel
     {
         private readonly ISharedAccountService _sharedAccountService;
+
         public IList<SharedAccount> SharedAccounts { get; set; }
         public SharedAccount SharedAccount { get; set; }
         public InputModel Input { get; set; }
+
         [TempData]
         public string ErrorMessage { get; set; }
 
@@ -28,7 +30,10 @@ namespace HES.Web.Pages.SharedAccounts
 
         public async Task OnGetAsync()
         {
-            SharedAccounts = await _sharedAccountService.SharedAccountQuery().Where(d => d.Deleted == false).ToListAsync();
+            SharedAccounts = await _sharedAccountService
+                .SharedAccountQuery()
+                .Where(d => d.Deleted == false)
+                .ToListAsync();
         }
 
         #region Shared Account
@@ -64,7 +69,9 @@ namespace HES.Web.Pages.SharedAccounts
                 return NotFound();
             }
 
-            SharedAccount = await _sharedAccountService.SharedAccountQuery().FirstOrDefaultAsync(m => m.Id == id);
+            SharedAccount = await _sharedAccountService
+                .SharedAccountQuery()
+                .FirstOrDefaultAsync(m => m.Id == id);
 
             if (SharedAccount == null)
             {
@@ -100,7 +107,9 @@ namespace HES.Web.Pages.SharedAccounts
                 return NotFound();
             }
 
-            SharedAccount = await _sharedAccountService.SharedAccountQuery().FirstOrDefaultAsync(m => m.Id == id);
+            SharedAccount = await _sharedAccountService
+                .SharedAccountQuery()
+                .FirstOrDefaultAsync(m => m.Id == id);
 
             if (SharedAccount == null)
             {
@@ -135,7 +144,9 @@ namespace HES.Web.Pages.SharedAccounts
                 return NotFound();
             }
 
-            SharedAccount = await _sharedAccountService.SharedAccountQuery().FirstOrDefaultAsync(m => m.Id == id);
+            SharedAccount = await _sharedAccountService
+                .SharedAccountQuery()
+                .FirstOrDefaultAsync(m => m.Id == id);
 
             if (SharedAccount == null)
             {
@@ -166,7 +177,9 @@ namespace HES.Web.Pages.SharedAccounts
                 return NotFound();
             }
 
-            SharedAccount = await _sharedAccountService.SharedAccountQuery().FirstOrDefaultAsync(m => m.Id == id);
+            SharedAccount = await _sharedAccountService
+                .SharedAccountQuery()
+                .FirstOrDefaultAsync(m => m.Id == id);
 
             if (SharedAccount == null)
             {

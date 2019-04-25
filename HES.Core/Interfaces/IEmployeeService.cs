@@ -1,6 +1,5 @@
 ﻿using HES.Core.Entities;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -23,13 +22,6 @@ namespace HES.Core.Interfaces
         Task<DeviceTask> DeviceTaskGetByIdAsync(dynamic id);
         Task<SharedAccount> SharedAccountGetByIdAsync(dynamic id);
         Task<Template> TemplateGetByIdAsync(dynamic id);
-        //Task<IList<Employee>> GetAllAsync();
-        //Task<IList<Employee>> GetAllWhereAsync(Expression<Func<Employee, bool>> predicate);
-        //Task<IList<Employee>> GetAllIncludeAsync(params Expression<Func<Employee, object>>[] navigationProperties);
-        //Task<Employee> GetFirstOrDefaulAsync();
-        //Task<Employee> GetFirstOrDefaulAsync(Expression<Func<Employee, bool>> match);
-        //Task<Employee> GetFirstOrDefaulIncludeAsync(Expression<Func<Employee, bool>> where, params Expression<Func<Employee, object>>[] navigationProperties);
-        //Task<Employee> GetByIdAsync(dynamic id);
         Task CreateEmployeeAsync(Employee employee);
         Task EditEmployeeAsync(Employee employee);
         Task DeleteEmployeeAsync(string id);

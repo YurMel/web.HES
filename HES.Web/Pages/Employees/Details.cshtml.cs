@@ -1,28 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
-using HES.Core.Entities;
+﻿using HES.Core.Entities;
 using HES.Core.Interfaces;
-using HES.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 using SmartBreadcrumbs.Attributes;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace HES.Web.Pages.Employees
 {
     [Breadcrumb("Details", FromPage = typeof(Employees.IndexModel))]
     public class DetailsModel : PageModel
     {
-        //private readonly ApplicationDbContext _context;
-        //private readonly IDeviceService _deviceService;
-        //private readonly IDeviceAccountService _deviceAccountService;
-        //private readonly ISharedAccountService _sharedAccountService;
-        //private readonly ITemplateService _templateService;
         private readonly IEmployeeService _employeeService;
 
         public IList<Device> Devices { get; set; }
@@ -38,18 +30,8 @@ namespace HES.Web.Pages.Employees
         [TempData]
         public string ErrorMessage { get; set; }
 
-        public DetailsModel(ApplicationDbContext context,
-            IDeviceService deviceService,
-            //IDeviceAccountService deviceAccountService,
-            //ISharedAccountService sharedAccountService,
-            //ITemplateService templateService,
-            IEmployeeService employeeService)
+        public DetailsModel(IEmployeeService employeeService)
         {
-            //_context = context;
-            //_deviceService = deviceService;
-            //_deviceAccountService = deviceAccountService;
-            //_sharedAccountService = sharedAccountService;
-            //_templateService = templateService;
             _employeeService = employeeService;
         }
 
@@ -60,7 +42,6 @@ namespace HES.Web.Pages.Employees
                 return NotFound();
             }
 
-            //Employee = await _employeeService.GetFirstOrDefaulIncludeAsync(m => m.Id == id, e => e.Department.Company, e => e.Department, e => e.Position, e => e.Devices);
             Employee = await _employeeService
                 .EmployeeQuery()
                 .Include(e => e.Department.Company)
@@ -74,8 +55,12 @@ namespace HES.Web.Pages.Employees
                 return NotFound();
             }
 
-            //DeviceAccounts = await _deviceAccountService.GetAllWhereIncludeAsync(d => d.Deleted == false, d => d.Device, d => d.Employee, d => d.SharedAccount);
-            DeviceAccounts = await _employeeService.DeviceAccountQuery().Include(d => d.Device).Include(d => d.Employee).Include(d => d.SharedAccount).Where(d => d.Deleted == false).ToListAsync();
+            DeviceAccounts = await _employeeService.DeviceAccountQuery()
+                .Include(d => d.Device)
+                .Include(d => d.Employee)
+                .Include(d => d.SharedAccount)
+                .Where(d => d.Deleted == false)
+                .ToListAsync();
 
             return Page();
         }
@@ -89,7 +74,6 @@ namespace HES.Web.Pages.Employees
                 return NotFound();
             }
 
-            //Employee = await _employeeService.GetFirstOrDefaulIncludeAsync(m => m.Id == id, e => e.Department, e => e.Position);
             Employee = await _employeeService
                 .EmployeeQuery()
                 .Include(e => e.Department)
@@ -101,8 +85,6 @@ namespace HES.Web.Pages.Employees
                 return NotFound();
             }
 
-            //ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Name");
-            //ViewData["PositionId"] = new SelectList(_context.Positions, "Id", "Name");       
             ViewData["DepartmentId"] = new SelectList(await _employeeService.DepartmentQuery().ToListAsync(), "Id", "Name");
             ViewData["PositionId"] = new SelectList(await _employeeService.PositionQuery().ToListAsync(), "Id", "Name");
 
@@ -152,16 +134,19 @@ namespace HES.Web.Pages.Employees
                 return NotFound();
             }
 
-            //Employee = await _employeeService.GetFirstOrDefaulAsync(m => m.Id == id);
-            Employee = await _employeeService.EmployeeQuery().FirstOrDefaultAsync(m => m.Id == id);
+            Employee = await _employeeService
+                .EmployeeQuery()
+                .FirstOrDefaultAsync(m => m.Id == id);
 
             if (Employee == null)
             {
                 return NotFound();
             }
 
-            //Devices = await _deviceService.GetAllWhereAsync(d => d.EmployeeId == null);
-            Devices = await _employeeService.DeviceQuery().Where(d => d.EmployeeId == null).ToListAsync();
+            Devices = await _employeeService
+                .DeviceQuery()
+                .Where(d => d.EmployeeId == null)
+                .ToListAsync();
 
             return Partial("_AddDevice", this);
         }
@@ -200,8 +185,9 @@ namespace HES.Web.Pages.Employees
                 return NotFound();
             }
 
-            //Device = await _deviceService.GetFirstOrDefaulAsync(x => x.Id == id);
-            Device = await _employeeService.DeviceQuery().FirstOrDefaultAsync(x => x.Id == id);
+            Device = await _employeeService
+                .DeviceQuery()
+                .FirstOrDefaultAsync(x => x.Id == id);
 
             if (Device == null)
             {
@@ -221,7 +207,6 @@ namespace HES.Web.Pages.Employees
             try
             {
                 await _employeeService.RemoveDeviceAsync(device.EmployeeId, device.Id);
-                // TODO: Wipe Task                
             }
             catch (Exception ex)
             {
@@ -245,17 +230,14 @@ namespace HES.Web.Pages.Employees
 
         public async Task<JsonResult> OnGetJsonTemplateAsync(string id)
         {
-            //return new JsonResult(await _templateService.GetByIdAsync(id));
             return new JsonResult(await _employeeService.TemplateGetByIdAsync(id));
         }
 
         public async Task<IActionResult> OnGetCreatePersonalAccountAsync(string id)
         {
             ViewData["EmployeeId"] = id;
-            //ViewData["Templates"] = new SelectList(await _templateService.GetAllAsync(), "Id", "Name");
             ViewData["Templates"] = new SelectList(await _employeeService.TemplateQuery().ToListAsync(), "Id", "Name");
 
-            //Devices = await _deviceService.GetAllWhereAsync(d => d.EmployeeId == id);
             Devices = await _employeeService.DeviceQuery().Where(d => d.EmployeeId == id).ToListAsync();
 
             return Partial("_CreatePersonalAccount", this);
@@ -296,8 +278,11 @@ namespace HES.Web.Pages.Employees
                 return NotFound();
             }
 
-            //DeviceAccount = await _deviceAccountService.GetFirstOrDefaulIncludeAsync(a => a.Id == id, e => e.Employee, e => e.Device);
-            DeviceAccount = await _employeeService.DeviceAccountQuery().Include(e => e.Employee).Include(e => e.Device).FirstOrDefaultAsync(a => a.Id == id);
+            DeviceAccount = await _employeeService
+                .DeviceAccountQuery()
+                .Include(e => e.Employee)
+                .Include(e => e.Device)
+                .FirstOrDefaultAsync(a => a.Id == id);
 
             if (DeviceAccount == null)
             {
@@ -335,8 +320,11 @@ namespace HES.Web.Pages.Employees
                 return NotFound();
             }
 
-            //DeviceAccount = await _deviceAccountService.GetFirstOrDefaulIncludeAsync(a => a.Id == id, e => e.Employee, e => e.Device);
-            DeviceAccount = await _employeeService.DeviceAccountQuery().Include(e => e.Employee).Include(e => e.Device).FirstOrDefaultAsync(a => a.Id == id);
+            DeviceAccount = await _employeeService
+                .DeviceAccountQuery()
+                .Include(e => e.Employee)
+                .Include(e => e.Device)
+                .FirstOrDefaultAsync(a => a.Id == id);
 
             if (DeviceAccount == null)
             {
@@ -374,8 +362,11 @@ namespace HES.Web.Pages.Employees
                 return NotFound();
             }
 
-            //DeviceAccount = await _deviceAccountService.GetFirstOrDefaulIncludeAsync(a => a.Id == id, e => e.Employee, e => e.Device);
-            DeviceAccount = await _employeeService.DeviceAccountQuery().Include(e => e.Employee).Include(e => e.Device).FirstOrDefaultAsync(a => a.Id == id);
+            DeviceAccount = await _employeeService
+                .DeviceAccountQuery()
+                .Include(e => e.Employee)
+                .Include(e => e.Device)
+                .FirstOrDefaultAsync(a => a.Id == id);
 
             if (DeviceAccount == null)
             {
@@ -407,20 +398,19 @@ namespace HES.Web.Pages.Employees
 
         public async Task<JsonResult> OnGetJsonSharedAccountAsync(string id)
         {
-            //return new JsonResult(await _sharedAccountService.GetByIdAsync(id));
             return new JsonResult(await _employeeService.SharedAccountGetByIdAsync(id));
         }
 
         public async Task<IActionResult> OnGetAddSharedAccountAsync(string id)
         {
             ViewData["EmployeeId"] = id;
-            //ViewData["SharedAccountId"] = new SelectList(await _sharedAccountService.GetAllWhereAsync(d => d.Deleted == false), "Id", "Name");
             ViewData["SharedAccountId"] = new SelectList(await _employeeService.SharedAccountQuery().Where(d => d.Deleted == false).ToListAsync(), "Id", "Name");
 
-            //SharedAccount = await _sharedAccountService.GetFirstOrDefaulAsync(d => d.Deleted == false);
             SharedAccount = await _employeeService.SharedAccountQuery().FirstOrDefaultAsync(d => d.Deleted == false);
-            //Devices = await _deviceService.GetAllWhereAsync(d => d.EmployeeId == id);
-            Devices = await _employeeService.DeviceQuery().Where(d => d.EmployeeId == id).ToListAsync();
+            Devices = await _employeeService
+                .DeviceQuery()
+                .Where(d => d.EmployeeId == id)
+                .ToListAsync();
 
             return Partial("_AddSharedAccount", this);
         }
@@ -456,8 +446,9 @@ namespace HES.Web.Pages.Employees
                 return NotFound();
             }
 
-            //DeviceAccount = await _deviceAccountService.GetFirstOrDefaultAsync(x => x.Id == id);
-            DeviceAccount = await _employeeService.DeviceAccountQuery().FirstOrDefaultAsync(x => x.Id == id);
+            DeviceAccount = await _employeeService
+                .DeviceAccountQuery()
+                .FirstOrDefaultAsync(x => x.Id == id);
 
             if (DeviceAccount == null)
             {
@@ -477,7 +468,6 @@ namespace HES.Web.Pages.Employees
             try
             {
                 await _employeeService.DeleteAccount(accountId);
-                // TODO: delete 
             }
             catch (Exception ex)
             {

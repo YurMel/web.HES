@@ -73,7 +73,6 @@ namespace HES.Core.Services
             // Delete all acc
             await _deviceAccountRepository.DeleteRangeAsync(allAccounts);
             
-            //var deviceAccount = _deviceAccountRepository.Query().Where(d => d.DeviceId == device.Id).FirstOrDefault();
             await AddTaskAsync(new DeviceTask { CreatedAt = DateTime.UtcNow, Operation = TaskOperation.Wipe });
         }
 

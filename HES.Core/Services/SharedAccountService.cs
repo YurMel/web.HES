@@ -20,37 +20,7 @@ namespace HES.Core.Services
         {
             return _sharedAccountRepository.Query();
         }
-
-        //public async Task<IList<SharedAccount>> GetAllAsync()
-        //{
-        //    return await _sharedAccountRepository.GetAllAsync();
-        //}
-
-        //public async Task<IList<SharedAccount>> GetAllWhereAsync(Expression<Func<SharedAccount, bool>> predicate)
-        //{
-        //    return await _sharedAccountRepository.GetAllWhereAsync(predicate);
-        //}
-
-        //public async Task<IList<SharedAccount>> GetAllIncludeAsync(params Expression<Func<SharedAccount, object>>[] navigationProperties)
-        //{
-        //    return await _sharedAccountRepository.GetAllIncludeAsync(navigationProperties);
-        //}
-
-        //public async Task<SharedAccount> GetFirstOrDefaulAsync()
-        //{
-        //    return await _sharedAccountRepository.GetFirstOrDefaulAsync();
-        //}
-
-        //public async Task<SharedAccount> GetFirstOrDefaulAsync(Expression<Func<SharedAccount, bool>> match)
-        //{
-        //    return await _sharedAccountRepository.GetFirstOrDefaulAsync(match);
-        //}
-
-        //public async Task<SharedAccount> GetFirstOrDefaulIncludeAsync(Expression<Func<SharedAccount, bool>> where, params Expression<Func<SharedAccount, object>>[] navigationProperties)
-        //{
-        //    return await _sharedAccountRepository.GetFirstOrDefaulIncludeAsync(where, navigationProperties);
-        //}
-
+        
         public async Task<SharedAccount> SharedAccountGetByIdAsync(dynamic id)
         {
             return await _sharedAccountRepository.GetByIdAsync(id);

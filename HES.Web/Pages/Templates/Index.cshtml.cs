@@ -14,10 +14,12 @@ namespace HES.Web.Pages.Templates
     public class IndexModel : PageModel
     {
         private readonly ITemplateService _templateService;
+
         public IList<Template> Templates { get; set; }
 
         [BindProperty]
         public Template Template { get; set; }
+
         [TempData]
         public string ErrorMessage { get; set; }
 
@@ -64,7 +66,9 @@ namespace HES.Web.Pages.Templates
                 return NotFound();
             }
 
-            Template = await _templateService.TemplateQuery().FirstOrDefaultAsync(m => m.Id == id);
+            Template = await _templateService
+                .TemplateQuery()
+                .FirstOrDefaultAsync(m => m.Id == id);
 
             if (Template == null)
             {
@@ -100,7 +104,9 @@ namespace HES.Web.Pages.Templates
                 return NotFound();
             }
 
-            Template = await _templateService.TemplateQuery().FirstOrDefaultAsync(m => m.Id == id);
+            Template = await _templateService
+                .TemplateQuery()
+                .FirstOrDefaultAsync(m => m.Id == id);
 
             if (Template == null)
             {

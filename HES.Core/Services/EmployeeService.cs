@@ -111,42 +111,7 @@ namespace HES.Core.Services
         {
             return await _templateRepository.GetByIdAsync(id);
         }
-
-        //public async Task<IList<Employee>> GetAllAsync()
-        //{
-        //    return await _employeeRepository.GetAllAsync();
-        //}
-
-        //public async Task<IList<Employee>> GetAllWhereAsync(Expression<Func<Employee, bool>> predicate)
-        //{
-        //    return await _employeeRepository.GetAllWhereAsync(predicate);
-        //}
-
-        //public async Task<IList<Employee>> GetAllIncludeAsync(params Expression<Func<Employee, object>>[] navigationProperties)
-        //{
-        //    return await _employeeRepository.GetAllIncludeAsync(navigationProperties);
-        //}
-
-        //public async Task<Employee> GetFirstOrDefaulAsync()
-        //{
-        //    return await _employeeRepository.GetFirstOrDefaulAsync();
-        //}
-
-        //public async Task<Employee> GetFirstOrDefaulAsync(Expression<Func<Employee, bool>> match)
-        //{
-        //    return await _employeeRepository.GetFirstOrDefaulAsync(match);
-        //}
-
-        //public async Task<Employee> GetFirstOrDefaulIncludeAsync(Expression<Func<Employee, bool>> where, params Expression<Func<Employee, object>>[] navigationProperties)
-        //{
-        //    return await _employeeRepository.GetFirstOrDefaulIncludeAsync(where, navigationProperties);
-        //}
-
-        //public async Task<Employee> GetByIdAsync(dynamic id)
-        //{
-        //    return await _employeeRepository.GetByIdAsync(id);
-        //}
-
+                
         public async Task CreateEmployeeAsync(Employee employee)
         {
             if (employee == null)

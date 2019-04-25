@@ -28,6 +28,7 @@ namespace HES.Web
         {
             // Add Services
             services.AddScoped(typeof(IAsyncRepository<>), typeof(Repository<>));
+
             services.AddScoped<IEmployeeService, EmployeeService>();
             services.AddScoped<IDeviceService, DeviceService>();
             services.AddScoped<ISharedAccountService, SharedAccountService>();
@@ -37,7 +38,7 @@ namespace HES.Web
             
             // Crypto
             services.AddTransient<IAesCryptography, AesCryptography>();
-            // Email sender
+            // Email
             services.AddSingleton<IEmailSender, EmailSender>(i =>
                  new EmailSender(
                      Configuration["EmailSender:Host"],
@@ -46,17 +47,17 @@ namespace HES.Web
                      Configuration["EmailSender:UserName"],
                      Configuration["EmailSender:Password"]));
 
-            services.AddScoped<IRemoteTaskService, RemoteTaskService>();
-
             // Breadcrumbs
             services.AddBreadcrumbs(GetType().Assembly);
 
+            // Cookie
             services.Configure<CookiePolicyOptions>(options =>
             {
                 // This lambda determines whether user consent for non-essential cookies is needed for a given request.
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
+
             // Dismiss strong password
             services.Configure<IdentityOptions>(options =>
             {
@@ -68,21 +69,22 @@ namespace HES.Web
                 options.Password.RequireNonAlphanumeric = false;
 
             });
+
             // Database
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseMySql(Configuration.GetConnectionString("DefaultConnection")));
+
             // Identity
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddDefaultUI(UIFramework.Bootstrap4)
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders(); 
+
             // Mvc
             services.AddMvc()
                 .AddRazorPagesOptions(options =>
                 {
-                    //options.Conventions.AddPageRoute("/Dashboard/Index", "");
                     options.Conventions.AddPageRoute("/Employees/Index", "");
-                    options.Conventions.AuthorizeFolder("/Dashboard");
                     options.Conventions.AuthorizeFolder("/Employees");
                     options.Conventions.AuthorizeFolder("/SharedAccounts");
                     options.Conventions.AuthorizeFolder("/Templates");
