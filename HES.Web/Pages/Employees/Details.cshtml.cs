@@ -123,6 +123,42 @@ namespace HES.Web.Pages.Employees
             return _employeeService.Exist(e => e.Id == id);
         }
 
+        public async Task<IActionResult> OnGetSetPrimaryAccountAsync(string id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            DeviceAccount = await _employeeService
+                .DeviceAccountQuery()
+                .Include(e => e.Employee)
+                .Include(e => e.Device)
+                .FirstOrDefaultAsync(a => a.Id == id);
+
+            if (DeviceAccount == null)
+            {
+                return NotFound();
+            }
+
+            return Partial("_SetPrimaryAccount", this);
+        }
+
+        public async Task<IActionResult> OnPostSetPrimaryAccountAsync(string deviceId, string accountId, string employeeId)
+        {
+            try
+            {
+                await _employeeService.SetPrimaryAccount(deviceId, accountId);
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.Message;
+            }
+
+            var id = employeeId;
+            return RedirectToPage("./Details", new { id });
+        }
+
         #endregion
 
         #region Device

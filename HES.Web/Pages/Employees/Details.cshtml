@@ -262,8 +262,17 @@
                     @foreach (var item in Model.DeviceAccounts.Where(e => e.EmployeeId == Model.Employee.Id).Where(d => d.DeviceId == device.Id))
                     {
                         <tr>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.Name)
+                            <td style="vertical-align:middle">
+                                @if (device.PrimaryAccountId == item.Id)
+                                {
+                                    <span class="badge badge-success custom-badge" data-toggle="tooltip" data-placement="bottom" title="Primary account">
+                                        @Html.DisplayFor(modelItem => item.Name)
+                                    </span>
+                                }
+                                else
+                                {
+                                    @Html.DisplayFor(modelItem => item.Name)
+                                }
                             </td>
                             <td style="white-space: normal">
                                 @{
@@ -384,6 +393,10 @@
                                                 Edit OTP
                                             </a>
                                         }
+                                        <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="SetPrimaryAccount" data-title="Primary account">
+                                            <img src="~/svg/action/star.svg" />
+                                            Set as primary account
+                                        </a>
                                         <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="DeleteAccount" data-title="Delete account">
                                             <img src="~/svg/action/delete.svg" />
                                             Delete
@@ -531,7 +544,7 @@
                     $('#SharedAccountName').val(data.name);
                     $('#SharedAccountUrls').val(data.urls);
                     $('#SharedAccountApps').val(data.apps);
-                    $('#SharedAccountLogin').val(data.login);                
+                    $('#SharedAccountLogin').val(data.login);
                 });
         }
 
@@ -583,7 +596,8 @@
                 $('#personal_acc').attr("disabled", true);
                 $('#shared_acc').attr("disabled", true);
             }
-            $('.toast').toast('show');
+            // Enable tooltip
+            $('[data-toggle="tooltip"]').tooltip();
         });
 
     </script>

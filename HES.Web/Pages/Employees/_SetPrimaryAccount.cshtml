@@ -1,0 +1,11 @@
+﻿@model HES.Web.Pages.Employees.DetailsModel
+
+<h5 class="text-gray mb-4 ">Set this account as a primary?</h5>
+
+<form method="post" class="text-right">
+    <input type="hidden" asp-for="DeviceAccount.DeviceId" name="deviceId" />
+    <input type="hidden" asp-for="DeviceAccount.Id" name="accountId" />
+    <input type="hidden" asp-for="DeviceAccount.EmployeeId" name="employeeId" />
+    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+    <input type="submit" value="Set" class="btn btn-primary" asp-page-handler="SetPrimaryAccount" />
+</form>

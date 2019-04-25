@@ -16,6 +16,7 @@ namespace HES.Core.Entities
         public string Firmware { get; set; }
         public DateTime? LastSynced { get; set; }
         public string EmployeeId { get; set; }
+        public string PrimaryAccountId { get; set; }
         public DateTime ImportedAt { get; set; }
         public byte[] DeviceKey { get; set; }
 

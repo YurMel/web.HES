@@ -111,7 +111,7 @@ namespace HES.Core.Services
         {
             return await _templateRepository.GetByIdAsync(id);
         }
-                
+
         public async Task CreateEmployeeAsync(Employee employee)
         {
             if (employee == null)
@@ -147,6 +147,20 @@ namespace HES.Core.Services
         public bool Exist(Expression<Func<Employee, bool>> predicate)
         {
             return _employeeRepository.Exist(predicate);
+        }
+
+        public async Task SetPrimaryAccount(string deviceId, string deviceAccountId)
+        {
+            if (deviceId == null || deviceAccountId == null)
+            {
+                throw new Exception("The parameter must not be null.");
+            }
+            var device = await _deviceRepository.GetByIdAsync(deviceId);
+            if (device == null)
+            {
+                throw new Exception($"Device does not exist, ID: {deviceId}.");
+            }
+            await _deviceRepository.UpdateOnlyPropAsync(new Device { Id = deviceId, PrimaryAccountId = deviceAccountId }, new string[] { "PrimaryAccountId" });
         }
 
         public async Task AddDeviceAsync(string employeeId, string[] selectedDevices)
@@ -186,6 +200,7 @@ namespace HES.Core.Services
                 throw new Exception("Current device is not linked to employee.");
             }
             device.EmployeeId = null;
+            device.PrimaryAccountId = null;
             await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "EmployeeId" });
 
             await _remoteTaskService.RemoveDeviceAsync(device);
@@ -197,23 +212,25 @@ namespace HES.Core.Services
             {
                 throw new Exception("The parameter must not be null.");
             }
-            var exist = _deviceAccountRepository.Query().Where(s => s.Name == deviceAccount.Name).Where(s => s.Login == deviceAccount.Login).Where(s => s.Deleted == false).Any();
-            if (exist)
-            {
-                throw new Exception("An account with the same name and login exists.");
-            }
 
             List<DeviceAccount> Accounts = new List<DeviceAccount>();
             List<DeviceTask> Tasks = new List<DeviceTask>();
 
             foreach (var deviceId in selectedDevices)
             {
+                var exist = _deviceAccountRepository.Query().Where(s => s.Name == deviceAccount.Name).Where(s => s.Login == deviceAccount.Login).Where(s => s.Deleted == false).Where(d => d.DeviceId == deviceId).Any();
+                if (exist)
+                {
+                    throw new Exception("An account with the same name and login exists.");
+                }
                 // Device Account id
                 var deviceAccountId = Guid.NewGuid().ToString();
                 // Create Device Account
                 Accounts.Add(new DeviceAccount { Id = deviceAccountId, Name = deviceAccount.Name, Urls = deviceAccount.Urls, Apps = deviceAccount.Apps, Login = deviceAccount.Login, Type = AccountType.Personal, Status = AccountStatus.Creating, CreatedAt = DateTime.UtcNow, PasswordUpdatedAt = DateTime.UtcNow, OtpUpdatedAt = input.OtpSecret != null ? new DateTime?(DateTime.UtcNow) : null, EmployeeId = deviceAccount.EmployeeId, DeviceId = deviceId, SharedAccountId = null });
                 // Create Device Task
                 Tasks.Add(new DeviceTask { DeviceAccountId = deviceAccountId, Name = deviceAccount.Name, Urls = deviceAccount.Urls, Apps = deviceAccount.Apps, Login = deviceAccount.Login, Password = input.Password, OtpSecret = input.OtpSecret, CreatedAt = DateTime.UtcNow, Operation = TaskOperation.Create });
+                // Set primary account
+                await FirstAdditionPrimaryAccountId(deviceId, deviceAccountId);
             }
 
             await _deviceAccountRepository.AddRangeAsync(Accounts);
@@ -328,7 +345,7 @@ namespace HES.Core.Services
                 {
                     throw new Exception("SharedAccount does not exist.");
                 }
-                var exist = _deviceAccountRepository.Query().Where(s => s.Name == sharedAccount.Name).Where(s => s.Login == sharedAccount.Login).Where(s => s.Deleted == false).Any();
+                var exist = _deviceAccountRepository.Query().Where(s => s.Name == sharedAccount.Name).Where(s => s.Login == sharedAccount.Login).Where(s => s.Deleted == false).Where(d => d.DeviceId == deviceId).Any();
                 if (exist)
                 {
                     throw new Exception("An account with the same name and login exists.");
@@ -338,6 +355,8 @@ namespace HES.Core.Services
                 Accounts.Add(new DeviceAccount { Id = deviceAccountId, Name = sharedAccount.Name, Urls = sharedAccount.Urls, Apps = sharedAccount.Apps, Login = sharedAccount.Login, Type = AccountType.Shared, Status = AccountStatus.Creating, CreatedAt = DateTime.UtcNow, PasswordUpdatedAt = DateTime.UtcNow, OtpUpdatedAt = sharedAccount.OtpSecret != null ? new DateTime?(DateTime.UtcNow) : null, EmployeeId = employeeId, DeviceId = deviceId, SharedAccountId = sharedAccountId });
                 // Create Device Task
                 Tasks.Add(new DeviceTask { DeviceAccountId = deviceAccountId, Name = sharedAccount.Name, Urls = sharedAccount.Urls, Apps = sharedAccount.Apps, Login = sharedAccount.Login, Password = sharedAccount.Password, OtpSecret = sharedAccount.OtpSecret, CreatedAt = DateTime.UtcNow, Operation = TaskOperation.Create });
+                // Set primary account
+                await FirstAdditionPrimaryAccountId(deviceId, deviceAccountId);
             }
 
             await _deviceAccountRepository.AddRangeAsync(Accounts);
@@ -378,6 +397,17 @@ namespace HES.Core.Services
                 deviceAccount.Status = AccountStatus.Done;
                 await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties);
                 throw new Exception(ex.Message);
+            }
+        }
+
+        private async Task FirstAdditionPrimaryAccountId(string deviceId, string deviceAccountId)
+        {
+            // Get primary acount
+            var primaryAccountExist = _deviceRepository.Query().Where(d => d.Id == deviceId).Where(d => d.PrimaryAccountId != null).Any();
+            if (!primaryAccountExist)
+            {
+                // Set primary acount
+                await _deviceRepository.UpdateOnlyPropAsync(new Device { Id = deviceId, PrimaryAccountId = deviceAccountId }, new string[] { "PrimaryAccountId" });
             }
         }
     }

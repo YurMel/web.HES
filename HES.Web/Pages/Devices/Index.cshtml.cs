@@ -32,7 +32,8 @@ namespace HES.Web.Pages.Devices
 
         public async Task<IActionResult> OnPostPing(string id)
         {
-            id = "D0A89E6BCD8D";
+            //id = "D0A89E6BCD8D";
+            id = "D9EB34A3F4C9";
 
             try
             {

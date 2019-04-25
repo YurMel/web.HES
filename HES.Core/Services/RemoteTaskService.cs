@@ -72,11 +72,11 @@ namespace HES.Core.Services
             var allAccounts = _deviceAccountRepository.Query().Where(d => d.DeviceId == device.Id).ToList();
             // Delete all acc
             await _deviceAccountRepository.DeleteRangeAsync(allAccounts);
-            
+
             await AddTaskAsync(new DeviceTask { CreatedAt = DateTime.UtcNow, Operation = TaskOperation.Wipe });
         }
 
-        private async Task TaskCompleted(string taskId)
+        private async Task TaskCompleted(string taskId, short idFromDevice)
         {
             var deviceTask = await _deviceTaskRepository.GetByIdAsync(taskId);
             var deviceAccount = await _deviceAccountRepository.GetByIdAsync(deviceTask.DeviceAccountId);
@@ -84,10 +84,12 @@ namespace HES.Core.Services
             List<string> properties = new List<string>() { "Status", "LastSyncedAt" };
             deviceAccount.Status = AccountStatus.Done;
             deviceAccount.LastSyncedAt = DateTime.UtcNow;
+            deviceAccount.IdFromDevice = idFromDevice;
 
             switch (deviceTask.Operation)
             {
                 case TaskOperation.Create:
+                    properties.Add("IdFromDevice");
                     await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties.ToArray());
                     break;
                 case TaskOperation.Update:
@@ -147,58 +149,64 @@ namespace HES.Core.Services
                 {
                     foreach (var task in tasks)
                     {
-                        await ExecuteRemoteTask(remoteDevice, task);
-                        await TaskCompleted(task.Id);
+                        var idFromDevice = await ExecuteRemoteTask(remoteDevice, task);
+                        await TaskCompleted(task.Id, idFromDevice);
                     }
                 }
             }
         }
 
-        private async Task ExecuteRemoteTask(RemoteDevice device, DeviceTask task)
+        private async Task<short> ExecuteRemoteTask(RemoteDevice device, DeviceTask task)
         {
+            short idFromDevice = 0;
             switch (task.Operation)
             {
                 case TaskOperation.Create:
-                    await AddDeviceAccount(device, task);
+                    idFromDevice = await AddDeviceAccount(device, task);
                     break;
                 case TaskOperation.Update:
-                    await UpdateDeviceAccount(device, task);
+                    idFromDevice = await UpdateDeviceAccount(device, task);
                     break;
                 case TaskOperation.Delete:
-                    await DeleteDeviceAccount(device, task);
+                    idFromDevice = await DeleteDeviceAccount(device, task);
                     break;
                 case TaskOperation.Wipe:
-                    await WipeDevice(device, task);
+                    idFromDevice = await WipeDevice(device, task);
                     break;
             }
+            return idFromDevice;
         }
 
-        private async Task AddDeviceAccount(RemoteDevice device, DeviceTask task)
+        private async Task<short> AddDeviceAccount(RemoteDevice device, DeviceTask task)
         {
             var pingData = new byte[] { 0x00, 0x01, 0x02, 0x03, 0x04 };
             var respData = await device.Ping(pingData);
             Debug.Assert(pingData.SequenceEqual(respData.Result));
+            return 0;
         }
 
-        private async Task UpdateDeviceAccount(RemoteDevice device, DeviceTask task)
+        private async Task<short> UpdateDeviceAccount(RemoteDevice device, DeviceTask task)
         {
             var pingData = new byte[] { 0x00, 0x01, 0x02, 0x03, 0x04 };
             var respData = await device.Ping(pingData);
             Debug.Assert(pingData.SequenceEqual(respData.Result));
+            return 0;
         }
 
-        private async Task DeleteDeviceAccount(RemoteDevice device, DeviceTask task)
+        private async Task<short> DeleteDeviceAccount(RemoteDevice device, DeviceTask task)
         {
             var pingData = new byte[] { 0x00, 0x01, 0x02, 0x03, 0x04 };
             var respData = await device.Ping(pingData);
             Debug.Assert(pingData.SequenceEqual(respData.Result));
+            return 0;
         }
 
-        private async Task WipeDevice(RemoteDevice device, DeviceTask task)
+        private async Task<short> WipeDevice(RemoteDevice device, DeviceTask task)
         {
             var pingData = new byte[] { 0x00, 0x01, 0x02, 0x03, 0x04 };
             var respData = await device.Ping(pingData);
             Debug.Assert(pingData.SequenceEqual(respData.Result));
+            return 0;
         }
     }
 }
