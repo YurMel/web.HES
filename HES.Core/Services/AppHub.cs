@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using HES.Core.Interfaces;
 using Hideez.SDK.Communication;
+using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Remote;
 using Microsoft.AspNetCore.SignalR;
 
@@ -124,6 +125,19 @@ namespace HES.Core.Services
         {
             var device = FindDeviceDescription(id);
             return device != null;
+        }
+
+        public Task<UserInfo> GetInfoByRfid(string rfid)
+        {
+            var info = new UserInfo()
+            {
+                Name = "my llogin",
+                DeviceMac = "001122334455",
+                DeviceSerialNo = "ST103123123123",
+                PrimaryAccountLogin = "",
+                IdFromDevice = 123
+            };
+            return Task.FromResult(info);
         }
     }
 }
