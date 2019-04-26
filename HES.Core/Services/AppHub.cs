@@ -7,6 +7,8 @@ using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Remote;
 using Microsoft.AspNetCore.SignalR;
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace HES.Core.Services
 {
@@ -26,10 +28,12 @@ namespace HES.Core.Services
             = new ConcurrentDictionary<string, DeviceDescription>();
 
         readonly IRemoteTaskService _remoteTaskService;
+        readonly IEmployeeService _employeeService;
 
-        public AppHub(IRemoteTaskService remoteTaskService)
+        public AppHub(IRemoteTaskService remoteTaskService, IEmployeeService employeeService)
         {
             _remoteTaskService = remoteTaskService;
+            _employeeService = employeeService;
         }
 
         public override Task OnConnectedAsync()
@@ -107,7 +111,7 @@ namespace HES.Core.Services
 
                 await deviceDescr.Connection.EstablishRemoteDeviceConnection(id, channelNo);
 
-                var remoteDevice =  await DeviceHub.WaitDeviceConnection(id, timeout: 3000);
+                var remoteDevice = await DeviceHub.WaitDeviceConnection(id, timeout: 3000);
 
                 if (remoteDevice != null)
                     await remoteDevice.WaitAuthentication(timeout: 3000);
@@ -127,17 +131,33 @@ namespace HES.Core.Services
             return device != null;
         }
 
-        public Task<UserInfo> GetInfoByRfid(string rfid)
+        public async Task<UserInfo> GetInfoByRfid(string rfid)
         {
+            var device = await _employeeService.DeviceQuery().Include(d => d.Employee).FirstOrDefaultAsync(d => d.RFID == rfid);
+            if (device == null)
+            {
+                return null;
+            }
+
+            var primaryAccount = await _employeeService.DeviceAccountQuery().FirstOrDefaultAsync(d => d.Id == device.PrimaryAccountId);
+
+            bool needUpdatePrimaryAccount = false;
+            if (primaryAccount != null)
+            {
+                needUpdatePrimaryAccount = await _employeeService.DeviceTaskQuery().Where(t => t.DeviceAccountId == primaryAccount.Id).AnyAsync();
+            }
+
             var info = new UserInfo()
             {
-                Name = "my llogin",
-                DeviceMac = "001122334455",
-                DeviceSerialNo = "ST103123123123",
-                PrimaryAccountLogin = "",
-                IdFromDevice = 123
+                Name = device?.Employee?.FullName,
+                DeviceMac = device?.MAC,
+                DeviceSerialNo = device?.Id,
+                PrimaryAccountLogin = primaryAccount?.Login,
+                IdFromDevice = primaryAccount?.IdFromDevice,
+                NeedUpdatePrimaryAccount = needUpdatePrimaryAccount
             };
-            return Task.FromResult(info);
+
+            return info;
         }
     }
 }
