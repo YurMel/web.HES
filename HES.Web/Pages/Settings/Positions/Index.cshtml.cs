@@ -1,31 +1,34 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using HES.Core.Entities;
-using HES.Infrastructure;
+﻿using HES.Core.Entities;
+using HES.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace HES.Web.Pages.Settings.Positions
 {
     public class IndexModel : PageModel
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ISettingsService _settingsService;
+
         public IList<Position> Positions { get; set; }
-        public bool Bind { get; set; }
+        public bool HasForeignKey { get; set; }
         
         [BindProperty]
         public Position Position { get; set; }
+        [TempData]
+        public string ErrorMessage { get; set; }
 
-        public IndexModel(ApplicationDbContext context)
+        public IndexModel(ISettingsService settingsService)
         {
-            _context = context;
+            _settingsService = settingsService;
         }
 
         public async Task OnGetAsync()
         {
-            Positions = await _context.Positions.ToListAsync();
+            Positions = await _settingsService.PositionQuery().ToListAsync();
         }
 
         #region Position
@@ -42,8 +45,14 @@ namespace HES.Web.Pages.Settings.Positions
                 return RedirectToPage("./Index");
             }
 
-            _context.Positions.Add(Position);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _settingsService.CreatePositionAsync(Position);
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.Message;
+            }
 
             return RedirectToPage("./Index");
         }
@@ -55,7 +64,7 @@ namespace HES.Web.Pages.Settings.Positions
                 return NotFound();
             }
 
-            Position = await _context.Positions.FirstOrDefaultAsync(m => m.Id == id);
+            Position = await _settingsService.PositionQuery().FirstOrDefaultAsync(m => m.Id == id);
 
             if (Position == null)
             {
@@ -72,31 +81,16 @@ namespace HES.Web.Pages.Settings.Positions
                 return RedirectToPage("./Index");
             }
 
-            Position.Id = id;
-            _context.Attach(Position).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                await _settingsService.EditPositionAsync(Position);
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception ex)
             {
-                if (!PositionExists(Position.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                ErrorMessage = ex.Message;
             }
 
             return RedirectToPage("./Index");
-        }
-
-        private bool PositionExists(string id)
-        {
-            return _context.Positions.Any(e => e.Id == id);
         }
 
         public async Task<IActionResult> OnGetDeletePositionAsync(string id)
@@ -106,14 +100,14 @@ namespace HES.Web.Pages.Settings.Positions
                 return NotFound();
             }
 
-            Position = await _context.Positions.FirstOrDefaultAsync(m => m.Id == id);
+            Position = await _settingsService.PositionQuery().FirstOrDefaultAsync(m => m.Id == id);
 
             if (Position == null)
             {
                 return NotFound();
             }
 
-            Bind = await _context.Employees.AnyAsync(x => x.PositionId == id);
+            HasForeignKey = await _settingsService.EmployeeQuery().AnyAsync(x => x.PositionId == id);
 
             return Partial("_DeletePosition", this);
         }
@@ -125,12 +119,13 @@ namespace HES.Web.Pages.Settings.Positions
                 return NotFound();
             }
 
-            Position = await _context.Positions.FindAsync(id);
-
-            if (Position != null)
+            try
             {
-                _context.Positions.Remove(Position);
-                await _context.SaveChangesAsync();
+                await _settingsService.DeletePositionAsync(id);
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.Message;
             }
 
             return RedirectToPage("./Index");

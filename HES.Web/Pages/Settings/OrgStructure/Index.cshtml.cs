@@ -5,33 +5,34 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace HES.Web.Pages.Settings.OrgStructure
 {
     public class IndexModel : PageModel
     {
-        private readonly ApplicationDbContext _context;
         private readonly ISettingsService _settingsService;
+
         public IList<Company> Companies { get; set; }
         public IList<Department> Departments { get; set; }
 
         public Company Company { get; set; }
         public Department Department { get; set; }
-        public bool Bind { get; set; }
+        public bool HasForeignKey { get; set; }
+
+        [TempData]
+        public string ErrorMessage { get; set; }
 
         public IndexModel(ApplicationDbContext context, ISettingsService settingsService)
         {
-            _context = context;
             _settingsService = settingsService;
         }
 
         public async Task OnGetAsync()
         {
-            Companies = await _context.Companies.ToListAsync();
-            //Departments = await _context.Departments.Include(d => d.Company).ToListAsync();
+            Companies = await _settingsService.CompanyQuery().ToListAsync();
             Departments = await _settingsService.DepartmentQuery().Include(d => d.Company).ToListAsync();
         }
 
@@ -42,15 +43,21 @@ namespace HES.Web.Pages.Settings.OrgStructure
             return Partial("_CreateCompany", this);
         }
 
-        public async Task<IActionResult> OnPostCreateCompanyAsync(Company Company)
+        public async Task<IActionResult> OnPostCreateCompanyAsync(Company company)
         {
             if (!ModelState.IsValid)
             {
                 return RedirectToPage("./Index");
             }
 
-            _context.Companies.Add(Company);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _settingsService.CreateCompanyAsync(company);
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.Message;
+            }
 
             return RedirectToPage("./Index");
         }
@@ -62,7 +69,7 @@ namespace HES.Web.Pages.Settings.OrgStructure
                 return NotFound();
             }
 
-            Company = await _context.Companies.FirstOrDefaultAsync(m => m.Id == id);
+            Company = await _settingsService.CompanyQuery().FirstOrDefaultAsync(c => c.Id == id);
 
             if (Company == null)
             {
@@ -72,38 +79,23 @@ namespace HES.Web.Pages.Settings.OrgStructure
             return Partial("_EditCompany", this);
         }
 
-        public async Task<IActionResult> OnPostEditCompanyAsync(string id, Company Company)
+        public async Task<IActionResult> OnPostEditCompanyAsync(Company company)
         {
             if (!ModelState.IsValid)
             {
                 return RedirectToPage("./Index");
             }
 
-            Company.Id = id;
-            _context.Attach(Company).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                await _settingsService.EditCompanyAsync(company);
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception ex)
             {
-                if (!CompanyExists(Company.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                ErrorMessage = ex.Message;
             }
 
             return RedirectToPage("./Index");
-        }
-
-        private bool CompanyExists(string id)
-        {
-            return _context.Companies.Any(e => e.Id == id);
         }
 
         public async Task<IActionResult> OnGetDeleteCompanyAsync(string id)
@@ -113,14 +105,14 @@ namespace HES.Web.Pages.Settings.OrgStructure
                 return NotFound();
             }
 
-            Company = await _context.Companies.FirstOrDefaultAsync(m => m.Id == id);
+            Company = await _settingsService.CompanyQuery().FirstOrDefaultAsync(c => c.Id == id);
 
             if (Company == null)
             {
                 return NotFound();
             }
 
-            Bind = await _context.Departments.AnyAsync(x => x.CompanyId == id);
+            HasForeignKey = await _settingsService.DepartmentQuery().AnyAsync(x => x.CompanyId == id);
 
             return Partial("_DeleteCompany", this);
         }
@@ -132,12 +124,13 @@ namespace HES.Web.Pages.Settings.OrgStructure
                 return NotFound();
             }
 
-            Company = await _context.Companies.FindAsync(id);
-
-            if (Company != null)
+            try
             {
-                _context.Companies.Remove(Company);
-                await _context.SaveChangesAsync();
+                await _settingsService.DeleteCompanyAsync(id);
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.Message;
             }
 
             return RedirectToPage("./Index");
@@ -147,21 +140,27 @@ namespace HES.Web.Pages.Settings.OrgStructure
 
         #region Department
 
-        public IActionResult OnGetCreateDepartment()
+        public async Task<IActionResult> OnGetCreateDepartment()
         {
-            ViewData["CompanyId"] = new SelectList(_context.Companies, "Id", "Name");
+            ViewData["CompanyId"] = new SelectList(await _settingsService.CompanyQuery().ToListAsync(), "Id", "Name");
             return Partial("_CreateDepartment", this);
         }
 
-        public async Task<IActionResult> OnPostCreateDepartmentAsync(Department Department)
+        public async Task<IActionResult> OnPostCreateDepartmentAsync(Department department)
         {
             if (!ModelState.IsValid)
             {
                 return RedirectToPage("./Index");
             }
 
-            _context.Departments.Add(Department);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _settingsService.CreateDepartmentAsync(department);
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.Message;
+            }
 
             return RedirectToPage("./Index");
         }
@@ -173,50 +172,34 @@ namespace HES.Web.Pages.Settings.OrgStructure
                 return NotFound();
             }
 
-            //Department = await _context.Departments
-            //    .Include(d => d.Company).FirstOrDefaultAsync(m => m.Id == id);
             Department = await _settingsService.DepartmentQuery().Include(d => d.Company).FirstOrDefaultAsync(m => m.Id == id);
 
             if (Department == null)
             {
                 return NotFound();
             }
-            ViewData["CompanyId"] = new SelectList(_context.Companies, "Id", "Name");
+
+            ViewData["CompanyId"] = new SelectList(await _settingsService.CompanyQuery().ToListAsync(), "Id", "Name");
             return Partial("_EditDepartment", this);
         }
 
-        public async Task<IActionResult> OnPostEditDepartmentAsync(string id, Department Department)
+        public async Task<IActionResult> OnPostEditDepartmentAsync(Department department)
         {
             if (!ModelState.IsValid)
             {
                 return RedirectToPage("./Index");
             }
 
-            Department.Id = id;
-            _context.Attach(Department).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                await _settingsService.EditDepartmentAsync(department);
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception ex)
             {
-                if (!DepartmentExists(Department.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                ErrorMessage = ex.Message;
             }
 
             return RedirectToPage("./Index");
-        }
-
-        private bool DepartmentExists(string id)
-        {
-            return _context.Departments.Any(e => e.Id == id);
         }
 
         public async Task<IActionResult> OnGetDeleteDepartmentAsync(string id)
@@ -226,16 +209,17 @@ namespace HES.Web.Pages.Settings.OrgStructure
                 return NotFound();
             }
 
-            Department = await _context.Departments
-                .Include(d => d.Company)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            Department = await _settingsService
+                .DepartmentQuery()
+                .Include(c => c.Company)
+                .FirstOrDefaultAsync(d => d.Id == id);
 
             if (Department == null)
             {
                 return NotFound();
             }
 
-            Bind = await _context.Employees.AnyAsync(x => x.DepartmentId == id);
+            HasForeignKey = await _settingsService.EmployeeQuery().AnyAsync(x => x.DepartmentId == id);
 
             return Partial("_DeleteDepartment", this);
         }
@@ -247,12 +231,13 @@ namespace HES.Web.Pages.Settings.OrgStructure
                 return NotFound();
             }
 
-            Department = await _context.Departments.FindAsync(id);
-
-            if (Department != null)
+            try
             {
-                _context.Departments.Remove(Department);
-                await _context.SaveChangesAsync();
+                await _settingsService.DeleteDepartmentAsync(id);
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.Message;
             }
 
             return RedirectToPage("./Index");

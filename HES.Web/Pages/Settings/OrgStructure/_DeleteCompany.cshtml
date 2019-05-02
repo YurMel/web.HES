@@ -1,6 +1,6 @@
 ﻿@model HES.Web.Pages.Settings.OrgStructure.IndexModel
 
-@if (Model.Bind)
+@if (Model.HasForeignKey)
 {
     <h5 class="text-gray mb-4 ">The company @Model.Company.Name contains departments, remove departments to remove company.</h5>
     <div class="text-right">

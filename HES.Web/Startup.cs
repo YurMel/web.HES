@@ -1,6 +1,7 @@
 using HES.Core.Interfaces;
 using HES.Core.Services;
 using HES.Infrastructure;
+using HES.Infrastructure.Identity;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -33,6 +34,7 @@ namespace HES.Web
             services.AddScoped<ISharedAccountService, SharedAccountService>();
             services.AddScoped<ITemplateService, TemplateService>();
             services.AddScoped<ISettingsService, SettingsService>();
+            services.AddScoped<IApplicationUserService, ApplicationUserService>();
             services.AddScoped<IRemoteTaskService, RemoteTaskService>();
             
             // Crypto

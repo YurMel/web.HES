@@ -1,13 +1,23 @@
 ﻿using HES.Core.Entities;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Threading.Tasks;
 
 namespace HES.Core.Interfaces
 {
     public interface ISettingsService
     {
+        IQueryable<Company> CompanyQuery();
         IQueryable<Department> DepartmentQuery();
+        IQueryable<Position> PositionQuery();
+        IQueryable<Employee> EmployeeQuery();
+        Task CreateCompanyAsync(Company company);
+        Task EditCompanyAsync(Company company);
+        Task DeleteCompanyAsync(string id);
+        Task CreateDepartmentAsync(Department department);
+        Task EditDepartmentAsync(Department department);
+        Task DeleteDepartmentAsync(string id);
+        Task CreatePositionAsync(Position position);
+        Task EditPositionAsync(Position position);
+        Task DeletePositionAsync(string id);
     }
 }

@@ -1,9 +1,9 @@
 ﻿using HES.Core.Interfaces;
 using HES.Infrastructure;
+using HES.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -14,17 +14,18 @@ namespace HES.Web.Pages.Settings.Administrators
 {
     public class IndexModel : PageModel
     {
+        private readonly IApplicationUserService _applicationUserService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEmailSender _emailSender;
-        private readonly ApplicationDbContext _context;
+
         public IList<ApplicationUser> ApplicationUsers { get; set; }
 
         [TempData]
         public string StatusMessage { get; set; }
-
+        [TempData]
+        public string ErrorMessage { get; set; }
         [BindProperty]
         public ApplicationUser ApplicationUser { get; set; }
-
         [BindProperty]
         public InputModel Input { get; set; }
 
@@ -35,16 +36,18 @@ namespace HES.Web.Pages.Settings.Administrators
             public string Email { get; set; }
         }
 
-        public IndexModel(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IEmailSender emailSender)
+        public IndexModel(IApplicationUserService applicationUserService,
+                          UserManager<ApplicationUser> userManager,
+                          IEmailSender emailSender)
         {
-            _context = context;
+            _applicationUserService = applicationUserService;
             _userManager = userManager;
             _emailSender = emailSender;
         }
 
         public async Task OnGetAsync()
         {
-            ApplicationUsers = await _context.Users.ToListAsync();
+            ApplicationUsers = await _applicationUserService.GetAllAsync();
         }
 
         #region Invite
@@ -58,39 +61,41 @@ namespace HES.Web.Pages.Settings.Administrators
         {
             if (ModelState.IsValid)
             {
-                // Create new user
-                var user = new ApplicationUser { UserName = Input.Email, Email = Input.Email };
-                var password = Guid.NewGuid().ToString();
-                var result = await _userManager.CreateAsync(user, password);
-                if (!result.Succeeded)
-                {
-                    string errors = string.Empty;
-                    foreach (var item in result.Errors)
-                    {
-                        errors += $"Error {Environment.NewLine} Code: {item.Code} Description: {item.Description} {Environment.NewLine}";
-                    }
-                    StatusMessage = errors;
-                    return RedirectToPage("./Index");
-                }
-                await _userManager.AddToRoleAsync(user, ApplicationRoles.AdminRole);
-
-                // Create "invite" link
-                var code = await _userManager.GeneratePasswordResetTokenAsync(user);
-                var email = Input.Email;
-                var callbackUrl = Url.Page(
-                   "/Account/Invite",
-                    pageHandler: null,
-                    values: new { area = "Identity", code, email },
-                    protocol: Request.Scheme);
-
-                await _emailSender.SendEmailAsync(
-                    Input.Email,
-                    "Invite to HES",
-                    $"Please enter your password by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
-
-                StatusMessage = "Email has been sent";
                 return RedirectToPage("./Index");
             }
+
+            // Create new user
+            var user = new ApplicationUser { UserName = Input.Email, Email = Input.Email };
+            var password = Guid.NewGuid().ToString();
+            var result = await _userManager.CreateAsync(user, password);
+            if (!result.Succeeded)
+            {
+                string errors = string.Empty;
+                foreach (var item in result.Errors)
+                {
+                    errors += $"Code: {item.Code} Description: {item.Description} {Environment.NewLine}";
+                }
+                ErrorMessage = errors;
+                return RedirectToPage("./Index");
+            }
+
+            await _userManager.AddToRoleAsync(user, ApplicationRoles.AdminRole);
+
+            // Create "invite" link
+            var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var email = Input.Email;
+            var callbackUrl = Url.Page(
+               "/Account/Invite",
+                pageHandler: null,
+                values: new { area = "Identity", code, email },
+                protocol: Request.Scheme);
+
+            await _emailSender.SendEmailAsync(
+                Input.Email,
+                "Invite to HES",
+                $"Please enter your password by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+
+            StatusMessage = "Email has been sent";
             return RedirectToPage("./Index");
         }
 
@@ -105,7 +110,7 @@ namespace HES.Web.Pages.Settings.Administrators
                 return NotFound();
             }
 
-            ApplicationUser = await _context.Users.FirstOrDefaultAsync(m => m.Id == id);
+            ApplicationUser = await _applicationUserService.GetFirstOrDefaultAsync(id);
 
             if (ApplicationUser == null)
             {
@@ -122,15 +127,16 @@ namespace HES.Web.Pages.Settings.Administrators
                 return NotFound();
             }
 
-            ApplicationUser = await _context.Users.FindAsync(id);
-
-            if (ApplicationUser != null)
+            try
             {
-                _context.Users.Remove(ApplicationUser);
-                await _context.SaveChangesAsync();
+                await _applicationUserService.DelateAdminAsync(id);
+                StatusMessage = "Removal was successful";
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.Message;
             }
 
-            StatusMessage = "Removal was successful";
             return RedirectToPage("./Index");
         }
 
