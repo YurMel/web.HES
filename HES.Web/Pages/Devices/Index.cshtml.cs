@@ -52,12 +52,7 @@ namespace HES.Web.Pages.Devices
         }
 
         public async Task<IActionResult> OnPostEditDeviceRfidAsync(Device device)
-        {
-            if (!ModelState.IsValid)
-            {
-                return RedirectToPage("./Index");
-            }
-
+        {     
             try
             {
                 await _deviceService.EditDeviceRfidAsync(device);

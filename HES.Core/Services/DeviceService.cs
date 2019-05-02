@@ -89,6 +89,12 @@ namespace HES.Core.Services
             {
                 throw new Exception("The parameter must not be null.");
             }
+
+            if (string.IsNullOrWhiteSpace(device.RFID))
+            {
+                device.RFID = null;
+            }
+
             await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "RFID" });
         }
 
