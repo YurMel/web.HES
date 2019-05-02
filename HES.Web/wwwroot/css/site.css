@@ -452,8 +452,9 @@ div.dataTables_scrollHead table.dataTable {
     cursor: pointer;
 }
 
-.table-responsive {
-    overflow: visible;
+.table-responsive > div {
+    margin-left: 0;
+    margin-right: 0;
 }
 /*#endregion*/
 

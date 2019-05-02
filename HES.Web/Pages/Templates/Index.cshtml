@@ -9,7 +9,7 @@
 <partial name="_ErrorMessage" for="ErrorMessage" />
 
 @* Top table items *@
-<div class="row align-items-center">
+<div class="row align-items-center mr-0">
     <div class="col">
         <h1 class="text-navyblue">Templates</h1>
     </div>
@@ -94,17 +94,18 @@
             }
         </tbody>
     </table>
+
+    @* Bottom table items *@
+    <div class="row mt-2">
+        <div class="col-sm-12 col-md-auto d-flex justify-content-start align-items-center mb-1">
+            <span class="d-flex align-items-center mr-1 text-navyblue">Show entries</span>
+            <div id="entries_place"></div>
+        </div>
+        <div id="showing_place" class="col-sm-12 col-md d-flex justify-content-md-center align-items-center mb-1 text-navyblue"></div>
+        <div id="pagination_place" class="col-sm-12 col-md-auto d-flex justify-content-md-end align-items-center mb-1"></div>
+    </div>
 </div>
 
-@* Bottom table items *@
-<div class="row mt-2">
-    <div class="col-sm-12 col-md-auto d-flex justify-content-start align-items-center mb-1">
-        <span class="d-flex align-items-center mr-1 text-navyblue">Show entries</span>
-        <div id="entries_place"></div>
-    </div>
-    <div id="showing_place" class="col-sm-12 col-md d-flex justify-content-md-center align-items-center mb-1 text-navyblue"></div>
-    <div id="pagination_place" class="col-sm-12 col-md-auto d-flex justify-content-md-end align-items-center mb-1"></div>
-</div>
 
 @* Modal *@
 <div class="modal" id="modalDialog" tabindex="-1" role="dialog" aria-labelledby="modalDialogTitle" aria-hidden="true">

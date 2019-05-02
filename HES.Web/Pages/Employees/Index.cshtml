@@ -7,15 +7,11 @@
 }
 
 @* Top table items *@
-<div class="row align-items-center">
+<div class="row align-items-center mr-0">
     <div class="col">
         <h1 class="text-navyblue">Employees</h1>
     </div>
     <div class="col-auto p-1">
-        @*<div class="form-group m-0 has-search-right">
-            <img class="form-control-feedback" src="~/svg/action/search.svg" />
-            <input id="searchbox" type="text" class="form-control" placeholder="Search">
-        </div>*@
         <div class="form-group has-search-right m-0">
             <div class="form-control-feedback">
                 <img class="img-size" src="~/svg/action/search.svg" />
@@ -117,16 +113,16 @@
             }
         </tbody>
     </table>
-</div>
 
-@* Bottom table items *@
-<div class="row mt-2">
-    <div class="col-sm-12 col-md-auto d-flex justify-content-start align-items-center mb-1">
-        <span class="d-flex align-items-center mr-1 text-navyblue">Show entries</span>
-        <div id="entries_place"></div>
+    @* Bottom table items *@
+    <div class="row mt-2">
+        <div class="col-sm-12 col-md-auto d-flex justify-content-start align-items-center mb-1">
+            <span class="d-flex align-items-center mr-1 text-navyblue">Show entries</span>
+            <div id="entries_place"></div>
+        </div>
+        <div id="showing_place" class="col-sm-12 col-md d-flex justify-content-md-center align-items-center mb-1 text-navyblue"></div>
+        <div id="pagination_place" class="col-sm-12 col-md-auto d-flex justify-content-md-end align-items-center mb-1"></div>
     </div>
-    <div id="showing_place" class="col-sm-12 col-md d-flex justify-content-md-center align-items-center mb-1 text-navyblue"></div>
-    <div id="pagination_place" class="col-sm-12 col-md-auto d-flex justify-content-md-end align-items-center mb-1"></div>
 </div>
 
 @* Modal *@

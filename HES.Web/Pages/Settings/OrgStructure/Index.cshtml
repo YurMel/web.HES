@@ -6,7 +6,7 @@
     ViewData["SettingsPage"] = SettingsNavPages.OrgStructure;
 }
 
-<div class="row align-items-center mb-3">
+<div class="row align-items-center mb-3 mr-0">
     <div class="col">
         <h1 class="text-navyblue text-nowrap">Org structure</h1>
     </div>
@@ -95,16 +95,17 @@
                     }
                 </tbody>
             </table>
+
+            @* Bottom table items *@
+            <div class="row mt-2 mb-4">
+                <div class="col-sm-12 col-md-auto d-flex justify-content-start align-items-center mb-1">
+                    <span class="d-flex align-items-center mr-1 text-navyblue">Show entries</span>
+                    <div id="entries_place_@company.Id"></div>
+                </div>
+                <div id="showing_place_@company.Id" class="col-sm-12 col-md d-flex justify-content-md-center align-items-center mb-1 text-navyblue"></div>
+                <div id="pagination_place_@company.Id" class="col-sm-12 col-md-auto d-flex justify-content-md-end align-items-center mb-1"></div>
+            </div>
         </div>
-    </div>
-    @* Bottom table items *@
-    <div class="row mt-2 mb-4">
-        <div class="col-sm-12 col-md-auto d-flex justify-content-start align-items-center mb-1">
-            <span class="d-flex align-items-center mr-1 text-navyblue">Show entries</span>
-            <div id="entries_place_@company.Id"></div>
-        </div>
-        <div id="showing_place_@company.Id" class="col-sm-12 col-md d-flex justify-content-md-center align-items-center mb-1 text-navyblue"></div>
-        <div id="pagination_place_@company.Id" class="col-sm-12 col-md-auto d-flex justify-content-md-end align-items-center mb-1"></div>
     </div>
 }
 

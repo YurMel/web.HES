@@ -9,7 +9,7 @@
 <partial name="_ErrorMessage" for="ErrorMessage" />
 
 @* Employee items *@
-<div class="row align-items-center mb-2">
+<div class="row align-items-center mb-2 mr-0">
     <div class="col-auto p-1">
         <h1 class="text-navyblue m-0">@Model.Employee.FullName</h1>
     </div>
@@ -218,7 +218,7 @@
             </div>
         </div>
         @*DeviceAccounts table*@
-        <div class="table-responsive1 overflow-auto">
+        <div class="table-responsive">
             <table id="@device.Id" class="table display table table-hover border rounded">
                 <thead>
                     <tr>
@@ -408,14 +408,14 @@
                     }
                 </tbody>
             </table>
-        </div>
-        <div class="row mt-2">
-            <div class="col-sm-12 col-md-auto d-flex justify-content-start align-items-center mb-1">
-                <span class="d-flex align-items-center mr-1 text-navyblue">Show entries</span>
-                <div id="entries_place_@device.Id"></div>
+            <div class="row mt-2">
+                <div class="col-sm-12 col-md-auto d-flex justify-content-start align-items-center mb-1">
+                    <span class="d-flex align-items-center mr-1 text-navyblue">Show entries</span>
+                    <div id="entries_place_@device.Id"></div>
+                </div>
+                <div id="showing_place_@device.Id" class="col-sm-12 col-md d-flex justify-content-md-center align-items-center mb-1 text-navyblue"></div>
+                <div id="pagination_place_@device.Id" class="col-sm-12 col-md-auto d-flex justify-content-md-end align-items-center mb-1"></div>
             </div>
-            <div id="showing_place_@device.Id" class="col-sm-12 col-md d-flex justify-content-md-center align-items-center mb-1 text-navyblue"></div>
-            <div id="pagination_place_@device.Id" class="col-sm-12 col-md-auto d-flex justify-content-md-end align-items-center mb-1"></div>
         </div>
     }
 }
@@ -566,7 +566,7 @@
             if (currentId != 'undefined') {
                 $('#' + currentId).DataTable({
                     "columnDefs": [
-                        { "orderable": false, "targets": 10 }
+                        { "orderable": false, "targets": 11 }
                     ]
                 });
                 var dataTable = $('#' + currentId).dataTable();
