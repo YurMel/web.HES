@@ -4,7 +4,6 @@ using HES.Core.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using SmartBreadcrumbs.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,7 +12,6 @@ using System.Threading.Tasks;
 
 namespace HES.Web.Pages.Devices
 {
-    [Breadcrumb("Devices")]
     public class IndexModel : PageModel
     {
         private readonly IDeviceService _deviceService;

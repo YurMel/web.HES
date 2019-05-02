@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using SmartBreadcrumbs.Extensions;
 
 namespace HES.Web
 {
@@ -46,9 +45,6 @@ namespace HES.Web
                      Configuration.GetValue<bool>("EmailSender:EnableSSL"),
                      Configuration["EmailSender:UserName"],
                      Configuration["EmailSender:Password"]));
-
-            // Breadcrumbs
-            services.AddBreadcrumbs(GetType().Assembly);
 
             // Cookie
             services.Configure<CookiePolicyOptions>(options =>

@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using SmartBreadcrumbs.Attributes;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -13,7 +12,6 @@ using System.Threading.Tasks;
 
 namespace HES.Web.Pages.Settings.Administrators
 {
-    [Breadcrumb("Administrators")]
     public class IndexModel : PageModel
     {
         private readonly UserManager<ApplicationUser> _userManager;

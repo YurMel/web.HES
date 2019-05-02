@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using SmartBreadcrumbs.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +11,6 @@ using System.Threading.Tasks;
 
 namespace HES.Web.Pages.Employees
 {
-    [Breadcrumb("Details", FromPage = typeof(Employees.IndexModel))]
     public class DetailsModel : PageModel
     {
         private readonly IEmployeeService _employeeService;
