@@ -13,5 +13,6 @@ namespace HES.Core.Interfaces
         Task<Device> DeviceGetByIdAsync(dynamic id);
         Task<(IList<Device> devicesExists, IList<Device> devicesImported, string message)> ImportDevices(string key, byte[] fileContent);
         bool Exist(Expression<Func<Device, bool>> predicate);
+        Task EditDeviceRfidAsync(Device device);
     }
 }

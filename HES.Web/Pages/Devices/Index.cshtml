@@ -6,6 +6,8 @@
     ViewData["ActivePage"] = MenuNavPages.Devices;
 }
 
+<partial name="_ErrorMessage" for="ErrorMessage" />
+
 <div class="row align-items-center mr-0">
     <div class="col">
         <h1 class="text-navyblue">Devices</h1>
@@ -28,34 +30,34 @@
         <thead>
             <tr>
                 <th>
-                    @Html.DisplayNameFor(model => model.Device[0].Id)
+                    @Html.DisplayNameFor(model => model.Devices[0].Id)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.Device[0].MAC)
+                    @Html.DisplayNameFor(model => model.Devices[0].MAC)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.Device[0].Model)
+                    @Html.DisplayNameFor(model => model.Devices[0].Model)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.Device[0].RFID)
+                    @Html.DisplayNameFor(model => model.Devices[0].RFID)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.Device[0].Battery)
+                    @Html.DisplayNameFor(model => model.Devices[0].Battery)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.Device[0].Firmware)
+                    @Html.DisplayNameFor(model => model.Devices[0].Firmware)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.Device[0].LastSynced)
+                    @Html.DisplayNameFor(model => model.Devices[0].LastSynced)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.Device[0].Employee)
+                    @Html.DisplayNameFor(model => model.Devices[0].Employee)
                 </th>
                 <th class="table-col-menu"></th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var item in Model.Device)
+            @foreach (var item in Model.Devices)
             {
                 <tr>
                     <td>
@@ -90,10 +92,21 @@
                         @Html.DisplayFor(modelItem => item.Employee.FullName)
                     </td>
                     <td>
-                        <form method="post">
-                            <input hidden value="@item.Id" name="id" />
-                            <input type="submit" value="PING" class="btn btn-primary" asp-page-handler="Ping" />
-                        </form>
+                        <div class="dropdown no-arrow">
+                            <a class="dropdown-toggle" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <img src="~/svg/action/more.svg" />
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right shadow" aria-labelledby="dropdownMenuLink">
+                                <form method="post">
+                                    <input hidden value="@item.Id" name="id" />
+                                    <input type="submit" value="PING" class="btn btn-primary" asp-page-handler="Ping" style="width:158px;" />
+                                </form>
+                                <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="EditDeviceRfid" data-title="Edit device RFID">
+                                    <img src="~/svg/action/edit.svg" />
+                                    Edit RFID
+                                </a>
+                            </div>
+                        </div>
                     </td>
                 </tr>
             }
@@ -111,6 +124,26 @@
     </div>
 </div>
 
+@* Modal *@
+<div class="modal" id="modalDialog" tabindex="-1" role="dialog" aria-labelledby="modalDialogTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-navyblue" id="modalDialogTitle">Dialog</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div id="modalBody" class="modal-body">
+                <div class="d-flex justify-content-center align-items-center">
+                    <div class="spinner-grow text-primary" style="width: 3rem; height: 3rem;" role="status">
+                        <span class="sr-only"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 @section scripts{
     <script>
@@ -134,5 +167,35 @@
         $('#showing_place').html($('.dataTables_info'));
         // Paginate
         $('#pagination_place').html($('.dataTables_paginate'));
+
+        // Open modal dialog
+        $(document).on('click', '.open-modal-dialog', function () {
+            var btn = $(this);
+            var id = btn.data("id");
+            var action = btn.data("action");
+            var title = btn.data("title");
+
+            $('#modalDialogTitle').html(title);
+            $('#modalDialog').modal('toggle');
+
+            $.ajax({
+                url: "/Devices?handler=" + action,
+                type: "Get",
+                data: { id: id },
+                async: true,
+                success: function (response) {
+                    $("#modalBody").html(response);
+
+                    // Validation partial view
+                    $('form').removeData('validator');
+                    $('form').removeData('unobtrusiveValidation');
+                    $.validator.unobtrusive.parse('form');
+                }
+            });
+        });
+        // Clear content on modal hide
+        $('#modalDialog').on('hidden.bs.modal', function (e) {
+            $("#modalBody").html("<div class='d-flex justify-content-center align-items-center'><div class='spinner-grow text-primary' style='width: 3rem; height: 3rem;' role='status'><span class='sr-only'></span></div></div>");
+        })
     </script>
 }

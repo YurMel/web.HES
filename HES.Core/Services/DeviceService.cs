@@ -83,6 +83,15 @@ namespace HES.Core.Services
             return _deviceRepository.Exist(predicate);
         }
 
+        public async Task EditDeviceRfidAsync(Device device)
+        {
+            if (device == null)
+            {
+                throw new Exception("The parameter must not be null.");
+            }
+            await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "RFID" });
+        }
+
         class MyHideezDevice
         {
             public string Id { get; set; }

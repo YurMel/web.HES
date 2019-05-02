@@ -16,7 +16,11 @@ namespace HES.Web.Pages.Devices
     {
         private readonly IDeviceService _deviceService;
 
-        public IList<Device> Device { get; set; }
+        public Device Device { get; set; }
+        public IList<Device> Devices { get; set; }
+
+        [TempData]
+        public string ErrorMessage { get; set; }
 
         public IndexModel(IDeviceService deviceService)
         {
@@ -25,9 +29,48 @@ namespace HES.Web.Pages.Devices
 
         public async Task OnGetAsync()
         {
-            Device = await _deviceService.DeviceQuery().Include(d => d.Employee).ToListAsync();
+            Devices = await _deviceService.DeviceQuery().Include(d => d.Employee).ToListAsync();
+        }
+        
+        public async Task<IActionResult> OnGetEditDeviceRfidAsync(string id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            Device = await _deviceService.DeviceQuery()
+                .Include(d => d.Employee)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (Device == null)
+            {
+                return NotFound();
+            }
+
+            return Partial("_EditDeviceRfid", this);
         }
 
+        public async Task<IActionResult> OnPostEditDeviceRfidAsync(Device device)
+        {
+            if (!ModelState.IsValid)
+            {
+                return RedirectToPage("./Index");
+            }
+
+            try
+            {
+                await _deviceService.EditDeviceRfidAsync(device);
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.Message;
+            }
+
+            return RedirectToPage("./Index");
+        }
+
+        // TEMP
         public async Task<IActionResult> OnPostPing(string id)
         {
             //id = "D0A89E6BCD8D";
