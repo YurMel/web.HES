@@ -598,6 +598,10 @@
             }
             // Enable tooltip
             $('[data-toggle="tooltip"]').tooltip();
+
+            $('#breadcrumb').toggleClass('d-none');
+            $('.breadcrumb').append('<li class="breadcrumb-item"><a href="/Employees">Employees</a></li>');
+            $('.breadcrumb').append('<li class="breadcrumb-item active">@Model.Employee.FullName</li>');
         });
 
     </script>
