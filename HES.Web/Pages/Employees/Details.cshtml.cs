@@ -513,5 +513,48 @@ namespace HES.Web.Pages.Employees
         }
 
         #endregion
+
+        #region Undo
+
+        public async Task<IActionResult> OnGetUndoChangesAsync(string id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            DeviceAccount = await _employeeService
+                .DeviceAccountQuery()
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (DeviceAccount == null)
+            {
+                return NotFound();
+            }
+
+            return Partial("_UndoChanges", this);
+        }
+
+        public async Task<IActionResult> OnPostUndoChangesAsync(string accountId, string employeeId)
+        {
+            if (accountId == null)
+            {
+                return NotFound();
+            }
+
+            try
+            {
+                await _employeeService.UndoChanges(accountId);
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.Message;
+            }
+
+            var id = employeeId;
+            return RedirectToPage("./Details", new { id });
+        }
+
+        #endregion
     }
 }

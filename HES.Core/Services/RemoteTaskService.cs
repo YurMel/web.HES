@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using HES.Core.Entities;
 using HES.Core.Interfaces;
 using Hideez.SDK.Communication.Remote;
+using Microsoft.EntityFrameworkCore;
 
 namespace HES.Core.Services
 {
@@ -31,33 +32,43 @@ namespace HES.Core.Services
             await _deviceTaskRepository.AddRangeAsync(deviceTasks);
         }
 
-        public async Task UndoLastTaskAsync(string taskId)
+        public async Task UndoLastTaskAsync(string accountId)
         {
-            // Get Task and Acc
-            var deviceTask = await _deviceTaskRepository.GetByIdAsync(taskId);
-            var deviceAccount = await _deviceAccountRepository.GetByIdAsync(deviceTask.DeviceAccountId);
+            // Get account
+            var deviceAccount = await _deviceAccountRepository.GetByIdAsync(accountId);
+            // Get undo task
+            var undoTask = await _deviceTaskRepository.Query().OrderByDescending(t => t.CreatedAt).FirstOrDefaultAsync(t => t.DeviceAccountId == accountId);
             // Delete Task
-            await _deviceTaskRepository.DeleteAsync(deviceTask);
+            await _deviceTaskRepository.DeleteAsync(undoTask);
             // Get last task
             var lastTask = _deviceTaskRepository.Query().Where(d => d.DeviceAccountId == deviceAccount.Id).OrderByDescending(d => d.CreatedAt).FirstOrDefault();
-            // Update account
-            switch (lastTask.Operation)
+            if (lastTask != null)
             {
-                case TaskOperation.Create:
-                    deviceAccount.Status = AccountStatus.Creating;
-                    deviceAccount.UpdatedAt = null;
-                    break;
-                case TaskOperation.Update:
-                    deviceAccount.Status = AccountStatus.Updating;
-                    deviceAccount.UpdatedAt = DateTime.UtcNow;
-                    break;
-                case TaskOperation.Delete:
-                    deviceAccount.Status = AccountStatus.Removing;
-                    deviceAccount.UpdatedAt = DateTime.UtcNow;
-                    break;
-                default:
-                    break;
+                // Update account
+                switch (lastTask.Operation)
+                {
+                    case TaskOperation.Create:
+                        deviceAccount.Status = AccountStatus.Creating;
+                        deviceAccount.UpdatedAt = null;
+                        break;
+                    case TaskOperation.Update:
+                        deviceAccount.Status = AccountStatus.Updating;
+                        deviceAccount.UpdatedAt = DateTime.UtcNow;
+                        break;
+                    case TaskOperation.Delete:
+                        deviceAccount.Status = AccountStatus.Removing;
+                        deviceAccount.UpdatedAt = DateTime.UtcNow;
+                        break;
+                    default:
+                        break;
+                }
             }
+            else
+            {
+                deviceAccount.Status = AccountStatus.Done;
+                deviceAccount.UpdatedAt = DateTime.UtcNow;
+            }
+
             await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, new string[] { "Status", "UpdatedAt" });
         }
 

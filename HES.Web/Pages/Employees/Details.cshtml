@@ -395,6 +395,13 @@
                                                 Edit OTP
                                             </a>
                                         }
+                                        @if (item.Status == Core.Entities.AccountStatus.Updating || item.Status == Core.Entities.AccountStatus.Removing)
+                                        {
+                                            <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="UndoChanges" data-title="Undo changes">
+                                                <img src="~/svg/action/undo.svg" />
+                                                Undo changes
+                                            </a>
+                                        }
                                         <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="SetPrimaryAccount" data-title="Primary account">
                                             <img src="~/svg/action/star.svg" />
                                             Set as primary account

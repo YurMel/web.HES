@@ -35,5 +35,6 @@ namespace HES.Core.Interfaces
         Task EditPersonalAccountOtpAsync(DeviceAccount deviceAccount, InputModel input);
         Task AddSharedAccount(string employeeId, string sharedAccountId, string[] selectedDevices);
         Task DeleteAccount(string accountId);
+        Task UndoChanges(string accountId);
     }
 }

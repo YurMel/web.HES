@@ -1,5 +1,6 @@
 ﻿using HES.Core.Entities;
 using HES.Core.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -398,6 +399,16 @@ namespace HES.Core.Services
                 await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties);
                 throw new Exception(ex.Message);
             }
+        }
+
+        public async Task UndoChanges(string accountId)
+        {
+            if (accountId == null)
+            {
+                throw new Exception("The parameter must not be null.");
+            }
+
+            await _remoteTaskService.UndoLastTaskAsync(accountId);
         }
 
         private async Task FirstAdditionPrimaryAccountId(string deviceId, string deviceAccountId)
