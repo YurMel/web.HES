@@ -63,10 +63,11 @@
                         @{
                             if (item.Urls != null)
                             {
-                                foreach (var urls in item.Urls.Split(';'))
-                                {
-                                    <span class="badge badge-primary custom-badge">@urls</span>
-                                }
+                                @item.Urls
+                                @*foreach (var urls in item.Urls.Split(';'))
+                                    {
+                                        <span class="badge badge-primary custom-badge">@urls</span>
+                                    }*@
                             }
                         }
                     </td>
@@ -74,10 +75,11 @@
                         @{
                             if (item.Apps != null)
                             {
-                                foreach (var apps in item.Apps.Split(';'))
-                                {
-                                    <span class="badge badge-primary custom-badge">@apps</span>
-                                }
+                                @item.Apps
+                                @*foreach (var apps in item.Apps.Split(';'))
+                                    {
+                                        <span class="badge badge-primary custom-badge">@apps</span>
+                                    }*@
                             }
                         }
                     </td>
