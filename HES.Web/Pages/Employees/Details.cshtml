@@ -280,9 +280,9 @@
                                     {
                                         @item.Urls
                                         @*foreach (var urls in item.Urls.Split(';'))
-                                        {
-                                            <span class="badge badge-primary custom-badge">@urls</span>
-                                        }*@
+                                            {
+                                                <span class="badge badge-primary custom-badge">@urls</span>
+                                            }*@
                                     }
                                 }
                             </td>
@@ -292,9 +292,9 @@
                                     {
                                         @item.Apps
                                         @*foreach (var apps in item.Apps.Split(';'))
-                                        {
-                                            <span class="badge badge-primary custom-badge">@apps</span>
-                                        }*@
+                                            {
+                                                <span class="badge badge-primary custom-badge">@apps</span>
+                                            }*@
                                     }
                                 }
                             </td>
@@ -471,23 +471,23 @@
                 success: function (response) {
                     $("#modalBody").html(response);
 
-                    InitDevicesTable();
-
-                    // Enable tags
-                    $('[data-role="tags-input"]').tagsInput();
-
-                    // Set tooltip
-                    $('.tags-container').attr('data-toggle', "tooltip");
-                    $('.tags-container').attr('data-placement', "bottom");
-                    $('.tags-container').attr('title', "Input value and press enter");
-
-                    // Enable tooltip
-                    $('[data-toggle="tooltip"]').tooltip();
-
                     // Validation partial view
                     $('form').removeData('validator');
                     $('form').removeData('unobtrusiveValidation');
                     $.validator.unobtrusive.parse('form');
+
+                    // Init devices
+                    DevicesTable();
+
+                    // Enable tags
+                    $("input[data-role=tagsinput], select[multiple][data-role=tagsinput]").tagsinput();
+
+                    // Set disabled
+                    if ($('#SharedAccountUrls').prop('disabled')) {
+                        $(".bootstrap-tagsinput > input").prop("disabled", true);
+                        $(".bootstrap-tagsinput > input").css("width", "1px");
+                        $(".bootstrap-tagsinput").addClass("tagsinput-disabled");
+                    }
                 }
             });
         });
@@ -499,7 +499,7 @@
         });
 
         // Init devices
-        function InitDevicesTable() {
+        function DevicesTable() {
             var table_name = '#devices';
             $(table_name).DataTable({
                 "order": [[1, "asc"]],
@@ -544,8 +544,12 @@
             $.getJSON('/Employees/Details?handler=JsonSharedAccount', { id: id },
                 function (data) {
                     $('#SharedAccountName').val(data.name);
-                    $('#SharedAccountUrls').val(data.urls);
-                    $('#SharedAccountApps').val(data.apps);
+                    //$('#SharedAccountUrls').val(data.urls);
+                    $('#SharedAccountUrls').tagsinput('removeAll');
+                    $('#SharedAccountUrls').tagsinput('add', data.urls);
+                    //$('#SharedAccountApps').val(data.apps);
+                    $('#SharedAccountApps').tagsinput('removeAll');
+                    $('#SharedAccountApps').tagsinput('add', data.apps);
                     $('#SharedAccountLogin').val(data.login);
                 });
         }
@@ -555,8 +559,12 @@
             $.getJSON('/Employees/Details?handler=JsonTemplate', { id: id },
                 function (data) {
                     $('#PersonalAccName').val(data.name);
-                    $('#PersonalAccUrls').val(data.urls);
-                    $('#PersonalAccApps').val(data.apps);
+                    //$('#PersonalAccUrls').val(data.urls);
+                    $('#PersonalAccUrls').tagsinput('removeAll');
+                    $('#PersonalAccUrls').tagsinput('add', data.urls);
+                    //$('#PersonalAccApps').val(data.apps);
+                    $('#PersonalAccApps').tagsinput('removeAll');
+                    $('#PersonalAccApps').tagsinput('add', data.apps);
                 });
         }
 
@@ -592,15 +600,15 @@
             $("#modalBody").html("<div class='d-flex justify-content-center align-items-center'><div class='spinner-grow text-primary' style='width: 3rem; height: 3rem;' role='status'><span class='sr-only'></span></div></div>");
         })
 
-        // Set btn disable if device count 0
         $(document).ready(function () {
+            // Set btn disable if device count 0
             if (@Model.Employee.Devices.Count() == 0) {
                 $('#personal_acc').attr("disabled", true);
                 $('#shared_acc').attr("disabled", true);
             }
             // Enable tooltip
             $('[data-toggle="tooltip"]').tooltip();
-
+            // Breadcrumb
             $('#breadcrumb').toggleClass('d-none');
             $('.breadcrumb').append('<li class="breadcrumb-item"><a href="/Employees">Employees</a></li>');
             $('.breadcrumb').append('<li class="breadcrumb-item active">@Model.Employee.FullName</li>');

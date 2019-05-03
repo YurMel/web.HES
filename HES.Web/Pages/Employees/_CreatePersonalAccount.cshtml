@@ -29,19 +29,19 @@
     <div class="row">
         <div class="form-group col">
             <label asp-for="DeviceAccount.Urls" class="control-label text-gray"></label>
-            <input id="PersonalAccUrls" asp-for="DeviceAccount.Urls" class="form-control" @*data-role="tags-input" *@  autocomplete="new-password"/>
+            <input id="PersonalAccUrls" asp-for="DeviceAccount.Urls" class="form-control" data-role="tagsinput" autocomplete="new-password" />
             <span asp-validation-for="DeviceAccount.Urls" class="text-danger"></span>
         </div>
         <div class="form-group col">
             <label asp-for="Input.Password" class="text-gray"></label>
-            <input asp-for="Input.Password" class="form-control text-navyblue" autocomplete="new-password"/>
+            <input asp-for="Input.Password" class="form-control text-navyblue" autocomplete="new-password" />
             <span asp-validation-for="Input.Password" class="text-danger"></span>
         </div>
     </div>
     <div class="row">
         <div class="form-group col">
             <label asp-for="DeviceAccount.Apps" class="control-label text-gray"></label>
-            <input id="PersonalAccApps" asp-for="DeviceAccount.Apps" class="form-control" @*data-role="tags-input" *@ autocomplete="new-password"/>
+            <input id="PersonalAccApps" asp-for="DeviceAccount.Apps" class="form-control" data-role="tagsinput" autocomplete="new-password" />
             <span asp-validation-for="DeviceAccount.Apps" class="text-danger"></span>
         </div>
         <div class="form-group col">
@@ -53,7 +53,7 @@
     <div class="row">
         <div class="form-group col">
             <label asp-for="Input.OtpSecret" class="control-label text-gray"></label>
-            <input asp-for="Input.OtpSecret" class="form-control text-navyblue" autocomplete="new-password"/>
+            <input asp-for="Input.OtpSecret" class="form-control text-navyblue" autocomplete="new-password" />
             <span asp-validation-for="Input.OtpSecret" class="text-danger"></span>
         </div>
     </div>

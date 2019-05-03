@@ -170,22 +170,13 @@
                 async: true,
                 success: function (response) {
                     $("#modalBody").html(response);
-
-                    // Enable tags
-                    $('[data-role="tags-input"]').tagsInput();
-
-                    // Set tooltip
-                    $('.tags-container').attr('data-toggle', "tooltip");
-                    $('.tags-container').attr('data-placement', "bottom");
-                    $('.tags-container').attr('title', "Input value and press enter");
-
-                    // Enable tooltip
-                    $('[data-toggle="tooltip"]').tooltip();
-
+                                        
                     // Validation partial view
                     $('form').removeData('validator');
                     $('form').removeData('unobtrusiveValidation');
                     $.validator.unobtrusive.parse('form');
+                    // Enable tags
+                    $("input[data-role=tagsinput], select[multiple][data-role=tagsinput]").tagsinput();
                 }
             });
         });
