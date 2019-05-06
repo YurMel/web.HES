@@ -20,8 +20,7 @@ namespace HES.Core.Services
         private readonly IAsyncRepository<Department> _departmentRepository;
         private readonly IAsyncRepository<Position> _positionRepository;
         private readonly IRemoteTaskService _remoteTaskService;
-
-
+        
         public EmployeeService(IAsyncRepository<Employee> employeeRepository,
                                IAsyncRepository<Device> deviceRepository,
                                IAsyncRepository<DeviceAccount> deviceAccountRepository,

@@ -3,6 +3,7 @@ using HES.Core.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -14,6 +15,8 @@ namespace HES.Web.Pages.Devices
     public class ImportModel : PageModel
     {
         private readonly IDeviceService _deviceService;
+        private readonly ILogger<ImportModel> _logger;
+
 
         public IList<Device> DevicesExists { get; set; }
         public IList<Device> DevicesImported { get; set; }
@@ -33,9 +36,10 @@ namespace HES.Web.Pages.Devices
             public string Password { get; set; }
         }
 
-        public ImportModel(IDeviceService deviceService)
+        public ImportModel(IDeviceService deviceService, ILogger<ImportModel> logger)
         {
             _deviceService = deviceService;
+            _logger = logger;
         }
 
         public async Task<IActionResult> OnPostAsync()
@@ -66,8 +70,8 @@ namespace HES.Web.Pages.Devices
                             }
                             catch (Exception ex)
                             {
-                                Message = $"There is a problem with device import. Exception: " +
-                                          $"{Environment.NewLine} {ex.Message} " +
+                                _logger.LogError(ex.Message);
+                                Message = $"There is a problem with device import.{Environment.NewLine}" +
                                           $"Please, check if you select a correct file, enter correct encryption key and try again.";
                             }
                         }
@@ -75,6 +79,7 @@ namespace HES.Web.Pages.Devices
                 }
                 else
                 {
+                    _logger.LogWarning("Incorrect format file");
                     Message = "Selected file is not in correct format. Please, select .hdz file and try again.";
                 }
             }

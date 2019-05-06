@@ -7,6 +7,7 @@ using HES.Core.Entities;
 using HES.Core.Interfaces;
 using Hideez.SDK.Communication.Remote;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace HES.Core.Services
 {
@@ -14,12 +15,15 @@ namespace HES.Core.Services
     {
         readonly IAsyncRepository<DeviceAccount> _deviceAccountRepository;
         readonly IAsyncRepository<DeviceTask> _deviceTaskRepository;
+        private readonly ILogger<RemoteTaskService> _logger;
 
         public RemoteTaskService(IAsyncRepository<DeviceAccount> deviceAccountRepository,
-                                 IAsyncRepository<DeviceTask> deviceTaskRepository)
+                                 IAsyncRepository<DeviceTask> deviceTaskRepository,
+                                 ILogger<RemoteTaskService> logger)
         {
             _deviceAccountRepository = deviceAccountRepository;
             _deviceTaskRepository = deviceTaskRepository;
+            _logger = logger;
         }
 
         public async Task AddTaskAsync(DeviceTask deviceTask)
@@ -70,6 +74,7 @@ namespace HES.Core.Services
             }
 
             await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, new string[] { "Status", "UpdatedAt" });
+            _logger.LogInformation("Undo task was successful.");
         }
 
         public async Task RemoveDeviceAsync(Device device)

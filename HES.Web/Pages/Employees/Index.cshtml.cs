@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +15,8 @@ namespace HES.Web.Pages.Employees
     public class IndexModel : PageModel
     {
         private readonly IEmployeeService _employeeService;
-
+        private readonly ILogger<IndexModel> _logger;
+        
         public IList<Employee> Employees { get; set; }
         public bool HasForeignKey { get; set; }
 
@@ -24,9 +26,10 @@ namespace HES.Web.Pages.Employees
         [TempData]
         public string ErrorMessage { get; set; }
 
-        public IndexModel(IEmployeeService employeeService)
+        public IndexModel(IEmployeeService employeeService, ILogger<IndexModel> logger)
         {
             _employeeService = employeeService;
+            _logger = logger;
         }
 
         public async Task OnGetAsync()
@@ -54,6 +57,7 @@ namespace HES.Web.Pages.Employees
         {
             if (!ModelState.IsValid)
             {
+                _logger.LogWarning("Model is not valid");
                 return RedirectToPage("./Index");
             }
 
@@ -63,6 +67,7 @@ namespace HES.Web.Pages.Employees
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 ErrorMessage = ex.Message;
             }
 
@@ -73,6 +78,7 @@ namespace HES.Web.Pages.Employees
         {
             if (id == null)
             {
+                _logger.LogWarning("id == null");
                 return NotFound();
             }
 
@@ -82,6 +88,7 @@ namespace HES.Web.Pages.Employees
 
             if (Employee == null)
             {
+                _logger.LogWarning("Employee == null");
                 return NotFound();
             }
 
@@ -97,6 +104,7 @@ namespace HES.Web.Pages.Employees
         {
             if (id == null)
             {
+                _logger.LogWarning("id == null");
                 return NotFound();
             }
 
@@ -106,6 +114,7 @@ namespace HES.Web.Pages.Employees
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 ErrorMessage = ex.Message;
             }
 

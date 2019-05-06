@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,7 @@ namespace HES.Web.Pages.Employees
     public class DetailsModel : PageModel
     {
         private readonly IEmployeeService _employeeService;
+        private readonly ILogger<DetailsModel> _logger;
 
         public IList<Device> Devices { get; set; }
         public IList<DeviceAccount> DeviceAccounts { get; set; }
@@ -28,15 +30,17 @@ namespace HES.Web.Pages.Employees
         [TempData]
         public string ErrorMessage { get; set; }
 
-        public DetailsModel(IEmployeeService employeeService)
+        public DetailsModel(IEmployeeService employeeService, ILogger<DetailsModel> logger)
         {
             _employeeService = employeeService;
+            _logger = logger;
         }
 
         public async Task<IActionResult> OnGetAsync(string id)
         {
             if (id == null)
             {
+                _logger.LogWarning("id == null");
                 return NotFound();
             }
 
@@ -50,6 +54,7 @@ namespace HES.Web.Pages.Employees
 
             if (Employee == null)
             {
+                _logger.LogWarning("Employee == null");
                 return NotFound();
             }
 
@@ -69,6 +74,7 @@ namespace HES.Web.Pages.Employees
         {
             if (id == null)
             {
+                _logger.LogWarning("id == null");
                 return NotFound();
             }
 
@@ -80,6 +86,7 @@ namespace HES.Web.Pages.Employees
 
             if (Employee == null)
             {
+                _logger.LogWarning("Employee == null");
                 return NotFound();
             }
 
@@ -94,6 +101,7 @@ namespace HES.Web.Pages.Employees
             var id = employee.Id;
             if (!ModelState.IsValid)
             {
+                _logger.LogWarning("Model is not valid");
                 return RedirectToPage("./Details", new { id });
             }
 
@@ -105,12 +113,14 @@ namespace HES.Web.Pages.Employees
             {
                 if (!EmployeeExists(employee.Id))
                 {
+                    _logger.LogError("Employee dos not exists.");
                     return NotFound();
                 }
                 else
                 {
                     ErrorMessage = ex.Message;
                 }
+                _logger.LogError(ex.Message);
             }
 
             return RedirectToPage("./Details", new { id });
@@ -125,6 +135,7 @@ namespace HES.Web.Pages.Employees
         {
             if (id == null)
             {
+                _logger.LogWarning("id == null");
                 return NotFound();
             }
 
@@ -136,6 +147,7 @@ namespace HES.Web.Pages.Employees
 
             if (DeviceAccount == null)
             {
+                _logger.LogWarning("DeviceAccount == null");
                 return NotFound();
             }
 
@@ -150,6 +162,7 @@ namespace HES.Web.Pages.Employees
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 ErrorMessage = ex.Message;
             }
 
@@ -165,6 +178,7 @@ namespace HES.Web.Pages.Employees
         {
             if (id == null)
             {
+                _logger.LogWarning("id == null");
                 return NotFound();
             }
 
@@ -174,6 +188,7 @@ namespace HES.Web.Pages.Employees
 
             if (Employee == null)
             {
+                _logger.LogWarning("Employee == null");
                 return NotFound();
             }
 
@@ -189,6 +204,7 @@ namespace HES.Web.Pages.Employees
         {
             if (employeeId == null)
             {
+                _logger.LogWarning("employeeId == null");
                 return NotFound();
             }
 
@@ -200,10 +216,12 @@ namespace HES.Web.Pages.Employees
             {
                 if (!EmployeeExists(employeeId))
                 {
+                    _logger.LogError("Employee dos not exists.");
                     return NotFound();
                 }
                 else
                 {
+                    _logger.LogError(ex.Message);
                     ErrorMessage = ex.Message;
                 }
             }
@@ -216,6 +234,7 @@ namespace HES.Web.Pages.Employees
         {
             if (id == null)
             {
+                _logger.LogWarning("id == null");
                 return NotFound();
             }
 
@@ -225,6 +244,7 @@ namespace HES.Web.Pages.Employees
 
             if (Device == null)
             {
+                _logger.LogWarning("Device == null");
                 return NotFound();
             }
 
@@ -235,6 +255,7 @@ namespace HES.Web.Pages.Employees
         {
             if (device == null)
             {
+                _logger.LogWarning("device == null");
                 return NotFound();
             }
 
@@ -246,10 +267,12 @@ namespace HES.Web.Pages.Employees
             {
                 if (!EmployeeExists(device.EmployeeId))
                 {
+                    _logger.LogError("Employee dos not exists.");
                     return NotFound();
                 }
                 else
                 {
+                    _logger.LogError(ex.Message);
                     ErrorMessage = ex.Message;
                 }
             }
@@ -283,6 +306,7 @@ namespace HES.Web.Pages.Employees
 
             if (!ModelState.IsValid)
             {
+                _logger.LogWarning("Model is not valid");
                 return RedirectToPage("./Details", new { id });
             }
 
@@ -294,10 +318,12 @@ namespace HES.Web.Pages.Employees
             {
                 if (!EmployeeExists(id))
                 {
+                    _logger.LogError("Employee dos not exists.");
                     return NotFound();
                 }
                 else
                 {
+                    _logger.LogError(ex.Message);
                     ErrorMessage = ex.Message;
                 }
             }
@@ -309,6 +335,7 @@ namespace HES.Web.Pages.Employees
         {
             if (id == null)
             {
+                _logger.LogWarning("id == null");
                 return NotFound();
             }
 
@@ -320,6 +347,7 @@ namespace HES.Web.Pages.Employees
 
             if (DeviceAccount == null)
             {
+                _logger.LogWarning("DeviceAccount == null");
                 return NotFound();
             }
 
@@ -332,6 +360,7 @@ namespace HES.Web.Pages.Employees
 
             if (!ModelState.IsValid)
             {
+                _logger.LogWarning("Model is not valid");
                 return RedirectToPage("./Details", new { id });
             }
 
@@ -341,6 +370,7 @@ namespace HES.Web.Pages.Employees
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 ErrorMessage = ex.Message;
             }
 
@@ -351,6 +381,7 @@ namespace HES.Web.Pages.Employees
         {
             if (id == null)
             {
+                _logger.LogWarning("id == null");
                 return NotFound();
             }
 
@@ -362,6 +393,7 @@ namespace HES.Web.Pages.Employees
 
             if (DeviceAccount == null)
             {
+                _logger.LogWarning("DeviceAccount == null");
                 return NotFound();
             }
 
@@ -374,6 +406,7 @@ namespace HES.Web.Pages.Employees
 
             if (!ModelState.IsValid)
             {
+                _logger.LogWarning("Model is not valid");
                 return RedirectToPage("./Details", new { id });
             }
 
@@ -383,6 +416,7 @@ namespace HES.Web.Pages.Employees
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 ErrorMessage = ex.Message;
             }
 
@@ -393,6 +427,7 @@ namespace HES.Web.Pages.Employees
         {
             if (id == null)
             {
+                _logger.LogWarning("id == null");
                 return NotFound();
             }
 
@@ -404,6 +439,7 @@ namespace HES.Web.Pages.Employees
 
             if (DeviceAccount == null)
             {
+                _logger.LogWarning("DeviceAccount == null");
                 return NotFound();
             }
 
@@ -420,6 +456,7 @@ namespace HES.Web.Pages.Employees
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 ErrorMessage = ex.Message;
             }
 
@@ -446,6 +483,12 @@ namespace HES.Web.Pages.Employees
                 .Where(d => d.EmployeeId == id)
                 .ToListAsync();
 
+            if (Devices == null)
+            {
+                _logger.LogWarning("Devices == null");
+                return NotFound();
+            }
+
             return Partial("_AddSharedAccount", this);
         }
 
@@ -453,6 +496,7 @@ namespace HES.Web.Pages.Employees
         {
             if (employeeId == null)
             {
+                _logger.LogWarning("employeeId == null");
                 return NotFound();
             }
 
@@ -462,6 +506,7 @@ namespace HES.Web.Pages.Employees
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 ErrorMessage = ex.Message;
             }
 
@@ -477,6 +522,7 @@ namespace HES.Web.Pages.Employees
         {
             if (id == null)
             {
+                _logger.LogWarning("id == null");
                 return NotFound();
             }
 
@@ -486,6 +532,7 @@ namespace HES.Web.Pages.Employees
 
             if (DeviceAccount == null)
             {
+                _logger.LogWarning("DeviceAccount == null");
                 return NotFound();
             }
 
@@ -496,6 +543,7 @@ namespace HES.Web.Pages.Employees
         {
             if (accountId == null)
             {
+                _logger.LogWarning("accountId == null");
                 return NotFound();
             }
 
@@ -505,6 +553,7 @@ namespace HES.Web.Pages.Employees
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 ErrorMessage = ex.Message;
             }
 
@@ -520,6 +569,7 @@ namespace HES.Web.Pages.Employees
         {
             if (id == null)
             {
+                _logger.LogWarning("id == null");
                 return NotFound();
             }
 
@@ -529,6 +579,7 @@ namespace HES.Web.Pages.Employees
 
             if (DeviceAccount == null)
             {
+                _logger.LogWarning("DeviceAccount == null");
                 return NotFound();
             }
 
@@ -539,6 +590,7 @@ namespace HES.Web.Pages.Employees
         {
             if (accountId == null)
             {
+                _logger.LogWarning("accountId == null");
                 return NotFound();
             }
 
@@ -548,6 +600,7 @@ namespace HES.Web.Pages.Employees
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 ErrorMessage = ex.Message;
             }
 

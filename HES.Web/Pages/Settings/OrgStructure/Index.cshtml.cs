@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ namespace HES.Web.Pages.Settings.OrgStructure
     public class IndexModel : PageModel
     {
         private readonly ISettingsService _settingsService;
+        private readonly ILogger<IndexModel> _logger;
 
         public IList<Company> Companies { get; set; }
         public IList<Department> Departments { get; set; }
@@ -25,9 +27,10 @@ namespace HES.Web.Pages.Settings.OrgStructure
         [TempData]
         public string ErrorMessage { get; set; }
 
-        public IndexModel(ApplicationDbContext context, ISettingsService settingsService)
+        public IndexModel(ISettingsService settingsService, ILogger<IndexModel> logger)
         {
             _settingsService = settingsService;
+            _logger = logger;
         }
 
         public async Task OnGetAsync()
@@ -47,6 +50,7 @@ namespace HES.Web.Pages.Settings.OrgStructure
         {
             if (!ModelState.IsValid)
             {
+                _logger.LogWarning("Model is not valid");
                 return RedirectToPage("./Index");
             }
 
@@ -56,6 +60,7 @@ namespace HES.Web.Pages.Settings.OrgStructure
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 ErrorMessage = ex.Message;
             }
 
@@ -66,6 +71,7 @@ namespace HES.Web.Pages.Settings.OrgStructure
         {
             if (id == null)
             {
+                _logger.LogWarning("id == null");
                 return NotFound();
             }
 
@@ -73,6 +79,7 @@ namespace HES.Web.Pages.Settings.OrgStructure
 
             if (Company == null)
             {
+                _logger.LogWarning("Company == null");
                 return NotFound();
             }
 
@@ -83,6 +90,7 @@ namespace HES.Web.Pages.Settings.OrgStructure
         {
             if (!ModelState.IsValid)
             {
+                _logger.LogWarning("Model is not valid");
                 return RedirectToPage("./Index");
             }
 
@@ -92,6 +100,7 @@ namespace HES.Web.Pages.Settings.OrgStructure
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 ErrorMessage = ex.Message;
             }
 
@@ -102,6 +111,7 @@ namespace HES.Web.Pages.Settings.OrgStructure
         {
             if (id == null)
             {
+                _logger.LogWarning("id == null");
                 return NotFound();
             }
 
@@ -109,6 +119,7 @@ namespace HES.Web.Pages.Settings.OrgStructure
 
             if (Company == null)
             {
+                _logger.LogWarning("Company == null");
                 return NotFound();
             }
 
@@ -121,6 +132,7 @@ namespace HES.Web.Pages.Settings.OrgStructure
         {
             if (id == null)
             {
+                _logger.LogWarning("id == null");
                 return NotFound();
             }
 
@@ -130,6 +142,7 @@ namespace HES.Web.Pages.Settings.OrgStructure
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 ErrorMessage = ex.Message;
             }
 
@@ -150,6 +163,7 @@ namespace HES.Web.Pages.Settings.OrgStructure
         {
             if (!ModelState.IsValid)
             {
+                _logger.LogWarning("Model is not valid");
                 return RedirectToPage("./Index");
             }
 
@@ -159,6 +173,7 @@ namespace HES.Web.Pages.Settings.OrgStructure
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 ErrorMessage = ex.Message;
             }
 
@@ -169,6 +184,7 @@ namespace HES.Web.Pages.Settings.OrgStructure
         {
             if (id == null)
             {
+                _logger.LogWarning("id == null");
                 return NotFound();
             }
 
@@ -176,6 +192,7 @@ namespace HES.Web.Pages.Settings.OrgStructure
 
             if (Department == null)
             {
+                _logger.LogWarning("Department == null");
                 return NotFound();
             }
 
@@ -187,6 +204,7 @@ namespace HES.Web.Pages.Settings.OrgStructure
         {
             if (!ModelState.IsValid)
             {
+                _logger.LogWarning("Model is not valid");
                 return RedirectToPage("./Index");
             }
 
@@ -196,6 +214,7 @@ namespace HES.Web.Pages.Settings.OrgStructure
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 ErrorMessage = ex.Message;
             }
 
@@ -206,6 +225,7 @@ namespace HES.Web.Pages.Settings.OrgStructure
         {
             if (id == null)
             {
+                _logger.LogWarning("id == null");
                 return NotFound();
             }
 
@@ -216,6 +236,7 @@ namespace HES.Web.Pages.Settings.OrgStructure
 
             if (Department == null)
             {
+                _logger.LogWarning("Department == null");
                 return NotFound();
             }
 
@@ -228,6 +249,7 @@ namespace HES.Web.Pages.Settings.OrgStructure
         {
             if (id == null)
             {
+                _logger.LogWarning("id == null");
                 return NotFound();
             }
 
@@ -237,6 +259,7 @@ namespace HES.Web.Pages.Settings.OrgStructure
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 ErrorMessage = ex.Message;
             }
 

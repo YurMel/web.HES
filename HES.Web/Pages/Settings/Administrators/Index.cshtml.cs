@@ -4,6 +4,7 @@ using HES.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -17,7 +18,8 @@ namespace HES.Web.Pages.Settings.Administrators
         private readonly IApplicationUserService _applicationUserService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEmailSender _emailSender;
-
+        private readonly ILogger<IndexModel> _logger;
+        
         public IList<ApplicationUser> ApplicationUsers { get; set; }
 
         [TempData]
@@ -38,11 +40,13 @@ namespace HES.Web.Pages.Settings.Administrators
 
         public IndexModel(IApplicationUserService applicationUserService,
                           UserManager<ApplicationUser> userManager,
-                          IEmailSender emailSender)
+                          IEmailSender emailSender,
+                          ILogger<IndexModel> logger)
         {
             _applicationUserService = applicationUserService;
             _userManager = userManager;
             _emailSender = emailSender;
+            _logger = logger;
         }
 
         public async Task OnGetAsync()
@@ -75,6 +79,7 @@ namespace HES.Web.Pages.Settings.Administrators
                 {
                     errors += $"Code: {item.Code} Description: {item.Description} {Environment.NewLine}";
                 }
+                _logger.LogError(errors);
                 ErrorMessage = errors;
                 return RedirectToPage("./Index");
             }
@@ -107,6 +112,7 @@ namespace HES.Web.Pages.Settings.Administrators
         {
             if (id == null)
             {
+                _logger.LogWarning("id == null");
                 return NotFound();
             }
 
@@ -114,6 +120,7 @@ namespace HES.Web.Pages.Settings.Administrators
 
             if (ApplicationUser == null)
             {
+                _logger.LogWarning("ApplicationUser == null");
                 return NotFound();
             }
 
@@ -124,17 +131,19 @@ namespace HES.Web.Pages.Settings.Administrators
         {
             if (id == null)
             {
+                _logger.LogWarning("id == null");
                 return NotFound();
             }
 
             try
             {
                 await _applicationUserService.DelateAdminAsync(id);
-                StatusMessage = "Removal was successful";
+                //StatusMessage = "Removal was successful";
             }
             catch (Exception ex)
             {
                 ErrorMessage = ex.Message;
+                _logger.LogError(ex.Message);
             }
 
             return RedirectToPage("./Index");

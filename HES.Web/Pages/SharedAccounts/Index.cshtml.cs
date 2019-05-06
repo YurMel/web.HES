@@ -3,6 +3,7 @@ using HES.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,7 @@ namespace HES.Web.Pages.SharedAccounts
     public class IndexModel : PageModel
     {
         private readonly ISharedAccountService _sharedAccountService;
+        private readonly ILogger<IndexModel> _logger;
 
         public IList<SharedAccount> SharedAccounts { get; set; }
         public SharedAccount SharedAccount { get; set; }
@@ -21,9 +23,10 @@ namespace HES.Web.Pages.SharedAccounts
         [TempData]
         public string ErrorMessage { get; set; }
 
-        public IndexModel(ISharedAccountService sharedAccountService)
+        public IndexModel(ISharedAccountService sharedAccountService, ILogger<IndexModel> logger)
         {
             _sharedAccountService = sharedAccountService;
+            _logger = logger;
         }
 
         public async Task OnGetAsync()
@@ -45,6 +48,7 @@ namespace HES.Web.Pages.SharedAccounts
         {
             if (!ModelState.IsValid)
             {
+                _logger.LogWarning("Model is not valid");
                 return RedirectToPage("./Index");
             }
 
@@ -54,6 +58,7 @@ namespace HES.Web.Pages.SharedAccounts
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 ErrorMessage = ex.Message;
             }
 
@@ -64,6 +69,7 @@ namespace HES.Web.Pages.SharedAccounts
         {
             if (id == null)
             {
+                _logger.LogWarning("id == null");
                 return NotFound();
             }
 
@@ -73,6 +79,7 @@ namespace HES.Web.Pages.SharedAccounts
 
             if (SharedAccount == null)
             {
+                _logger.LogWarning("SharedAccount == null");
                 return NotFound();
             }
 
@@ -83,6 +90,7 @@ namespace HES.Web.Pages.SharedAccounts
         {
             if (!ModelState.IsValid)
             {
+                _logger.LogWarning("Model is not valid");
                 return RedirectToPage("./Index");
             }
 
@@ -92,6 +100,7 @@ namespace HES.Web.Pages.SharedAccounts
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 ErrorMessage = ex.Message;
             }
 
@@ -102,6 +111,7 @@ namespace HES.Web.Pages.SharedAccounts
         {
             if (id == null)
             {
+                _logger.LogWarning("id == null");
                 return NotFound();
             }
 
@@ -111,6 +121,7 @@ namespace HES.Web.Pages.SharedAccounts
 
             if (SharedAccount == null)
             {
+                _logger.LogWarning("SharedAccount == null");
                 return NotFound();
             }
             return Partial("_EditSharedAccountPwd", this);
@@ -120,6 +131,7 @@ namespace HES.Web.Pages.SharedAccounts
         {
             if (!ModelState.IsValid)
             {
+                _logger.LogWarning("Model is not valid");
                 return RedirectToPage("./Index");
             }
 
@@ -129,6 +141,7 @@ namespace HES.Web.Pages.SharedAccounts
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 ErrorMessage = ex.Message;
             }
 
@@ -139,6 +152,7 @@ namespace HES.Web.Pages.SharedAccounts
         {
             if (id == null)
             {
+                _logger.LogWarning("id == null");
                 return NotFound();
             }
 
@@ -148,6 +162,7 @@ namespace HES.Web.Pages.SharedAccounts
 
             if (SharedAccount == null)
             {
+                _logger.LogWarning("SharedAccount == null");
                 return NotFound();
             }
 
@@ -162,6 +177,7 @@ namespace HES.Web.Pages.SharedAccounts
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 ErrorMessage = ex.Message;
             }
 
@@ -172,6 +188,7 @@ namespace HES.Web.Pages.SharedAccounts
         {
             if (id == null)
             {
+                _logger.LogWarning("id == null");
                 return NotFound();
             }
 
@@ -181,6 +198,7 @@ namespace HES.Web.Pages.SharedAccounts
 
             if (SharedAccount == null)
             {
+                _logger.LogWarning("SharedAccount == null");
                 return NotFound();
             }
             return Partial("_DeleteSharedAccount", this);
@@ -190,6 +208,7 @@ namespace HES.Web.Pages.SharedAccounts
         {
             if (id == null)
             {
+                _logger.LogWarning("id == null");
                 return NotFound();
             }
 
@@ -199,6 +218,7 @@ namespace HES.Web.Pages.SharedAccounts
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 ErrorMessage = ex.Message;
             }
 

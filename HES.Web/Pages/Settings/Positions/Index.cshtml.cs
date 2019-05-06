@@ -3,6 +3,7 @@ using HES.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -12,7 +13,8 @@ namespace HES.Web.Pages.Settings.Positions
     public class IndexModel : PageModel
     {
         private readonly ISettingsService _settingsService;
-
+        private readonly ILogger<IndexModel> _logger;
+        
         public IList<Position> Positions { get; set; }
         public bool HasForeignKey { get; set; }
         
@@ -21,9 +23,10 @@ namespace HES.Web.Pages.Settings.Positions
         [TempData]
         public string ErrorMessage { get; set; }
 
-        public IndexModel(ISettingsService settingsService)
+        public IndexModel(ISettingsService settingsService, ILogger<IndexModel> logger)
         {
             _settingsService = settingsService;
+            _logger = logger;
         }
 
         public async Task OnGetAsync()
@@ -42,6 +45,7 @@ namespace HES.Web.Pages.Settings.Positions
         {
             if (!ModelState.IsValid)
             {
+                _logger.LogWarning("Model is not valid");
                 return RedirectToPage("./Index");
             }
 
@@ -51,6 +55,7 @@ namespace HES.Web.Pages.Settings.Positions
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 ErrorMessage = ex.Message;
             }
 
@@ -61,6 +66,7 @@ namespace HES.Web.Pages.Settings.Positions
         {
             if (id == null)
             {
+                _logger.LogWarning("id == null");
                 return NotFound();
             }
 
@@ -68,6 +74,7 @@ namespace HES.Web.Pages.Settings.Positions
 
             if (Position == null)
             {
+                _logger.LogWarning("Position == null");
                 return NotFound();
             }
 
@@ -78,6 +85,7 @@ namespace HES.Web.Pages.Settings.Positions
         {
             if (!ModelState.IsValid)
             {
+                _logger.LogWarning("Model is not valid");
                 return RedirectToPage("./Index");
             }
 
@@ -87,6 +95,7 @@ namespace HES.Web.Pages.Settings.Positions
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 ErrorMessage = ex.Message;
             }
 
@@ -97,6 +106,7 @@ namespace HES.Web.Pages.Settings.Positions
         {
             if (id == null)
             {
+                _logger.LogWarning("id == null");
                 return NotFound();
             }
 
@@ -104,6 +114,7 @@ namespace HES.Web.Pages.Settings.Positions
 
             if (Position == null)
             {
+                _logger.LogWarning("Position == null");
                 return NotFound();
             }
 
@@ -116,6 +127,7 @@ namespace HES.Web.Pages.Settings.Positions
         {
             if (id == null)
             {
+                _logger.LogWarning("id == null");
                 return NotFound();
             }
 
@@ -125,6 +137,7 @@ namespace HES.Web.Pages.Settings.Positions
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 ErrorMessage = ex.Message;
             }
 

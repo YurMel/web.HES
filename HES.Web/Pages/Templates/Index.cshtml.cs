@@ -3,6 +3,7 @@ using HES.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -12,6 +13,7 @@ namespace HES.Web.Pages.Templates
     public class IndexModel : PageModel
     {
         private readonly ITemplateService _templateService;
+        private readonly ILogger<IndexModel> _logger;
 
         public IList<Template> Templates { get; set; }
 
@@ -21,9 +23,10 @@ namespace HES.Web.Pages.Templates
         [TempData]
         public string ErrorMessage { get; set; }
 
-        public IndexModel(ITemplateService templateService)
+        public IndexModel(ITemplateService templateService, ILogger<IndexModel> logger)
         {
             _templateService = templateService;
+            _logger = logger;
         }
 
         public async Task OnGetAsync()
@@ -42,6 +45,7 @@ namespace HES.Web.Pages.Templates
         {
             if (!ModelState.IsValid)
             {
+                _logger.LogWarning("Model is not valid");
                 return RedirectToPage("./Index");
             }
 
@@ -51,6 +55,7 @@ namespace HES.Web.Pages.Templates
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 ErrorMessage = ex.Message;
             }
 
@@ -61,6 +66,7 @@ namespace HES.Web.Pages.Templates
         {
             if (id == null)
             {
+                _logger.LogWarning("id == null");
                 return NotFound();
             }
 
@@ -70,6 +76,7 @@ namespace HES.Web.Pages.Templates
 
             if (Template == null)
             {
+                _logger.LogWarning("Template == null");
                 return NotFound();
             }
 
@@ -80,6 +87,7 @@ namespace HES.Web.Pages.Templates
         {
             if (!ModelState.IsValid)
             {
+                _logger.LogWarning("Model is not valid");
                 return RedirectToPage("./Index");
             }
 
@@ -89,6 +97,7 @@ namespace HES.Web.Pages.Templates
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 ErrorMessage = ex.Message;
             }
 
@@ -99,6 +108,7 @@ namespace HES.Web.Pages.Templates
         {
             if (id == null)
             {
+                _logger.LogWarning("id == null");
                 return NotFound();
             }
 
@@ -108,6 +118,7 @@ namespace HES.Web.Pages.Templates
 
             if (Template == null)
             {
+                _logger.LogWarning("Template == null");
                 return NotFound();
             }
 
@@ -118,6 +129,7 @@ namespace HES.Web.Pages.Templates
         {
             if (id == null)
             {
+                _logger.LogWarning("id == null");
                 return NotFound();
             }
 
@@ -127,6 +139,7 @@ namespace HES.Web.Pages.Templates
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 ErrorMessage = ex.Message;
             }
 

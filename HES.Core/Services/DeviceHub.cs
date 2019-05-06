@@ -7,6 +7,7 @@ using Hideez.SDK.Communication.Remote;
 using Microsoft.AspNetCore.SignalR;
 using Hideez.SDK.Communication.Utils;
 using HES.Core.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace HES.Core.Services
 {
@@ -29,11 +30,13 @@ namespace HES.Core.Services
         static readonly ConcurrentDictionary<string, RemoteDevice> _connections
             = new ConcurrentDictionary<string, RemoteDevice>();
 
-        readonly IRemoteTaskService _remoteTaskService;
-
-        public DeviceHub(IRemoteTaskService remoteTaskService)
+        private readonly IRemoteTaskService _remoteTaskService;
+        private readonly ILogger<DeviceHub> _logger;
+        
+        public DeviceHub(IRemoteTaskService remoteTaskService, ILogger<DeviceHub> logger)
         {
             _remoteTaskService = remoteTaskService;
+            _logger = logger;
         }
 
         public override async Task OnConnectedAsync()
@@ -67,6 +70,7 @@ namespace HES.Core.Services
                         catch (Exception ex)
                         {
                             Debug.WriteLine(ex.Message);
+                            _logger.LogError(ex.Message);
                         }
                     });
                 }
@@ -142,6 +146,7 @@ namespace HES.Core.Services
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 Debug.WriteLine(ex.Message);
                 throw new HubException(ex.Message);
             }
@@ -157,6 +162,7 @@ namespace HES.Core.Services
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 Debug.WriteLine(ex.Message);
                 throw new HubException(ex.Message);
             }

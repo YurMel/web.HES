@@ -9,6 +9,7 @@ using Hideez.SDK.Communication.Remote;
 using Microsoft.AspNetCore.SignalR;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace HES.Core.Services
 {
@@ -27,13 +28,15 @@ namespace HES.Core.Services
         static readonly ConcurrentDictionary<string, DeviceDescription> _deviceConnections
             = new ConcurrentDictionary<string, DeviceDescription>();
 
-        readonly IRemoteTaskService _remoteTaskService;
-        readonly IEmployeeService _employeeService;
+        private readonly IRemoteTaskService _remoteTaskService;
+        private readonly IEmployeeService _employeeService;
+        private readonly ILogger<AppHub> _logger;
 
-        public AppHub(IRemoteTaskService remoteTaskService, IEmployeeService employeeService)
+        public AppHub(IRemoteTaskService remoteTaskService, IEmployeeService employeeService, ILogger<AppHub> logger)
         {
             _remoteTaskService = remoteTaskService;
             _employeeService = employeeService;
+            _logger = logger;
         }
 
         public override Task OnConnectedAsync()
