@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using HES.Core.Entities;
 using HES.Core.Interfaces;
+using Hideez.SDK.Communication.PasswordManager;
 using Hideez.SDK.Communication.Remote;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -154,21 +155,29 @@ namespace HES.Core.Services
 
         public async Task ExecuteRemoteTasks(string deviceMac)
         {
-            var tasks = _deviceTaskRepository.Query()
-                .Where(t => t.DeviceAccount.Device.MAC == deviceMac);
-
-            if (tasks.Any())
+            try
             {
-                var remoteDevice = await AppHub.EstablishRemoteConnection(deviceMac, 4);
+                var tasks = _deviceTaskRepository.Query()
+                    .Include(t => t.DeviceAccount)
+                    .Where(t => t.DeviceAccount.Device.MAC == deviceMac);
 
-                if (remoteDevice != null)
+                if (tasks.Any())
                 {
-                    foreach (var task in tasks)
+                    var remoteDevice = await AppHub.EstablishRemoteConnection(deviceMac, 4);
+
+                    if (remoteDevice != null)
                     {
-                        var idFromDevice = await ExecuteRemoteTask(remoteDevice, task);
-                        await TaskCompleted(task.Id, idFromDevice);
+                        foreach (var task in tasks)
+                        {
+                            var idFromDevice = await ExecuteRemoteTask(remoteDevice, task);
+                            await TaskCompleted(task.Id, idFromDevice);
+                        }
                     }
                 }
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
             }
         }
 
@@ -195,18 +204,22 @@ namespace HES.Core.Services
 
         private async Task<short> AddDeviceAccount(RemoteDevice device, DeviceTask task)
         {
-            var pingData = new byte[] { 0x00, 0x01, 0x02, 0x03, 0x04 };
-            var respData = await device.Ping(pingData);
-            Debug.Assert(pingData.SequenceEqual(respData.Result));
-            return 0;
+            var pm = new DevicePasswordManager(device);
+
+            ushort key = task.DeviceAccount.IdFromDevice != null ? (ushort)task.DeviceAccount.IdFromDevice : (ushort)0;
+            key = await pm.SaveOrUpdateAccount(key, 0x0000, task.Name, task.Password, task.Login, task.OtpSecret, task.Apps, task.Urls);
+
+            return (short)key;
         }
 
         private async Task<short> UpdateDeviceAccount(RemoteDevice device, DeviceTask task)
         {
-            var pingData = new byte[] { 0x00, 0x01, 0x02, 0x03, 0x04 };
-            var respData = await device.Ping(pingData);
-            Debug.Assert(pingData.SequenceEqual(respData.Result));
-            return 0;
+            var pm = new DevicePasswordManager(device);
+
+            ushort key = (ushort)task.DeviceAccount.IdFromDevice;
+            key = await pm.SaveOrUpdateAccount(key, 0x0000, task.Name, task.Password, task.Login, task.OtpSecret, task.Apps, task.Urls);
+
+            return (short)key;
         }
 
         private async Task<short> DeleteDeviceAccount(RemoteDevice device, DeviceTask task)
