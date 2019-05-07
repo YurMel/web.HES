@@ -230,9 +230,9 @@ namespace HES.Core.Services
 
         private async Task<short> DeleteDeviceAccount(RemoteDevice device, DeviceTask task)
         {
-            var pingData = new byte[] { 0x00, 0x01, 0x02, 0x03, 0x04 };
-            var respData = await device.Ping(pingData);
-            Debug.Assert(pingData.SequenceEqual(respData.Result));
+            var pm = new DevicePasswordManager(device);
+            ushort key = (ushort)task.DeviceAccount.IdFromDevice;
+            await pm.DeleteAccount(key);
             return 0;
         }
 
