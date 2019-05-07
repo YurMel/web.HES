@@ -95,19 +95,24 @@ namespace HES.Core.Services
 
         private async Task TaskCompleted(string taskId, short idFromDevice)
         {
-            var deviceTask = await _deviceTaskRepository.GetByIdAsync(taskId);
-            var deviceAccount = await _deviceAccountRepository.GetByIdAsync(deviceTask.DeviceAccountId);
+            //var deviceTask = await _deviceTaskRepository.GetByIdAsync(taskId);
+            //var deviceAccount = await _deviceAccountRepository.GetByIdAsync(deviceTask.DeviceAccountId);
+
+            // Get task
+            var deviceTask = await _deviceTaskRepository.Query().Include(d => d.DeviceAccount).FirstOrDefaultAsync(t => t.Id == taskId);
+            // Account for update
+            var deviceAccount = deviceTask.DeviceAccount;
 
             List<string> properties = new List<string>() { "Status", "LastSyncedAt" };
             deviceAccount.Status = AccountStatus.Done;
             deviceAccount.LastSyncedAt = DateTime.UtcNow;
             deviceAccount.IdFromDevice = idFromDevice;
 
+            // Set value depending on the operation
             switch (deviceTask.Operation)
             {
                 case TaskOperation.Create:
                     properties.Add("IdFromDevice");
-                    await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties.ToArray());
                     break;
                 case TaskOperation.Update:
                     if (deviceTask.Name != null)
@@ -140,16 +145,17 @@ namespace HES.Core.Services
                         deviceAccount.OtpUpdatedAt = deviceTask.OtpSecret != string.Empty ? new DateTime?(DateTime.UtcNow) : null;
                         properties.Add("OtpUpdatedAt");
                     }
-                    await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties.ToArray());
                     break;
                 case TaskOperation.Delete:
                     deviceAccount.Deleted = true;
                     properties.Add("Deleted");
-                    await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties.ToArray());
                     break;
                 case TaskOperation.Wipe:
                     break;
             }
+            // Update account
+            await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties.ToArray());
+            // Delete task
             await _deviceTaskRepository.DeleteAsync(deviceTask);
         }
 
@@ -175,9 +181,9 @@ namespace HES.Core.Services
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                _logger.LogError(ex.Message);
             }
         }
 
