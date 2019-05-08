@@ -24,9 +24,11 @@ namespace HES.Core.Entities
 
     public enum TaskOperation
     {
-        Create,
-        Update,
-        Delete,
-        Wipe
+        None = 0,
+        Create = 1,
+        Update = 2,
+        Delete = 3,
+        Link = 4,
+        Wipe = 5
     }
 }

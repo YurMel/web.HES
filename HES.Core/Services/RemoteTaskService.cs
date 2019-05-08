@@ -204,6 +204,9 @@ namespace HES.Core.Services
                 case TaskOperation.Wipe:
                     idFromDevice = await WipeDevice(device, task);
                     break;
+                case TaskOperation.Link:
+                    idFromDevice = await LinkDevice(device, task);
+                    break;
             }
             return idFromDevice;
         }
@@ -237,6 +240,14 @@ namespace HES.Core.Services
         }
 
         private async Task<short> WipeDevice(RemoteDevice device, DeviceTask task)
+        {
+            var pingData = new byte[] { 0x00, 0x01, 0x02, 0x03, 0x04 };
+            var respData = await device.Ping(pingData);
+            Debug.Assert(pingData.SequenceEqual(respData.Result));
+            return 0;
+        }
+
+        private async Task<short> LinkDevice(RemoteDevice device, DeviceTask task)
         {
             var pingData = new byte[] { 0x00, 0x01, 0x02, 0x03, 0x04 };
             var respData = await device.Ping(pingData);
