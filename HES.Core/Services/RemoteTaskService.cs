@@ -16,14 +16,17 @@ namespace HES.Core.Services
     {
         readonly IAsyncRepository<DeviceAccount> _deviceAccountRepository;
         readonly IAsyncRepository<DeviceTask> _deviceTaskRepository;
+        readonly IAsyncRepository<Device> _deviceRepository;
         private readonly ILogger<RemoteTaskService> _logger;
 
         public RemoteTaskService(IAsyncRepository<DeviceAccount> deviceAccountRepository,
                                  IAsyncRepository<DeviceTask> deviceTaskRepository,
+                                 IAsyncRepository<Device> deviceRepository,
                                  ILogger<RemoteTaskService> logger)
         {
             _deviceAccountRepository = deviceAccountRepository;
             _deviceTaskRepository = deviceTaskRepository;
+            _deviceRepository = deviceRepository;
             _logger = logger;
         }
 
@@ -90,14 +93,11 @@ namespace HES.Core.Services
             // Delete all acc
             await _deviceAccountRepository.DeleteRangeAsync(allAccounts);
 
-            await AddTaskAsync(new DeviceTask { CreatedAt = DateTime.UtcNow, Operation = TaskOperation.Wipe });
+            await AddTaskAsync(new DeviceTask { Password = device.MasterPassword, CreatedAt = DateTime.UtcNow, Operation = TaskOperation.Wipe, DeviceId = device.Id });
         }
 
         private async Task TaskCompleted(string taskId, short idFromDevice)
         {
-            //var deviceTask = await _deviceTaskRepository.GetByIdAsync(taskId);
-            //var deviceAccount = await _deviceAccountRepository.GetByIdAsync(deviceTask.DeviceAccountId);
-
             // Get task
             var deviceTask = await _deviceTaskRepository.Query().Include(d => d.DeviceAccount).FirstOrDefaultAsync(t => t.Id == taskId);
             // Account for update
@@ -113,6 +113,8 @@ namespace HES.Core.Services
             {
                 case TaskOperation.Create:
                     properties.Add("IdFromDevice");
+                    // Update account
+                    await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties.ToArray());
                     break;
                 case TaskOperation.Update:
                     if (deviceTask.Name != null)
@@ -145,16 +147,22 @@ namespace HES.Core.Services
                         deviceAccount.OtpUpdatedAt = deviceTask.OtpSecret != string.Empty ? new DateTime?(DateTime.UtcNow) : null;
                         properties.Add("OtpUpdatedAt");
                     }
+                    // Update account
+                    await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties.ToArray());
                     break;
                 case TaskOperation.Delete:
                     deviceAccount.Deleted = true;
                     properties.Add("Deleted");
+                    // Update account
+                    await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties.ToArray());
                     break;
                 case TaskOperation.Wipe:
+                    var device = await _deviceRepository.GetByIdAsync(deviceTask.DeviceId);
+                    device.MasterPassword = null;
+                    // Update device
+                    await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "MasterPassword" });
                     break;
             }
-            // Update account
-            await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties.ToArray());
             // Delete task
             await _deviceTaskRepository.DeleteAsync(deviceTask);
         }

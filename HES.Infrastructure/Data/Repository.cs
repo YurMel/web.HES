@@ -112,6 +112,16 @@ namespace HES.Infrastructure
             await _context.SaveChangesAsync();
         }
 
+        public async Task UpdateOnlyPropAsync(IList<T> entity, string[] properties)
+        {
+            foreach (var prop in properties)
+            {
+                _context.Entry(entity).Property(prop).IsModified = true;
+            }
+            //_context.UpdateRange(entity);
+            await _context.SaveChangesAsync();
+        }
+
         public async Task DeleteAsync(T entity)
         {
             _context.Set<T>().Remove(entity);
