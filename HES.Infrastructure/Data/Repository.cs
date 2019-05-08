@@ -114,11 +114,15 @@ namespace HES.Infrastructure
 
         public async Task UpdateOnlyPropAsync(IList<T> entity, string[] properties)
         {
-            foreach (var prop in properties)
+            foreach (var item in entity)
             {
-                _context.Entry(entity).Property(prop).IsModified = true;
+                foreach (var prop in properties)
+                {
+                    _context.Entry(item).Property(prop).IsModified = true;
+                }
             }
-            //_context.UpdateRange(entity);
+           
+            _context.UpdateRange(entity);
             await _context.SaveChangesAsync();
         }
 

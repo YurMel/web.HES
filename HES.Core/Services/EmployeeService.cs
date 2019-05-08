@@ -204,6 +204,9 @@ namespace HES.Core.Services
             {
                 throw new Exception("Current device is not linked to employee.");
             }
+            // Remove all tasks
+            var allTasks = await _deviceTaskRepository.Query().Where(t => t.DeviceId == deviceId).ToListAsync();
+            await _deviceTaskRepository.DeleteRangeAsync(allTasks);
             // Remove all accounts
             var allAccounts = await _deviceAccountRepository.Query().Where(d => d.DeviceId == deviceId).ToListAsync();
             foreach (var acc in allAccounts)
