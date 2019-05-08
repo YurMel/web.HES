@@ -183,8 +183,13 @@ namespace HES.Core.Services
                 {
                     throw new Exception($"Current device already linked to another employee");
                 }
+                var masterPassword = GenerateMasterPassword();
+
                 device.EmployeeId = employeeId;
-                await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "EmployeeId" });
+                device.MasterPassword = masterPassword;
+                await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "EmployeeId", "MasterPassword" });
+
+                await _remoteTaskService.AddTaskAsync(new DeviceTask { Password = masterPassword, Operation = TaskOperation.Link, CreatedAt = DateTime.UtcNow });
             }
         }
 
@@ -201,7 +206,8 @@ namespace HES.Core.Services
             }
             device.EmployeeId = null;
             device.PrimaryAccountId = null;
-            await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "EmployeeId" });
+            device.MasterPassword = null;
+            await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "EmployeeId", "MasterPassword" });
 
             await _remoteTaskService.RemoveDeviceAsync(device);
         }
@@ -419,6 +425,11 @@ namespace HES.Core.Services
                 // Set primary acount
                 await _deviceRepository.UpdateOnlyPropAsync(new Device { Id = deviceId, PrimaryAccountId = deviceAccountId }, new string[] { "PrimaryAccountId" });
             }
+        }
+
+        private string GenerateMasterPassword()
+        {
+            return new Random().Next(1000, 9999).ToString();
         }
     }
 }

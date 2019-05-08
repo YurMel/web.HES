@@ -157,7 +157,8 @@ namespace HES.Core.Services
                 DeviceSerialNo = device?.Id,
                 PrimaryAccountLogin = primaryAccount?.Login,
                 IdFromDevice = primaryAccount?.IdFromDevice,
-                NeedUpdatePrimaryAccount = needUpdatePrimaryAccount
+                NeedUpdatePrimaryAccount = needUpdatePrimaryAccount,
+                DeviceMasterPassword = device?.MasterPassword
             };
 
             return info;
