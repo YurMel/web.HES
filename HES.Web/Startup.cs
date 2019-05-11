@@ -1,3 +1,4 @@
+using HES.Core.Entities;
 using HES.Core.Interfaces;
 using HES.Core.Services;
 using HES.Infrastructure;
@@ -11,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace HES.Web
 {
@@ -35,8 +37,18 @@ namespace HES.Web
             services.AddScoped<ITemplateService, TemplateService>();
             services.AddScoped<ISettingsService, SettingsService>();
             services.AddScoped<IApplicationUserService, ApplicationUserService>();
-            services.AddScoped<IRemoteTaskService, RemoteTaskService>();
-            
+            //services.AddScoped<IRemoteTaskService, RemoteTaskService>();
+            services.AddSingleton<IRemoteTaskService, RemoteTaskService>(s =>
+            {
+                var scope = s.CreateScope();
+                var deviceAccountRepository = scope.ServiceProvider.GetService<IAsyncRepository<DeviceAccount>>();
+                var deviceTaskRepository = scope.ServiceProvider.GetService<IAsyncRepository<DeviceTask>>();
+                var deviceRepository = scope.ServiceProvider.GetService<IAsyncRepository<Device>>();
+                var logger = scope.ServiceProvider.GetService<ILogger<RemoteTaskService>>();
+                return new RemoteTaskService(deviceAccountRepository, deviceTaskRepository,
+                                             deviceRepository, logger);
+            });
+
             // Crypto
             services.AddTransient<IAesCryptography, AesCryptography>();
             // Email
@@ -76,7 +88,7 @@ namespace HES.Web
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddDefaultUI(UIFramework.Bootstrap4)
                 .AddEntityFrameworkStores<ApplicationDbContext>()
-                .AddDefaultTokenProviders(); 
+                .AddDefaultTokenProviders();
 
             // Mvc
             services.AddMvc()

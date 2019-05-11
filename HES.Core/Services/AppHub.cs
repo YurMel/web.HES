@@ -114,10 +114,10 @@ namespace HES.Core.Services
 
                 await deviceDescr.Connection.EstablishRemoteDeviceConnection(id, channelNo);
 
-                var remoteDevice = await DeviceHub.WaitDeviceConnection(id, timeout: 3000);
+                var remoteDevice = await DeviceHub.WaitDeviceConnection(id, timeout: 10000);
 
                 if (remoteDevice != null)
-                    await remoteDevice.WaitAuthentication(timeout: 3000);
+                    await remoteDevice.WaitAuthentication(timeout: 10000);
 
                 return remoteDevice;
             }

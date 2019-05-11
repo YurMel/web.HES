@@ -33,11 +33,13 @@ namespace HES.Core.Services
         public async Task AddTaskAsync(DeviceTask deviceTask)
         {
             await _deviceTaskRepository.AddAsync(deviceTask);
+            ExecuteTask(deviceTask);
         }
 
         public async Task AddRangeTaskAsync(IList<DeviceTask> deviceTasks)
         {
             await _deviceTaskRepository.AddRangeAsync(deviceTasks);
+            ExecuteTask(deviceTasks);            
         }
 
         public async Task UndoLastTaskAsync(string accountId)
@@ -94,6 +96,42 @@ namespace HES.Core.Services
             await _deviceAccountRepository.DeleteRangeAsync(allAccounts);
 
             await AddTaskAsync(new DeviceTask { Password = device.MasterPassword, CreatedAt = DateTime.UtcNow, Operation = TaskOperation.Wipe, DeviceId = device.Id });
+        }
+
+        private void ExecuteTask(DeviceTask deviceTask)
+        {
+            Task.Run(async () =>
+            {
+                try
+                {
+                    var device = await _deviceRepository.GetByIdAsync(deviceTask.DeviceId);
+                    await ExecuteRemoteTasks(device.MAC);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex.Message);
+                }
+            });
+        }
+
+        private void ExecuteTask(IList<DeviceTask> deviceTasks)
+        {
+            var devices = deviceTasks.Select(d => d.DeviceId).Distinct();
+            foreach (var deviceId in devices)
+            {
+                Task.Run(async () =>
+                {
+                    try
+                    {
+                        var device = await _deviceRepository.GetByIdAsync(deviceId);
+                        await ExecuteRemoteTasks(device.MAC);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex.Message);
+                    }
+                });
+            }
         }
 
         private async Task TaskCompleted(string taskId, short idFromDevice)
