@@ -39,7 +39,7 @@ namespace HES.Core.Services
         public async Task AddRangeTaskAsync(IList<DeviceTask> deviceTasks)
         {
             await _deviceTaskRepository.AddRangeAsync(deviceTasks);
-            ExecuteTask(deviceTasks);            
+            ExecuteTask(deviceTasks);
         }
 
         public async Task UndoLastTaskAsync(string accountId)

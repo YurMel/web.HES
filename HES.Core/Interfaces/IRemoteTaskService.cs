@@ -1,5 +1,4 @@
 ﻿using HES.Core.Entities;
-using Hideez.SDK.Communication.Remote;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 

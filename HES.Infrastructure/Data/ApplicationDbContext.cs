@@ -20,5 +20,6 @@ namespace HES.Infrastructure
         public DbSet<SharedAccount> SharedAccounts { get; set; }
         public DbSet<DeviceAccount> DeviceAccounts { get; set; }
         public DbSet<DeviceTask> DeviceTasks { get; set; }
+        public DbSet<AppSettings> AppSettings { get; set; }
     }
 }
