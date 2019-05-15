@@ -259,29 +259,37 @@ namespace HES.Core.Services
 
         private async Task<short> AddDeviceAccount(RemoteDevice device, DeviceTask task)
         {
+            var dev = await _deviceRepository.GetByIdAsync(task.DeviceId);
+            bool isPrimary = (dev.PrimaryAccountId == task.DeviceAccountId);
+
             var pm = new DevicePasswordManager(device);
 
             ushort key = task.DeviceAccount.IdFromDevice != null ? (ushort)task.DeviceAccount.IdFromDevice : (ushort)0;
-            key = await pm.SaveOrUpdateAccount(key, 0x0000, task.Name, task.Password, task.Login, task.OtpSecret, task.Apps, task.Urls);
+            key = await pm.SaveOrUpdateAccount(key, 0x0000, task.Name, task.Password, task.Login, task.OtpSecret, task.Apps, task.Urls, isPrimary);
 
             return (short)key;
         }
 
         private async Task<short> UpdateDeviceAccount(RemoteDevice device, DeviceTask task)
         {
+            var dev = await _deviceRepository.GetByIdAsync(task.DeviceId);
+            bool isPrimary = (dev.PrimaryAccountId == task.DeviceAccountId);
+
             var pm = new DevicePasswordManager(device);
 
             ushort key = (ushort)task.DeviceAccount.IdFromDevice;
-            key = await pm.SaveOrUpdateAccount(key, 0x0000, task.Name, task.Password, task.Login, task.OtpSecret, task.Apps, task.Urls);
+            key = await pm.SaveOrUpdateAccount(key, 0x0000, task.Name, task.Password, task.Login, task.OtpSecret, task.Apps, task.Urls, isPrimary);
 
             return (short)key;
         }
 
         private async Task<short> DeleteDeviceAccount(RemoteDevice device, DeviceTask task)
         {
+            var dev = await _deviceRepository.GetByIdAsync(task.DeviceId);
+            bool isPrimary = (dev.PrimaryAccountId == task.DeviceAccountId);
             var pm = new DevicePasswordManager(device);
             ushort key = (ushort)task.DeviceAccount.IdFromDevice;
-            await pm.DeleteAccount(key);
+            await pm.DeleteAccount(key, isPrimary);
             return 0;
         }
 

@@ -20,6 +20,7 @@ namespace HES.Core.Services
         private readonly IAsyncRepository<Department> _departmentRepository;
         private readonly IAsyncRepository<Position> _positionRepository;
         private readonly IRemoteTaskService _remoteTaskService;
+        private readonly IDataProtectionService _dataProtectionService;
 
         public EmployeeService(IAsyncRepository<Employee> employeeRepository,
                                IAsyncRepository<Device> deviceRepository,
@@ -29,7 +30,8 @@ namespace HES.Core.Services
                                IAsyncRepository<Template> templateRepository,
                                IAsyncRepository<Department> departmentRepository,
                                IAsyncRepository<Position> positionRepository,
-                               IRemoteTaskService remoteTaskService)
+                               IRemoteTaskService remoteTaskService,
+                               IDataProtectionService dataProtectionService)
         {
             _employeeRepository = employeeRepository;
             _deviceRepository = deviceRepository;
@@ -40,6 +42,7 @@ namespace HES.Core.Services
             _departmentRepository = departmentRepository;
             _positionRepository = positionRepository;
             _remoteTaskService = remoteTaskService;
+            _dataProtectionService = dataProtectionService;
         }
 
         public IQueryable<Employee> EmployeeQuery()

@@ -51,9 +51,12 @@ namespace HES.Web
             {
                 var scope = s.CreateScope();
                 var dataProtectionRepository = scope.ServiceProvider.GetService<IAsyncRepository<AppSettings>>();
+                var sharedAccountRepository = scope.ServiceProvider.GetService<IAsyncRepository<SharedAccount>>();
+                var deviceTaskRepository = scope.ServiceProvider.GetService<IAsyncRepository<DeviceTask>>();
+                var deviceRepository = scope.ServiceProvider.GetService<IAsyncRepository<Device>>();
                 var dataProtectionProvider = scope.ServiceProvider.GetService<IDataProtectionProvider>();
                 var logger = scope.ServiceProvider.GetService<ILogger<DataProtectionService>>();
-                return new DataProtectionService(dataProtectionRepository, dataProtectionProvider, logger);
+                return new DataProtectionService(dataProtectionRepository, deviceRepository, deviceTaskRepository, sharedAccountRepository, dataProtectionProvider, logger);
             });
 
             // Crypto
@@ -115,7 +118,7 @@ namespace HES.Web
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IDataProtectionService dataProtectionService)
         {
             if (env.IsDevelopment())
             {
@@ -141,14 +144,14 @@ namespace HES.Web
             app.UseMvc();
             app.UseStatusCodePages("text/html", "<h1>HTTP status code {0}</h1>");
 
-            // Init administrator
             using (var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
                 var userManager = scope.ServiceProvider.GetService<UserManager<ApplicationUser>>();
                 var roleManager = scope.ServiceProvider.GetService<RoleManager<IdentityRole>>();
-
                 new ApplicationDbSeed(userManager, roleManager).Initialize();
             }
+
+            dataProtectionService.CheckProtectionStatus();
         }
     }
 }

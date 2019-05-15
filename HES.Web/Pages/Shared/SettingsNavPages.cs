@@ -7,12 +7,16 @@ namespace HES.Web.Pages
     {
         public static string Administrators => "./Administrators/Index";
 
+        public static string DataProtection => "./DataProtection/Index";
+
         public static string OrgStructure => "./OrgStructure/Index";
 
         public static string Positions => "./Positions/Index";
 
 
         public static string AdministratorsNavClass(ViewContext viewContext) => PageNavClass(viewContext, Administrators);
+
+        public static string DataProtectionNavClass(ViewContext viewContext) => PageNavClass(viewContext, DataProtection);
 
         public static string OrgStructureNavClass(ViewContext viewContext) => PageNavClass(viewContext, OrgStructure);
 
