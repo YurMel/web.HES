@@ -45,7 +45,8 @@ namespace HES.Web
                 var deviceTaskRepository = scope.ServiceProvider.GetService<IAsyncRepository<DeviceTask>>();
                 var deviceRepository = scope.ServiceProvider.GetService<IAsyncRepository<Device>>();
                 var logger = scope.ServiceProvider.GetService<ILogger<RemoteTaskService>>();
-                return new RemoteTaskService(deviceAccountRepository, deviceTaskRepository, deviceRepository, logger);
+                var dataProtectionRepository = scope.ServiceProvider.GetService<IDataProtectionService>();
+                return new RemoteTaskService(deviceAccountRepository, deviceTaskRepository, deviceRepository, logger, dataProtectionRepository);
             });
             services.AddSingleton<IDataProtectionService, DataProtectionService>(s =>
             {
@@ -151,7 +152,7 @@ namespace HES.Web
                 new ApplicationDbSeed(userManager, roleManager).Initialize();
             }
 
-            dataProtectionService.CheckProtectionStatus();
+            dataProtectionService.Status();
         }
     }
 }

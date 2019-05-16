@@ -168,6 +168,11 @@ namespace HES.Core.Services
 
         public async Task AddDeviceAsync(string employeeId, string[] selectedDevices)
         {
+            if (!_dataProtectionService.CanUse())
+            {
+                throw new Exception("Data protection not activated or is busy.");
+            }
+
             var employee = await _employeeRepository.GetByIdAsync(employeeId);
 
             if (employee == null)
@@ -198,6 +203,11 @@ namespace HES.Core.Services
 
         public async Task RemoveDeviceAsync(string employeeId, string deviceId)
         {
+            if (!_dataProtectionService.CanUse())
+            {
+                throw new Exception("Data protection not activated or is busy.");
+            }
+
             var device = await _deviceRepository.GetByIdAsync(deviceId);
             if (device == null)
             {
@@ -227,6 +237,11 @@ namespace HES.Core.Services
 
         public async Task CreatePersonalAccountAsync(DeviceAccount deviceAccount, InputModel input, string[] selectedDevices)
         {
+            if (!_dataProtectionService.CanUse())
+            {
+                throw new Exception("Data protection not activated or is busy.");
+            }
+
             if (deviceAccount == null || input == null || selectedDevices == null)
             {
                 throw new Exception("The parameter must not be null.");
@@ -247,7 +262,7 @@ namespace HES.Core.Services
                 // Create Device Account
                 Accounts.Add(new DeviceAccount { Id = deviceAccountId, Name = deviceAccount.Name, Urls = deviceAccount.Urls, Apps = deviceAccount.Apps, Login = deviceAccount.Login, Type = AccountType.Personal, Status = AccountStatus.Creating, CreatedAt = DateTime.UtcNow, PasswordUpdatedAt = DateTime.UtcNow, OtpUpdatedAt = input.OtpSecret != null ? new DateTime?(DateTime.UtcNow) : null, EmployeeId = deviceAccount.EmployeeId, DeviceId = deviceId, SharedAccountId = null });
                 // Create Device Task
-                Tasks.Add(new DeviceTask { DeviceAccountId = deviceAccountId, Name = deviceAccount.Name, Urls = deviceAccount.Urls, Apps = deviceAccount.Apps, Login = deviceAccount.Login, Password = input.Password, OtpSecret = input.OtpSecret, CreatedAt = DateTime.UtcNow, Operation = TaskOperation.Create, DeviceId = deviceId });
+                Tasks.Add(new DeviceTask { DeviceAccountId = deviceAccountId, Name = deviceAccount.Name, Urls = deviceAccount.Urls, Apps = deviceAccount.Apps, Login = deviceAccount.Login, Password = _dataProtectionService.Protect(input.Password), OtpSecret = input.OtpSecret, CreatedAt = DateTime.UtcNow, Operation = TaskOperation.Create, DeviceId = deviceId });
                 // Set primary account
                 await FirstAdditionPrimaryAccountId(deviceId, deviceAccountId);
             }
@@ -267,6 +282,11 @@ namespace HES.Core.Services
 
         public async Task EditPersonalAccountAsync(DeviceAccount deviceAccount)
         {
+            if (!_dataProtectionService.CanUse())
+            {
+                throw new Exception("Data protection not activated or is busy.");
+            }
+
             if (deviceAccount == null)
             {
                 throw new Exception("The parameter must not be null.");
@@ -296,6 +316,11 @@ namespace HES.Core.Services
 
         public async Task EditPersonalAccountPwdAsync(DeviceAccount deviceAccount, InputModel input)
         {
+            if (!_dataProtectionService.CanUse())
+            {
+                throw new Exception("Data protection not activated or is busy.");
+            }
+
             if (deviceAccount == null || input == null)
             {
                 throw new Exception("The parameter must not be null.");
@@ -320,6 +345,11 @@ namespace HES.Core.Services
 
         public async Task EditPersonalAccountOtpAsync(DeviceAccount deviceAccount, InputModel input)
         {
+            if (!_dataProtectionService.CanUse())
+            {
+                throw new Exception("Data protection not activated or is busy.");
+            }
+
             if (deviceAccount == null)
             {
                 throw new Exception("The parameter must not be null.");
@@ -348,6 +378,11 @@ namespace HES.Core.Services
 
         public async Task AddSharedAccount(string employeeId, string sharedAccountId, string[] selectedDevices)
         {
+            if (!_dataProtectionService.CanUse())
+            {
+                throw new Exception("Data protection not activated or is busy.");
+            }
+
             if (employeeId == null || sharedAccountId == null || selectedDevices == null)
             {
                 throw new Exception("The parameter must not be null.");
@@ -392,6 +427,11 @@ namespace HES.Core.Services
 
         public async Task DeleteAccount(string accountId)
         {
+            if (!_dataProtectionService.CanUse())
+            {
+                throw new Exception("Data protection not activated or is busy.");
+            }
+
             if (accountId == null)
             {
                 throw new Exception("The parameter must not be null.");
@@ -421,6 +461,11 @@ namespace HES.Core.Services
 
         public async Task UndoChanges(string accountId)
         {
+            if (!_dataProtectionService.CanUse())
+            {
+                throw new Exception("Data protection not activated or is busy.");
+            }
+
             if (accountId == null)
             {
                 throw new Exception("The parameter must not be null.");

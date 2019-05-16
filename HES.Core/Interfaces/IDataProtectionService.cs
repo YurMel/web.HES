@@ -1,10 +1,13 @@
-﻿using System.Threading.Tasks;
+﻿using HES.Core.Services;
+using System.Threading.Tasks;
 
 namespace HES.Core.Interfaces
 {
     public interface IDataProtectionService
     {
-        void CheckProtectionStatus();
+        void Status();
+        ProtectionStatus GetStatus();
+        bool CanUse();
         Task ActivateDataProtectionAsync(string password);
         Task EnableDataProtectionAsync(string password);
         Task DisableDataProtectionAsync(string password);

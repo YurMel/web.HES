@@ -18,16 +18,19 @@ namespace HES.Core.Services
         readonly IAsyncRepository<DeviceTask> _deviceTaskRepository;
         readonly IAsyncRepository<Device> _deviceRepository;
         private readonly ILogger<RemoteTaskService> _logger;
+        private readonly IDataProtectionService _dataProtectionService;
 
         public RemoteTaskService(IAsyncRepository<DeviceAccount> deviceAccountRepository,
                                  IAsyncRepository<DeviceTask> deviceTaskRepository,
                                  IAsyncRepository<Device> deviceRepository,
-                                 ILogger<RemoteTaskService> logger)
+                                 ILogger<RemoteTaskService> logger,
+                                 IDataProtectionService dataProtectionService)
         {
             _deviceAccountRepository = deviceAccountRepository;
             _deviceTaskRepository = deviceTaskRepository;
             _deviceRepository = deviceRepository;
             _logger = logger;
+            _dataProtectionService = dataProtectionService;
         }
 
         public async Task AddTaskAsync(DeviceTask deviceTask)
@@ -95,7 +98,7 @@ namespace HES.Core.Services
             // Delete all acc
             await _deviceAccountRepository.DeleteRangeAsync(allAccounts);
 
-            await AddTaskAsync(new DeviceTask { Password = device.MasterPassword, CreatedAt = DateTime.UtcNow, Operation = TaskOperation.Wipe, DeviceId = device.Id });
+            await AddTaskAsync(new DeviceTask { Password = _dataProtectionService.Protect(device.MasterPassword), CreatedAt = DateTime.UtcNow, Operation = TaskOperation.Wipe, DeviceId = device.Id });
         }
 
         private void ExecuteTask(DeviceTask deviceTask)
@@ -209,6 +212,11 @@ namespace HES.Core.Services
         {
             try
             {
+                if (!_dataProtectionService.CanUse())
+                {
+                    throw new Exception("Data protection not activated or is busy.");
+                }
+                
                 var tasks = _deviceTaskRepository.Query()
                     .Include(t => t.DeviceAccount)
                     .Where(t => t.DeviceAccount.Device.MAC == deviceMac);
@@ -221,6 +229,8 @@ namespace HES.Core.Services
                     {
                         foreach (var task in tasks)
                         {
+                            task.Password = task.Password != null ? _dataProtectionService.Unprotect(task.Password) : null;
+                            task.OtpSecret = task.OtpSecret != null ? _dataProtectionService.Unprotect(task.OtpSecret) : null;
                             var idFromDevice = await ExecuteRemoteTask(remoteDevice, task);
                             await TaskCompleted(task.Id, idFromDevice);
                         }

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 
@@ -14,14 +15,12 @@ namespace HES.Core.Services
         None,
         On,
         Off,
-        Encrypts,
-        Decrypts,
+        Busy,
         WaitingForActivation
     }
 
     public class DataProtectionService : IDataProtectionService
     {
-        public static ProtectionStatus Status { get; private set; }
         private readonly IAsyncRepository<AppSettings> _dataProtectionRepository;
         private readonly IAsyncRepository<Device> _deviceRepository;
         private readonly IAsyncRepository<DeviceTask> _deviceTaskRepository;
@@ -29,6 +28,9 @@ namespace HES.Core.Services
         private readonly IDataProtectionProvider _dataProtectionProvider;
         private readonly ILogger<DataProtectionService> _logger;
         private IDataProtector _dataProtector;
+        private bool _enabledProtection;
+        private bool _activatedProtection;
+        private bool _isBusy;
 
         public DataProtectionService(IAsyncRepository<AppSettings> dataProtectionRepository,
                                      IAsyncRepository<Device> deviceRepository,
@@ -45,17 +47,49 @@ namespace HES.Core.Services
             _logger = logger;
         }
 
-        public async void CheckProtectionStatus()
+        public async void Status()
         {
             var appSettings = await _dataProtectionRepository.Query().FirstOrDefaultAsync();
             if (appSettings?.ProtectedValue != null)
             {
-                Status = ProtectionStatus.WaitingForActivation;
+                _enabledProtection = true;
             }
             else
             {
-                Status = ProtectionStatus.Off;
+                _enabledProtection = false;
             }
+        }
+
+        public ProtectionStatus GetStatus()
+        {
+            if (_enabledProtection)
+            {
+                if (!_activatedProtection)
+                {
+                    return ProtectionStatus.WaitingForActivation;
+                }
+
+                if (_isBusy)
+                {
+                    return ProtectionStatus.Busy;
+                }
+
+                return ProtectionStatus.On;
+            }
+            return ProtectionStatus.Off;
+        }
+
+        public bool CanUse()
+        {
+            if (_enabledProtection)
+            {
+                if (_activatedProtection && !_isBusy)
+                {
+                    return true;
+                }
+                return false;
+            }
+            return true;
         }
 
         public async Task ActivateDataProtectionAsync(string password)
@@ -70,15 +104,14 @@ namespace HES.Core.Services
                 var unprotectedValue = tempProtector.Unprotect(appSettings.ProtectedValue);
                 // Create protector
                 _dataProtector = _dataProtectionProvider.CreateProtector(password);
+                _activatedProtection = true;
             }
             catch (CryptographicException)
             {
-                _logger.LogWarning("Activate: Invalid password");
                 throw new Exception("Invalid password");
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex.Message);
                 throw new Exception(ex.Message);
             }
         }
@@ -89,6 +122,8 @@ namespace HES.Core.Services
             {
                 throw new Exception("The password must not be null.");
             }
+
+            _isBusy = true;
 
             var appSettings = await _dataProtectionRepository.Query().FirstOrDefaultAsync();
             if (appSettings != null)
@@ -102,7 +137,6 @@ namespace HES.Core.Services
                 // Protect value
                 var protectedValue = _dataProtector.Protect(Guid.NewGuid().ToString());
                 appSettings.ProtectedValue = protectedValue;
-
                 await _dataProtectionRepository.UpdateOnlyPropAsync(appSettings, new string[] { "ProtectedValue" });
             }
             else
@@ -111,17 +145,21 @@ namespace HES.Core.Services
                 _dataProtector = _dataProtectionProvider.CreateProtector(password);
                 // Protect value
                 var protectedValue = _dataProtector.Protect(Guid.NewGuid().ToString());
-
                 await _dataProtectionRepository.AddAsync(new AppSettings() { ProtectedValue = protectedValue });
             }
 
             await ProtectAllDataAsync();
+
+            _enabledProtection = true;
+            _activatedProtection = true;
+            _isBusy = false;
         }
 
         public async Task DisableDataProtectionAsync(string password)
         {
             try
             {
+                _isBusy = true;
                 // Temp protector
                 var tempProtector = _dataProtectionProvider.CreateProtector(password);
                 // Get value
@@ -134,15 +172,18 @@ namespace HES.Core.Services
                 _dataProtector = null;
                 appSettings.ProtectedValue = null;
                 await _dataProtectionRepository.UpdateOnlyPropAsync(appSettings, new string[] { "ProtectedValue" });
+
+                _enabledProtection = false;
+                _activatedProtection = false;
+                _isBusy = false;
             }
             catch (CryptographicException)
             {
-                _logger.LogWarning("Disable: Invalid password");
+                _isBusy = false;
                 throw new Exception("Invalid password");
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex.Message);
                 throw new Exception(ex.Message);
             }
         }
@@ -156,6 +197,7 @@ namespace HES.Core.Services
 
             try
             {
+                _isBusy = true;
                 // Temp protector
                 var tempProtector = _dataProtectionProvider.CreateProtector(oldPassword);
                 // Get value
@@ -173,107 +215,145 @@ namespace HES.Core.Services
                 await _dataProtectionRepository.UpdateOnlyPropAsync(appSettings, new string[] { "ProtectedValue" });
                 // Protect all
                 await ProtectAllDataAsync();
+                _isBusy = false;
             }
             catch (CryptographicException)
             {
-                _logger.LogWarning("ChangePassword: Invalid password");
+                _isBusy = false;
                 throw new Exception("Invalid password");
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex.Message);
                 throw new Exception(ex.Message);
             }
         }
 
         public string Protect(string text)
         {
-            return _dataProtector.Protect(text);
+            if (_enabledProtection)
+            {
+                if (!_activatedProtection)
+                {
+                    throw new Exception("Data protection not activated");
+                }
+                if (_isBusy)
+                {
+                    throw new Exception("Data protection is busy");
+                }
+                return _dataProtector.Protect(text);
+            }
+            return text;
         }
 
         public string Unprotect(string text)
         {
-            return _dataProtector.Unprotect(text);
+            if (_enabledProtection)
+            {
+                if (!_activatedProtection)
+                {
+                    throw new Exception("Data protection not activated");
+                }
+                if (_isBusy)
+                {
+                    throw new Exception("Data protection is busy");
+                }
+                return _dataProtector.Unprotect(text);
+            }
+            return text;
         }
 
         private async Task ProtectAllDataAsync()
         {
-            try
+            var devices = await _deviceRepository.GetAllAsync();
+            foreach (var device in devices)
             {
-                var devices = await _deviceRepository.GetAllAsync();
-                foreach (var device in devices)
+                if (device.MasterPassword != null)
                 {
-                    if (device.MasterPassword != null)
-                    {
-                        device.MasterPassword = Protect(device.MasterPassword);
-                        await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "MasterPassword" });
-                    }
-                }
-
-                var deviceTasks = await _deviceTaskRepository.GetAllAsync();
-                foreach (var task in deviceTasks)
-                {
-                    if (task.Password != null)
-                    {
-                        task.Password = Protect(task.Password);
-                        await _deviceTaskRepository.UpdateOnlyPropAsync(task, new string[] { "Password" });
-                    }
-                }
-
-                var sharedAccounts = await _sharedAccountRepository.GetAllAsync();
-                foreach (var account in sharedAccounts)
-                {
-                    if (account.Password != null)
-                    {
-                        account.Password = Protect(account.Password);
-                        await _sharedAccountRepository.UpdateOnlyPropAsync(account, new string[] { "Password" });
-                    }
+                    device.MasterPassword = _dataProtector.Protect(device.MasterPassword);
+                    await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "MasterPassword" });
                 }
             }
-            catch (Exception ex)
+
+            var deviceTasks = await _deviceTaskRepository.GetAllAsync();
+            foreach (var task in deviceTasks)
             {
-                _logger.LogError(ex.Message);
+                var taskProperties = new List<string>();
+                if (task.Password != null)
+                {
+                    task.Password = _dataProtector.Protect(task.Password);
+                    taskProperties.Add("Password");
+                }
+                if (task.OtpSecret != null)
+                {
+                    task.OtpSecret = _dataProtector.Protect(task.OtpSecret);
+                    taskProperties.Add("OtpSecret");
+                }
+                await _deviceTaskRepository.UpdateOnlyPropAsync(task, taskProperties.ToArray());
+            }
+
+            var sharedAccounts = await _sharedAccountRepository.GetAllAsync();
+            foreach (var account in sharedAccounts)
+            {
+                var accountProperties = new List<string>();
+                if (account.Password != null)
+                {
+                    account.Password = _dataProtector.Protect(account.Password);
+                    accountProperties.Add("Password");
+                }
+                if (account.OtpSecret != null)
+                {
+                    account.OtpSecret = _dataProtector.Protect(account.OtpSecret);
+                    accountProperties.Add("OtpSecret");
+                }
+                await _sharedAccountRepository.UpdateOnlyPropAsync(account, accountProperties.ToArray());
             }
         }
 
         private async Task UnprotectAllDataAsync()
         {
-            try
+            var devices = await _deviceRepository.GetAllAsync();
+            foreach (var device in devices)
             {
-                var devices = await _deviceRepository.GetAllAsync();
-                foreach (var device in devices)
+                if (device.MasterPassword != null)
                 {
-                    if (device.MasterPassword != null)
-                    {
-                        device.MasterPassword = Unprotect(device.MasterPassword);
-                        await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "MasterPassword" });
-                    }
-                }
-
-                var deviceTasks = await _deviceTaskRepository.GetAllAsync();
-                foreach (var task in deviceTasks)
-                {
-                    if (task.Password != null)
-                    {
-                        task.Password = Unprotect(task.Password);
-                        await _deviceTaskRepository.UpdateOnlyPropAsync(task, new string[] { "Password" });
-                    }
-                }
-
-                var sharedAccounts = await _sharedAccountRepository.GetAllAsync();
-                foreach (var account in sharedAccounts)
-                {
-                    if (account.Password != null)
-                    {
-                        account.Password = Unprotect(account.Password);
-                        await _sharedAccountRepository.UpdateOnlyPropAsync(account, new string[] { "Password" });
-                    }
+                    device.MasterPassword = _dataProtector.Unprotect(device.MasterPassword);
+                    await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "MasterPassword" });
                 }
             }
-            catch (Exception ex)
+
+            var deviceTasks = await _deviceTaskRepository.GetAllAsync();
+            foreach (var task in deviceTasks)
             {
-                _logger.LogError(ex.Message);
+                var taskProperties = new List<string>();
+                if (task.Password != null)
+                {
+                    task.Password = _dataProtector.Unprotect(task.Password);
+                    taskProperties.Add("Password");
+                }
+                if (task.OtpSecret != null)
+                {
+                    task.OtpSecret = _dataProtector.Unprotect(task.OtpSecret);
+                    taskProperties.Add("OtpSecret");
+                }
+                await _deviceTaskRepository.UpdateOnlyPropAsync(task, taskProperties.ToArray());
             }
-        }       
+
+            var sharedAccounts = await _sharedAccountRepository.GetAllAsync();
+            foreach (var account in sharedAccounts)
+            {
+                var accountProperties = new List<string>();
+                if (account.Password != null)
+                {
+                    account.Password = _dataProtector.Unprotect(account.Password);
+                    accountProperties.Add("Password");
+                }
+                if (account.OtpSecret != null)
+                {
+                    account.OtpSecret = _dataProtector.Unprotect(account.OtpSecret);
+                    accountProperties.Add("OtpSecret");
+                }
+                await _sharedAccountRepository.UpdateOnlyPropAsync(account, accountProperties.ToArray());
+            }
+        }
     }
 }
