@@ -56,8 +56,7 @@ namespace HES.Core.Services
                     Firmware = null,
                     LastSynced = null,
                     EmployeeId = null,
-                    ImportedAt = DateTime.UtcNow,
-                    DeviceKey = d.DeviceKey,
+                    ImportedAt = DateTime.UtcNow
                 })
                 .ToList();
 

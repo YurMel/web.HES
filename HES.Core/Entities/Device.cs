@@ -19,7 +19,6 @@ namespace HES.Core.Entities
         public string PrimaryAccountId { get; set; }
         public string MasterPassword { get; set; }
         public DateTime ImportedAt { get; set; }
-        public byte[] DeviceKey { get; set; }
 
         [ForeignKey("EmployeeId")]
         public Employee Employee { get; set; }
