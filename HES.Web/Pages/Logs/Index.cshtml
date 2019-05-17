@@ -1,0 +1,212 @@
+﻿@page "{handler?}"
+@model HES.Web.Pages.Logs.IndexModel
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Logs</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+    <!-- DataTables CSS -->
+    <link href="~/lib/datatebles/dataTables.bootstrap4.css" rel="stylesheet" />
+    <!-- Logs CSS -->
+    <link href="~/css/logs.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="d-flex">
+        <div class="custom-sidebar bg-light border-right">
+            <ul class="nav nav-pills nav-justified mb-3" id="pills-tab" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true">own</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">all</a>
+                </li>
+            </ul>
+            <div class="tab-content" id="pills-tabContent">
+                <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+                    <div class="border rounded bg-white">
+                        @foreach (var log in Model.OwnLogs.OrderByDescending(x => x.Name))
+                        {
+                            <form method="post" class="mt-1 mb-1">
+                                <input type="hidden" asp-for="OwnLogFile.Name" value="@log.Name" />
+                                <input type="hidden" asp-for="OwnLogFile.Path" value="@log.Path" />
+                                <input type="hidden" asp-for="OwnLogFile.Separator" value="@log.Name.Replace("hes-log-own-", "").Replace(".log", "")" />
+                                <input type="submit" value="@log.Name" class="btn" asp-page-handler="ShowOwn" />
+                            </form>
+                        }
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+                    <div class="border rounded bg-white">
+                        @foreach (var log in Model.AllLogs.OrderByDescending(x => x.Name))
+                        {
+                            <form method="post" class="mt-1 mb-1">
+                                <input type="hidden" asp-for="AllLogFile.Name" value="@log.Name" />
+                                <input type="hidden" asp-for="AllLogFile.Path" value="@log.Path" />
+                                <input type="hidden" asp-for="AllLogFile.Separator" value="@log.Name.Replace("hes-log-all-", "").Replace(".log", "")" />
+                                <input type="submit" value="@log.Name" class="btn" asp-page-handler="ShowAll" />
+                            </form>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="d-flex flex-column custom-main">
+            <nav class="navbar navbar-light bg-light border-bottom">
+                <span id="main_title" class="navbar-brand mb-0 h1">@Model.CurrentName</span>
+                <div class="form-group has-search-right m-0">
+                    <div class="form-control-feedback">
+                        <img class="img-size" src="~/svg/action/search.svg" />
+                    </div>
+                    <input id="searchbox" type="text" class="form-control" placeholder="Search">
+                </div>
+            </nav>
+            <div class="p-2">
+                <table id="logs" class="display table table-hover border rounded" style="table-layout:fixed">
+                    <thead>
+                        <tr>
+                            <th style="width: 180px">
+                                @Html.DisplayNameFor(model => model.CurrentLog[0].Date)
+                            </th>
+                            <th style="width: 80px">
+                                @Html.DisplayNameFor(model => model.CurrentLog[0].Level)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.CurrentLog[0].Logger)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.CurrentLog[0].Message)
+                            </th>
+                            <th style="width: 80px">
+                                @Html.DisplayNameFor(model => model.CurrentLog[0].Method)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.CurrentLog[0].Url)
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.CurrentLog)
+                        {
+                            <tr>
+                                <td style="width: 180px">
+                                    @Html.DisplayFor(modelItem => item.Date)
+                                </td>
+                                <td style="width: 80px">
+                                    @{
+                                        switch (item.Level)
+                                        {
+                                            case "INFO":
+                                                <span class="badge badge-success">@item.Level</span>
+                                                break;
+                                            case "DEBUG":
+                                                <span class="badge badge-info">@item.Level</span>
+                                                break;
+                                            case "WARN":
+                                                <span class="badge badge-warning">@item.Level</span>
+                                                break;
+                                            case "ERROR":
+                                                <span class="badge badge-danger">@item.Level</span>
+                                                break;
+                                            case "FATAL":
+                                                <span class="badge badge-dark">@item.Level</span>
+                                                break;
+                                        }
+                                    }
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Logger)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Message)
+                                </td>
+                                <td style="width: 80px">
+                                    @Html.DisplayFor(modelItem => item.Method)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Url)
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="modalView" tabindex="-1" role="dialog" aria-labelledby="modalDialogTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-navyblue">Log</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div id="modalBody" class="modal-body">
+                    <h6>Date</h6>
+                    <p id="date"></p>
+                    <h6>Level</h6>
+                    <p id="level"></p>
+                    <h6>Logger</h6>
+                    <p id="logger"></p>
+                    <h6>Message</h6>
+                    <p id="message"></p>
+                    <h6>Method</h6>
+                    <p id="method"></p>
+                    <h6>Url</h6>
+                    <p id="url"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JQuery -->
+    <script src="~/lib/jquery/dist/jquery.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
+    <!-- DataTebles JS -->
+    <script src="~/lib/datatebles/jquery.dataTables.min.js"></script>
+    <script src="~/lib/datatebles/dataTables.bootstrap4.min.js"></script>
+
+    <script>
+        $('#logs').DataTable({
+            "paging": false,
+            "ordering": false,
+            "info": false
+        });
+        var dataTable = $('#logs').dataTable();
+        $('#searchbox').keyup(function () {
+            dataTable.fnFilter(this.value);
+        });
+        $('.dataTables_filter').addClass('d-none');
+
+        $('#logs tr').click(function () {
+            var currentRow = $(this).closest("tr");
+            var date = currentRow.find("td:eq(0)").html();
+            var level = currentRow.find("td:eq(1)").text();
+            var logger = currentRow.find("td:eq(2)").html();
+            var message = currentRow.find("td:eq(3)").html();
+            var method = currentRow.find("td:eq(4)").html();
+            var url = currentRow.find("td:eq(5)").html();
+            SetText(date, level, logger, message, method, url);
+        });
+
+        function SetText(date, level, logger, message, method, url) {
+            $('#date').text(date);
+            $('#level').text(level);
+            $('#logger').text(logger);
+            $('#message').text(message);
+            $('#method').text(method);
+            $('#url').text(url);
+            $('#modalView').modal('toggle');
+        }
+    </script>
+</body>
+</html>

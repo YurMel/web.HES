@@ -111,6 +111,7 @@ namespace HES.Web
                     options.Conventions.AuthorizeFolder("/Templates");
                     options.Conventions.AuthorizeFolder("/Devices");
                     options.Conventions.AuthorizeFolder("/Settings");
+                    options.Conventions.AuthorizeFolder("/Logs");
                 })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
