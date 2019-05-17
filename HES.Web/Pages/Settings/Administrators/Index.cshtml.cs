@@ -19,7 +19,7 @@ namespace HES.Web.Pages.Settings.Administrators
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEmailSender _emailSender;
         private readonly ILogger<IndexModel> _logger;
-        
+
         public IList<ApplicationUser> ApplicationUsers { get; set; }
 
         [TempData]
@@ -65,42 +65,41 @@ namespace HES.Web.Pages.Settings.Administrators
         {
             if (ModelState.IsValid)
             {
-                return RedirectToPage("./Index");
-            }
-
-            // Create new user
-            var user = new ApplicationUser { UserName = Input.Email, Email = Input.Email };
-            var password = Guid.NewGuid().ToString();
-            var result = await _userManager.CreateAsync(user, password);
-            if (!result.Succeeded)
-            {
-                string errors = string.Empty;
-                foreach (var item in result.Errors)
+                // Create new user
+                var user = new ApplicationUser { UserName = Input.Email, Email = Input.Email };
+                var password = Guid.NewGuid().ToString();
+                var result = await _userManager.CreateAsync(user, password);
+                if (!result.Succeeded)
                 {
-                    errors += $"Code: {item.Code} Description: {item.Description} {Environment.NewLine}";
+                    string errors = string.Empty;
+                    foreach (var item in result.Errors)
+                    {
+                        errors += $"Code: {item.Code} Description: {item.Description} {Environment.NewLine}";
+                    }
+                    _logger.LogError(errors);
+                    ErrorMessage = errors;
+                    return RedirectToPage("./Index");
                 }
-                _logger.LogError(errors);
-                ErrorMessage = errors;
-                return RedirectToPage("./Index");
+
+                await _userManager.AddToRoleAsync(user, ApplicationRoles.AdminRole);
+
+                // Create "invite" link
+                var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+                var email = Input.Email;
+                var callbackUrl = Url.Page(
+                   "/Account/Invite",
+                    pageHandler: null,
+                    values: new { area = "Identity", code, email },
+                    protocol: Request.Scheme);
+
+                await _emailSender.SendEmailAsync(
+                    Input.Email,
+                    "Invite to HES",
+                    $"Please enter your password by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+
+                StatusMessage = "Email has been sent";
             }
 
-            await _userManager.AddToRoleAsync(user, ApplicationRoles.AdminRole);
-
-            // Create "invite" link
-            var code = await _userManager.GeneratePasswordResetTokenAsync(user);
-            var email = Input.Email;
-            var callbackUrl = Url.Page(
-               "/Account/Invite",
-                pageHandler: null,
-                values: new { area = "Identity", code, email },
-                protocol: Request.Scheme);
-
-            await _emailSender.SendEmailAsync(
-                Input.Email,
-                "Invite to HES",
-                $"Please enter your password by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
-
-            StatusMessage = "Email has been sent";
             return RedirectToPage("./Index");
         }
 

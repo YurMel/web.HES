@@ -82,11 +82,11 @@ namespace HES.Web.Pages.Logs
                 {
                     if (type == "own")
                     {
-                        list.Add(new StructureModel { Date = separator + item.Split("|")[0], Level = item.Split("|")[1], Logger = item.Split("|")[2], Message = item.Split("|")[3], Method = item.Split("|")[4], Url = item.Split("|")[5] });
+                        list.Add(new StructureModel { Date = separator + " " + item.Split("|")[0], Level = item.Split("|")[1], Logger = item.Split("|")[2], Message = item.Split("|")[3], Method = item.Split("|")[4], Url = item.Split("|")[5] });
                     }
                     else
                     {
-                        list.Add(new StructureModel { Date = separator + item.Split("|")[0], Level = item.Split("|")[1], Logger = item.Split("|")[2], Message = item.Split("|")[3] });
+                        list.Add(new StructureModel { Date = separator + " " + item.Split("|")[0], Level = item.Split("|")[1], Logger = item.Split("|")[2], Message = item.Split("|")[3] });
                     }
                 }
             }
