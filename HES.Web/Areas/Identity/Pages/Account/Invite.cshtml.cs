@@ -81,7 +81,7 @@ namespace HES.Web.Areas.Identity.Pages.Account
                 var login_result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, false, lockoutOnFailure: true);
                 if (login_result.Succeeded)
                 {
-                    _logger.LogInformation("User logged in.");
+                    _logger.LogInformation($"User {user} logged in.");
                     return LocalRedirect("/");
                 }
             }
