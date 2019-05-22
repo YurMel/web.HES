@@ -9,15 +9,27 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HES.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20190417110920_upd_devices_table")]
-    partial class upd_devices_table
+    [Migration("20190522094700_init")]
+    partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.2.2-servicing-10034")
+                .HasAnnotation("ProductVersion", "2.2.4-servicing-10062")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
+
+            modelBuilder.Entity("HES.Core.Entities.AppSettings", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("ProtectedValue");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AppSettings");
+                });
 
             modelBuilder.Entity("HES.Core.Entities.Company", b =>
                 {
@@ -56,8 +68,6 @@ namespace HES.Infrastructure.Migrations
 
                     b.Property<int>("Battery");
 
-                    b.Property<byte[]>("DeviceKey");
-
                     b.Property<string>("EmployeeId");
 
                     b.Property<string>("Firmware");
@@ -68,7 +78,11 @@ namespace HES.Infrastructure.Migrations
 
                     b.Property<string>("MAC");
 
+                    b.Property<string>("MasterPassword");
+
                     b.Property<string>("Model");
+
+                    b.Property<string>("PrimaryAccountId");
 
                     b.Property<string>("RFID");
 
@@ -93,6 +107,8 @@ namespace HES.Infrastructure.Migrations
                     b.Property<string>("DeviceId");
 
                     b.Property<string>("EmployeeId");
+
+                    b.Property<ushort>("IdFromDevice");
 
                     b.Property<DateTime?>("LastSyncedAt");
 
@@ -132,27 +148,25 @@ namespace HES.Infrastructure.Migrations
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<bool>("AppsChanged");
+                    b.Property<string>("Apps");
 
                     b.Property<DateTime>("CreatedAt");
 
                     b.Property<string>("DeviceAccountId");
 
-                    b.Property<bool>("LoginChanged");
+                    b.Property<string>("DeviceId");
 
-                    b.Property<bool>("NameChanged");
+                    b.Property<string>("Login");
+
+                    b.Property<string>("Name");
 
                     b.Property<int>("Operation");
 
                     b.Property<string>("OtpSecret");
 
-                    b.Property<bool>("OtpSecretChanged");
-
                     b.Property<string>("Password");
 
-                    b.Property<bool>("PasswordChanged");
-
-                    b.Property<bool>("UrlsChanged");
+                    b.Property<string>("Urls");
 
                     b.HasKey("Id");
 

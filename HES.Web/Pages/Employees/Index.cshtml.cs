@@ -16,7 +16,7 @@ namespace HES.Web.Pages.Employees
     {
         private readonly IEmployeeService _employeeService;
         private readonly ILogger<IndexModel> _logger;
-        
+
         public IList<Employee> Employees { get; set; }
         public bool HasForeignKey { get; set; }
 
@@ -47,6 +47,7 @@ namespace HES.Web.Pages.Employees
 
         public async Task<IActionResult> OnGetCreateEmployee()
         {
+            ViewData["CompanyId"] = new SelectList(await _employeeService.DepartmentQuery().Include(c => c.CompanyId).ToListAsync(), "Id", "Name");
             ViewData["DepartmentId"] = new SelectList(await _employeeService.DepartmentQuery().ToListAsync(), "Id", "Name");
             ViewData["PositionId"] = new SelectList(await _employeeService.PositionQuery().ToListAsync(), "Id", "Name");
 

@@ -27,7 +27,7 @@ namespace HES.Core.Entities
         [Display(Name = "OtpUpdated")]
         public DateTime? OtpUpdatedAt { get; set; }
         public bool Deleted { get; set; }
-        public short? IdFromDevice { get; set; }
+        public ushort IdFromDevice { get; set; }
         public string EmployeeId { get; set; }
         public string DeviceId { get; set; }
         public string SharedAccountId { get; set; }

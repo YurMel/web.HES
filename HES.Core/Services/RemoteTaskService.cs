@@ -137,7 +137,7 @@ namespace HES.Core.Services
             }
         }
 
-        private async Task TaskCompleted(string taskId, short idFromDevice)
+        private async Task TaskCompleted(string taskId, ushort idFromDevice)
         {
             // Get task
             var deviceTask = await _deviceTaskRepository.Query().Include(d => d.DeviceAccount).FirstOrDefaultAsync(t => t.Id == taskId);
@@ -216,7 +216,7 @@ namespace HES.Core.Services
                 {
                     throw new Exception("Data protection not activated or is busy.");
                 }
-                
+
                 var tasks = _deviceTaskRepository.Query()
                     .Include(t => t.DeviceAccount)
                     .Where(t => t.DeviceAccount.Device.MAC == deviceMac);
@@ -227,7 +227,7 @@ namespace HES.Core.Services
 
                     if (remoteDevice != null)
                     {
-                        foreach (var task in tasks)
+                        foreach (var task in tasks.OrderBy(x => x.CreatedAt))
                         {
                             task.Password = task.Password != null ? _dataProtectionService.Unprotect(task.Password) : null;
                             task.OtpSecret = task.OtpSecret != null ? _dataProtectionService.Unprotect(task.OtpSecret) : null;
@@ -243,9 +243,9 @@ namespace HES.Core.Services
             }
         }
 
-        private async Task<short> ExecuteRemoteTask(RemoteDevice device, DeviceTask task)
+        private async Task<ushort> ExecuteRemoteTask(RemoteDevice device, DeviceTask task)
         {
-            short idFromDevice = 0;
+            ushort idFromDevice = 0;
             switch (task.Operation)
             {
                 case TaskOperation.Create:
@@ -267,33 +267,33 @@ namespace HES.Core.Services
             return idFromDevice;
         }
 
-        private async Task<short> AddDeviceAccount(RemoteDevice device, DeviceTask task)
+        private async Task<ushort> AddDeviceAccount(RemoteDevice device, DeviceTask task)
         {
             var dev = await _deviceRepository.GetByIdAsync(task.DeviceId);
             bool isPrimary = (dev.PrimaryAccountId == task.DeviceAccountId);
 
             var pm = new DevicePasswordManager(device);
 
-            ushort key = task.DeviceAccount.IdFromDevice != null ? (ushort)task.DeviceAccount.IdFromDevice : (ushort)0;
+            ushort key = task.DeviceAccount.IdFromDevice;
             key = await pm.SaveOrUpdateAccount(key, 0x0000, task.Name, task.Password, task.Login, task.OtpSecret, task.Apps, task.Urls, isPrimary);
 
-            return (short)key;
+            return key;
         }
 
-        private async Task<short> UpdateDeviceAccount(RemoteDevice device, DeviceTask task)
+        private async Task<ushort> UpdateDeviceAccount(RemoteDevice device, DeviceTask task)
         {
             var dev = await _deviceRepository.GetByIdAsync(task.DeviceId);
             bool isPrimary = (dev.PrimaryAccountId == task.DeviceAccountId);
 
             var pm = new DevicePasswordManager(device);
 
-            ushort key = (ushort)task.DeviceAccount.IdFromDevice;
+            ushort key = task.DeviceAccount.IdFromDevice;
             key = await pm.SaveOrUpdateAccount(key, 0x0000, task.Name, task.Password, task.Login, task.OtpSecret, task.Apps, task.Urls, isPrimary);
 
-            return (short)key;
+            return key;
         }
 
-        private async Task<short> DeleteDeviceAccount(RemoteDevice device, DeviceTask task)
+        private async Task<ushort> DeleteDeviceAccount(RemoteDevice device, DeviceTask task)
         {
             var dev = await _deviceRepository.GetByIdAsync(task.DeviceId);
             bool isPrimary = (dev.PrimaryAccountId == task.DeviceAccountId);
@@ -303,7 +303,7 @@ namespace HES.Core.Services
             return 0;
         }
 
-        private async Task<short> WipeDevice(RemoteDevice device, DeviceTask task)
+        private async Task<ushort> WipeDevice(RemoteDevice device, DeviceTask task)
         {
             var pingData = new byte[] { 0x00, 0x01, 0x02, 0x03, 0x04 };
             var respData = await device.Ping(pingData);
@@ -311,7 +311,7 @@ namespace HES.Core.Services
             return 0;
         }
 
-        private async Task<short> LinkDevice(RemoteDevice device, DeviceTask task)
+        private async Task<ushort> LinkDevice(RemoteDevice device, DeviceTask task)
         {
             var pingData = new byte[] { 0x00, 0x01, 0x02, 0x03, 0x04 };
             var respData = await device.Ping(pingData);

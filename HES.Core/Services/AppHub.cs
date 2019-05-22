@@ -156,7 +156,7 @@ namespace HES.Core.Services
                 DeviceMac = device?.MAC,
                 DeviceSerialNo = device?.Id,
                 PrimaryAccountLogin = primaryAccount?.Login,
-                IdFromDevice = primaryAccount?.IdFromDevice,
+                IdFromDevice = primaryAccount?.IdFromDevice ?? 0,
                 NeedUpdatePrimaryAccount = needUpdatePrimaryAccount,
                 DeviceMasterPassword = device?.MasterPassword
             };

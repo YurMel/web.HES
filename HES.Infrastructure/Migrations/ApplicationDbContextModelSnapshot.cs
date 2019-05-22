@@ -106,7 +106,7 @@ namespace HES.Infrastructure.Migrations
 
                     b.Property<string>("EmployeeId");
 
-                    b.Property<short?>("IdFromDevice");
+                    b.Property<ushort>("IdFromDevice");
 
                     b.Property<DateTime?>("LastSyncedAt");
 

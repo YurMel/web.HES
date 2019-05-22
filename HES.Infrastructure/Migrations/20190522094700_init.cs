@@ -4,10 +4,22 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace HES.Infrastructure.Migrations
 {
-    public partial class Initial : Migration
+    public partial class init : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "AppSettings",
+                columns: table => new
+                {
+                    Id = table.Column<string>(nullable: false),
+                    ProtectedValue = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AppSettings", x => x.Id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "AspNetRoles",
                 columns: table => new
@@ -83,7 +95,8 @@ namespace HES.Infrastructure.Migrations
                     Password = table.Column<string>(nullable: true),
                     PasswordChangedAt = table.Column<DateTime>(nullable: true),
                     OtpSecret = table.Column<string>(nullable: true),
-                    OtpSecretChangedAt = table.Column<DateTime>(nullable: true)
+                    OtpSecretChangedAt = table.Column<DateTime>(nullable: true),
+                    Deleted = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -97,7 +110,8 @@ namespace HES.Infrastructure.Migrations
                     Id = table.Column<string>(nullable: false),
                     Name = table.Column<string>(nullable: false),
                     Urls = table.Column<string>(nullable: true),
-                    Apps = table.Column<string>(nullable: true)
+                    Apps = table.Column<string>(nullable: true),
+                    Deleted = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -269,10 +283,11 @@ namespace HES.Infrastructure.Migrations
                     RFID = table.Column<string>(nullable: true),
                     Battery = table.Column<int>(nullable: false),
                     Firmware = table.Column<string>(nullable: true),
-                    LastSynced = table.Column<DateTime>(nullable: false),
+                    LastSynced = table.Column<DateTime>(nullable: true),
                     EmployeeId = table.Column<string>(nullable: true),
-                    ImportedAt = table.Column<DateTime>(nullable: false),
-                    DeviceKey = table.Column<byte[]>(nullable: true)
+                    PrimaryAccountId = table.Column<string>(nullable: true),
+                    MasterPassword = table.Column<string>(nullable: true),
+                    ImportedAt = table.Column<DateTime>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -298,9 +313,11 @@ namespace HES.Infrastructure.Migrations
                     Status = table.Column<int>(nullable: false),
                     LastSyncedAt = table.Column<DateTime>(nullable: true),
                     CreatedAt = table.Column<DateTime>(nullable: false),
+                    UpdatedAt = table.Column<DateTime>(nullable: true),
                     PasswordUpdatedAt = table.Column<DateTime>(nullable: false),
                     OtpUpdatedAt = table.Column<DateTime>(nullable: true),
                     Deleted = table.Column<bool>(nullable: false),
+                    IdFromDevice = table.Column<ushort>(nullable: false),
                     EmployeeId = table.Column<string>(nullable: true),
                     DeviceId = table.Column<string>(nullable: true),
                     SharedAccountId = table.Column<string>(nullable: true)
@@ -333,6 +350,10 @@ namespace HES.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(nullable: false),
+                    Name = table.Column<string>(nullable: true),
+                    Urls = table.Column<string>(nullable: true),
+                    Apps = table.Column<string>(nullable: true),
+                    Login = table.Column<string>(nullable: true),
                     Password = table.Column<string>(nullable: true),
                     OtpSecret = table.Column<string>(nullable: true),
                     Operation = table.Column<int>(nullable: false),
@@ -347,12 +368,6 @@ namespace HES.Infrastructure.Migrations
                         name: "FK_DeviceTasks_DeviceAccounts_DeviceAccountId",
                         column: x => x.DeviceAccountId,
                         principalTable: "DeviceAccounts",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_DeviceTasks_Devices_DeviceId",
-                        column: x => x.DeviceId,
-                        principalTable: "Devices",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -425,11 +440,6 @@ namespace HES.Infrastructure.Migrations
                 column: "DeviceAccountId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_DeviceTasks_DeviceId",
-                table: "DeviceTasks",
-                column: "DeviceId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Employees_DepartmentId",
                 table: "Employees",
                 column: "DepartmentId");
@@ -442,6 +452,9 @@ namespace HES.Infrastructure.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "AppSettings");
+
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
 
