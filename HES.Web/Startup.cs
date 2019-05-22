@@ -120,7 +120,7 @@ namespace HES.Web
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IDataProtectionService dataProtectionService)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -148,12 +148,17 @@ namespace HES.Web
 
             using (var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
+                // Apply migration
+                //var context = scope.ServiceProvider.GetService<ApplicationDbContext>();
+                //context.Database.Migrate();
+                // Create admin if first run
                 var userManager = scope.ServiceProvider.GetService<UserManager<ApplicationUser>>();
                 var roleManager = scope.ServiceProvider.GetService<RoleManager<IdentityRole>>();
                 new ApplicationDbSeed(userManager, roleManager).Initialize();
+                // Get status of data protection
+                var dataProtectionService = scope.ServiceProvider.GetService<IDataProtectionService>();
+                dataProtectionService.Status();
             }
-
-            dataProtectionService.Status();
         }
     }
 }
