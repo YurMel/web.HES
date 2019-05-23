@@ -2,6 +2,11 @@
 @model HES.Web.Pages.Logs.IndexModel
 @{
     Layout = null;
+    int infoCount = 0;
+    int debugCount = 0;
+    int warnCount = 0;
+    int errorCount = 0;
+    int fatalCount = 0;
 }
 
 <!DOCTYPE html>
@@ -25,9 +30,11 @@
                 <li class="nav-item">
                     <a class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true">own</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">all</a>
-                </li>
+                @*
+                    <li class="nav-item">
+                        <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">all</a>
+                    </li>
+                *@
             </ul>
             <div class="tab-content" id="pills-tabContent">
                 <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
@@ -61,6 +68,13 @@
         <div class="d-flex flex-column custom-main">
             <nav class="navbar navbar-light bg-light border-bottom">
                 <span id="main_title" class="navbar-brand mb-0 h1">@Model.CurrentName</span>
+                <div>
+                    <span class="badge badge-success">INFO</span> <span id="infoLabel" class="badge badge-light">0</span>
+                    <span class="badge badge-info">DEBUG</span> <span id="debugLabel" class="badge badge-light">0</span>
+                    <span class="badge badge-warning">WARN</span> <span id="warnLabel" class="badge badge-light">0</span>
+                    <span class="badge badge-danger">ERROR</span> <span id="errorLabel" class="badge badge-light">0</span>
+                    <span class="badge badge-dark">FATAL</span> <span id="fatalLabel" class="badge badge-light">0</span>
+                </div>
                 <div class="form-group has-search-right m-0">
                     <div class="form-control-feedback">
                         <img class="img-size" src="~/svg/action/search.svg" />
@@ -68,8 +82,9 @@
                     <input id="searchbox" type="text" class="form-control" placeholder="Search">
                 </div>
             </nav>
+
             <div class="p-2">
-                <table id="logs" class="display table table-hover border rounded" style="table-layout:fixed">
+                <table id="logs" class="display table table-hover border rounded w-100" style="table-layout:fixed">
                     <thead>
                         <tr>
                             <th style="width: 180px">
@@ -105,18 +120,23 @@
                                         {
                                             case "INFO":
                                                 <span class="badge badge-success">@item.Level</span>
+                                                infoCount++;
                                                 break;
                                             case "DEBUG":
                                                 <span class="badge badge-info">@item.Level</span>
+                                                debugCount++;
                                                 break;
                                             case "WARN":
                                                 <span class="badge badge-warning">@item.Level</span>
+                                                warnCount++;
                                                 break;
                                             case "ERROR":
                                                 <span class="badge badge-danger">@item.Level</span>
+                                                errorCount++;
                                                 break;
                                             case "FATAL":
                                                 <span class="badge badge-dark">@item.Level</span>
+                                                fatalCount++;
                                                 break;
                                         }
                                     }
@@ -178,7 +198,6 @@
     <script>
         $('#logs').DataTable({
             "paging": false,
-            "ordering": false,
             "info": false
         });
         var dataTable = $('#logs').dataTable();
@@ -187,7 +206,7 @@
         });
         $('.dataTables_filter').addClass('d-none');
 
-        $('#logs tr').click(function () {
+        $('#logs tbody tr').click(function () {
             var currentRow = $(this).closest("tr");
             var date = currentRow.find("td:eq(0)").html();
             var level = currentRow.find("td:eq(1)").text();
@@ -207,6 +226,19 @@
             $('#url').text(url);
             $('#modalView').modal('toggle');
         }
+
+        $(document).ready(function () {
+            $('#infoLabel').html(@infoCount);
+            $('#debugLabel').html(@debugCount);
+            $('#warnLabel').html(@warnCount);
+            $('#errorLabel').html(@errorCount);
+            $('#fatalLabel').html(@fatalCount);
+        });
+
+        //var table = $('#logs').DataTable();
+        //$('#input').on('keyup', function () {
+        //    table.column(1).search(this.value).draw();
+        //});
     </script>
 </body>
 </html>
