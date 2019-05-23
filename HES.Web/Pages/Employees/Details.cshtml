@@ -578,6 +578,20 @@
                 });
         }
 
+        // Dropdown Department
+        function GetDepartment(id) {
+            $.getJSON('/Employees/Details?handler=JsonDepartment', { id: id },
+                function (data) {
+                    var dep = "";
+                    $(data).each(function () {
+                        dep = dep + '<option value="' + this.id + '">' + this.name + '</option>'
+                    });
+                    var subList = $("#departments");
+                    subList.empty();
+                    subList.append(dep);
+                });
+        }
+
         // Set DataTables
         $("table").each(function () {
             var currentTable = $(this);

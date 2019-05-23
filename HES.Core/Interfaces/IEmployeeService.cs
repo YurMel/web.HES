@@ -14,6 +14,7 @@ namespace HES.Core.Interfaces
         IQueryable<DeviceTask> DeviceTaskQuery();
         IQueryable<SharedAccount> SharedAccountQuery();
         IQueryable<Template> TemplateQuery();
+        IQueryable<Company> CompanyQuery();
         IQueryable<Department> DepartmentQuery();
         IQueryable<Position> PositionQuery();
         Task<Employee> EmployeeGetByIdAsync(dynamic id);

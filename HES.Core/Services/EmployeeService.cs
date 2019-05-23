@@ -17,6 +17,7 @@ namespace HES.Core.Services
         private readonly IAsyncRepository<DeviceTask> _deviceTaskRepository;
         private readonly IAsyncRepository<SharedAccount> _sharedAccountRepository;
         private readonly IAsyncRepository<Template> _templateRepository;
+        private readonly IAsyncRepository<Company> _companyRepository;
         private readonly IAsyncRepository<Department> _departmentRepository;
         private readonly IAsyncRepository<Position> _positionRepository;
         private readonly IRemoteTaskService _remoteTaskService;
@@ -28,6 +29,7 @@ namespace HES.Core.Services
                                IAsyncRepository<DeviceTask> deviceTaskRepository,
                                IAsyncRepository<SharedAccount> sharedAccountRepository,
                                IAsyncRepository<Template> templateRepository,
+                               IAsyncRepository<Company> companyRepository,
                                IAsyncRepository<Department> departmentRepository,
                                IAsyncRepository<Position> positionRepository,
                                IRemoteTaskService remoteTaskService,
@@ -39,6 +41,7 @@ namespace HES.Core.Services
             _deviceTaskRepository = deviceTaskRepository;
             _sharedAccountRepository = sharedAccountRepository;
             _templateRepository = templateRepository;
+            _companyRepository = companyRepository;
             _departmentRepository = departmentRepository;
             _positionRepository = positionRepository;
             _remoteTaskService = remoteTaskService;
@@ -73,6 +76,11 @@ namespace HES.Core.Services
         public IQueryable<Template> TemplateQuery()
         {
             return _templateRepository.Query();
+        }
+
+        public IQueryable<Company> CompanyQuery()
+        {
+            return _companyRepository.Query();
         }
 
         public IQueryable<Department> DepartmentQuery()

@@ -70,6 +70,11 @@ namespace HES.Web.Pages.Employees
 
         #region Employee
 
+        public async Task<JsonResult> OnGetJsonDepartmentAsync(string id)
+        {
+            return new JsonResult(await _employeeService.DepartmentQuery().Where(d => d.CompanyId == id).ToListAsync());
+        }
+
         public async Task<IActionResult> OnGetEditEmployeeAsync(string id)
         {
             if (id == null)
@@ -90,7 +95,8 @@ namespace HES.Web.Pages.Employees
                 return NotFound();
             }
 
-            ViewData["DepartmentId"] = new SelectList(await _employeeService.DepartmentQuery().ToListAsync(), "Id", "Name");
+            ViewData["CompanyId"] = new SelectList(await _employeeService.CompanyQuery().ToListAsync(), "Id", "Name");
+            ViewData["DepartmentId"] = new SelectList(await _employeeService.DepartmentQuery().Where(d => d.CompanyId == Employee.Department.CompanyId).ToListAsync(), "Id", "Name");
             ViewData["PositionId"] = new SelectList(await _employeeService.PositionQuery().ToListAsync(), "Id", "Name");
 
             return Partial("_EditEmployee", this);

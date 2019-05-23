@@ -24,11 +24,11 @@
     </div>
     <div class="form-group">
         <label asp-for="Employee.Department.CompanyId" class="control-label text-gray"></label>
-        <select asp-for="Employee.Department.CompanyId" class="form-control text-navyblue" asp-items="ViewBag.CompanyId"></select>
+        <select id="companies" onchange="GetDepartment(this.value)" class="form-control text-navyblue" asp-items="ViewBag.CompanyId"></select>
     </div>
     <div class="form-group">
         <label asp-for="Employee.DepartmentId" class="control-label text-gray"></label>
-        <select asp-for="Employee.DepartmentId" class="form-control text-navyblue" asp-items="ViewBag.DepartmentId"></select>
+        <select id="departments" asp-for="Employee.DepartmentId" class="form-control text-navyblue"></select>
     </div>
     <div class="form-group">
         <label asp-for="Employee.PositionId" class="control-label text-gray"></label>
