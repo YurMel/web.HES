@@ -28,86 +28,83 @@
     </div>
 </div>
 
-<div class="table-responsive">
-    <table id="templates" class="display table table-hover border rounded">
-        <thead>
+<table id="templates" class="display table table-hover border rounded w-100">
+    <thead>
+        <tr>
+            <th data-priority="1">
+                @Html.DisplayNameFor(model => model.Templates[0].Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Templates[0].Urls)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Templates[0].Apps)
+            </th>
+            <th class="table-col-menu" data-priority="2"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Templates)
+        {
             <tr>
-                <th>
-                    @Html.DisplayNameFor(model => model.Templates[0].Name)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Templates[0].Urls)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Templates[0].Apps)
-                </th>
-                <th class="table-col-menu"></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model.Templates)
-            {
-                <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Name)
-                    </td>
-                    <td style="white-space: normal">
-                        @{
-                            if (item.Urls != null)
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td style="white-space: normal">
+                    @{
+                        if (item.Urls != null)
+                        {
+                            @item.Urls
+                            @*foreach (var urls in item.Urls.Split(';'))
                             {
-                                @item.Urls
-                                @*foreach (var urls in item.Urls.Split(';'))
-                                {
-                                    <span class="badge badge-primary custom-badge">@urls</span>
-                                }*@
-                            }
+                                <span class="badge badge-primary custom-badge">@urls</span>
+                            }*@
                         }
-                    </td>
-                    <td style="white-space: normal">
-                        @{
-                            if (item.Apps != null)
+                    }
+                </td>
+                <td style="white-space: normal">
+                    @{
+                        if (item.Apps != null)
+                        {
+                            @item.Apps
+                            @*foreach (var apps in item.Apps.Split(';'))
                             {
-                                @item.Apps
-                                @*foreach (var apps in item.Apps.Split(';'))
-                                {
-                                    <span class="badge badge-primary custom-badge">@apps</span>
-                                }*@
-                            }
+                                <span class="badge badge-primary custom-badge">@apps</span>
+                            }*@
                         }
-                    </td>
-                    <td>
-                        <div class="dropdown no-arrow">
-                            <a class="dropdown-toggle" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <img src="~/svg/action/more.svg" />
+                    }
+                </td>
+                <td>
+                    <div class="dropdown no-arrow">
+                        <a class="dropdown-toggle" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <img src="~/svg/action/more.svg" />
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right shadow" aria-labelledby="dropdownMenuLink">
+                            <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="EditTemplate" data-title="Edit template">
+                                <img src="~/svg/action/edit.svg" />
+                                Edit
                             </a>
-                            <div class="dropdown-menu dropdown-menu-right shadow" aria-labelledby="dropdownMenuLink">
-                                <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="EditTemplate" data-title="Edit template">
-                                    <img src="~/svg/action/edit.svg" />
-                                    Edit
-                                </a>
-                                <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="DeleteTemplate" data-title="Delete template">
-                                    <img src="~/svg/action/delete.svg" />
-                                    Delete
-                                </a>
-                            </div>
+                            <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="DeleteTemplate" data-title="Delete template">
+                                <img src="~/svg/action/delete.svg" />
+                                Delete
+                            </a>
                         </div>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
 
-    @* Bottom table items *@
-    <div class="row mt-2">
-        <div class="col-sm-12 col-md-auto d-flex justify-content-start align-items-center mb-1">
-            <span class="d-flex align-items-center mr-1 text-navyblue">Show entries</span>
-            <div id="entries_place"></div>
-        </div>
-        <div id="showing_place" class="col-sm-12 col-md d-flex justify-content-md-center align-items-center mb-1 text-navyblue"></div>
-        <div id="pagination_place" class="col-sm-12 col-md-auto d-flex justify-content-md-end align-items-center mb-1"></div>
+@* Bottom table items *@
+<div class="row mt-2">
+    <div class="col d-flex justify-content-center justify-content-lg-start align-items-center mb-1 text-nowrap">
+        <span class="d-flex align-items-center mr-1 text-navyblue">Show entries</span>
+        <div id="entries_place"></div>
     </div>
+    <div id="showing_place" class="col d-flex justify-content-center align-items-center mb-1 text-navyblue text-nowrap"></div>
+    <div id="pagination_place" class="col d-flex justify-content-center justify-content-lg-end align-items-center mb-1"></div>
 </div>
-
 
 @* Modal *@
 <div class="modal" id="modalDialog" tabindex="-1" role="dialog" aria-labelledby="modalDialogTitle" aria-hidden="true">
@@ -135,6 +132,7 @@
         // Init DataTables
         var table_name = '#templates';
         $(table_name).DataTable({
+            responsive: true,
             "columnDefs": [
                 { "orderable": false, "targets": 3 }
             ]
@@ -170,7 +168,7 @@
                 async: true,
                 success: function (response) {
                     $("#modalBody").html(response);
-                                        
+
                     // Validation partial view
                     $('form').removeData('validator');
                     $('form').removeData('unobtrusiveValidation');

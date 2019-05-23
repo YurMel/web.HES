@@ -25,104 +25,110 @@
     </div>
 </div>
 
-<div class="table-responsive">
-    <table id="devices" class="display table table-hover border rounded" style="width:100%">
-        <thead>
+@*<div class="table-responsive">*@
+<table id="devices" class="display table table-hover border rounded" style="width:100%">
+    <thead>
+        <tr>
+            <th data-priority="1">
+                @Html.DisplayNameFor(model => model.Devices[0].Id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Devices[0].MAC)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Devices[0].Model)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Devices[0].RFID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Devices[0].Battery)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Devices[0].Firmware)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Devices[0].LastSynced)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Devices[0].Employee)
+            </th>
+            <th class="table-col-menu" data-priority="2"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Devices)
+        {
             <tr>
-                <th>
-                    @Html.DisplayNameFor(model => model.Devices[0].Id)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Devices[0].MAC)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Devices[0].Model)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Devices[0].RFID)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Devices[0].Battery)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Devices[0].Firmware)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Devices[0].LastSynced)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Devices[0].Employee)
-                </th>
-                <th class="table-col-menu"></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model.Devices)
-            {
-                <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Id)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.MAC)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Model)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.RFID)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Battery)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Firmware)
-                    </td>
-                    <td>
-                        @if (item.LastSynced != null)
-                        {
-                            @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.LastSynced, TimeZoneInfo.Local)
-                        }
-                        else
-                        {
-                            <span>-</span>
-                        }
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Employee.FullName)
-                    </td>
-                    <td>
-                        <div class="dropdown no-arrow">
-                            <a class="dropdown-toggle" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <img src="~/svg/action/more.svg" />
+                <td>
+                    @Html.DisplayFor(modelItem => item.Id)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.MAC)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Model)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RFID)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Battery)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Firmware)
+                </td>
+                <td>
+                    @if (item.LastSynced != null)
+                    {
+                        @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.LastSynced, TimeZoneInfo.Local)
+                    }
+                    else
+                    {
+                        <span>-</span>
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Employee.FullName)
+                </td>
+                <td>
+                    <div class="dropdown no-arrow">
+                        <a class="dropdown-toggle" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <img src="~/svg/action/more.svg" />
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right shadow" aria-labelledby="dropdownMenuLink">
+                            <form method="post">
+                                <input hidden value="@item.Id" name="id" />
+                                <input type="submit" value="PING" class="btn btn-primary" asp-page-handler="Ping" style="width:158px;" />
+                            </form>
+                            <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="EditDeviceRfid" data-title="Edit device RFID">
+                                <img src="~/svg/action/edit.svg" />
+                                Edit RFID
                             </a>
-                            <div class="dropdown-menu dropdown-menu-right shadow" aria-labelledby="dropdownMenuLink">
-                                <form method="post">
-                                    <input hidden value="@item.Id" name="id" />
-                                    <input type="submit" value="PING" class="btn btn-primary" asp-page-handler="Ping" style="width:158px;" />
-                                </form>
-                                <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="EditDeviceRfid" data-title="Edit device RFID">
-                                    <img src="~/svg/action/edit.svg" />
-                                    Edit RFID
-                                </a>
-                            </div>
                         </div>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
 
-    @* Bottom table items *@
-    <div class="row mt-2">
-        <div class="col-sm-12 col-md-auto d-flex justify-content-start align-items-center mb-1">
+@* Bottom table items *@
+<div class="row mt-2">
+    @*<div class="col-sm-12 col-md-auto d-flex justify-content-start align-items-center mb-1">
             <span class="d-flex align-items-center mr-1 text-navyblue">Show entries</span>
             <div id="entries_place"></div>
-        </div>
-        <div id="showing_place" class="col-sm-12 col-md d-flex justify-content-md-center align-items-center mb-1 text-navyblue"></div>
-        <div id="pagination_place" class="col-sm-12 col-md-auto d-flex justify-content-md-end align-items-center mb-1"></div>
+        </div>*@
+    @*<div id="showing_place" class="col-sm-12 col-md d-flex justify-content-md-center align-items-center mb-1 text-navyblue"></div>*@
+    @*<div id="pagination_place" class="col-sm-12 col-md-auto d-flex justify-content-md-end align-items-center mb-1"></div>*@
+    <div class="col d-flex justify-content-center justify-content-lg-start align-items-center mb-1 text-nowrap">
+        <span class="d-flex align-items-center mr-1 text-navyblue">Show entries</span>
+        <div id="entries_place"></div>
     </div>
+    <div id="showing_place" class="col d-flex justify-content-center align-items-center mb-1 text-navyblue text-nowrap"></div>
+    <div id="pagination_place" class="col d-flex justify-content-center justify-content-lg-end align-items-center mb-1"></div>
 </div>
+@*</div>*@
 
 @* Modal *@
 <div class="modal" id="modalDialog" tabindex="-1" role="dialog" aria-labelledby="modalDialogTitle" aria-hidden="true">
@@ -150,6 +156,7 @@
         // Init DataTables
         var table_name = '#devices';
         $(table_name).DataTable({
+            responsive: true,
             "columnDefs": [
                 { "orderable": false, "targets": 8 }
             ]
