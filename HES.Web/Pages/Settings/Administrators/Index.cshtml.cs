@@ -17,6 +17,7 @@ namespace HES.Web.Pages.Settings.Administrators
     {
         private readonly IApplicationUserService _applicationUserService;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IEmailSender _emailSender;
         private readonly ILogger<IndexModel> _logger;
 
@@ -40,11 +41,13 @@ namespace HES.Web.Pages.Settings.Administrators
 
         public IndexModel(IApplicationUserService applicationUserService,
                           UserManager<ApplicationUser> userManager,
+                          SignInManager<ApplicationUser> signInManager,
                           IEmailSender emailSender,
                           ILogger<IndexModel> logger)
         {
             _applicationUserService = applicationUserService;
             _userManager = userManager;
+            _signInManager = signInManager;
             _emailSender = emailSender;
             _logger = logger;
         }
@@ -115,6 +118,12 @@ namespace HES.Web.Pages.Settings.Administrators
                 return NotFound();
             }
 
+            var users = await _applicationUserService.GetAllAsync();
+            if (users.Count == 1)
+            {
+                return Partial("_Error", this);
+            }
+
             ApplicationUser = await _applicationUserService.GetFirstOrDefaultAsync(id);
 
             if (ApplicationUser == null)
@@ -136,8 +145,15 @@ namespace HES.Web.Pages.Settings.Administrators
 
             try
             {
+                var user = await _userManager.GetUserAsync(User);
+
                 await _applicationUserService.DelateAdminAsync(id);
-                //StatusMessage = "Removal was successful";
+
+                if (user.Id == id)
+                {
+                    await _signInManager.SignOutAsync();
+                    _logger.LogInformation($"User {user.Email} deleted himself");
+                }
             }
             catch (Exception ex)
             {
