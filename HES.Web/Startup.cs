@@ -56,9 +56,17 @@ namespace HES.Web
                 var deviceTaskRepository = scope.ServiceProvider.GetService<IAsyncRepository<DeviceTask>>();
                 var deviceRepository = scope.ServiceProvider.GetService<IAsyncRepository<Device>>();
                 var dataProtectionProvider = scope.ServiceProvider.GetService<IDataProtectionProvider>();
+                var notificationService = scope.ServiceProvider.GetService<INotificationService>();
                 var logger = scope.ServiceProvider.GetService<ILogger<DataProtectionService>>();
-                return new DataProtectionService(dataProtectionRepository, deviceRepository, deviceTaskRepository, sharedAccountRepository, dataProtectionProvider, logger);
+                return new DataProtectionService(dataProtectionRepository, deviceRepository, deviceTaskRepository, sharedAccountRepository, dataProtectionProvider, notificationService, logger);
             });
+            services.AddSingleton<INotificationService, NotificationService>(s =>
+            {
+                var scope = s.CreateScope();
+                var logger = scope.ServiceProvider.GetService<ILogger<NotificationService>>();
+                return new NotificationService(logger);
+            });
+
 
             // Crypto
             services.AddTransient<IAesCryptography, AesCryptography>();
@@ -112,6 +120,7 @@ namespace HES.Web
                     options.Conventions.AuthorizeFolder("/Devices");
                     options.Conventions.AuthorizeFolder("/Settings");
                     options.Conventions.AuthorizeFolder("/Logs");
+                    options.Conventions.AuthorizeFolder("/Notifications");
                 })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 

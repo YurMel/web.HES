@@ -26,6 +26,7 @@ namespace HES.Core.Services
         private readonly IAsyncRepository<DeviceTask> _deviceTaskRepository;
         private readonly IAsyncRepository<SharedAccount> _sharedAccountRepository;
         private readonly IDataProtectionProvider _dataProtectionProvider;
+        private readonly INotificationService _notificationService;
         private readonly ILogger<DataProtectionService> _logger;
         private IDataProtector _dataProtector;
         private bool _enabledProtection;
@@ -37,6 +38,7 @@ namespace HES.Core.Services
                                      IAsyncRepository<DeviceTask> deviceTaskRepository,
                                      IAsyncRepository<SharedAccount> sharedAccountRepository,
                                      IDataProtectionProvider dataProtectionProvider,
+                                     INotificationService notificationService,
                                      ILogger<DataProtectionService> logger)
         {
             _dataProtectionRepository = dataProtectionRepository;
@@ -44,6 +46,7 @@ namespace HES.Core.Services
             _deviceTaskRepository = deviceTaskRepository;
             _sharedAccountRepository = sharedAccountRepository;
             _dataProtectionProvider = dataProtectionProvider;
+            _notificationService = notificationService;
             _logger = logger;
         }
 
@@ -53,6 +56,11 @@ namespace HES.Core.Services
             if (appSettings?.ProtectedValue != null)
             {
                 _enabledProtection = true;
+                var status = GetStatus();
+                if (status == ProtectionStatus.WaitingForActivation)
+                {
+                    _notificationService.AddNotify(NotifyId.data_protection, "Data protection is enabled and requires activation.", "/Settings/DataProtection/Index");
+                }
             }
             else
             {
@@ -105,6 +113,7 @@ namespace HES.Core.Services
                 // Create protector
                 _dataProtector = _dataProtectionProvider.CreateProtector(password);
                 _activatedProtection = true;
+                _notificationService.RemoveNotify(NotifyId.data_protection);
             }
             catch (CryptographicException)
             {

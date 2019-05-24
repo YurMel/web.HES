@@ -622,3 +622,99 @@ div.dataTables_scrollHead table.dataTable {
     z-index: 500;
 }
 /*#endregion*/
+
+/*#region Notification */
+.notification {
+    display: inline-block;
+    position: relative;
+}
+
+    .notification::before {
+        display: block;
+        content: url('../svg/account/bell.svg');
+        transform-origin: top center;
+        width: 24px;
+        height: 24px;
+    }
+
+    .notification.notify::before {
+        -webkit-animation: ring 2.5s infinite;
+        animation: ring 2.5s infinite;
+    }
+
+@-webkit-keyframes ring {
+    0% {
+        -webkit-transform: rotate(0deg);
+    }
+
+    12.5% {
+        -webkit-transform: rotate(-30deg);
+    }
+
+    25% {
+        -webkit-transform: rotate(25deg);
+    }
+
+    37.5% {
+        -webkit-transform: rotate(-20deg);
+    }
+
+    50% {
+        -webkit-transform: rotate(15deg);
+    }
+
+    62.5% {
+        -webkit-transform: rotate(-10deg);
+    }
+
+    75% {
+        -webkit-transform: rotate(5deg);
+    }
+
+    100% {
+        -webkit-transform: rotate(0deg);
+    }
+}
+
+@keyframes ring {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+
+    12.5% {
+        -webkit-transform: rotate(-30deg);
+        transform: rotate(-30deg);
+    }
+
+    25% {
+        -webkit-transform: rotate(25deg);
+        transform: rotate(25deg);
+    }
+
+    37.5% {
+        -webkit-transform: rotate(-20deg);
+        transform: rotate(-20deg);
+    }
+
+    50% {
+        -webkit-transform: rotate(15deg);
+        transform: rotate(15deg);
+    }
+
+    62.5% {
+        -webkit-transform: rotate(-10deg);
+        transform: rotate(-10deg);
+    }
+
+    75% {
+        -webkit-transform: rotate(5deg);
+        transform: rotate(5deg);
+    }
+
+    100% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+}
+/*#endregion*/
