@@ -5,6 +5,10 @@ for details on configuring this project to bundle and minify static web assets. 
 .bg-white {
     background: #fff;
 }
+
+.border-navyblue {
+    border-color: #0E3059 !important;
+}
 /*#endregion*/
 
 /*#region Text color */
@@ -627,20 +631,19 @@ div.dataTables_scrollHead table.dataTable {
 .notification {
     display: inline-block;
     position: relative;
+    background: #0E3059;
+    width: 24px;
+    height: 24px;
+    -webkit-mask: url('../svg/account/bell.svg');
+    mask: url('../svg/account/bell.svg');
+    transform-origin: top center;
 }
 
-    .notification::before {
-        display: block;
-        content: url('../svg/account/bell.svg');
-        transform-origin: top center;
-        width: 24px;
-        height: 24px;
-    }
-
-    .notification.notify::before {
-        -webkit-animation: ring 2.5s infinite;
-        animation: ring 2.5s infinite;
-    }
+.notify {
+    -webkit-animation: ring 2.5s infinite;
+    animation: ring 2.5s infinite;
+    background: #ff0000;
+}
 
 @-webkit-keyframes ring {
     0% {
