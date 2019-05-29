@@ -21,6 +21,31 @@ namespace HES.Web
     {
         public Startup(IConfiguration configuration)
         {
+            var server = configuration["MYSQL_SRV"];
+            var port = configuration["MYSQL_PORT"];
+            var uid = configuration["MYSQL_UID"];
+            var pwd = configuration["MYSQL_PWD"];
+
+            if (server != null && port != null && uid != null && pwd != null)
+            {
+                configuration["ConnectionStrings:DefaultConnection"] = $"server={server};port={port};database=HES;uid={uid};pwd={pwd}";
+            }
+
+            var email_host = configuration["EMAIL_HOST"];
+            var email_port = configuration["EMAIL_PORT"];
+            var email_ssl = configuration["EMAIL_SSL"];
+            var email_user = configuration["EMAIL_USER"];
+            var email_pwd = configuration["EMAIL_PWD"];
+
+            if (email_host != null && email_port != null && email_ssl != null && email_user != null && email_pwd != null)
+            {
+                configuration["EmailSender:Host"] = email_host;
+                configuration["EmailSender:Port"] = email_port;
+                configuration["EmailSender:EnableSSL"] = email_ssl;
+                configuration["EmailSender:UserName"] = email_user;
+                configuration["EmailSender:Password"] = email_pwd;
+            }
+
             Configuration = configuration;
         }
 
@@ -158,8 +183,8 @@ namespace HES.Web
             using (var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
                 // Apply migration
-                //var context = scope.ServiceProvider.GetService<ApplicationDbContext>();
-                //context.Database.Migrate();
+                var context = scope.ServiceProvider.GetService<ApplicationDbContext>();
+                context.Database.Migrate();
                 // Create admin if first run
                 var userManager = scope.ServiceProvider.GetService<UserManager<ApplicationUser>>();
                 var roleManager = scope.ServiceProvider.GetService<RoleManager<IdentityRole>>();
