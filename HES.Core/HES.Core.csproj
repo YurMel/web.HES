@@ -12,7 +12,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\win.SDK\Communication\Communication.csproj" />
+    <Reference Include="Communication">
+      <HintPath>..\Communication.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>
