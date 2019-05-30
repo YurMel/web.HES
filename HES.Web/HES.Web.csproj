@@ -29,17 +29,15 @@
 
 
   <ItemGroup>
-    <Reference Include="Communication">
-      <HintPath>..\Communication.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
-  </ItemGroup>
-
-
-  <ItemGroup>
     <Content Update="nlog.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Crypto.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
