@@ -97,10 +97,6 @@
                             <img src="~/svg/action/more.svg" />
                         </a>
                         <div class="dropdown-menu dropdown-menu-right shadow" aria-labelledby="dropdownMenuLink">
-                            <form method="post">
-                                <input hidden value="@item.Id" name="id" />
-                                <input type="submit" value="PING" class="btn btn-primary" asp-page-handler="Ping" style="width:158px;" />
-                            </form>
                             <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="EditDeviceRfid" data-title="Edit device RFID">
                                 <img src="~/svg/action/edit.svg" />
                                 Edit RFID
