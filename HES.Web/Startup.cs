@@ -185,10 +185,10 @@ namespace HES.Web
                 // Apply migration
                 var context = scope.ServiceProvider.GetService<ApplicationDbContext>();
                 context.Database.Migrate();
-                // Create admin if first run
+                // Db seed if first run
                 var userManager = scope.ServiceProvider.GetService<UserManager<ApplicationUser>>();
                 var roleManager = scope.ServiceProvider.GetService<RoleManager<IdentityRole>>();
-                new ApplicationDbSeed(userManager, roleManager).Initialize();
+                new ApplicationDbSeed(context, userManager, roleManager).Initialize();
                 // Get status of data protection
                 var dataProtectionService = scope.ServiceProvider.GetService<IDataProtectionService>();
                 dataProtectionService.Status();
