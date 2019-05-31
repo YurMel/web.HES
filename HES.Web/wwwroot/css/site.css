@@ -22,58 +22,6 @@ for details on configuring this project to bundle and minify static web assets. 
 /*#endregion*/
 
 /* #region Override colors */
-/*a {
-    color: #0396D6;
-}
-
-    a:hover {
-        color: #027EB2;
-    }
-
-.btn-primary {
-    color: #fff;
-    background-color: #0396D6;
-    border-color: #0396D6;
-}
-
-    .btn-primary:hover {
-        color: #fff;
-        background-color: #027EB2;
-        border-color: #027EB2;
-    }
-
-    .btn-primary:focus, .btn-primary.focus {
-        box-shadow: 0 0 0 0.2rem rgba(2, 126, 178, 0.5);
-    }
-
-    .btn-primary:not(:disabled):not(.disabled):active, .btn-primary:not(:disabled):not(.disabled).active,
-    .show > .btn-primary.dropdown-toggle {
-        color: #fff;
-        background-color: #027EB2;
-        border-color: #027EB2;
-    }
-
-.nav-pills .nav-link {
-    color: #0396D6;
-}
-
-    .nav-pills .nav-link.active,
-    .nav-pills .show > .nav-link {
-        color: #fff;
-        background-color: #0396D6;
-    }
-
-.btn-link {
-    font-weight: 400;
-    color: #0396D6;
-    text-decoration: none;
-}
-
-    .btn-link:hover {
-        color: #027EB2;
-        text-decoration: underline;
-    }
-    */
 .dropdown-item:hover, .dropdown-item:focus {
     color: #16181b;
     text-decoration: none;
@@ -87,7 +35,6 @@ for details on configuring this project to bundle and minify static web assets. 
     background-color: #E7EAEE;
     cursor: pointer;
 }
-
 /*
 .page-link {
     color: #0396D6;
@@ -380,22 +327,8 @@ td {
     width: 24px;
 }
 
-/* Custom pagination */
 .pagination {
     margin: 0;
-}
-
-.has-search .form-control-feedback {
-    position: absolute;
-    right: 18px;
-    z-index: 2;
-    display: block;
-    width: 18px;
-    height: 18px;
-    text-align: center;
-    pointer-events: none;
-    top: 50%;
-    transform: translateY(-50%);
 }
 
 /* Input with icon */
@@ -719,5 +652,81 @@ div.dataTables_scrollHead table.dataTable {
         -webkit-transform: rotate(0deg);
         transform: rotate(0deg);
     }
+}
+/*#endregion*/
+
+/*#region Icons*/
+.icon-hideez {
+    width: 191px;
+    height: 34px;
+    background: #FFF;
+    -webkit-mask: url('../svg/hideez-full.svg');
+    mask: url('../svg/hideez-full.svg');
+}
+
+@media (max-width: 768px) {
+    .icon-hideez {
+        width: 35px;
+        -webkit-mask: url('../svg/hideez-logo.svg');
+        mask: url('../svg/hideez-logo.svg');
+    }
+}
+
+/* Sidebar */
+.icon-dashboard {
+    width: 24px;
+    height: 24px;
+    background: #FFF;
+    -webkit-mask: url('../svg/sidebar/round-dashboard.svg');
+    mask: url('../svg/sidebar/round-dashboard.svg');
+}
+
+.icon-employees {
+    width: 24px;
+    height: 24px;
+    background: #FFF;
+    -webkit-mask: url('../svg/sidebar/round-supervisor_account.svg');
+    mask: url('../svg/sidebar/round-supervisor_account.svg');
+}
+
+.icon-shared-accounts {
+    width: 24px;
+    height: 24px;
+    background: #FFF;
+    -webkit-mask: url('../svg/sidebar/round-shared_account.svg');
+    mask: url('../svg/sidebar/round-shared_account.svg');
+}
+
+.icon-templates {
+    width: 24px;
+    height: 24px;
+    background: #FFF;
+    -webkit-mask: url('../svg/sidebar/round-list.svg');
+    mask: url('../svg/sidebar/round-list.svg');
+}
+
+.icon-devices {
+    width: 24px;
+    height: 24px;
+    background: #FFF;
+    -webkit-mask: url('../svg/sidebar/round-device.svg');
+    mask: url('../svg/sidebar/round-device.svg');
+}
+
+.icon-settings {
+    width: 24px;
+    height: 24px;
+    background: #FFF;
+    -webkit-mask: url('../svg/sidebar/round-settings.svg');
+    mask: url('../svg/sidebar/round-settings.svg');
+}
+
+.icon-arrow {
+    width: 24px;
+    height: 24px;
+    float: right;
+    background: #FFF;
+    -webkit-mask: url('../svg/sidebar/arrow_drop.svg');
+    mask: url('../svg/sidebar/arrow_drop.svg');
 }
 /*#endregion*/
