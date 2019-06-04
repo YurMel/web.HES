@@ -15,6 +15,9 @@ namespace HES.Web.Pages.Logs
         public FileModel AllLogFile { get; set; }
         public string CurrentName { get; set; }
 
+        [TempData]
+        public string ErrorMessage { get; set; }
+
         public void OnGet()
         {
             GetFiles();
@@ -50,21 +53,32 @@ namespace HES.Web.Pages.Logs
 
         private void GetFiles()
         {
-            var location = System.Reflection.Assembly.GetEntryAssembly().Location;
-            var directory = System.IO.Path.GetDirectoryName(location);
-            var info = new DirectoryInfo(directory + @"\logs");
-            FileInfo[] fileInfo = info.GetFiles("*.log");
-
-            foreach (var item in fileInfo)
+            try
             {
-                if (item.Name.StartsWith("hes-log-own"))
+                var location = System.Reflection.Assembly.GetEntryAssembly().Location;
+                //ErrorMessage += $"location {location} {Environment.NewLine}";
+                var directory = System.IO.Path.GetDirectoryName(location);
+                //ErrorMessage += $"directory {directory} {Environment.NewLine}";
+                var folder = Path.Combine(directory, "logs");
+                //ErrorMessage += $"folder {folder} {Environment.NewLine}";
+                var info = new DirectoryInfo(folder);
+                FileInfo[] fileInfo = info.GetFiles("*.log");
+
+                foreach (var item in fileInfo)
                 {
-                    OwnLogs.Add(new FileModel() { Name = item.Name, Path = item.FullName });
+                    if (item.Name.StartsWith("hes-log-own"))
+                    {
+                        OwnLogs.Add(new FileModel() { Name = item.Name, Path = item.FullName });
+                    }
+                    else
+                    {
+                        AllLogs.Add(new FileModel() { Name = item.Name, Path = item.FullName });
+                    }
                 }
-                else
-                {
-                    AllLogs.Add(new FileModel() { Name = item.Name, Path = item.FullName });
-                }
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage += ex.Message;
             }
         }
 

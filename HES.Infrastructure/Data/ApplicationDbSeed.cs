@@ -77,7 +77,7 @@ namespace HES.Infrastructure
             devices.Add(new Device { Id = "ST10102180105066", MAC = "F7:14:09:19:6E:0A", Model = "ST101", RFID = "3D3U15XYUD", Battery = 0, Firmware = null, LastSynced = null, EmployeeId = null, PrimaryAccountId = null, MasterPassword = null, ImportedAt = DateTime.Now });
             devices.Add(new Device { Id = "ST10102180105067", MAC = "D4:1B:57:7D:01:7F", Model = "ST101", RFID = "OL8ZB9UUS1", Battery = 0, Firmware = null, LastSynced = null, EmployeeId = null, PrimaryAccountId = null, MasterPassword = null, ImportedAt = DateTime.Now });
             devices.Add(new Device { Id = "ST10102180105068", MAC = "D8:B6:17:45:71:4C", Model = "ST101", RFID = "D0CY4JAZT8", Battery = 0, Firmware = null, LastSynced = null, EmployeeId = null, PrimaryAccountId = null, MasterPassword = null, ImportedAt = DateTime.Now });
-            await _context.AddRangeAsync(devices);
+            //await _context.AddRangeAsync(devices);
             // Add positions
             var positions = new List<Position>();
             positions.Add(new Position { Id = "0", Name = "Chief Executive Officer(CEO)" });
