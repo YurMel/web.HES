@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.FileProviders;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,15 +10,23 @@ namespace HES.Web.Pages.Logs
 {
     public class IndexModel : PageModel
     {
+        //private readonly IHostingEnvironment _hostingEnvironment;
+        //private readonly IFileProvider _fileProvider = new PhysicalFileProvider(Directory.GetCurrentDirectory());
+        //public IDirectoryContents DirectoryContents { get; private set; }
+
         public List<FileModel> OwnLogs { get; set; } = new List<FileModel>();
         public List<FileModel> AllLogs { get; set; } = new List<FileModel>();
         public List<StructureModel> CurrentLog { get; set; } = new List<StructureModel>();
         public FileModel OwnLogFile { get; set; }
         public FileModel AllLogFile { get; set; }
         public string CurrentName { get; set; }
-
         [TempData]
         public string ErrorMessage { get; set; }
+
+        //public IndexModel(IHostingEnvironment hostingEnvironment)
+        //{
+        //    _hostingEnvironment = hostingEnvironment;
+        //}
 
         public void OnGet()
         {
@@ -55,12 +65,21 @@ namespace HES.Web.Pages.Logs
         {
             try
             {
+                //string physicalPath = string.Empty;
+                //if (_hostingEnvironment.IsDevelopment())
+                //{
+                //    physicalPath = Path.Combine(AppContext.BaseDirectory.Substring(AppContext.BaseDirectory.IndexOf("bin")), "logs");
+                //    DirectoryContents = _fileProvider.GetDirectoryContents(physicalPath);
+                //}
+                //else
+                //{
+                //    physicalPath = "logs";
+                //    DirectoryContents = _fileProvider.GetDirectoryContents(physicalPath);
+                //}
+
                 var location = System.Reflection.Assembly.GetEntryAssembly().Location;
-                //ErrorMessage += $"location {location} {Environment.NewLine}";
-                var directory = System.IO.Path.GetDirectoryName(location);
-                //ErrorMessage += $"directory {directory} {Environment.NewLine}";
+                var directory = Path.GetDirectoryName(location);
                 var folder = Path.Combine(directory, "logs");
-                //ErrorMessage += $"folder {folder} {Environment.NewLine}";
                 var info = new DirectoryInfo(folder);
                 FileInfo[] fileInfo = info.GetFiles("*.log");
 
@@ -75,6 +94,22 @@ namespace HES.Web.Pages.Logs
                         AllLogs.Add(new FileModel() { Name = item.Name, Path = item.FullName });
                     }
                 }
+
+                //foreach (var item in DirectoryContents)
+                //{
+
+                //    //var logsArray = System.IO.File.ReadAllLines(item.PhysicalPath);
+                //    //var logsConcat = String.Concat(logsArray);
+                //    //var logsSeparated = logsConcat.Split(separator + " ");
+                //    if (item.Name.StartsWith("hes-log-own"))
+                //    {
+                //        OwnLogs.Add(new FileModel() { Name = item.Name, Path = item.PhysicalPath });
+                //    }
+                //    else
+                //    {
+                //        AllLogs.Add(new FileModel() { Name = item.Name, Path = item.PhysicalPath });
+                //    }
+                //}
             }
             catch (Exception ex)
             {
