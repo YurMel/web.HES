@@ -171,7 +171,14 @@ namespace HES.Core.Services
             {
                 throw new Exception($"Device does not exist, ID: {deviceId}.");
             }
-            await _deviceRepository.UpdateOnlyPropAsync(new Device { Id = deviceId, PrimaryAccountId = deviceAccountId }, new string[] { "PrimaryAccountId" });
+            // Update Device Account
+            var deviceAccount = await _deviceAccountRepository.GetByIdAsync(deviceAccountId);
+            deviceAccount.Status = AccountStatus.Updating;
+            deviceAccount.UpdatedAt = DateTime.UtcNow;
+            string[] properties = { "Status", "UpdatedAt" };
+            // Add task
+            await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties);
+            await _remoteTaskService.AddTaskAsync(new DeviceTask() { Operation = TaskOperation.Primary, CreatedAt = DateTime.UtcNow, DeviceId = device.Id, DeviceAccountId = deviceAccountId });
         }
 
         public async Task AddDeviceAsync(string employeeId, string[] selectedDevices)

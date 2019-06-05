@@ -100,7 +100,7 @@ namespace HES.Core.Services
 
             await AddTaskAsync(new DeviceTask { Password = _dataProtectionService.Protect(device.MasterPassword), CreatedAt = DateTime.UtcNow, Operation = TaskOperation.Wipe, DeviceId = device.Id });
         }
-
+        
         private void ExecuteTask(DeviceTask deviceTask)
         {
             Task.Run(async () =>
@@ -144,65 +144,68 @@ namespace HES.Core.Services
             // Account for update
             var deviceAccount = deviceTask.DeviceAccount;
 
-            List<string> properties = new List<string>() { "Status", "LastSyncedAt" };
-            deviceAccount.Status = AccountStatus.Done;
-            deviceAccount.LastSyncedAt = DateTime.UtcNow;
-            deviceAccount.IdFromDevice = idFromDevice;
-
-            // Set value depending on the operation
-            switch (deviceTask.Operation)
+            if (deviceAccount != null)
             {
-                case TaskOperation.Create:
-                    properties.Add("IdFromDevice");
-                    // Update account
-                    await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties.ToArray());
-                    break;
-                case TaskOperation.Update:
-                    if (deviceTask.Name != null)
-                    {
-                        deviceAccount.Name = deviceTask.Name;
-                        properties.Add("Name");
-                    }
-                    if (deviceTask.Urls != null)
-                    {
-                        deviceAccount.Urls = deviceTask.Urls;
-                        properties.Add("Urls");
-                    }
-                    if (deviceTask.Apps != null)
-                    {
-                        deviceAccount.Apps = deviceTask.Apps;
-                        properties.Add("Apps");
-                    }
-                    if (deviceTask.Login != null)
-                    {
-                        deviceAccount.Login = deviceTask.Login;
-                        properties.Add("Login");
-                    }
-                    if (deviceTask.Password != null)
-                    {
-                        deviceAccount.PasswordUpdatedAt = DateTime.UtcNow;
-                        properties.Add("PasswordUpdatedAt");
-                    }
-                    if (deviceTask.OtpSecret != null)
-                    {
-                        deviceAccount.OtpUpdatedAt = deviceTask.OtpSecret != string.Empty ? new DateTime?(DateTime.UtcNow) : null;
-                        properties.Add("OtpUpdatedAt");
-                    }
-                    // Update account
-                    await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties.ToArray());
-                    break;
-                case TaskOperation.Delete:
-                    deviceAccount.Deleted = true;
-                    properties.Add("Deleted");
-                    // Update account
-                    await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties.ToArray());
-                    break;
-                case TaskOperation.Wipe:
-                    var device = await _deviceRepository.GetByIdAsync(deviceTask.DeviceId);
-                    device.MasterPassword = null;
-                    // Update device
-                    await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "MasterPassword" });
-                    break;
+                List<string> properties = new List<string>() { "Status", "LastSyncedAt" };
+                deviceAccount.Status = AccountStatus.Done;
+                deviceAccount.LastSyncedAt = DateTime.UtcNow;
+                deviceAccount.IdFromDevice = idFromDevice;
+
+                // Set value depending on the operation
+                switch (deviceTask.Operation)
+                {
+                    case TaskOperation.Create:
+                        properties.Add("IdFromDevice");
+                        await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties.ToArray());
+                        break;
+                    case TaskOperation.Update:
+                        if (deviceTask.Name != null)
+                        {
+                            deviceAccount.Name = deviceTask.Name;
+                            properties.Add("Name");
+                        }
+                        if (deviceTask.Urls != null)
+                        {
+                            deviceAccount.Urls = deviceTask.Urls;
+                            properties.Add("Urls");
+                        }
+                        if (deviceTask.Apps != null)
+                        {
+                            deviceAccount.Apps = deviceTask.Apps;
+                            properties.Add("Apps");
+                        }
+                        if (deviceTask.Login != null)
+                        {
+                            deviceAccount.Login = deviceTask.Login;
+                            properties.Add("Login");
+                        }
+                        if (deviceTask.Password != null)
+                        {
+                            deviceAccount.PasswordUpdatedAt = DateTime.UtcNow;
+                            properties.Add("PasswordUpdatedAt");
+                        }
+                        if (deviceTask.OtpSecret != null)
+                        {
+                            deviceAccount.OtpUpdatedAt = deviceTask.OtpSecret != string.Empty ? new DateTime?(DateTime.UtcNow) : null;
+                            properties.Add("OtpUpdatedAt");
+                        }
+                        await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties.ToArray());
+                        break;
+                    case TaskOperation.Delete:
+                        deviceAccount.Deleted = true;
+                        properties.Add("Deleted");
+                        await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties.ToArray());
+                        break;
+                    case TaskOperation.Primary:
+                        await _deviceRepository.UpdateOnlyPropAsync(new Device { Id = deviceTask.DeviceId, PrimaryAccountId = deviceTask.DeviceAccountId }, new string[] { "PrimaryAccountId" });
+                        await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties.ToArray());
+                        break;
+                    case TaskOperation.Wipe:
+                        var device = await _deviceRepository.GetByIdAsync(deviceTask.DeviceId);
+                        device.MasterPassword = null;
+                        await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "MasterPassword" });
+                        break;
+                }
             }
             // Delete task
             await _deviceTaskRepository.DeleteAsync(deviceTask);
@@ -217,9 +220,11 @@ namespace HES.Core.Services
                     throw new Exception("Data protection not activated or is busy.");
                 }
 
-                var tasks = _deviceTaskRepository.Query()
-                    .Include(t => t.DeviceAccount)
-                    .Where(t => t.DeviceAccount.Device.MAC == deviceMac);
+                //var tasks = _deviceTaskRepository.Query()
+                //    .Include(t => t.DeviceAccount)
+                //    .Where(t => t.DeviceAccount.Device.MAC == deviceMac);
+                var currentDevice = await _deviceRepository.Query().Where(d => d.MAC == deviceMac).FirstOrDefaultAsync();
+                var tasks = _deviceTaskRepository.Query().Include(t => t.DeviceAccount).Where(t => t.DeviceId == currentDevice.Id);
 
                 if (tasks.Any())
                 {
@@ -269,7 +274,7 @@ namespace HES.Core.Services
 
         private async Task<ushort> AddDeviceAccount(RemoteDevice device, DeviceTask task)
         {
-            var dev = await _deviceRepository.GetByIdAsync(task.DeviceId);
+            var dev = await _deviceRepository.Query().Where(d => d.Id == task.DeviceId).AsNoTracking().FirstOrDefaultAsync();
             bool isPrimary = (dev.PrimaryAccountId == task.DeviceAccountId);
 
             var pm = new DevicePasswordManager(device);
@@ -282,7 +287,7 @@ namespace HES.Core.Services
 
         private async Task<ushort> UpdateDeviceAccount(RemoteDevice device, DeviceTask task)
         {
-            var dev = await _deviceRepository.GetByIdAsync(task.DeviceId);
+            var dev = await _deviceRepository.Query().Where(d => d.Id == task.DeviceId).AsNoTracking().FirstOrDefaultAsync();
             bool isPrimary = (dev.PrimaryAccountId == task.DeviceAccountId);
 
             var pm = new DevicePasswordManager(device);

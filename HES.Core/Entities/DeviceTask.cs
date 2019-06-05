@@ -30,6 +30,7 @@ namespace HES.Core.Entities
         Update = 2,
         Delete = 3,
         Link = 4,
-        Wipe = 5
+        Primary = 5,
+        Wipe = 6
     }
 }
