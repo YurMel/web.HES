@@ -300,7 +300,7 @@ namespace HES.Core.Services
 
         private async Task<ushort> DeleteDeviceAccount(RemoteDevice device, DeviceTask task)
         {
-            var dev = await _deviceRepository.GetByIdAsync(task.DeviceId);
+            var dev = await _deviceRepository.Query().Where(d => d.Id == task.DeviceId).AsNoTracking().FirstOrDefaultAsync();
             bool isPrimary = (dev.PrimaryAccountId == task.DeviceAccountId);
             var pm = new DevicePasswordManager(device);
             ushort key = (ushort)task.DeviceAccount.IdFromDevice;
