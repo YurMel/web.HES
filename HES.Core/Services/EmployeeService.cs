@@ -319,6 +319,8 @@ namespace HES.Core.Services
             // Create Device Task
             try
             {
+                deviceAccount.Urls = deviceAccount.Urls == null ? string.Empty : deviceAccount.Urls;
+                deviceAccount.Apps = deviceAccount.Apps == null ? string.Empty : deviceAccount.Apps;
                 await _remoteTaskService.AddTaskAsync(new DeviceTask { DeviceAccountId = deviceAccount.Id, Name = deviceAccount.Name, Urls = deviceAccount.Urls, Apps = deviceAccount.Apps, Login = deviceAccount.Login, Password = null, OtpSecret = null, CreatedAt = DateTime.UtcNow, Operation = TaskOperation.Update, DeviceId = deviceAccount.DeviceId });
             }
             catch (Exception ex)
@@ -381,6 +383,7 @@ namespace HES.Core.Services
             // Create Device Task
             try
             {
+                input.OtpSecret = input.OtpSecret == null ? string.Empty : input.OtpSecret;
                 await _remoteTaskService.AddTaskAsync(new DeviceTask { DeviceAccountId = deviceAccount.Id, OtpSecret = input.OtpSecret, CreatedAt = DateTime.UtcNow, Operation = TaskOperation.Update, DeviceId = deviceAccount.DeviceId });
             }
             catch (Exception ex)
