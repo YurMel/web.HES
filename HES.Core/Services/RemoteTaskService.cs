@@ -147,7 +147,7 @@ namespace HES.Core.Services
                 }
 
                 var currentDevice = await _deviceRepository.Query().Where(d => d.MAC == deviceMac).FirstOrDefaultAsync();
-                var tasks = _deviceTaskRepository.Query().Include(t => t.DeviceAccount).Where(t => t.DeviceId == currentDevice.Id);
+                var tasks = await _deviceTaskRepository.Query().Include(t => t.DeviceAccount).Where(t => t.DeviceId == currentDevice.Id).ToListAsync();
 
                 if (tasks.Any())
                 {
