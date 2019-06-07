@@ -40,7 +40,7 @@ namespace HES.Web.Pages.Logs
                 return RedirectToPage("./Index");
             }
 
-            CurrentLog = GetLog(OwnLogFile.Path, OwnLogFile.Separator, "own");
+            CurrentLog = GetCurrentLog(OwnLogFile.Path, OwnLogFile.Separator, "own");
             CurrentName = OwnLogFile.Name;
             GetFiles();
 
@@ -54,7 +54,7 @@ namespace HES.Web.Pages.Logs
                 return RedirectToPage("./Index");
             }
 
-            CurrentLog = GetLog(AllLogFile.Path, AllLogFile.Separator, "all");
+            CurrentLog = GetCurrentLog(AllLogFile.Path, AllLogFile.Separator, "all");
             CurrentName = AllLogFile.Name;
             GetFiles();
 
@@ -91,7 +91,7 @@ namespace HES.Web.Pages.Logs
                     }
                     else
                     {
-                        AllLogs.Add(new FileModel() { Name = item.Name, Path = item.FullName });
+                        //AllLogs.Add(new FileModel() { Name = item.Name, Path = item.FullName });
                     }
                 }
 
@@ -117,13 +117,12 @@ namespace HES.Web.Pages.Logs
             }
         }
 
-        private List<StructureModel> GetLog(string path, string separator, string type)
+        private List<StructureModel> GetCurrentLog(string path, string separator, string type)
         {
             List<StructureModel> list = new List<StructureModel>();
 
-            var logsArray = System.IO.File.ReadAllLines(path);
-            var logsConcat = String.Concat(logsArray);
-            var logsSeparated = logsConcat.Split(separator + " ");
+            var logs = System.IO.File.ReadAllText(path);
+            var logsSeparated = logs.Split(separator + " ");
 
             foreach (var item in logsSeparated)
             {
