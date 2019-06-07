@@ -482,7 +482,7 @@
                     $.validator.unobtrusive.parse('form');
 
                     // Init devices
-                    DevicesTable();
+                    InitDevicesTable();
 
                     // Enable tags
                     $("input[data-role=tagsinput], select[multiple][data-role=tagsinput]").tagsinput();
@@ -504,7 +504,7 @@
         });
 
         // Init devices
-        function DevicesTable() {
+        function InitDevicesTable() {
             var table_name = '#devices';
             $(table_name).DataTable({
                 "order": [[1, "asc"]],

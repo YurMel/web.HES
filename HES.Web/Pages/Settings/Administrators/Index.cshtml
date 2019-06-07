@@ -32,11 +32,6 @@
 <table id="users" class="display table table-hover border rounded" style="width:100%">
     <thead>
         <tr>
-            @*
-                <th>
-                    @Html.DisplayNameFor(model => model.ApplicationUser[0].UserName)
-                </th>
-            *@
             <th data-priority="1">
                 @Html.DisplayNameFor(model => model.ApplicationUsers[0].Email)
             </th>
@@ -56,11 +51,6 @@
         @foreach (var item in Model.ApplicationUsers)
         {
             <tr>
-                @*
-                    <td>
-                        @Html.DisplayFor(modelItem => item.UserName)
-                    </td>
-                *@
                 <td>
                     @Html.DisplayFor(modelItem => item.Email)
                 </td>
@@ -171,6 +161,7 @@
                 }
             });
         });
+
         // Clear content on modal hide
         $('#modalDialog').on('hidden.bs.modal', function (e) {
             $("#modalBody").html("<div class='d-flex justify-content-center align-items-center'><div class='spinner-grow text-primary' style='width: 3rem; height: 3rem;' role='status'><span class='sr-only'></span></div></div>");

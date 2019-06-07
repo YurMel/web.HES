@@ -136,6 +136,40 @@ namespace HES.Core.Services
                 });
             }
         }
+        
+        public async Task ExecuteRemoteTasks(string deviceMac)
+        {
+            try
+            {
+                if (!_dataProtectionService.CanUse())
+                {
+                    throw new Exception("Data protection not activated or is busy.");
+                }
+
+                var currentDevice = await _deviceRepository.Query().Where(d => d.MAC == deviceMac).FirstOrDefaultAsync();
+                var tasks = _deviceTaskRepository.Query().Include(t => t.DeviceAccount).Where(t => t.DeviceId == currentDevice.Id);
+
+                if (tasks.Any())
+                {
+                    var remoteDevice = await AppHub.EstablishRemoteConnection(deviceMac, 4);
+
+                    if (remoteDevice != null)
+                    {
+                        foreach (var task in tasks.OrderBy(x => x.CreatedAt))
+                        {
+                            task.Password = task.Password != null ? _dataProtectionService.Unprotect(task.Password) : null;
+                            task.OtpSecret = task.OtpSecret != null ? _dataProtectionService.Unprotect(task.OtpSecret) : null;
+                            var idFromDevice = await ExecuteRemoteTask(remoteDevice, task);
+                            await TaskCompleted(task.Id, idFromDevice);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+            }
+        }
 
         private async Task TaskCompleted(string taskId, ushort idFromDevice)
         {
@@ -209,43 +243,6 @@ namespace HES.Core.Services
             }
             // Delete task
             await _deviceTaskRepository.DeleteAsync(deviceTask);
-        }
-
-        public async Task ExecuteRemoteTasks(string deviceMac)
-        {
-            try
-            {
-                if (!_dataProtectionService.CanUse())
-                {
-                    throw new Exception("Data protection not activated or is busy.");
-                }
-
-                //var tasks = _deviceTaskRepository.Query()
-                //    .Include(t => t.DeviceAccount)
-                //    .Where(t => t.DeviceAccount.Device.MAC == deviceMac);
-                var currentDevice = await _deviceRepository.Query().Where(d => d.MAC == deviceMac).FirstOrDefaultAsync();
-                var tasks = _deviceTaskRepository.Query().Include(t => t.DeviceAccount).Where(t => t.DeviceId == currentDevice.Id);
-
-                if (tasks.Any())
-                {
-                    var remoteDevice = await AppHub.EstablishRemoteConnection(deviceMac, 4);
-
-                    if (remoteDevice != null)
-                    {
-                        foreach (var task in tasks.OrderBy(x => x.CreatedAt))
-                        {
-                            task.Password = task.Password != null ? _dataProtectionService.Unprotect(task.Password) : null;
-                            task.OtpSecret = task.OtpSecret != null ? _dataProtectionService.Unprotect(task.OtpSecret) : null;
-                            var idFromDevice = await ExecuteRemoteTask(remoteDevice, task);
-                            await TaskCompleted(task.Id, idFromDevice);
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-            }
         }
 
         private async Task<ushort> ExecuteRemoteTask(RemoteDevice device, DeviceTask task)
