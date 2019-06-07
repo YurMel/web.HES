@@ -78,12 +78,12 @@ namespace HES.Web.Areas.Identity.Pages.Account
 
             if (result.Succeeded)
             {
-                _logger.LogInformation("User with ID '{UserId}' logged in with 2fa.", user.Id);
+                _logger.LogInformation($"User {user.Email} logged in with 2fa.");
                 return LocalRedirect(returnUrl);
             }
             else if (result.IsLockedOut)
             {
-                _logger.LogWarning("User with ID '{UserId}' account locked out.", user.Id);
+                _logger.LogWarning($"User {user.Email} account locked out.", user.Id);
                 return RedirectToPage("./Lockout");
             }
             else

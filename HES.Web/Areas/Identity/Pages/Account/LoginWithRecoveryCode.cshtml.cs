@@ -69,17 +69,17 @@ namespace HES.Web.Areas.Identity.Pages.Account
 
             if (result.Succeeded)
             {
-                _logger.LogInformation("User with ID '{UserId}' logged in with a recovery code.", user.Id);
+                _logger.LogInformation($"User {user.Email} logged in with a recovery code.");
                 return LocalRedirect(returnUrl ?? Url.Content("~/"));
             }
             if (result.IsLockedOut)
             {
-                _logger.LogWarning("User with ID '{UserId}' account locked out.", user.Id);
+                _logger.LogWarning($"User {user.Email} account locked out.");
                 return RedirectToPage("./Lockout");
             }
             else
             {
-                _logger.LogWarning("Invalid recovery code entered for user with ID '{UserId}' ", user.Id);
+                _logger.LogWarning($"Invalid recovery code entered for user {user.Email}");
                 ModelState.AddModelError(string.Empty, "Invalid recovery code entered.");
                 return Page();
             }
