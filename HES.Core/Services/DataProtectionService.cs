@@ -100,6 +100,12 @@ namespace HES.Core.Services
             return true;
         }
 
+        public void Validate()
+        {
+            if (!CanUse())
+                throw new Exception("Data protection is not activated or busy.");
+        }
+
         public async Task ActivateDataProtectionAsync(string password)
         {
             try
@@ -239,6 +245,9 @@ namespace HES.Core.Services
 
         public string Protect(string text)
         {
+            if (text == null)
+                return null;
+
             if (_enabledProtection)
             {
                 if (!_activatedProtection)
@@ -256,6 +265,9 @@ namespace HES.Core.Services
 
         public string Unprotect(string text)
         {
+            if (text == null)
+                return null;
+
             if (_enabledProtection)
             {
                 if (!_activatedProtection)
@@ -364,5 +376,6 @@ namespace HES.Core.Services
                 await _sharedAccountRepository.UpdateOnlyPropAsync(account, accountProperties.ToArray());
             }
         }
+
     }
 }

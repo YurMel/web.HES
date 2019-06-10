@@ -31,10 +31,7 @@ namespace HES.Core.Services
 
         public async Task<SharedAccount> CreateSharedAccountAsync(SharedAccount sharedAccount, InputModel input)
         {
-            if (!_dataProtectionService.CanUse())
-            {
-                throw new Exception("Data protection not activated or is busy.");
-            }
+            _dataProtectionService.Validate();
 
             if (sharedAccount == null || input == null)
             {
@@ -61,10 +58,7 @@ namespace HES.Core.Services
 
         public async Task EditSharedAccountAsync(SharedAccount sharedAccount)
         {
-            if (!_dataProtectionService.CanUse())
-            {
-                throw new Exception("Data protection not activated or is busy.");
-            }
+            _dataProtectionService.Validate();
 
             if (sharedAccount == null)
             {
@@ -82,10 +76,7 @@ namespace HES.Core.Services
 
         public async Task EditSharedAccountPwdAsync(SharedAccount sharedAccount, InputModel input)
         {
-            if (!_dataProtectionService.CanUse())
-            {
-                throw new Exception("Data protection not activated or is busy.");
-            }
+            _dataProtectionService.Validate();
 
             if (sharedAccount == null || input == null)
             {
@@ -100,10 +91,7 @@ namespace HES.Core.Services
 
         public async Task EditSharedAccountOtpAsync(SharedAccount sharedAccount)
         {
-            if (!_dataProtectionService.CanUse())
-            {
-                throw new Exception("Data protection not activated or is busy.");
-            }
+            _dataProtectionService.Validate();
 
             if (sharedAccount == null)
             {
@@ -118,10 +106,7 @@ namespace HES.Core.Services
 
         public async Task DeleteSharedAccountAsync(string id)
         {
-            if (!_dataProtectionService.CanUse())
-            {
-                throw new Exception("Data protection not activated or is busy.");
-            }
+            _dataProtectionService.Validate();
 
             if (id == null)
             {

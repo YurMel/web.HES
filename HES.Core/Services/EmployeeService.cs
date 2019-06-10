@@ -1,11 +1,11 @@
-﻿using HES.Core.Entities;
-using HES.Core.Interfaces;
-using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using HES.Core.Entities;
+using HES.Core.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace HES.Core.Services
 {
@@ -126,32 +126,28 @@ namespace HES.Core.Services
         public async Task CreateEmployeeAsync(Employee employee)
         {
             if (employee == null)
-            {
-                throw new Exception("The parameter must not be null.");
-            }
+                throw new ArgumentNullException(nameof(employee));
+
             await _employeeRepository.AddAsync(employee);
         }
 
         public async Task EditEmployeeAsync(Employee employee)
         {
             if (employee == null)
-            {
-                throw new Exception("The parameter must not be null.");
-            }
+                throw new ArgumentNullException(nameof(employee));
+
             await _employeeRepository.UpdateAsync(employee);
         }
 
         public async Task DeleteEmployeeAsync(string id)
         {
             if (id == null)
-            {
-                throw new Exception("The parameter must not be null.");
-            }
+                throw new ArgumentNullException(nameof(id));
+
             var employee = await _employeeRepository.GetByIdAsync(id);
             if (employee == null)
-            {
-                throw new Exception("Employee does not exist.");
-            }
+                throw new Exception("Employee not found");
+
             await _employeeRepository.DeleteAsync(employee);
         }
 
@@ -162,79 +158,86 @@ namespace HES.Core.Services
 
         public async Task SetPrimaryAccount(string deviceId, string deviceAccountId)
         {
-            if (deviceId == null || deviceAccountId == null)
-            {
-                throw new Exception("The parameter must not be null.");
-            }
+            if (deviceId == null)
+                throw new ArgumentNullException(nameof(deviceId));
+
+            if (deviceAccountId == null)
+                throw new ArgumentNullException(nameof(deviceAccountId));
+
             var device = await _deviceRepository.GetByIdAsync(deviceId);
             if (device == null)
-            {
-                throw new Exception($"Device does not exist, ID: {deviceId}.");
-            }
+                throw new Exception($"Device not found, ID: {deviceId}");
+
             // Update Device Account
             var deviceAccount = await _deviceAccountRepository.GetByIdAsync(deviceAccountId);
+            if (deviceAccount == null)
+                throw new Exception($"DeviceAccount not found, ID: {deviceAccountId}");
+
             deviceAccount.Status = AccountStatus.Updating;
             deviceAccount.UpdatedAt = DateTime.UtcNow;
             string[] properties = { "Status", "UpdatedAt" };
-            // Add task
             await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties);
-            await _remoteTaskService.AddTaskAsync(new DeviceTask() { Operation = TaskOperation.Primary, CreatedAt = DateTime.UtcNow, DeviceId = device.Id, DeviceAccountId = deviceAccountId });
+
+            // Add task
+            await _remoteTaskService.AddTaskAsync(new DeviceTask()
+            {
+                Operation = TaskOperation.Primary,
+                CreatedAt = DateTime.UtcNow,
+                DeviceId = device.Id,
+                DeviceAccountId = deviceAccountId
+            });
         }
 
         public async Task AddDeviceAsync(string employeeId, string[] selectedDevices)
         {
-            if (!_dataProtectionService.CanUse())
-            {
-                throw new Exception("Data protection not activated or is busy.");
-            }
+            _dataProtectionService.Validate();
 
             var employee = await _employeeRepository.GetByIdAsync(employeeId);
-
             if (employee == null)
-            {
-                throw new Exception("Employee does not exist.");
-            }
+                throw new Exception("Employee not found");
 
             foreach (var deviceId in selectedDevices)
             {
                 var device = await _deviceRepository.GetByIdAsync(deviceId);
                 if (device == null)
-                {
-                    throw new Exception($"Device does not exist, ID: {deviceId}.");
-                }
+                    throw new Exception($"Device not found, ID: {deviceId}");
+
                 if (device.EmployeeId != null)
-                {
-                    throw new Exception($"Current device already linked to another employee");
-                }
+                    throw new Exception($"Device {deviceId} already linked to another employee");
+
                 var masterPassword = GenerateMasterPassword();
 
                 device.EmployeeId = employeeId;
                 device.MasterPassword = masterPassword;
                 await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "EmployeeId", "MasterPassword" });
 
-                await _remoteTaskService.AddTaskAsync(new DeviceTask { Password = masterPassword, Operation = TaskOperation.Link, CreatedAt = DateTime.UtcNow, DeviceId = device.Id });
+                await _remoteTaskService.AddTaskAsync(new DeviceTask
+                {
+                    Password = masterPassword,
+                    Operation = TaskOperation.Link,
+                    CreatedAt = DateTime.UtcNow,
+                    DeviceId = device.Id
+                });
+
+                _remoteTaskService.StartTaskProcessing(deviceId);
             }
         }
 
         public async Task RemoveDeviceAsync(string employeeId, string deviceId)
         {
-            if (!_dataProtectionService.CanUse())
-            {
-                throw new Exception("Data protection not activated or is busy.");
-            }
+            _dataProtectionService.Validate();
 
             var device = await _deviceRepository.GetByIdAsync(deviceId);
             if (device == null)
-            {
-                throw new Exception($"Device does not exist, ID: {deviceId}.");
-            }
+                throw new Exception($"Device not found, ID: {deviceId}");
+
             if (device.EmployeeId != employeeId)
-            {
-                throw new Exception("Current device is not linked to employee.");
-            }
+                throw new Exception($"Device {deviceId} not linked to employee");
+
             // Remove all tasks
             var allTasks = await _deviceTaskRepository.Query().Where(t => t.DeviceId == deviceId).ToListAsync();
             await _deviceTaskRepository.DeleteRangeAsync(allTasks);
+
             // Remove all accounts
             var allAccounts = await _deviceAccountRepository.Query().Where(d => d.DeviceId == deviceId).ToListAsync();
             foreach (var acc in allAccounts)
@@ -242,264 +245,377 @@ namespace HES.Core.Services
                 acc.Deleted = true;
             }
             await _deviceAccountRepository.UpdateOnlyPropAsync(allAccounts, new string[] { "Deleted" });
+
             // Remove employee
             device.EmployeeId = null;
             device.PrimaryAccountId = null;
-            await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "EmployeeId" });
+            await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "EmployeeId", "PrimaryAccountId" });
 
             await _remoteTaskService.RemoveDeviceAsync(device);
+
+            _remoteTaskService.StartTaskProcessing(deviceId);
         }
 
         public async Task CreatePersonalAccountAsync(DeviceAccount deviceAccount, InputModel input, string[] selectedDevices)
         {
-            if (!_dataProtectionService.CanUse())
-            {
-                throw new Exception("Data protection not activated or is busy.");
-            }
+            if (deviceAccount == null)
+                throw new ArgumentNullException(nameof(deviceAccount));
 
-            if (deviceAccount == null || input == null || selectedDevices == null)
-            {
-                throw new Exception("The parameter must not be null.");
-            }
+            if (input == null)
+                throw new ArgumentNullException(nameof(input));
 
-            List<DeviceAccount> Accounts = new List<DeviceAccount>();
-            List<DeviceTask> Tasks = new List<DeviceTask>();
+            if (selectedDevices == null)
+                throw new ArgumentNullException(nameof(selectedDevices));
+
+            _dataProtectionService.Validate();
+
+            List<DeviceAccount> accounts = new List<DeviceAccount>();
+            List<DeviceTask> tasks = new List<DeviceTask>();
 
             foreach (var deviceId in selectedDevices)
             {
-                var exist = _deviceAccountRepository.Query().Where(s => s.Name == deviceAccount.Name).Where(s => s.Login == deviceAccount.Login).Where(s => s.Deleted == false).Where(d => d.DeviceId == deviceId).Any();
+                var exist = _deviceAccountRepository.Query()
+                    .Where(s => s.Name == deviceAccount.Name)
+                    .Where(s => s.Login == deviceAccount.Login)
+                    .Where(s => s.Deleted == false)
+                    .Where(s => s.DeviceId == deviceId)
+                    .Any();
+
                 if (exist)
-                {
                     throw new Exception("An account with the same name and login exists.");
-                }
-                // Device Account id
+
                 var deviceAccountId = Guid.NewGuid().ToString();
+
                 // Create Device Account
-                Accounts.Add(new DeviceAccount { Id = deviceAccountId, Name = deviceAccount.Name, Urls = deviceAccount.Urls, Apps = deviceAccount.Apps, Login = deviceAccount.Login, Type = AccountType.Personal, Status = AccountStatus.Creating, CreatedAt = DateTime.UtcNow, PasswordUpdatedAt = DateTime.UtcNow, OtpUpdatedAt = input.OtpSecret != null ? new DateTime?(DateTime.UtcNow) : null, EmployeeId = deviceAccount.EmployeeId, DeviceId = deviceId, SharedAccountId = null });
+                accounts.Add(new DeviceAccount
+                {
+                    Id = deviceAccountId,
+                    Name = deviceAccount.Name,
+                    Urls = deviceAccount.Urls,
+                    Apps = deviceAccount.Apps,
+                    Login = deviceAccount.Login,
+                    Type = AccountType.Personal,
+                    Status = AccountStatus.Creating,
+                    CreatedAt = DateTime.UtcNow,
+                    PasswordUpdatedAt = DateTime.UtcNow,
+                    OtpUpdatedAt = input.OtpSecret != null ? new DateTime?(DateTime.UtcNow) : null,
+                    EmployeeId = deviceAccount.EmployeeId,
+                    DeviceId = deviceId,
+                    SharedAccountId = null
+                });
+                
                 // Create Device Task
-                Tasks.Add(new DeviceTask { DeviceAccountId = deviceAccountId, Name = deviceAccount.Name, Urls = deviceAccount.Urls, Apps = deviceAccount.Apps, Login = deviceAccount.Login, Password = _dataProtectionService.Protect(input.Password), OtpSecret = input.OtpSecret, CreatedAt = DateTime.UtcNow, Operation = TaskOperation.Create, DeviceId = deviceId });
+                tasks.Add(new DeviceTask
+                {
+                    DeviceAccountId = deviceAccountId,
+                    Name = deviceAccount.Name,
+                    Urls = deviceAccount.Urls,
+                    Apps = deviceAccount.Apps,
+                    Login = deviceAccount.Login,
+                    Password = _dataProtectionService.Protect(input.Password),
+                    OtpSecret = input.OtpSecret,
+                    CreatedAt = DateTime.UtcNow,
+                    Operation = TaskOperation.Create,
+                    DeviceId = deviceId
+                });
+                
                 // Set primary account
-                await FirstAdditionPrimaryAccountId(deviceId, deviceAccountId);
+                await SetAsPrimaryIfEmpty(deviceId, deviceAccountId);
             }
 
-            await _deviceAccountRepository.AddRangeAsync(Accounts);
+            await _deviceAccountRepository.AddRangeAsync(accounts);
 
             try
             {
-                await _remoteTaskService.AddRangeTaskAsync(Tasks);
+                await _remoteTaskService.AddRangeAsync(tasks);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                await _deviceAccountRepository.DeleteRangeAsync(Accounts);
-                throw new Exception(ex.Message);
+                await _deviceAccountRepository.DeleteRangeAsync(accounts);
+                throw;
+            }
+
+            foreach (var deviceId in selectedDevices)
+            {
+                _remoteTaskService.StartTaskProcessing(deviceId);
             }
         }
 
         public async Task EditPersonalAccountAsync(DeviceAccount deviceAccount)
         {
-            if (!_dataProtectionService.CanUse())
-            {
-                throw new Exception("Data protection not activated or is busy.");
-            }
+            _dataProtectionService.Validate();
 
             if (deviceAccount == null)
-            {
-                throw new Exception("The parameter must not be null.");
-            }
-            var exist = _deviceAccountRepository.Query().Where(s => s.Name == deviceAccount.Name).Where(s => s.Login == deviceAccount.Login).Where(s => s.Deleted == false).Where(s => s.Id != deviceAccount.Id).Any();
+                throw new ArgumentNullException(nameof(deviceAccount));
+
+            var exist = _deviceAccountRepository.Query()
+                .Where(s => s.Name == deviceAccount.Name)
+                .Where(s => s.Login == deviceAccount.Login)
+                .Where(s => s.Deleted == false)
+                .Where(s => s.Id != deviceAccount.Id)
+                .Any();
+
             if (exist)
-            {
                 throw new Exception("An account with the same name and login exists.");
-            }
+
             // Update Device Account
             deviceAccount.Status = AccountStatus.Updating;
             deviceAccount.UpdatedAt = DateTime.UtcNow;
             string[] properties = { "Status", "UpdatedAt" };
             await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties);
+
             // Create Device Task
             try
             {
-                deviceAccount.Urls = deviceAccount.Urls == null ? string.Empty : deviceAccount.Urls;
-                deviceAccount.Apps = deviceAccount.Apps == null ? string.Empty : deviceAccount.Apps;
-                await _remoteTaskService.AddTaskAsync(new DeviceTask { DeviceAccountId = deviceAccount.Id, Name = deviceAccount.Name, Urls = deviceAccount.Urls, Apps = deviceAccount.Apps, Login = deviceAccount.Login, Password = null, OtpSecret = null, CreatedAt = DateTime.UtcNow, Operation = TaskOperation.Update, DeviceId = deviceAccount.DeviceId });
+                await _remoteTaskService.AddTaskAsync(new DeviceTask
+                {
+                    DeviceAccountId = deviceAccount.Id,
+                    Name = deviceAccount.Name,
+                    Urls = deviceAccount.Urls ?? string.Empty,
+                    Apps = deviceAccount.Apps ?? string.Empty,
+                    Login = deviceAccount.Login,
+                    Password = null,
+                    OtpSecret = null,
+                    CreatedAt = DateTime.UtcNow,
+                    Operation = TaskOperation.Update,
+                    DeviceId = deviceAccount.DeviceId
+                });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                deviceAccount.Status = AccountStatus.Done;
+                deviceAccount.Status = AccountStatus.Error;
                 await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties);
-                throw new Exception(ex.Message);
+                throw;
             }
+
+            _remoteTaskService.StartTaskProcessing(deviceAccount.DeviceId);
         }
 
         public async Task EditPersonalAccountPwdAsync(DeviceAccount deviceAccount, InputModel input)
         {
-            if (!_dataProtectionService.CanUse())
-            {
-                throw new Exception("Data protection not activated or is busy.");
-            }
+            _dataProtectionService.Validate();
 
-            if (deviceAccount == null || input == null)
-            {
-                throw new Exception("The parameter must not be null.");
-            }
+            if (deviceAccount == null)
+                throw new ArgumentNullException(nameof(deviceAccount));
+
+            if (input == null)
+                throw new ArgumentNullException(nameof(input));
+
             // Update Device Account
             deviceAccount.Status = AccountStatus.Updating;
             deviceAccount.UpdatedAt = DateTime.UtcNow;
             string[] properties = { "Status", "UpdatedAt" };
             await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties);
+
             // Create Device Task
             try
             {
-                await _remoteTaskService.AddTaskAsync(new DeviceTask { DeviceAccountId = deviceAccount.Id, Password = input.Password, CreatedAt = DateTime.UtcNow, Operation = TaskOperation.Update, DeviceId = deviceAccount.DeviceId });
+                await _remoteTaskService.AddTaskAsync(new DeviceTask
+                {
+                    DeviceAccountId = deviceAccount.Id,
+                    Password = input.Password,
+                    CreatedAt = DateTime.UtcNow,
+                    Operation = TaskOperation.Update,
+                    DeviceId = deviceAccount.DeviceId
+                });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                deviceAccount.Status = AccountStatus.Done;
+                deviceAccount.Status = AccountStatus.Error;
                 await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties);
-                throw new Exception(ex.Message);
+                throw;
             }
+
+            _remoteTaskService.StartTaskProcessing(deviceAccount.DeviceId);
         }
 
         public async Task EditPersonalAccountOtpAsync(DeviceAccount deviceAccount, InputModel input)
         {
-            if (!_dataProtectionService.CanUse())
-            {
-                throw new Exception("Data protection not activated or is busy.");
-            }
+            _dataProtectionService.Validate();
 
             if (deviceAccount == null)
-            {
-                throw new Exception("The parameter must not be null.");
-            }
-            if (string.IsNullOrWhiteSpace(input.OtpSecret))
-            {
-                input.OtpSecret = null;
-            }
+                throw new ArgumentNullException(nameof(deviceAccount));
+
+            //if (string.IsNullOrWhiteSpace(input.OtpSecret))
+            //{
+            //    input.OtpSecret = null;
+            //}
+
             // Update Device Account
             deviceAccount.Status = AccountStatus.Updating;
             deviceAccount.UpdatedAt = DateTime.UtcNow;
-            string[] properties = { "Status", "UpdatedAt" };
+            deviceAccount.OtpUpdatedAt = DateTime.UtcNow; 
+            string[] properties = { "Status", "UpdatedAt", "OtpUpdatedAt" };
             await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties);
+
             // Create Device Task
             try
             {
-                input.OtpSecret = input.OtpSecret == null ? string.Empty : input.OtpSecret;
-                await _remoteTaskService.AddTaskAsync(new DeviceTask { DeviceAccountId = deviceAccount.Id, OtpSecret = input.OtpSecret, CreatedAt = DateTime.UtcNow, Operation = TaskOperation.Update, DeviceId = deviceAccount.DeviceId });
+                //input.OtpSecret = input.OtpSecret ?? string.Empty;
+                await _remoteTaskService.AddTaskAsync(new DeviceTask
+                {
+                    DeviceAccountId = deviceAccount.Id,
+                    OtpSecret = input.OtpSecret ?? string.Empty, //todo - check
+                    CreatedAt = DateTime.UtcNow,
+                    Operation = TaskOperation.Update,
+                    DeviceId = deviceAccount.DeviceId
+                });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                deviceAccount.Status = AccountStatus.Done;
+                deviceAccount.Status = AccountStatus.Error;
                 await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties);
-                throw new Exception(ex.Message);
+                throw;
             }
+
+            _remoteTaskService.StartTaskProcessing(deviceAccount.DeviceId);
         }
 
         public async Task AddSharedAccount(string employeeId, string sharedAccountId, string[] selectedDevices)
         {
-            if (!_dataProtectionService.CanUse())
-            {
-                throw new Exception("Data protection not activated or is busy.");
-            }
+            _dataProtectionService.Validate();
 
-            if (employeeId == null || sharedAccountId == null || selectedDevices == null)
-            {
-                throw new Exception("The parameter must not be null.");
-            }
+            if (employeeId == null)
+                throw new ArgumentNullException(nameof(employeeId));
 
-            List<DeviceAccount> Accounts = new List<DeviceAccount>();
-            List<DeviceTask> Tasks = new List<DeviceTask>();
+            if (sharedAccountId == null)
+                throw new ArgumentNullException(nameof(sharedAccountId));
+
+            if (selectedDevices == null)
+                throw new ArgumentNullException(nameof(selectedDevices));
+
+
+            List<DeviceAccount> accounts = new List<DeviceAccount>();
+            List<DeviceTask> tasks = new List<DeviceTask>();
 
             foreach (var deviceId in selectedDevices)
             {
                 // Get Shared Account
                 var sharedAccount = await _sharedAccountRepository.GetByIdAsync(sharedAccountId);
                 if (sharedAccount == null)
-                {
-                    throw new Exception("SharedAccount does not exist.");
-                }
-                var exist = _deviceAccountRepository.Query().Where(s => s.Name == sharedAccount.Name).Where(s => s.Login == sharedAccount.Login).Where(s => s.Deleted == false).Where(d => d.DeviceId == deviceId).Any();
+                    throw new Exception("SharedAccount not found");
+
+                var exist = _deviceAccountRepository.Query()
+                    .Where(s => s.Name == sharedAccount.Name)
+                    .Where(s => s.Login == sharedAccount.Login)
+                    .Where(s => s.Deleted == false)
+                    .Where(d => d.DeviceId == deviceId)
+                    .Any();
+
                 if (exist)
-                {
-                    throw new Exception("An account with the same name and login exists.");
-                }
+                    throw new Exception("An account with the same name and login exists");
+
                 // Create Device Account
                 var deviceAccountId = Guid.NewGuid().ToString();
-                Accounts.Add(new DeviceAccount { Id = deviceAccountId, Name = sharedAccount.Name, Urls = sharedAccount.Urls, Apps = sharedAccount.Apps, Login = sharedAccount.Login, Type = AccountType.Shared, Status = AccountStatus.Creating, CreatedAt = DateTime.UtcNow, PasswordUpdatedAt = DateTime.UtcNow, OtpUpdatedAt = sharedAccount.OtpSecret != null ? new DateTime?(DateTime.UtcNow) : null, EmployeeId = employeeId, DeviceId = deviceId, SharedAccountId = sharedAccountId });
+                accounts.Add(new DeviceAccount
+                {
+                    Id = deviceAccountId,
+                    Name = sharedAccount.Name,
+                    Urls = sharedAccount.Urls,
+                    Apps = sharedAccount.Apps,
+                    Login = sharedAccount.Login,
+                    Type = AccountType.Shared,
+                    Status = AccountStatus.Creating,
+                    CreatedAt = DateTime.UtcNow,
+                    PasswordUpdatedAt = DateTime.UtcNow,
+                    OtpUpdatedAt = sharedAccount.OtpSecret != null ? new DateTime?(DateTime.UtcNow) : null, //todo - check
+                    EmployeeId = employeeId,
+                    DeviceId = deviceId,
+                    SharedAccountId = sharedAccountId
+                });
+
                 // Create Device Task
-                Tasks.Add(new DeviceTask { DeviceAccountId = deviceAccountId, Name = sharedAccount.Name, Urls = sharedAccount.Urls, Apps = sharedAccount.Apps, Login = sharedAccount.Login, Password = sharedAccount.Password, OtpSecret = sharedAccount.OtpSecret, CreatedAt = DateTime.UtcNow, Operation = TaskOperation.Create, DeviceId = deviceId });
+                tasks.Add(new DeviceTask
+                {
+                    DeviceAccountId = deviceAccountId,
+                    Name = sharedAccount.Name,
+                    Urls = sharedAccount.Urls,
+                    Apps = sharedAccount.Apps,
+                    Login = sharedAccount.Login,
+                    Password = sharedAccount.Password,
+                    OtpSecret = sharedAccount.OtpSecret,
+                    CreatedAt = DateTime.UtcNow,
+                    Operation = TaskOperation.Create,
+                    DeviceId = deviceId
+                });
+
                 // Set primary account
-                await FirstAdditionPrimaryAccountId(deviceId, deviceAccountId);
+                await SetAsPrimaryIfEmpty(deviceId, deviceAccountId);
             }
 
-            await _deviceAccountRepository.AddRangeAsync(Accounts);
+            await _deviceAccountRepository.AddRangeAsync(accounts);
             try
             {
-                await _remoteTaskService.AddRangeTaskAsync(Tasks);
+                await _remoteTaskService.AddRangeAsync(tasks);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                await _deviceAccountRepository.DeleteRangeAsync(Accounts);
-                throw new Exception(ex.Message);
+                await _deviceAccountRepository.DeleteRangeAsync(accounts);
+                throw;
+            }
+
+            foreach (var deviceId in selectedDevices)
+            {
+                _remoteTaskService.StartTaskProcessing(deviceId);
             }
         }
 
         public async Task DeleteAccount(string accountId)
         {
-            if (!_dataProtectionService.CanUse())
-            {
-                throw new Exception("Data protection not activated or is busy.");
-            }
+            _dataProtectionService.Validate();
 
             if (accountId == null)
-            {
-                throw new Exception("The parameter must not be null.");
-            }
+                throw new ArgumentNullException(nameof(accountId));
+
             var deviceAccount = await _deviceAccountRepository.GetByIdAsync(accountId);
             if (deviceAccount == null)
-            {
-                throw new Exception("Device account does not exist.");
-            }
+                throw new Exception("Device account not found");
+
             // Update Device Account
             deviceAccount.Status = AccountStatus.Removing;
             deviceAccount.UpdatedAt = DateTime.UtcNow;
             string[] properties = { "Status", "UpdatedAt" };
             await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties);
+
             try
             {
                 // Create Device Task
-                await _remoteTaskService.AddTaskAsync(new DeviceTask { DeviceAccountId = accountId, CreatedAt = DateTime.UtcNow, Operation = TaskOperation.Delete, DeviceId = deviceAccount.DeviceId });
+                await _remoteTaskService.AddTaskAsync(new DeviceTask
+                {
+                    DeviceAccountId = accountId,
+                    CreatedAt = DateTime.UtcNow,
+                    Operation = TaskOperation.Delete,
+                    DeviceId = deviceAccount.DeviceId
+                });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                deviceAccount.Status = AccountStatus.Done;
+                deviceAccount.Status = AccountStatus.Error;
                 await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties);
-                throw new Exception(ex.Message);
+                throw;
             }
+
+            _remoteTaskService.StartTaskProcessing(deviceAccount.DeviceId);
         }
 
         public async Task UndoChanges(string accountId)
         {
-            if (!_dataProtectionService.CanUse())
-            {
-                throw new Exception("Data protection not activated or is busy.");
-            }
-
             if (accountId == null)
-            {
-                throw new Exception("The parameter must not be null.");
-            }
+                throw new ArgumentNullException(nameof(accountId));
+
+            _dataProtectionService.Validate();
 
             await _remoteTaskService.UndoLastTaskAsync(accountId);
         }
 
-        private async Task FirstAdditionPrimaryAccountId(string deviceId, string deviceAccountId)
+        private async Task SetAsPrimaryIfEmpty(string deviceId, string deviceAccountId)
         {
-            // Get primary acount
-            var primaryAccountExist = _deviceRepository.Query().Where(d => d.Id == deviceId).Where(d => d.PrimaryAccountId != null).Any();
-            if (!primaryAccountExist)
+            var device = await _deviceRepository.GetByIdAsync(deviceId);
+
+            if (device.PrimaryAccountId == null)
             {
-                // Set primary acount
-                await _deviceRepository.UpdateOnlyPropAsync(new Device { Id = deviceId, PrimaryAccountId = deviceAccountId }, new string[] { "PrimaryAccountId" });
+                device.PrimaryAccountId = deviceAccountId;
+                await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "PrimaryAccountId" });
             }
         }
 

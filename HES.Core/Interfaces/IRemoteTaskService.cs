@@ -7,9 +7,12 @@ namespace HES.Core.Interfaces
     public interface IRemoteTaskService
     {
         Task AddTaskAsync(DeviceTask deviceTask);
-        Task AddRangeTaskAsync(IList<DeviceTask> deviceTasks);
+        Task AddRangeAsync(IList<DeviceTask> deviceTasks);
+
         Task UndoLastTaskAsync(string accountId);
         Task RemoveDeviceAsync(Device device);
-        Task ExecuteRemoteTasks(string deviceMac);
+
+        void StartTaskProcessing(string deviceId);
+        void StartTaskProcessing(IList<string> deviceIdList);
     }
 }

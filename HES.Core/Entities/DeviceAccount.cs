@@ -51,6 +51,7 @@ namespace HES.Core.Entities
         Creating,
         Updating,
         Removing,
-        Done
+        Done,
+        Error
     }
 }

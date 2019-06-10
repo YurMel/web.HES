@@ -2,11 +2,11 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using HES.Core.Interfaces;
 using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.Remote;
-using Microsoft.AspNetCore.SignalR;
 using Hideez.SDK.Communication.Utils;
-using HES.Core.Interfaces;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 
 namespace HES.Core.Services
@@ -15,12 +15,12 @@ namespace HES.Core.Services
     {
         class PendingConnectionDescription
         {
-            public string Mac { get; }
+            public string DeviceId { get; }
             public TaskCompletionSource<RemoteDevice> Tcs { get; } = new TaskCompletionSource<RemoteDevice>();
 
-            public PendingConnectionDescription(string mac)
+            public PendingConnectionDescription(string deviceId)
             {
-                Mac = mac;
+                DeviceId = deviceId;
             }
         }
 
@@ -42,30 +42,33 @@ namespace HES.Core.Services
         public override async Task OnConnectedAsync()
         {
             var httpContext = Context.GetHttpContext();
-            string mac = httpContext.Request.Headers["DeviceMac"].ToString();
+            string deviceId = httpContext.Request.Headers["DeviceId"].ToString();
             string channel = httpContext.Request.Headers["DeviceChannel"].ToString();
             byte channelNo = Convert.ToByte(channel);
+            Debug.WriteLine($"!!!!!!!!!!!!!!!!!!!!! OnConnectedAsync {deviceId}");
 
 
-            if (!string.IsNullOrWhiteSpace(mac))
+            if (!string.IsNullOrWhiteSpace(deviceId))
             {
-                var device = new RemoteDevice(mac, Clients.Caller);
+                var device = new RemoteDevice(deviceId, Clients.Caller);
 
-                Context.Items.Add("DeviceMac", mac);
+                Context.Items.Add("DeviceId", deviceId);
                 Context.Items.Add("Device", device);
 
-                if (_connections.TryAdd(mac, device))
+                if (_connections.TryAdd(deviceId, device))
                 {
                     var t = Task.Run(async () =>
                     {
                         try
                         {
                             await device.Authenticate(channelNo);
-                            if (_pendingConnections.TryGetValue(mac, out PendingConnectionDescription pendingConnection))
+                            if (_pendingConnections.TryGetValue(deviceId, out PendingConnectionDescription pendingConnection))
                             {
                                 pendingConnection.Tcs.TrySetResult(device);
-                                _pendingConnections.TryRemove(mac, out PendingConnectionDescription removedPendingConnection);
+                                _pendingConnections.TryRemove(deviceId, out PendingConnectionDescription removedPendingConnection);
                             }
+
+                            _remoteTaskService.StartTaskProcessing(deviceId);
                         }
                         catch (Exception ex)
                         {
@@ -81,14 +84,16 @@ namespace HES.Core.Services
 
         public override Task OnDisconnectedAsync(Exception exception)
         {
-            if (Context.Items.TryGetValue("DeviceMac", out object deviceMac))
+            Debug.WriteLine($"!!!!!!!!!!!!!!!!!!!!! OnDisconnectedAsync");
+
+            if (Context.Items.TryGetValue("DeviceId", out object deviceId))
             {
-                _connections.TryRemove((string)deviceMac, out RemoteDevice removedDevice);
-                _pendingConnections.TryRemove((string)deviceMac, out PendingConnectionDescription removedPendingConnection);
+                RemoveDevice((string)deviceId);
             }
             else
             {
                 Debug.Assert(false);
+                _logger.LogCritical("DeviceHub does not contain DeviceId!");
             }
 
             return base.OnDisconnectedAsync(exception);
@@ -100,6 +105,12 @@ namespace HES.Core.Services
                 return device;
 
             return null;
+        }
+
+        public static bool RemoveDevice(string id)
+        {
+            _pendingConnections.TryRemove(id, out PendingConnectionDescription removedPendingConnection);
+            return _connections.TryRemove(id, out RemoteDevice device);
         }
 
         RemoteDevice GetDevice()

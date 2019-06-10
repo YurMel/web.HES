@@ -14,5 +14,6 @@ namespace HES.Core.Interfaces
         Task ChangeDataProtectionPasswordAsync(string oldPassword, string newPassword);
         string Protect(string text);
         string Unprotect(string text);
+        void Validate();
     }
 }
