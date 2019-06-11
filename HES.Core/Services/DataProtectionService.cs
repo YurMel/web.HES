@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 
@@ -52,8 +53,8 @@ namespace HES.Core.Services
 
         public async void Status()
         {
-            var appSettings = await _dataProtectionRepository.Query().FirstOrDefaultAsync();
-            if (appSettings?.ProtectedValue != null)
+            var appSettings = await _dataProtectionRepository.Query().Where(d =>d.Key == "ProtectedValue").FirstOrDefaultAsync();
+            if (appSettings?.Value != null)
             {
                 _enabledProtection = true;
                 var status = GetStatus();
@@ -113,9 +114,9 @@ namespace HES.Core.Services
                 // Temp protector
                 var tempProtector = _dataProtectionProvider.CreateProtector(password);
                 // Get value
-                var appSettings = await _dataProtectionRepository.Query().FirstOrDefaultAsync();
+                var appSettings = await _dataProtectionRepository.Query().Where(d => d.Key == "ProtectedValue").FirstOrDefaultAsync();
                 // If no error occurred during the decrypt, then the password is correct
-                var unprotectedValue = tempProtector.Unprotect(appSettings.ProtectedValue);
+                var unprotectedValue = tempProtector.Unprotect(appSettings.Value);
                 // Create protector
                 _dataProtector = _dataProtectionProvider.CreateProtector(password);
                 _activatedProtection = true;
@@ -140,10 +141,10 @@ namespace HES.Core.Services
 
             _isBusy = true;
 
-            var appSettings = await _dataProtectionRepository.Query().FirstOrDefaultAsync();
+            var appSettings = await _dataProtectionRepository.Query().Where(d => d.Key == "ProtectedValue").FirstOrDefaultAsync();
             if (appSettings != null)
             {
-                if (appSettings.ProtectedValue != null)
+                if (appSettings.Value != null)
                 {
                     throw new Exception("The password already added.");
                 }
@@ -151,8 +152,8 @@ namespace HES.Core.Services
                 _dataProtector = _dataProtectionProvider.CreateProtector(password);
                 // Protect value
                 var protectedValue = _dataProtector.Protect(Guid.NewGuid().ToString());
-                appSettings.ProtectedValue = protectedValue;
-                await _dataProtectionRepository.UpdateOnlyPropAsync(appSettings, new string[] { "ProtectedValue" });
+                appSettings.Value = protectedValue;
+                await _dataProtectionRepository.UpdateOnlyPropAsync(appSettings, new string[] { "Value" });
             }
             else
             {
@@ -160,7 +161,7 @@ namespace HES.Core.Services
                 _dataProtector = _dataProtectionProvider.CreateProtector(password);
                 // Protect value
                 var protectedValue = _dataProtector.Protect(Guid.NewGuid().ToString());
-                await _dataProtectionRepository.AddAsync(new AppSettings() { ProtectedValue = protectedValue });
+                await _dataProtectionRepository.AddAsync(new AppSettings() { Key = "ProtectedValue", Value = protectedValue });
             }
 
             await ProtectAllDataAsync();
@@ -178,15 +179,15 @@ namespace HES.Core.Services
                 // Temp protector
                 var tempProtector = _dataProtectionProvider.CreateProtector(password);
                 // Get value
-                var appSettings = await _dataProtectionRepository.Query().FirstOrDefaultAsync();
+                var appSettings = await _dataProtectionRepository.Query().Where(d => d.Key == "ProtectedValue").FirstOrDefaultAsync();
                 // If no error occurred during the decrypt, then the password is correct
-                var unprotectedValue = tempProtector.Unprotect(appSettings.ProtectedValue);
+                var unprotectedValue = tempProtector.Unprotect(appSettings.Value);
                 // Unprotect
                 await UnprotectAllDataAsync();
                 // Disable protector
                 _dataProtector = null;
-                appSettings.ProtectedValue = null;
-                await _dataProtectionRepository.UpdateOnlyPropAsync(appSettings, new string[] { "ProtectedValue" });
+                appSettings.Value = null;
+                await _dataProtectionRepository.UpdateOnlyPropAsync(appSettings, new string[] { "Value" });
 
                 _enabledProtection = false;
                 _activatedProtection = false;
@@ -216,18 +217,18 @@ namespace HES.Core.Services
                 // Temp protector
                 var tempProtector = _dataProtectionProvider.CreateProtector(oldPassword);
                 // Get value
-                var appSettings = await _dataProtectionRepository.Query().FirstOrDefaultAsync();
+                var appSettings = await _dataProtectionRepository.Query().Where(d => d.Key == "ProtectedValue").FirstOrDefaultAsync();
                 // If no error occurred during the decrypt, then the password is correct
-                var unprotectedValue = tempProtector.Unprotect(appSettings.ProtectedValue);
+                var unprotectedValue = tempProtector.Unprotect(appSettings.Value);
                 // Unprotect all
                 await UnprotectAllDataAsync();
                 // Create protector
                 _dataProtector = _dataProtectionProvider.CreateProtector(newPassword);
                 // Protect value
                 var protectedValue = _dataProtector.Protect(Guid.NewGuid().ToString());
-                appSettings.ProtectedValue = protectedValue;
+                appSettings.Value = protectedValue;
 
-                await _dataProtectionRepository.UpdateOnlyPropAsync(appSettings, new string[] { "ProtectedValue" });
+                await _dataProtectionRepository.UpdateOnlyPropAsync(appSettings, new string[] { "Value" });
                 // Protect all
                 await ProtectAllDataAsync();
                 _isBusy = false;

@@ -5,7 +5,7 @@ namespace HES.Core.Entities
     public class AppSettings
     {
         [Key]
-        public string Id { get; set; }
-        public string ProtectedValue { get; set; }
+        public string Key { get; set; }
+        public string Value { get; set; }
     }
 }

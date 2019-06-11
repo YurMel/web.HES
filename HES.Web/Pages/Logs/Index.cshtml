@@ -198,7 +198,8 @@
     <script>
         $('#logs').DataTable({
             "paging": false,
-            "info": false
+            "info": false,
+            "order": [[0, "desc"]]
         });
         var dataTable = $('#logs').dataTable();
         $('#searchbox').keyup(function () {
