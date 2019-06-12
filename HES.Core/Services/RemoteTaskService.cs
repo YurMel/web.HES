@@ -7,6 +7,7 @@ using HES.Core.Entities;
 using HES.Core.Interfaces;
 using Hideez.SDK.Communication.PasswordManager;
 using Hideez.SDK.Communication.Remote;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -19,18 +20,21 @@ namespace HES.Core.Services
         readonly IAsyncRepository<Device> _deviceRepository;
         private readonly ILogger<RemoteTaskService> _logger;
         private readonly IDataProtectionService _dataProtectionService;
+        private readonly IHubContext<EmployeeDetailsHub> _hubContext;
 
         public RemoteTaskService(IAsyncRepository<DeviceAccount> deviceAccountRepository,
                                  IAsyncRepository<DeviceTask> deviceTaskRepository,
                                  IAsyncRepository<Device> deviceRepository,
                                  ILogger<RemoteTaskService> logger,
-                                 IDataProtectionService dataProtectionService)
+                                 IDataProtectionService dataProtectionService,
+                                 IHubContext<EmployeeDetailsHub> hubContext)
         {
             _deviceAccountRepository = deviceAccountRepository;
             _deviceTaskRepository = deviceTaskRepository;
             _deviceRepository = deviceRepository;
             _logger = logger;
             _dataProtectionService = dataProtectionService;
+            _hubContext = hubContext;
         }
 
         public async Task AddTaskAsync(DeviceTask deviceTask)
@@ -266,6 +270,8 @@ namespace HES.Core.Services
 
             // Delete task
             await _deviceTaskRepository.DeleteAsync(deviceTask);
+            // Update UI use SognalR
+            await _hubContext.Clients.All.SendAsync("ReloadPage");
         }
 
         private async Task<ushort> ExecuteRemoteTask(RemoteDevice device, DeviceTask task)

@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -71,7 +72,8 @@ namespace HES.Web
                 var deviceRepository = scope.ServiceProvider.GetService<IAsyncRepository<Device>>();
                 var logger = scope.ServiceProvider.GetService<ILogger<RemoteTaskService>>();
                 var dataProtectionRepository = scope.ServiceProvider.GetService<IDataProtectionService>();
-                return new RemoteTaskService(deviceAccountRepository, deviceTaskRepository, deviceRepository, logger, dataProtectionRepository);
+                var hubContext = scope.ServiceProvider.GetService<IHubContext<EmployeeDetailsHub>>();
+                return new RemoteTaskService(deviceAccountRepository, deviceTaskRepository, deviceRepository, logger, dataProtectionRepository, hubContext);
             });
             services.AddSingleton<IDataProtectionService, DataProtectionService>(s =>
             {
@@ -176,6 +178,7 @@ namespace HES.Web
             {
                 routes.MapHub<DeviceHub>("/deviceHub");
                 routes.MapHub<AppHub>("/appHub");
+                routes.MapHub<EmployeeDetailsHub>("/employeeDetailsHub");
             });
             app.UseMvc();
             app.UseStatusCodePages("text/html", "<h1>HTTP status code {0}</h1>");

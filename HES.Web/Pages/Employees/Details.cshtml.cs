@@ -65,7 +65,7 @@ namespace HES.Web.Pages.Employees
                 .Where(d => d.Deleted == false)
                 .ToListAsync();
 
-            return Page();
+            return Page();            
         }
 
         #region Employee
