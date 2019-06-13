@@ -152,9 +152,10 @@ namespace HES.Core.Services
             {
                 _dataProtectionService.Validate();
 
-                var tasks = _deviceTaskRepository.Query()
+                var tasks = await _deviceTaskRepository.Query()
                     .Include(t => t.DeviceAccount)
-                    .Where(t => t.DeviceId == deviceId);
+                    .Where(t => t.DeviceId == deviceId)
+                    .ToListAsync();
 
                 if (tasks.Any())
                 {
