@@ -284,8 +284,10 @@ namespace HES.Core.Services
                     idFromDevice = await AddDeviceAccount(device, task);
                     break;
                 case TaskOperation.Update:
-                case TaskOperation.Primary:
                     idFromDevice = await UpdateDeviceAccount(device, task);
+                    break;
+                case TaskOperation.Primary:
+                    idFromDevice = await SetDeviceAccountAsPrimary(device, task);
                     break;
                 case TaskOperation.Delete:
                     idFromDevice = await DeleteDeviceAccount(device, task);
@@ -330,6 +332,16 @@ namespace HES.Core.Services
 
             ushort key = task.DeviceAccount.IdFromDevice;
             key = await pm.SaveOrUpdateAccount(key, 0x0000, task.Name, task.Password, task.Login, task.OtpSecret, task.Apps, task.Urls, isPrimary);
+
+            return key;
+        }
+
+        private async Task<ushort> SetDeviceAccountAsPrimary(RemoteDevice device, DeviceTask task)
+        {
+            var pm = new DevicePasswordManager(device);
+
+            ushort key = task.DeviceAccount.IdFromDevice;
+            key = await pm.SaveOrUpdateAccount(key, 0x0000, null, null, null, null, null, null, true);
 
             return key;
         }
