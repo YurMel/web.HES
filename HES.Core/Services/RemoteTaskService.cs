@@ -99,19 +99,19 @@ namespace HES.Core.Services
 
         public async Task RemoveDeviceAsync(Device device)
         {
-            // Get all tasks for this device
-            var allTasks = _deviceTaskRepository.Query()
-                .Where(d => d.DeviceAccount.DeviceId == device.Id).ToList();
+            //// Get all tasks for this device
+            //var allTasks = _deviceTaskRepository.Query()
+            //    .Where(d => d.DeviceAccount.DeviceId == device.Id).ToList();
 
-            // Delete all tasks
-            await _deviceTaskRepository.DeleteRangeAsync(allTasks);
+            //// Delete all tasks
+            //await _deviceTaskRepository.DeleteRangeAsync(allTasks);
 
-            // Get all accounts for this device
-            var allAccounts = _deviceAccountRepository.Query()
-                .Where(d => d.DeviceId == device.Id).ToList();
+            //// Get all accounts for this device
+            //var allAccounts = _deviceAccountRepository.Query()
+            //    .Where(d => d.DeviceId == device.Id).ToList();
 
-            // Delete all accounts
-            await _deviceAccountRepository.DeleteRangeAsync(allAccounts);
+            //// Delete all accounts
+            //await _deviceAccountRepository.DeleteRangeAsync(allAccounts);
 
             await AddTaskAsync(new DeviceTask
             {

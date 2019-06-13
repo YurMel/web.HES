@@ -242,13 +242,13 @@ namespace HES.Core.Services
 
             // Remove all accounts
             var allAccounts = await _deviceAccountRepository.Query().Where(d => d.DeviceId == deviceId).ToListAsync();
-            foreach (var acc in allAccounts)
+            foreach (var account in allAccounts)
             {
-                acc.Deleted = true;
+                account.Deleted = true;
             }
             await _deviceAccountRepository.UpdateOnlyPropAsync(allAccounts, new string[] { "Deleted" });
 
-            // Remove employee
+            // Remove employee from device
             device.EmployeeId = null;
             device.PrimaryAccountId = null;
             await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "EmployeeId", "PrimaryAccountId" });
