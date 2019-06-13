@@ -1,9 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿using HES.Core.Interfaces;
+using Newtonsoft.Json;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace HES.Core.Interfaces
+namespace HES.Core.Services
 {
     public class AesCryptography : IAesCryptography
     {

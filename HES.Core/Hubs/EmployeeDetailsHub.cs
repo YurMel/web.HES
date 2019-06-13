@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 
-namespace HES.Core.Services
+namespace HES.Core.Hubs
 {
     public class EmployeeDetailsHub : Hub
     {        

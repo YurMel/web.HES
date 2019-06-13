@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using HES.Core.Entities;
+using HES.Core.Hubs;
 using HES.Core.Interfaces;
 using Hideez.SDK.Communication.PasswordManager;
 using Hideez.SDK.Communication.Remote;
@@ -283,6 +284,7 @@ namespace HES.Core.Services
                     idFromDevice = await AddDeviceAccount(device, task);
                     break;
                 case TaskOperation.Update:
+                case TaskOperation.Primary:
                     idFromDevice = await UpdateDeviceAccount(device, task);
                     break;
                 case TaskOperation.Delete:

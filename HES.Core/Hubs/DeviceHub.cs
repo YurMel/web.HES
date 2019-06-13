@@ -9,7 +9,7 @@ using Hideez.SDK.Communication.Utils;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 
-namespace HES.Core.Services
+namespace HES.Core.Hubs
 {
     public class DeviceHub : Hub<IRemoteDeviceConnection>
     {

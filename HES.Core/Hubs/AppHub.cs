@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace HES.Core.Services
+namespace HES.Core.Hubs
 {
     public class AppHub : Hub<IRemoteAppConnection>
     {

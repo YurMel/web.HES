@@ -186,6 +186,8 @@ namespace HES.Core.Services
                 DeviceId = device.Id,
                 DeviceAccountId = deviceAccountId
             });
+
+            _remoteTaskService.StartTaskProcessing(deviceId);
         }
 
         public async Task AddDeviceAsync(string employeeId, string[] selectedDevices)
@@ -303,7 +305,7 @@ namespace HES.Core.Services
                     DeviceId = deviceId,
                     SharedAccountId = null
                 });
-                
+
                 // Create Device Task
                 tasks.Add(new DeviceTask
                 {
@@ -318,7 +320,7 @@ namespace HES.Core.Services
                     Operation = TaskOperation.Create,
                     DeviceId = deviceId
                 });
-                
+
                 // Set primary account
                 await SetAsPrimaryIfEmpty(deviceId, deviceAccountId);
             }
@@ -335,10 +337,7 @@ namespace HES.Core.Services
                 throw;
             }
 
-            foreach (var deviceId in selectedDevices)
-            {
-                _remoteTaskService.StartTaskProcessing(deviceId);
-            }
+            _remoteTaskService.StartTaskProcessing(selectedDevices);
         }
 
         public async Task EditPersonalAccountAsync(DeviceAccount deviceAccount)
@@ -444,7 +443,7 @@ namespace HES.Core.Services
             // Update Device Account
             deviceAccount.Status = AccountStatus.Updating;
             deviceAccount.UpdatedAt = DateTime.UtcNow;
-            deviceAccount.OtpUpdatedAt = DateTime.UtcNow; 
+            deviceAccount.OtpUpdatedAt = DateTime.UtcNow;
             string[] properties = { "Status", "UpdatedAt", "OtpUpdatedAt" };
             await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties);
 
@@ -554,10 +553,7 @@ namespace HES.Core.Services
                 throw;
             }
 
-            foreach (var deviceId in selectedDevices)
-            {
-                _remoteTaskService.StartTaskProcessing(deviceId);
-            }
+            _remoteTaskService.StartTaskProcessing(selectedDevices);
         }
 
         public async Task DeleteAccount(string accountId)

@@ -1,4 +1,5 @@
 using HES.Core.Entities;
+using HES.Core.Hubs;
 using HES.Core.Interfaces;
 using HES.Core.Services;
 using HES.Infrastructure;
