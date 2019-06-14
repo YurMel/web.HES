@@ -273,6 +273,7 @@ namespace HES.Core.Services
             // Delete task
             await _deviceTaskRepository.DeleteAsync(deviceTask);
             // Update UI use SognalR
+            await Task.Delay(500);
             await _hubContext.Clients.All.SendAsync("ReloadPage");
         }
 

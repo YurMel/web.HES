@@ -398,7 +398,7 @@
                                             Undo changes
                                         </a>
                                     }
-                                    @if (item.Status != Core.Entities.AccountStatus.Removing)
+                                    else
                                     {
                                         <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="SetPrimaryAccount" data-title="Primary account">
                                             <img src="~/svg/action/star.svg" />
