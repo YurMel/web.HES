@@ -1,0 +1,98 @@
+﻿@model HES.Web.Pages.Employees.IndexModel
+
+<table id="employees1" class="display table table-hover border rounded w-100">
+    <thead>
+        <tr>
+            <th data-priority="1">
+                @Html.DisplayNameFor(model => model.Employees[0].FullName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Employees[0].Email)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Employees[0].PhoneNumber)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Employees[0].Department.Company)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Employees[0].Department)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Employees[0].Position)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Employees[0].LastSeen)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Employees[0].Devices)
+            </th>
+            <th class="table-col-menu" data-priority="2"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Employees)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FullName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Email)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PhoneNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Department.Company.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Department.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Position.Name)
+                </td>
+                <td>
+                    @if (item.LastSeen != null)
+                    {
+                        @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.LastSeen, TimeZoneInfo.Local)
+                    }
+                    else
+                    {
+                        <span>-</span>
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Devices.Count)
+                </td>
+                <td>
+                    <div class="dropdown no-arrow">
+                        <a class="dropdown-toggle" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <img src="~/svg/action/more.svg" />
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right shadow" aria-labelledby="dropdownMenuLink">
+                            <a class="dropdown-item" asp-page="./Details" asp-route-id="@item.Id">
+                                <img src="~/svg/action/details.svg" />
+                                Details
+                            </a>
+                            <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="DeleteEmployee" data-title="Delete employee">
+                                <img src="~/svg/action/delete.svg" />
+                                Delete
+                            </a>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@* Bottom table items *@
+@*<div class="row mt-2">
+    <div class="col d-flex justify-content-center justify-content-lg-start align-items-center mb-1 text-nowrap">
+        <span class="d-flex align-items-center mr-1 text-navyblue">Show entries</span>
+        <div id="entries_place"></div>
+    </div>
+    <div id="showing_place" class="col d-flex justify-content-center align-items-center mb-1 text-navyblue text-nowrap"></div>
+    <div id="pagination_place" class="col d-flex justify-content-center justify-content-lg-end align-items-center mb-1"></div>
+</div>*@

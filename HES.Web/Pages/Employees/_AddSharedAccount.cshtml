@@ -1,6 +1,6 @@
 ﻿@model HES.Web.Pages.Employees.DetailsModel
 
-<form method="post">
+<form method="post" id="add_shared_acc_form">
     <input type="hidden" value="@ViewBag.EmployeeId" name="employeeId" />
     <div class="form-group">
         <label asp-for="SharedAccount.Name" class="control-label text-gray"></label>
@@ -46,3 +46,22 @@
         <input type="submit" value="Add" class="btn btn-primary" asp-page-handler="AddSharedAccount" />
     </div>
 </form>
+
+<script>
+    $("#add_shared_acc_form").on("submit", function () {
+        var devices = [];
+        $.each($("input[name='SelectedDevices']:checked"), function () {
+            devices.push($(this).val());
+        });
+        if (devices.length == 0 && @Model.Devices.Count > 1) {
+            $('.list-group-item').css({ "border": "1px solid red" })
+            return false;
+        }
+    })
+
+    $("input[type='checkbox']").change(function () {
+        if (this.checked) {
+            $('.list-group-item').css("border", "1px solid rgba(0, 0, 0, 0.125)")
+        }
+    });
+</script>

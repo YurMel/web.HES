@@ -45,6 +45,19 @@ namespace HES.Web.Pages.Employees
 
         #region Employee
 
+        //public async Task<IActionResult> OnGetEmploeeDetails()
+        //{
+        //    Employees = await _employeeService
+        //       .EmployeeQuery()
+        //       .Include(e => e.Department.Company)
+        //       .Include(e => e.Department)
+        //       .Include(e => e.Position)
+        //       .Include(e => e.Devices)
+        //       .ToListAsync();
+
+        //    return Partial("_EmploeeDetails", this);
+        //}
+
         public async Task<JsonResult> OnGetJsonDepartmentAsync(string id)
         {
             return new JsonResult(await _employeeService.DepartmentQuery().Where(d => d.CompanyId == id).ToListAsync());

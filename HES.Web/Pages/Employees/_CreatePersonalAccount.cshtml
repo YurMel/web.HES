@@ -1,6 +1,6 @@
 ﻿@model HES.Web.Pages.Employees.DetailsModel
 
-<form method="post">
+<form method="post" id="add_personal_acc_form">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <input type="hidden" asp-for="DeviceAccount.EmployeeId" value="@ViewBag.EmployeeId" />
     <div class="row align-items-center">
@@ -85,3 +85,21 @@
         <input type="submit" value="Create" class="btn btn-primary" asp-page-handler="CreatePersonalAccount" />
     </div>
 </form>
+<script>
+    $("#add_personal_acc_form").on("submit", function () {
+        var devices = [];
+        $.each($("input[name='selectedDevices']:checked"), function () {
+            devices.push($(this).val());
+        });
+        if (devices.length == 0 && @Model.Devices.Count > 1) {
+            $('.list-group-item').css({ "border": "1px solid red" })
+            return false;
+        }
+    })
+
+    $("input[type='checkbox']").change(function () {
+        if (this.checked) {
+            $('.list-group-item').css("border", "1px solid rgba(0, 0, 0, 0.125)")
+        }
+    });
+</script>

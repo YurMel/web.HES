@@ -11,9 +11,9 @@
     </div>
 </div>
 
-<form method="post">
+<form id="add_device" method="post">
     <input type="hidden" asp-for="Employee.Id" name="employeeId" />
-    <table id="devices" class="display table table-hover inside-scrollbar" style="width:100%;">
+    <table id="devices" class="display table table-hover inside-scrollbar w-100">
         <thead>
             <tr>
                 <th class="table-col-menu">
@@ -49,3 +49,21 @@
         <input type="submit" value="Add" class="btn btn-primary" asp-page-handler="AddDevice" />
     </div>
 </form>
+<script>
+    $("#add_device").on("submit", function () {
+        var devices = [];
+        $.each($("input[name='selectedDevices']:checked"), function () {
+            devices.push($(this).val());
+        });
+        if (devices.length == 0) {
+            $('.dataTables_scroll').css("border", "1px solid red")
+            return false;
+        }
+    })
+
+    $("input[type='checkbox']").change(function () {
+        if (this.checked) {
+            $('.dataTables_scroll').css("border", "1px solid #ccc")
+        }
+    });
+</script>

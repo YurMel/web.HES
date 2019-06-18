@@ -240,6 +240,15 @@ namespace HES.Core.Services
                         await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties.ToArray());
                         break;
                     case TaskOperation.Delete:
+                        var dev = await _deviceRepository.Query()
+                            .Where(d => d.Id == deviceTask.DeviceId)
+                            .AsNoTracking()
+                            .FirstOrDefaultAsync();
+                        if (dev.PrimaryAccountId == deviceAccount.Id)
+                        {
+                            dev.PrimaryAccountId = null;
+                            await _deviceRepository.UpdateOnlyPropAsync(dev, new string[] { "PrimaryAccountId" });
+                        }
                         deviceAccount.Deleted = true;
                         properties.Add("Deleted");
                         await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties.ToArray());
