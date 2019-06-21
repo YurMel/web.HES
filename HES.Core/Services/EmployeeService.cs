@@ -5,6 +5,8 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using HES.Core.Entities;
 using HES.Core.Interfaces;
+using Hideez.SDK.Communication.Security;
+using Hideez.SDK.Communication.Utils;
 using Microsoft.EntityFrameworkCore;
 
 namespace HES.Core.Services
@@ -617,7 +619,9 @@ namespace HES.Core.Services
 
         private string GenerateMasterPassword()
         {
-            return new Random().Next(1000, 9999).ToString();
+            var buf = AesCryptoHelper.CreateRandomBuf(32);
+            var pass = ConvertUtils.ByteArrayToHexString(buf);
+            return pass;
         }
     }
 }

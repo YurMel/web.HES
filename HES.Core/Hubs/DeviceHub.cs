@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Text;
 using System.Threading.Tasks;
 using HES.Core.Interfaces;
 using Hideez.SDK.Communication;
@@ -61,7 +62,11 @@ namespace HES.Core.Hubs
                     {
                         try
                         {
-                            await device.Authenticate(channelNo);
+                            //todo - read the master password from the DB and convert to bytes
+                            //var key = ConvertUtils.HexStringToBytes();
+                            var key = Encoding.UTF8.GetBytes("passphrase");
+
+                            await device.Authenticate(channelNo, key);
                             if (_pendingConnections.TryGetValue(deviceId, out PendingConnectionDescription pendingConnection))
                             {
                                 pendingConnection.Tcs.TrySetResult(device);

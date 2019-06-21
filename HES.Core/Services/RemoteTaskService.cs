@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -8,6 +9,7 @@ using HES.Core.Hubs;
 using HES.Core.Interfaces;
 using Hideez.SDK.Communication.PasswordManager;
 using Hideez.SDK.Communication.Remote;
+using Hideez.SDK.Communication.Utils;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -16,12 +18,14 @@ namespace HES.Core.Services
 {
     public class RemoteTaskService : IRemoteTaskService
     {
+        readonly ConcurrentDictionary<string, string> _devicesInProgress
+            = new ConcurrentDictionary<string, string>();
         readonly IAsyncRepository<DeviceAccount> _deviceAccountRepository;
         readonly IAsyncRepository<DeviceTask> _deviceTaskRepository;
         readonly IAsyncRepository<Device> _deviceRepository;
-        private readonly ILogger<RemoteTaskService> _logger;
-        private readonly IDataProtectionService _dataProtectionService;
-        private readonly IHubContext<EmployeeDetailsHub> _hubContext;
+        readonly ILogger<RemoteTaskService> _logger;
+        readonly IDataProtectionService _dataProtectionService;
+        readonly IHubContext<EmployeeDetailsHub> _hubContext;
 
         public RemoteTaskService(IAsyncRepository<DeviceAccount> deviceAccountRepository,
                                  IAsyncRepository<DeviceTask> deviceTaskRepository,
@@ -99,20 +103,6 @@ namespace HES.Core.Services
 
         public async Task RemoveDeviceAsync(Device device)
         {
-            //// Get all tasks for this device
-            //var allTasks = _deviceTaskRepository.Query()
-            //    .Where(d => d.DeviceAccount.DeviceId == device.Id).ToList();
-
-            //// Delete all tasks
-            //await _deviceTaskRepository.DeleteRangeAsync(allTasks);
-
-            //// Get all accounts for this device
-            //var allAccounts = _deviceAccountRepository.Query()
-            //    .Where(d => d.DeviceId == device.Id).ToList();
-
-            //// Delete all accounts
-            //await _deviceAccountRepository.DeleteRangeAsync(allAccounts);
-
             await AddTaskAsync(new DeviceTask
             {
                 Password = _dataProtectionService.Protect(device.MasterPassword),
@@ -133,17 +123,29 @@ namespace HES.Core.Services
         public void StartTaskProcessing(string deviceId)
         {
             Debug.WriteLine($"!!!!!!!!!!!!! StartTaskProcessing {deviceId}");
-            Task.Run(async () =>
+
+            if (_devicesInProgress.TryAdd(deviceId, deviceId))
             {
-                try
+                Task.Run(async () =>
                 {
-                    await ExecuteRemoteTasks(deviceId);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex.Message);
-                }
-            });
+                    try
+                    {
+                        await ExecuteRemoteTasks(deviceId);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex.Message);
+                    }
+                    finally
+                    {
+                        _devicesInProgress.TryRemove(deviceId, out string removed);
+                    }
+                });
+            }
+            else
+            {
+                Debug.WriteLine($"!!!!!!!!!!!!! in progress {deviceId}");
+            }
         }
 
         async Task ExecuteRemoteTasks(string deviceId)
@@ -157,20 +159,24 @@ namespace HES.Core.Services
                     .Where(t => t.DeviceId == deviceId)
                     .ToListAsync();
 
-                if (tasks.Any())
+                while (tasks.Any())
                 {
                     var remoteDevice = await AppHub.EstablishRemoteConnection(deviceId, 4);
+                    if (remoteDevice == null)
+                        break;
 
-                    if (remoteDevice != null)
+                    foreach (var task in tasks.OrderBy(x => x.CreatedAt))
                     {
-                        foreach (var task in tasks.OrderBy(x => x.CreatedAt))
-                        {
-                            task.Password = _dataProtectionService.Unprotect(task.Password);
-                            task.OtpSecret = _dataProtectionService.Unprotect(task.OtpSecret);
-                            var idFromDevice = await ExecuteRemoteTask(remoteDevice, task);
-                            await TaskCompleted(task.Id, idFromDevice);
-                        }
+                        task.Password = _dataProtectionService.Unprotect(task.Password);
+                        task.OtpSecret = _dataProtectionService.Unprotect(task.OtpSecret);
+                        var idFromDevice = await ExecuteRemoteTask(remoteDevice, task);
+                        await TaskCompleted(task.Id, idFromDevice);
                     }
+
+                    tasks = await _deviceTaskRepository.Query()
+                        .Include(t => t.DeviceAccount)
+                        .Where(t => t.DeviceId == deviceId)
+                        .ToListAsync();
                 }
             }
             catch (Exception ex)
@@ -373,17 +379,15 @@ namespace HES.Core.Services
 
         private async Task<ushort> WipeDevice(RemoteDevice device, DeviceTask task)
         {
-            var pingData = new byte[] { 0x00, 0x01, 0x02, 0x03, 0x04 };
-            var respData = await device.Ping(pingData);
-            Debug.Assert(pingData.SequenceEqual(respData.Result));
+            var key = ConvertUtils.HexStringToBytes(task.Password);
+            var respData = await device.Wipe(key);
             return 0;
         }
 
         private async Task<ushort> LinkDevice(RemoteDevice device, DeviceTask task)
         {
-            var pingData = new byte[] { 0x00, 0x01, 0x02, 0x03, 0x04 };
-            var respData = await device.Ping(pingData);
-            Debug.Assert(pingData.SequenceEqual(respData.Result));
+            var key = ConvertUtils.HexStringToBytes(task.Password);
+            var respData = await device.Link(key);
             return 0;
         }
     }
