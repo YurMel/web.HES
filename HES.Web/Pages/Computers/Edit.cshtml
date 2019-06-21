@@ -1,0 +1,70 @@
+﻿@page
+@model HES.Web.Pages.Computers.EditModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Computer</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Computer.Id" />
+            <div class="form-group">
+                <label asp-for="Computer.Name" class="control-label"></label>
+                <input asp-for="Computer.Name" class="form-control" />
+                <span asp-validation-for="Computer.Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Computer.ClientVersion" class="control-label"></label>
+                <input asp-for="Computer.ClientVersion" class="form-control" />
+                <span asp-validation-for="Computer.ClientVersion" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Computer.CompanyId" class="control-label"></label>
+                <select asp-for="Computer.CompanyId" class="form-control" asp-items="ViewBag.CompanyId"></select>
+                <span asp-validation-for="Computer.CompanyId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Computer.DepartmentId" class="control-label"></label>
+                <select asp-for="Computer.DepartmentId" class="form-control" asp-items="ViewBag.DepartmentId"></select>
+                <span asp-validation-for="Computer.DepartmentId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Computer.OS" class="control-label"></label>
+                <input asp-for="Computer.OS" class="form-control" />
+                <span asp-validation-for="Computer.OS" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Computer.IP" class="control-label"></label>
+                <input asp-for="Computer.IP" class="form-control" />
+                <span asp-validation-for="Computer.IP" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Computer.LastSeen" class="control-label"></label>
+                <input asp-for="Computer.LastSeen" class="form-control" />
+                <span asp-validation-for="Computer.LastSeen" class="text-danger"></span>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="Computer.Approved" /> @Html.DisplayNameFor(model => model.Computer.Approved)
+                </label>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="./Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

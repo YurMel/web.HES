@@ -21,5 +21,6 @@ namespace HES.Infrastructure
         public DbSet<DeviceAccount> DeviceAccounts { get; set; }
         public DbSet<DeviceTask> DeviceTasks { get; set; }
         public DbSet<AppSettings> AppSettings { get; set; }
+        public DbSet<Computer> Computers { get; set; }
     }
 }

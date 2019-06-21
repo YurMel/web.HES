@@ -143,6 +143,7 @@ namespace HES.Web
                 {
                     options.Conventions.AddPageRoute("/Employees/Index", "");
                     options.Conventions.AuthorizeFolder("/Employees");
+                    options.Conventions.AuthorizeFolder("/Computers");
                     options.Conventions.AuthorizeFolder("/SharedAccounts");
                     options.Conventions.AuthorizeFolder("/Templates");
                     options.Conventions.AuthorizeFolder("/Devices");
