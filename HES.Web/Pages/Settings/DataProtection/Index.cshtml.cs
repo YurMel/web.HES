@@ -1,5 +1,7 @@
 ﻿using HES.Core.Interfaces;
 using HES.Core.Services;
+using HES.Infrastructure;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
@@ -13,6 +15,7 @@ namespace HES.Web.Pages.Settings.DataProtection
     {
         private readonly IDataProtectionService _dataProtectionService;
         private readonly ILogger<IndexModel> _logger;
+        private readonly UserManager<ApplicationUser> _userManager;
 
         public ProtectionStatus Status { get; set; }
 
@@ -65,10 +68,11 @@ namespace HES.Web.Pages.Settings.DataProtection
             public string ConfirmPassword { get; set; }
         }
 
-        public IndexModel(IDataProtectionService dataProtectionService, ILogger<IndexModel> logger)
+        public IndexModel(IDataProtectionService dataProtectionService, ILogger<IndexModel> logger, UserManager<ApplicationUser> userManager)
         {
             _dataProtectionService = dataProtectionService;
             _logger = logger;
+            _userManager = userManager;
         }
 
         public void OnGet()
@@ -86,7 +90,8 @@ namespace HES.Web.Pages.Settings.DataProtection
 
             try
             {
-                await _dataProtectionService.EnableDataProtectionAsync(NewPassword.Password);
+                var user = await _userManager.GetUserAsync(User);
+                await _dataProtectionService.EnableDataProtectionAsync(NewPassword.Password, user.Email);
             }
             catch (Exception ex)
             {
@@ -107,7 +112,8 @@ namespace HES.Web.Pages.Settings.DataProtection
 
             try
             {
-                await _dataProtectionService.DisableDataProtectionAsync(CurrentPassword.Password);
+                var user = await _userManager.GetUserAsync(User);
+                await _dataProtectionService.DisableDataProtectionAsync(CurrentPassword.Password, user.Email);
             }
             catch (Exception ex)
             {
@@ -128,7 +134,8 @@ namespace HES.Web.Pages.Settings.DataProtection
 
             try
             {
-                await _dataProtectionService.ActivateDataProtectionAsync(CurrentPassword.Password);
+                var user = await _userManager.GetUserAsync(User);
+                await _dataProtectionService.ActivateDataProtectionAsync(CurrentPassword.Password, user.Email);
             }
             catch (Exception ex)
             {
@@ -149,7 +156,8 @@ namespace HES.Web.Pages.Settings.DataProtection
 
             try
             {
-                await _dataProtectionService.ChangeDataProtectionPasswordAsync(ChangePassword.OldPassword, ChangePassword.NewPassword);
+                var user = await _userManager.GetUserAsync(User);
+                await _dataProtectionService.ChangeDataProtectionPasswordAsync(ChangePassword.OldPassword, ChangePassword.NewPassword, user.Email);
             }
             catch (Exception ex)
             {

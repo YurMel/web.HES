@@ -53,7 +53,7 @@ namespace HES.Core.Services
 
         public async void Status()
         {
-            var appSettings = await _dataProtectionRepository.Query().Where(d =>d.Key == "ProtectedValue").FirstOrDefaultAsync();
+            var appSettings = await _dataProtectionRepository.Query().Where(d => d.Key == "ProtectedValue").FirstOrDefaultAsync();
             if (appSettings?.Value != null)
             {
                 _enabledProtection = true;
@@ -107,7 +107,7 @@ namespace HES.Core.Services
                 throw new Exception("Data protection is not activated or busy.");
         }
 
-        public async Task ActivateDataProtectionAsync(string password)
+        public async Task ActivateDataProtectionAsync(string password, string user)
         {
             try
             {
@@ -121,10 +121,11 @@ namespace HES.Core.Services
                 _dataProtector = _dataProtectionProvider.CreateProtector(password);
                 _activatedProtection = true;
                 _notificationService.RemoveNotify(NotifyId.data_protection);
+                _logger.LogInformation($"Protection was activated by {user}.");
             }
             catch (CryptographicException)
             {
-                throw new Exception("Invalid password");
+                throw new Exception($"Invalid password, was entered by {user}.");
             }
             catch (Exception ex)
             {
@@ -132,46 +133,44 @@ namespace HES.Core.Services
             }
         }
 
-        public async Task EnableDataProtectionAsync(string password)
+        public async Task EnableDataProtectionAsync(string password, string user)
         {
             if (password == null)
             {
                 throw new Exception("The password must not be null.");
             }
 
-            _isBusy = true;
-
             var appSettings = await _dataProtectionRepository.Query().Where(d => d.Key == "ProtectedValue").FirstOrDefaultAsync();
-            if (appSettings != null)
+            if (appSettings?.Value != null)
             {
-                if (appSettings.Value != null)
-                {
-                    throw new Exception("The password already added.");
-                }
-                // Create protector
-                _dataProtector = _dataProtectionProvider.CreateProtector(password);
-                // Protect value
-                var protectedValue = _dataProtector.Protect(Guid.NewGuid().ToString());
-                appSettings.Value = protectedValue;
-                await _dataProtectionRepository.UpdateOnlyPropAsync(appSettings, new string[] { "Value" });
+                throw new Exception("The password already added.");
             }
-            else
+
+            try
             {
+                _isBusy = true;
+
                 // Create protector
                 _dataProtector = _dataProtectionProvider.CreateProtector(password);
                 // Protect value
                 var protectedValue = _dataProtector.Protect(Guid.NewGuid().ToString());
                 await _dataProtectionRepository.AddAsync(new AppSettings() { Key = "ProtectedValue", Value = protectedValue });
+                               
+                await ProtectAllDataAsync();
+
+                _enabledProtection = true;
+                _activatedProtection = true;
+                _isBusy = false;
+                _logger.LogInformation($"Protection was enabled by {user}.");
             }
-
-            await ProtectAllDataAsync();
-
-            _enabledProtection = true;
-            _activatedProtection = true;
-            _isBusy = false;
+            catch (Exception ex)
+            {
+                _isBusy = false;
+                _logger.LogError(ex.Message);
+            }
         }
 
-        public async Task DisableDataProtectionAsync(string password)
+        public async Task DisableDataProtectionAsync(string password, string user)
         {
             try
             {
@@ -186,25 +185,26 @@ namespace HES.Core.Services
                 await UnprotectAllDataAsync();
                 // Disable protector
                 _dataProtector = null;
-                appSettings.Value = null;
-                await _dataProtectionRepository.UpdateOnlyPropAsync(appSettings, new string[] { "Value" });
+                await _dataProtectionRepository.DeleteAsync(appSettings);
 
                 _enabledProtection = false;
                 _activatedProtection = false;
                 _isBusy = false;
+                _logger.LogInformation($"Protection was disabled by {user}.");
             }
             catch (CryptographicException)
             {
                 _isBusy = false;
-                throw new Exception("Invalid password");
+                throw new Exception($"Invalid password, was entered by {user}.");
             }
             catch (Exception ex)
             {
+                _isBusy = false;
                 throw new Exception(ex.Message);
             }
         }
 
-        public async Task ChangeDataProtectionPasswordAsync(string oldPassword, string newPassword)
+        public async Task ChangeDataProtectionPasswordAsync(string oldPassword, string newPassword, string user)
         {
             if (oldPassword == null || newPassword == null)
             {
@@ -232,14 +232,16 @@ namespace HES.Core.Services
                 // Protect all
                 await ProtectAllDataAsync();
                 _isBusy = false;
+                _logger.LogInformation($"Protection password was changed by {user}.");
             }
             catch (CryptographicException)
             {
                 _isBusy = false;
-                throw new Exception("Invalid password");
+                throw new Exception($"Invalid password, was entered by {user}.");
             }
             catch (Exception ex)
             {
+                _isBusy = false;
                 throw new Exception(ex.Message);
             }
         }

@@ -8,10 +8,10 @@ namespace HES.Core.Interfaces
         void Status();
         ProtectionStatus GetStatus();
         bool CanUse();
-        Task ActivateDataProtectionAsync(string password);
-        Task EnableDataProtectionAsync(string password);
-        Task DisableDataProtectionAsync(string password);
-        Task ChangeDataProtectionPasswordAsync(string oldPassword, string newPassword);
+        Task ActivateDataProtectionAsync(string password, string user);
+        Task EnableDataProtectionAsync(string password, string user);
+        Task DisableDataProtectionAsync(string password, string user);
+        Task ChangeDataProtectionPasswordAsync(string oldPassword, string newPassword, string user);
         string Protect(string text);
         string Unprotect(string text);
         void Validate();
