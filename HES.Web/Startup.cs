@@ -60,6 +60,7 @@ namespace HES.Web
             services.AddScoped(typeof(IAsyncRepository<>), typeof(Repository<>));
 
             services.AddScoped<IEmployeeService, EmployeeService>();
+            services.AddScoped<IComputerService, ComputerService>();
             services.AddScoped<IDeviceService, DeviceService>();
             services.AddScoped<ISharedAccountService, SharedAccountService>();
             services.AddScoped<ITemplateService, TemplateService>();
@@ -94,7 +95,6 @@ namespace HES.Web
                 var logger = scope.ServiceProvider.GetService<ILogger<NotificationService>>();
                 return new NotificationService(logger);
             });
-
 
             // Crypto
             services.AddTransient<IAesCryptography, AesCryptography>();
