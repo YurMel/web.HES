@@ -1,0 +1,85 @@
+﻿@page
+@model HES.Web.Pages.Audit.WorkstationsEvents.EditModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>WorkstationEvent</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="WorkstationEvent.Id" />
+            <div class="form-group">
+                <label asp-for="WorkstationEvent.Date" class="control-label"></label>
+                <input asp-for="WorkstationEvent.Date" class="form-control" />
+                <span asp-validation-for="WorkstationEvent.Date" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="WorkstationEvent.EventId" class="control-label"></label>
+                <input asp-for="WorkstationEvent.EventId" class="form-control" />
+                <span asp-validation-for="WorkstationEvent.EventId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="WorkstationEvent.StatusId" class="control-label"></label>
+                <input asp-for="WorkstationEvent.StatusId" class="form-control" />
+                <span asp-validation-for="WorkstationEvent.StatusId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="WorkstationEvent.Note" class="control-label"></label>
+                <input asp-for="WorkstationEvent.Note" class="form-control" />
+                <span asp-validation-for="WorkstationEvent.Note" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="WorkstationEvent.WorkstationId" class="control-label"></label>
+                <input asp-for="WorkstationEvent.WorkstationId" class="form-control" />
+                <span asp-validation-for="WorkstationEvent.WorkstationId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="WorkstationEvent.UserSession" class="control-label"></label>
+                <input asp-for="WorkstationEvent.UserSession" class="form-control" />
+                <span asp-validation-for="WorkstationEvent.UserSession" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="WorkstationEvent.DeviceId" class="control-label"></label>
+                <select asp-for="WorkstationEvent.DeviceId" class="form-control" asp-items="ViewBag.DeviceId"></select>
+                <span asp-validation-for="WorkstationEvent.DeviceId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="WorkstationEvent.EmployeeId" class="control-label"></label>
+                <select asp-for="WorkstationEvent.EmployeeId" class="form-control" asp-items="ViewBag.EmployeeId"></select>
+                <span asp-validation-for="WorkstationEvent.EmployeeId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="WorkstationEvent.DepartmentId" class="control-label"></label>
+                <select asp-for="WorkstationEvent.DepartmentId" class="form-control" asp-items="ViewBag.DepartmentId"></select>
+                <span asp-validation-for="WorkstationEvent.DepartmentId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="WorkstationEvent.DeviceAccountId" class="control-label"></label>
+                <input asp-for="WorkstationEvent.DeviceAccountId" class="form-control" />
+                <span asp-validation-for="WorkstationEvent.DeviceAccountId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="WorkstationEvent.AccountType" class="control-label"></label>
+                <input asp-for="WorkstationEvent.AccountType" class="form-control" />
+                <span asp-validation-for="WorkstationEvent.AccountType" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="./Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

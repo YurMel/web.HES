@@ -1,0 +1,88 @@
+﻿@page
+@model HES.Web.Pages.Audit.WorkstationsEvents.DeleteModel
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h1>Delete</h1>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>WorkstationEvent</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.WorkstationEvent.Date)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.WorkstationEvent.Date)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.WorkstationEvent.EventId)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.WorkstationEvent.EventId)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.WorkstationEvent.StatusId)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.WorkstationEvent.StatusId)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.WorkstationEvent.Note)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.WorkstationEvent.Note)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.WorkstationEvent.WorkstationId)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.WorkstationEvent.WorkstationId)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.WorkstationEvent.UserSession)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.WorkstationEvent.UserSession)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.WorkstationEvent.DeviceAccountId)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.WorkstationEvent.DeviceAccountId)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.WorkstationEvent.AccountType)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.WorkstationEvent.AccountType)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.WorkstationEvent.Device)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.WorkstationEvent.Device.Id)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.WorkstationEvent.Employee)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.WorkstationEvent.Employee.Id)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.WorkstationEvent.Department)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.WorkstationEvent.Department.Id)
+        </dd>
+    </dl>
+    
+    <form method="post">
+        <input type="hidden" asp-for="WorkstationEvent.Id" />
+        <input type="submit" value="Delete" class="btn btn-danger" /> |
+        <a asp-page="./Index">Back to List</a>
+    </form>
+</div>

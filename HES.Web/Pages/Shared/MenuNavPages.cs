@@ -15,6 +15,8 @@ namespace HES.Web.Pages
 
         public static string Devices => "./Devices/Index";
 
+        public static string Audit => "./Audit/Index";
+
         public static string Settings => "./Settings/Index";
                
 
@@ -27,6 +29,8 @@ namespace HES.Web.Pages
         public static string TemplatesNavClass(ViewContext viewContext) => PageNavClass(viewContext, Templates);
 
         public static string DevicesNavClass(ViewContext viewContext) => PageNavClass(viewContext, Devices);
+
+        public static string AuditNavClass(ViewContext viewContext) => PageNavClass(viewContext, Audit);
 
         public static string SettingsNavClass(ViewContext viewContext) => PageNavClass(viewContext, Settings);
 
