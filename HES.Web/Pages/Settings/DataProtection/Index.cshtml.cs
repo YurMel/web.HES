@@ -75,9 +75,9 @@ namespace HES.Web.Pages.Settings.DataProtection
             _userManager = userManager;
         }
 
-        public void OnGet()
+        public async Task OnGetAsync()
         {
-            Status = _dataProtectionService.GetStatus();
+            Status = await _dataProtectionService.Status();
         }
 
         public async Task<IActionResult> OnPostEnableDataProtectionAsync(NewPasswordModel NewPassword)

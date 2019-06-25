@@ -16,6 +16,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System;
+using System.IO;
 
 namespace HES.Web
 {
@@ -56,6 +58,13 @@ namespace HES.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // Data protection keys
+            services.AddDataProtection()
+                .SetApplicationName("HES")
+                .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(AppContext.BaseDirectory, "dataprotection")));
+
+            services.AddSignalR();
+
             // Add Services
             services.AddScoped(typeof(IAsyncRepository<>), typeof(Repository<>));
 
@@ -93,7 +102,8 @@ namespace HES.Web
             {
                 var scope = s.CreateScope();
                 var logger = scope.ServiceProvider.GetService<ILogger<NotificationService>>();
-                return new NotificationService(logger);
+                var notificationRepository = scope.ServiceProvider.GetService<IAsyncRepository<Notification>>();
+                return new NotificationService(logger, notificationRepository);
             });
 
             // Crypto
@@ -152,9 +162,6 @@ namespace HES.Web
                     options.Conventions.AuthorizeFolder("/Notifications");
                 })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-
-            services.AddSignalR();
-            services.AddDataProtection();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

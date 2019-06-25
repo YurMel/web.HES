@@ -64,9 +64,9 @@ namespace HES.Core.Hubs
                         {
                             //todo - read the master password from the DB and convert to bytes
                             //var key = ConvertUtils.HexStringToBytes();
-                            var key = Encoding.UTF8.GetBytes("passphrase");
-
-                            await device.Authenticate(channelNo, key);
+                    
+                            //await device.Authenticate(channelNo, key);
+                            await device.Authenticate(channelNo, null);
                             if (_pendingConnections.TryGetValue(deviceId, out PendingConnectionDescription pendingConnection))
                             {
                                 pendingConnection.Tcs.TrySetResult(device);

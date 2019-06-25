@@ -379,15 +379,15 @@ namespace HES.Core.Services
 
         private async Task<ushort> WipeDevice(RemoteDevice device, DeviceTask task)
         {
-            var key = ConvertUtils.HexStringToBytes(task.Password);
-            var respData = await device.Wipe(key);
+            //var key = ConvertUtils.HexStringToBytes(task.Password);
+            //var respData = await device.Wipe(key);
             return 0;
         }
 
         private async Task<ushort> LinkDevice(RemoteDevice device, DeviceTask task)
         {
-            var key = ConvertUtils.HexStringToBytes(task.Password);
-            var respData = await device.Link(key);
+            //var key = ConvertUtils.HexStringToBytes(task.Password);
+            //var respData = await device.Link(key);
             return 0;
         }
     }

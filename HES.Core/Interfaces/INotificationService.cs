@@ -1,12 +1,14 @@
 ﻿using HES.Core.Entities;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace HES.Core.Interfaces
 {
     public interface INotificationService
     {
-        void AddNotify(NotifyId id, string message, string url);
-        void RemoveNotify(NotifyId id);
-        IList<Notification> GetAllNotify();
+        Task<bool> GetNotifyStatus();
+        Task AddNotify(NotifyId id, string message, string url);
+        Task RemoveNotify(NotifyId id);
+        Task <IList<Notification>> GetAllNotify();
     }
 }

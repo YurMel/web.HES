@@ -2,6 +2,7 @@
 using HES.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace HES.Web.Pages.Notifications
 {
@@ -16,9 +17,9 @@ namespace HES.Web.Pages.Notifications
             _notificationService = notificationService;
         }
 
-        public void OnGet()
+        public async Task OnGetAsync()
         {
-            Notifications = _notificationService.GetAllNotify();
+            Notifications = await _notificationService.GetAllNotify();
         }
     }
 }
