@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 
 namespace HES.Core.Hubs
 {
-    public class DeviceHub : Hub<IRemoteDeviceConnection>
+    public class DeviceHub : Hub<IRemoteCommands>
     {
         class PendingConnectionDescription
         {
@@ -51,7 +51,7 @@ namespace HES.Core.Hubs
 
             if (!string.IsNullOrWhiteSpace(deviceId))
             {
-                var device = new RemoteDevice(deviceId, Clients.Caller);
+                var device = new RemoteDevice(deviceId, Clients.Caller, null);
 
                 Context.Items.Add("DeviceId", deviceId);
                 Context.Items.Add("Device", device);
