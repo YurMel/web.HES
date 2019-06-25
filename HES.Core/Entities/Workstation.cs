@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HES.Core.Entities
 {
-    public class Computer
+    public class Workstation
     {
         [Key]
         public string Id { get; set; }
@@ -16,8 +16,7 @@ namespace HES.Core.Entities
         public string IP { get; set; }
         public DateTime LastSeen { get; set; }
         public bool Approved { get; set; }
-
-
+        
         [ForeignKey("CompanyId")]
         public Company Company { get; set; }
         [ForeignKey("DepartmentId")]

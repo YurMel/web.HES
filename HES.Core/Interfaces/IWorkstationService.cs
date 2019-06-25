@@ -4,12 +4,12 @@ using System.Threading.Tasks;
 
 namespace HES.Core.Interfaces
 {
-    public interface IComputerService
+    public interface IWorkstationService
     {
-        IQueryable<Computer> ComputerQuery();
+        IQueryable<Workstation> WorkstationQuery();
         IQueryable<Company> CompanyQuery();
         IQueryable<Department> DepartmentQuery();
-        Task EditDepartmentAsync(Computer computer);
-        Task ApproveComputerAsync(string id);
+        Task EditDepartmentAsync(Workstation workstation);
+        Task ApproveWorkstationAsync(string id);
     }
 }

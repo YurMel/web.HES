@@ -69,7 +69,7 @@ namespace HES.Web
             services.AddScoped(typeof(IAsyncRepository<>), typeof(Repository<>));
 
             services.AddScoped<IEmployeeService, EmployeeService>();
-            services.AddScoped<IComputerService, ComputerService>();
+            services.AddScoped<IWorkstationService, WorkstationService>();
             services.AddScoped<IDeviceService, DeviceService>();
             services.AddScoped<ISharedAccountService, SharedAccountService>();
             services.AddScoped<ITemplateService, TemplateService>();

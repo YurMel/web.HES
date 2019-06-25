@@ -20,7 +20,7 @@ namespace HES.Core.Entities
         public string AccountType { get; set; }
 
         [ForeignKey("ComputerId")]
-        public Computer Computer { get; set; }
+        public Workstation Computer { get; set; }
         [ForeignKey("DeviceId")]
         public Device Device { get; set; }
         [ForeignKey("EmployeeId")]

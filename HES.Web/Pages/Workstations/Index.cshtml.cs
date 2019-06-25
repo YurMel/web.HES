@@ -14,24 +14,24 @@ namespace HES.Web.Pages.Computers
 {
     public class IndexModel : PageModel
     {
-        private readonly IComputerService _computerService;
+        private readonly IWorkstationService _workstationService;
         private readonly ILogger<IndexModel> _logger;
 
-        public IList<Computer> Computers { get; set; }
-        public Computer Computer { get; set; }
+        public IList<Workstation> Workstations { get; set; }
+        public Workstation Workstation { get; set; }
 
         [TempData]
         public string ErrorMessage { get; set; }
 
-        public IndexModel(IComputerService computerService, ILogger<IndexModel> logger)
+        public IndexModel(IWorkstationService workstationService, ILogger<IndexModel> logger)
         {
-            _computerService = computerService;
+            _workstationService = workstationService;
             _logger = logger;
         }
 
         public async Task OnGetAsync()
         {
-            Computers = await _computerService.ComputerQuery()
+            Workstations = await _workstationService.WorkstationQuery()
                 .Include(c => c.Company)
                 .Include(c => c.Department)
                 .ToListAsync();
@@ -39,7 +39,7 @@ namespace HES.Web.Pages.Computers
 
         public async Task<JsonResult> OnGetJsonDepartmentAsync(string id)
         {
-            return new JsonResult(await _computerService.DepartmentQuery().Where(d => d.CompanyId == id).ToListAsync());
+            return new JsonResult(await _workstationService.DepartmentQuery().Where(d => d.CompanyId == id).ToListAsync());
         }
 
         public async Task<IActionResult> OnGetEditDepartmentAsync(string id)
@@ -50,25 +50,25 @@ namespace HES.Web.Pages.Computers
                 return NotFound();
             }
 
-            Computer = await _computerService
-                .ComputerQuery()
+            Workstation = await _workstationService
+                .WorkstationQuery()
                 .Include(c => c.Company)
                 .Include(c => c.Department)
                 .FirstOrDefaultAsync(c => c.Id == id);
 
-            if (Computer == null)
+            if (Workstation == null)
             {
                 _logger.LogWarning("Computer == null");
                 return NotFound();
             }
 
-            ViewData["CompanyId"] = new SelectList(await _computerService.CompanyQuery().ToListAsync(), "Id", "Name");
-            ViewData["DepartmentId"] = new SelectList(await _computerService.DepartmentQuery().Where(d => d.CompanyId == Computer.Department.CompanyId).ToListAsync(), "Id", "Name");
+            ViewData["CompanyId"] = new SelectList(await _workstationService.CompanyQuery().ToListAsync(), "Id", "Name");
+            ViewData["DepartmentId"] = new SelectList(await _workstationService.DepartmentQuery().Where(d => d.CompanyId == Workstation.Department.CompanyId).ToListAsync(), "Id", "Name");
 
             return Partial("_EditDepartment", this);
         }
 
-        public async Task<IActionResult> OnPostEditDepartmentAsync(Computer Computer)
+        public async Task<IActionResult> OnPostEditDepartmentAsync(Workstation Computer)
         {
             if (Computer == null)
             {
@@ -78,7 +78,7 @@ namespace HES.Web.Pages.Computers
 
             try
             {
-                await _computerService.EditDepartmentAsync(Computer);
+                await _workstationService.EditDepartmentAsync(Computer);
             }
             catch (Exception ex)
             {
@@ -97,8 +97,8 @@ namespace HES.Web.Pages.Computers
                 return NotFound();
             }
 
-            Computer = await _computerService
-               .ComputerQuery()
+            Workstation = await _workstationService
+               .WorkstationQuery()
                .FirstOrDefaultAsync(c => c.Id == id);
 
             return Partial("_ApproveComputer", this);
@@ -113,7 +113,7 @@ namespace HES.Web.Pages.Computers
             }
             try
             {
-                await _computerService.ApproveComputerAsync(computerId);
+                await _workstationService.ApproveWorkstationAsync(computerId);
             }
             catch (Exception ex)
             {

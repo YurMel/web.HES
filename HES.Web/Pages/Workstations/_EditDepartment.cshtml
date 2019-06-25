@@ -1,0 +1,21 @@
+﻿@model HES.Web.Pages.Computers.IndexModel
+
+<form method="post">
+    <input type="hidden" asp-for="Workstation.Id" />
+    <div class="form-group">
+        <label asp-for="Workstation.Department.CompanyId" class="control-label text-gray"></label>
+        <select id="companies" asp-for="Workstation.Department.CompanyId" onchange="GetDepartment(this.value)" class="form-control text-navyblue" asp-items="ViewBag.CompanyId"></select>
+    </div>
+    <div class="form-group">
+        <label asp-for="Workstation.DepartmentId" class="control-label text-gray"></label>
+        <select id="departments" asp-for="Workstation.DepartmentId" asp-items="ViewBag.DepartmentId" class="form-control text-navyblue"></select>
+    </div>
+    <div class="form-group m-0 text-right">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <input type="submit" value="Save" class="btn btn-primary" asp-page-handler="EditDepartment" />
+    </div>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

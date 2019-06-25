@@ -2,8 +2,8 @@
 @model HES.Web.Pages.Computers.IndexModel
 
 @{
-    ViewData["Title"] = "Computers";
-    ViewData["ActivePage"] = MenuNavPages.Computers;
+    ViewData["Title"] = "Workstations";
+    ViewData["ActivePage"] = MenuNavPages.Workstations;
 }
 
 <partial name="_ErrorMessage" for="ErrorMessage" />
@@ -11,7 +11,7 @@
 @* Top table items *@
 <div class="row align-items-center mr-0">
     <div class="col">
-        <h1 class="text-navyblue">Computers</h1>
+        <h1 class="text-navyblue">Workstations</h1>
     </div>
     <div class="col-auto p-1">
         <div class="form-group has-search-right m-0">
@@ -23,38 +23,38 @@
     </div>
 </div>
 
-<table id="computers" class="display table table-hover border rounded w-100">
+<table id="workstations" class="display table table-hover border rounded w-100">
     <thead>
         <tr>
             <th data-priority="1">
-                @Html.DisplayNameFor(model => model.Computers[0].Name)
+                @Html.DisplayNameFor(model => model.Workstations[0].Name)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Computers[0].ClientVersion)
+                @Html.DisplayNameFor(model => model.Workstations[0].ClientVersion)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Computers[0].Company)
+                @Html.DisplayNameFor(model => model.Workstations[0].Company)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Computers[0].Department)
+                @Html.DisplayNameFor(model => model.Workstations[0].Department)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Computers[0].OS)
+                @Html.DisplayNameFor(model => model.Workstations[0].OS)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Computers[0].IP)
+                @Html.DisplayNameFor(model => model.Workstations[0].IP)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Computers[0].LastSeen)
+                @Html.DisplayNameFor(model => model.Workstations[0].LastSeen)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Computers[0].Approved)
+                @Html.DisplayNameFor(model => model.Workstations[0].Approved)
             </th>
             <th class="table-col-menu" data-priority="2"></th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model.Computers)
+        @foreach (var item in Model.Workstations)
         {
             <tr>
                 <td>
@@ -100,7 +100,7 @@
                             </a>
                             @if (item.Approved == false)
                             {
-                                <div class="dropdown-divider"></div>
+                                @*<div class="dropdown-divider"></div>*@
                                 <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="ApproveComputer" data-title="Approve computer">
                                     <img src="~/svg/action/done.svg" />
                                     Approve
@@ -148,7 +148,7 @@
 @section Scripts{
     <script>
         // Init DataTables
-        var table_name = '#computers';
+        var table_name = '#workstations';
         $(table_name).DataTable({
             responsive: true,
             "columnDefs": [
@@ -180,7 +180,7 @@
             $('#modalDialog').modal('toggle');
 
             $.ajax({
-                url: "/Computers?handler=" + action,
+                url: "/Workstations?handler=" + action,
                 type: "Get",
                 data: { id: id },
                 async: true,
@@ -202,7 +202,7 @@
 
         // Dropdown Department
         function GetDepartment(id) {
-            $.getJSON('/Computers?handler=JsonDepartment', { id: id },
+            $.getJSON('/Workstations?handler=JsonDepartment', { id: id },
                 function (data) {
                     var dep = "";
                     $(data).each(function () {

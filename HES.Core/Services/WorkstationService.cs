@@ -8,24 +8,24 @@ using System.Threading.Tasks;
 
 namespace HES.Core.Services
 {
-    public class ComputerService : IComputerService
+    public class WorkstationService : IWorkstationService
     {
-        private readonly IAsyncRepository<Computer> _computerRepository;
+        private readonly IAsyncRepository<Workstation> _workstationRepository;
         private readonly IAsyncRepository<Company> _companyRepository;
         private readonly IAsyncRepository<Department> _departmentRepository;
 
-        public ComputerService(IAsyncRepository<Computer> computerRepository,
+        public WorkstationService(IAsyncRepository<Workstation> workstationRepository,
                                IAsyncRepository<Company> companyRepository,
                                IAsyncRepository<Department> departmentRepository)
         {
-            _computerRepository = computerRepository;
+            _workstationRepository = workstationRepository;
             _companyRepository = companyRepository;
             _departmentRepository = departmentRepository;
         }
 
-        public IQueryable<Computer> ComputerQuery()
+        public IQueryable<Workstation> WorkstationQuery()
         {
-            return _computerRepository.Query();
+            return _workstationRepository.Query();
         }
 
         public IQueryable<Company> CompanyQuery()
@@ -38,7 +38,7 @@ namespace HES.Core.Services
             return _departmentRepository.Query();
         }
 
-        public async Task EditDepartmentAsync(Computer computer)
+        public async Task EditDepartmentAsync(Workstation computer)
         {
             if (computer == null)
                 throw new ArgumentNullException(nameof(computer));
@@ -46,22 +46,22 @@ namespace HES.Core.Services
             computer.CompanyId = computer.Department.CompanyId;
 
             string[] properties = { "CompanyId", "DepartmentId" };
-            await _computerRepository.UpdateOnlyPropAsync(computer, properties);
+            await _workstationRepository.UpdateOnlyPropAsync(computer, properties);
         }
 
-        public async Task ApproveComputerAsync(string computerId)
+        public async Task ApproveWorkstationAsync(string computerId)
         {
             if (computerId == null)
                 throw new ArgumentNullException(nameof(computerId));
 
-            var computer = await _computerRepository.GetByIdAsync(computerId);
+            var computer = await _workstationRepository.GetByIdAsync(computerId);
             if (computer == null)
                 throw new Exception("Computer not found");
 
             computer.Approved = true;
 
             string[] properties = { "Approved" };
-            await _computerRepository.UpdateOnlyPropAsync(computer, properties);
+            await _workstationRepository.UpdateOnlyPropAsync(computer, properties);
         }
     }
 }
