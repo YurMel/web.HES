@@ -22,7 +22,7 @@ namespace HES.Core.Services
 
         public async Task<bool> GetNotifyStatus()
         {
-            return await _notificationRepository.Query().AsNoTracking().AnyAsync();
+            return await _notificationRepository.Query().AnyAsync();
         }
 
         public async Task AddNotify(NotifyId notifyId, string message, string url)

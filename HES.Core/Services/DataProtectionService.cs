@@ -55,8 +55,7 @@ namespace HES.Core.Services
         {
             var appSettings = await _dataProtectionRepository
                 .Query()
-                .Where(d => d.Key == "ProtectedValue")
-                .AsNoTracking()
+                .Where(d => d.Key == "ProtectedValue")         
                 .FirstOrDefaultAsync();
 
             if (appSettings?.Value != null)
@@ -76,12 +75,6 @@ namespace HES.Core.Services
                 }
 
                 return ProtectionStatus.On;
-
-                //var status = GetStatus();
-                //if (status == ProtectionStatus.WaitingForActivation)
-                //{
-                //    _notificationService.AddNotify(NotifyId.DataProtection, "Data protection is enabled and requires activation.", "/Settings/DataProtection/Index");
-                //}
             }
             else
             {
@@ -89,26 +82,7 @@ namespace HES.Core.Services
                 return ProtectionStatus.Off;
             }
         }
-
-        //public ProtectionStatus GetStatus()
-        //{
-        //    if (_enabledProtection)
-        //    {
-        //        if (!_activatedProtection)
-        //        {
-        //            return ProtectionStatus.WaitingForActivation;
-        //        }
-
-        //        if (_isBusy)
-        //        {
-        //            return ProtectionStatus.Busy;
-        //        }
-
-        //        return ProtectionStatus.On;
-        //    }
-        //    return ProtectionStatus.Off;
-        //}
-
+               
         public bool CanUse()
         {
             if (_enabledProtection)
@@ -137,14 +111,13 @@ namespace HES.Core.Services
                 // Get value
                 var appSettings = await _dataProtectionRepository.Query()
                     .Where(d => d.Key == "ProtectedValue")
-                    .AsNoTracking()
                     .FirstOrDefaultAsync();
                 // If no error occurred during the decrypt, then the password is correct
                 var unprotectedValue = tempProtector.Unprotect(appSettings.Value);
                 // Create protector
                 _dataProtector = _dataProtectionProvider.CreateProtector(password);
                 _activatedProtection = true;
-                _notificationService.RemoveNotify(NotifyId.DataProtection);
+                await _notificationService.RemoveNotify(NotifyId.DataProtection);
                 _logger.LogInformation($"Protection was activated by {user}.");
             }
             catch (CryptographicException)
@@ -166,7 +139,6 @@ namespace HES.Core.Services
 
             var appSettings = await _dataProtectionRepository.Query()
                 .Where(d => d.Key == "ProtectedValue")
-                .AsNoTracking()
                 .FirstOrDefaultAsync();
             if (appSettings?.Value != null)
             {
@@ -182,7 +154,7 @@ namespace HES.Core.Services
                 // Protect value
                 var protectedValue = _dataProtector.Protect(Guid.NewGuid().ToString());
                 await _dataProtectionRepository.AddAsync(new AppSettings() { Key = "ProtectedValue", Value = protectedValue });
-                               
+
                 await ProtectAllDataAsync();
 
                 _enabledProtection = true;
@@ -207,7 +179,6 @@ namespace HES.Core.Services
                 // Get value
                 var appSettings = await _dataProtectionRepository.Query()
                     .Where(d => d.Key == "ProtectedValue")
-                    .AsNoTracking()
                     .FirstOrDefaultAsync();
                 // If no error occurred during the decrypt, then the password is correct
                 var unprotectedValue = tempProtector.Unprotect(appSettings.Value);
@@ -249,7 +220,6 @@ namespace HES.Core.Services
                 // Get value
                 var appSettings = await _dataProtectionRepository.Query()
                     .Where(d => d.Key == "ProtectedValue")
-                    .AsNoTracking()
                     .FirstOrDefaultAsync();
                 // If no error occurred during the decrypt, then the password is correct
                 var unprotectedValue = tempProtector.Unprotect(appSettings.Value);
@@ -368,50 +338,56 @@ namespace HES.Core.Services
 
         private async Task UnprotectAllDataAsync()
         {
-            var devices = await _deviceRepository.GetAllAsync();
-            foreach (var device in devices)
+            try
             {
-                if (device.MasterPassword != null)
+                var devices = await _deviceRepository.GetAllAsync();
+                foreach (var device in devices)
                 {
-                    device.MasterPassword = _dataProtector.Unprotect(device.MasterPassword);
-                    await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "MasterPassword" });
+                    if (device.MasterPassword != null)
+                    {
+                        device.MasterPassword = _dataProtector.Unprotect(device.MasterPassword);
+                        await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "MasterPassword" });
+                    }
+                }
+
+                var deviceTasks = await _deviceTaskRepository.GetAllAsync();
+                foreach (var task in deviceTasks)
+                {
+                    var taskProperties = new List<string>();
+                    if (task.Password != null)
+                    {
+                        task.Password = _dataProtector.Unprotect(task.Password);
+                        taskProperties.Add("Password");
+                    }
+                    if (task.OtpSecret != null)
+                    {
+                        task.OtpSecret = _dataProtector.Unprotect(task.OtpSecret);
+                        taskProperties.Add("OtpSecret");
+                    }
+                    await _deviceTaskRepository.UpdateOnlyPropAsync(task, taskProperties.ToArray());
+                }
+
+                var sharedAccounts = await _sharedAccountRepository.GetAllAsync();
+                foreach (var account in sharedAccounts)
+                {
+                    var accountProperties = new List<string>();
+                    if (account.Password != null)
+                    {
+                        account.Password = _dataProtector.Unprotect(account.Password);
+                        accountProperties.Add("Password");
+                    }
+                    if (account.OtpSecret != null)
+                    {
+                        account.OtpSecret = _dataProtector.Unprotect(account.OtpSecret);
+                        accountProperties.Add("OtpSecret");
+                    }
+                    await _sharedAccountRepository.UpdateOnlyPropAsync(account, accountProperties.ToArray());
                 }
             }
-
-            var deviceTasks = await _deviceTaskRepository.GetAllAsync();
-            foreach (var task in deviceTasks)
+            catch (CryptographicException)
             {
-                var taskProperties = new List<string>();
-                if (task.Password != null)
-                {
-                    task.Password = _dataProtector.Unprotect(task.Password);
-                    taskProperties.Add("Password");
-                }
-                if (task.OtpSecret != null)
-                {
-                    task.OtpSecret = _dataProtector.Unprotect(task.OtpSecret);
-                    taskProperties.Add("OtpSecret");
-                }
-                await _deviceTaskRepository.UpdateOnlyPropAsync(task, taskProperties.ToArray());
-            }
-
-            var sharedAccounts = await _sharedAccountRepository.GetAllAsync();
-            foreach (var account in sharedAccounts)
-            {
-                var accountProperties = new List<string>();
-                if (account.Password != null)
-                {
-                    account.Password = _dataProtector.Unprotect(account.Password);
-                    accountProperties.Add("Password");
-                }
-                if (account.OtpSecret != null)
-                {
-                    account.OtpSecret = _dataProtector.Unprotect(account.OtpSecret);
-                    accountProperties.Add("OtpSecret");
-                }
-                await _sharedAccountRepository.UpdateOnlyPropAsync(account, accountProperties.ToArray());
+                throw new Exception("Unprotection error, data was protected with another key.");
             }
         }
-
     }
 }
