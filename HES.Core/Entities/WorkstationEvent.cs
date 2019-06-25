@@ -7,8 +7,8 @@ namespace HES.Core.Entities
     {
         public string Id { get; set; }
         public DateTime Date { get; set; }
-        public byte EventId { get; set; }
-        public byte StatusId { get; set; }
+        public WorkstationEventId EventId { get; set; }
+        public WorkstationEventSeverity SeverityId { get; set; }
         public string Note { get; set; }
         public string WorkstationId { get; set; }
         public string UserSession { get; set; }
@@ -16,17 +16,49 @@ namespace HES.Core.Entities
         public string EmployeeId { get; set; }
         public string DepartmentId { get; set; }
         public string DeviceAccountId { get; set; }
-        public AccountType? AccountType { get; set; }
 
-        [ForeignKey("ComputerId")]
-        public Workstation Computer { get; set; }
+        [ForeignKey("WorkstationId")]
+        public Workstation Workstation { get; set; }
         [ForeignKey("DeviceId")]
         public Device Device { get; set; }
         [ForeignKey("EmployeeId")]
         public Employee Employee { get; set; }
         [ForeignKey("DepartmentId")]
         public Department Department { get; set; }
-        [ForeignKey("AccountId")]
+        [ForeignKey("DeviceAccountId")]
         public DeviceAccount DeviceAccount { get; set; }
+    }
+
+    public enum WorkstationEventId : byte
+    {
+        ServiceStarted,
+        ServiceStopped,
+        DeviceConnected,
+        DeviceDisconnected,
+        DeviceDeleted,
+        RFIDAdapterPlugged,
+        RFIDAdapterUnplugged,
+        HESConnected,
+        HESDisconnected,
+        DonglePlugged,
+        DongleUnplugged,
+        CredentialsUpdated,
+        ComputerLogon, // (Note: Dongle, RFID, Non-Hideez)
+        ComputerUnlock,// (Note: Dongle, RFID, Non-Hideez)
+        ComputerLogoff,// (Note: Proximity, Button, Non-Hideez)
+        ComputerLock,  // (Note: Proximity, Button, Non-Hideez)
+        LowBattery,    // (Note: actual battery value)
+        RemoteConnect,
+        RemoteDisconnect,
+        SoftwareUpdate, // (Note: the version of the new application)
+        CredentialsUsed // (Note: name of the application where the credentials were used)
+    }
+
+    public enum WorkstationEventSeverity : byte
+    {
+        Ok,
+        Error,
+        Warning,
+        Info
     }
 }

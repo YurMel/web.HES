@@ -26,7 +26,9 @@ namespace HES.Web.Pages.Audit.WorkstationsEvents
             WorkstationEvent = await _context.WorkstationEvents
                 .Include(w => w.Department)
                 .Include(w => w.Device)
-                .Include(w => w.Employee).ToListAsync();
+                .Include(w => w.DeviceAccount)
+                .Include(w => w.Employee)
+                .Include(w => w.Workstation).ToListAsync();
         }
     }
 }
