@@ -5,14 +5,14 @@ namespace HES.Web.Pages
 {
     public static class AuditNavPages
     {
-        public static string WorkstationsEvents => "./WorkstationsEvents/Index";
+        public static string WorkstationEvents => "./WorkstationEvents/Index";
 
-        public static string WorkstationsSessions => "./WorkstationsSessions/Index";
+        public static string WorkstationSessions => "./WorkstationSessions/Index";
 
 
-        public static string WorkstationsEventsNavClass(ViewContext viewContext) => PageNavClass(viewContext, WorkstationsEvents);
+        public static string WorkstationEventsNavClass(ViewContext viewContext) => PageNavClass(viewContext, WorkstationEvents);
 
-        public static string WorkstationsSessionsNavClass(ViewContext viewContext) => PageNavClass(viewContext, WorkstationsSessions);
+        public static string WorkstationSessionsNavClass(ViewContext viewContext) => PageNavClass(viewContext, WorkstationSessions);
 
 
         private static string PageNavClass(ViewContext viewContext, string page)

@@ -1,13 +1,17 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HES.Core.Entities
 {
     public class WorkstationEvent
     {
+        [Key]
         public string Id { get; set; }
         public DateTime Date { get; set; }
+        [Display(Name = "Event")]
         public WorkstationEventId EventId { get; set; }
+        [Display(Name = "Severity")]
         public WorkstationEventSeverity SeverityId { get; set; }
         public string Note { get; set; }
         public string WorkstationId { get; set; }
@@ -43,15 +47,15 @@ namespace HES.Core.Entities
         DonglePlugged,
         DongleUnplugged,
         CredentialsUpdated,
-        ComputerLogon, // (Note: Dongle, RFID, Non-Hideez)
-        ComputerUnlock,// (Note: Dongle, RFID, Non-Hideez)
-        ComputerLogoff,// (Note: Proximity, Button, Non-Hideez)
-        ComputerLock,  // (Note: Proximity, Button, Non-Hideez)
-        LowBattery,    // (Note: actual battery value)
+        ComputerLogon,  // (Note: Dongle, RFID, Non-Hideez)
+        ComputerUnlock, // (Note: Dongle, RFID, Non-Hideez)
+        ComputerLogoff, // (Note: Proximity, Button, Non-Hideez)
+        ComputerLock,   // (Note: Proximity, Button, Non-Hideez)
+        LowBattery,     // (Note: Actual battery value)
         RemoteConnect,
         RemoteDisconnect,
-        SoftwareUpdate, // (Note: the version of the new application)
-        CredentialsUsed // (Note: name of the application where the credentials were used)
+        SoftwareUpdate, // (Note: The version of the new application)
+        CredentialsUsed // (Note: Name of the application where the credentials were used)
     }
 
     public enum WorkstationEventSeverity : byte

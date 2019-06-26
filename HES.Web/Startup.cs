@@ -70,6 +70,7 @@ namespace HES.Web
 
             services.AddScoped<IEmployeeService, EmployeeService>();
             services.AddScoped<IWorkstationService, WorkstationService>();
+            services.AddScoped<IWorkstationEventService, WorkstationEventService>();
             services.AddScoped<IDeviceService, DeviceService>();
             services.AddScoped<ISharedAccountService, SharedAccountService>();
             services.AddScoped<ITemplateService, TemplateService>();
@@ -153,10 +154,11 @@ namespace HES.Web
                 {
                     options.Conventions.AddPageRoute("/Employees/Index", "");
                     options.Conventions.AuthorizeFolder("/Employees");
-                    options.Conventions.AuthorizeFolder("/Computers");
+                    options.Conventions.AuthorizeFolder("/Workstations");
                     options.Conventions.AuthorizeFolder("/SharedAccounts");
                     options.Conventions.AuthorizeFolder("/Templates");
                     options.Conventions.AuthorizeFolder("/Devices");
+                    options.Conventions.AuthorizeFolder("/Audit");
                     options.Conventions.AuthorizeFolder("/Settings");
                     options.Conventions.AuthorizeFolder("/Logs");
                     options.Conventions.AuthorizeFolder("/Notifications");
