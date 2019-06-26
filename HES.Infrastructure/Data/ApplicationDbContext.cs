@@ -19,6 +19,7 @@ namespace HES.Infrastructure
         public DbSet<DeviceAccount> DeviceAccounts { get; set; }
         public DbSet<DeviceTask> DeviceTasks { get; set; }
         public DbSet<WorkstationEvent> WorkstationEvents { get; set; }
+        public DbSet<WorkstationSession> WorkstationSessions { get; set; }
         public DbSet<Company> Companies { get; set; }
         public DbSet<Department> Departments { get; set; }
         public DbSet<Position> Positions { get; set; }

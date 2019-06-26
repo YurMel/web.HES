@@ -17,11 +17,11 @@ namespace HES.Web.Pages.Audit.WorkstationEvents
         {
             _workstationEventService = workstationEventService;
         }
-
-
+        
         public async Task OnGetAsync()
         {
-            WorkstationEvents = await _workstationEventService.WorkstationEventQuery()
+            WorkstationEvents = await _workstationEventService
+                .WorkstationEventQuery()
                 .Include(w => w.Workstation)
                 .Include(w => w.Device)
                 .Include(w => w.Employee)

@@ -1,17 +1,34 @@
-﻿using System;
+﻿using HES.Core.Entities;
+using HES.Core.Interfaces;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace HES.Web.Pages.Audit.WorkstationsSessions
+namespace HES.Web.Pages.Audit.WorkstationSessions
 {
     public class IndexModel : PageModel
     {
-        public void OnGet()
-        {
+        private readonly IWorkstationSessionService _workstationSessionService;
+        public IList<WorkstationSession> WorkstationSessions { get; set; }
 
+        public IndexModel(IWorkstationSessionService workstationSessionService)
+        {
+            _workstationSessionService = workstationSessionService;
+        }
+
+        public async Task OnGetAsync()
+        {
+            WorkstationSessions = await _workstationSessionService
+                .WorkstationSessionQuery()
+                .Include(w => w.Workstation)
+                .Include(w => w.Device)
+                .Include(w => w.Employee)
+                .Include(w => w.Department.Company)
+                .Include(w => w.DeviceAccount)
+                .OrderBy(w => w.StartTime)
+                .ToListAsync();
         }
     }
 }

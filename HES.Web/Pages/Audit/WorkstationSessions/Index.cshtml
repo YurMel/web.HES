@@ -1,9 +1,142 @@
 ﻿@page
-@model HES.Web.Pages.Audit.WorkstationsSessions.IndexModel
+@model HES.Web.Pages.Audit.WorkstationSessions.IndexModel
+
 @{
     ViewData["Title"] = "Sessions";
     ViewData["ActivePage"] = MenuNavPages.Audit;
     ViewData["AuditPage"] = AuditNavPages.WorkstationSessions;
 }
-<h1>Sessions</h1>
 
+@* Top table items *@
+<div class="row align-items-center mr-0">
+    <div class="col">
+        <h1 class="text-navyblue">Workstation Sessions</h1>
+    </div>
+    <div class="col-auto p-1">
+        <div class="form-group has-search-right m-0">
+            <div class="form-control-feedback">
+                <img class="img-size" src="~/svg/action/search.svg" />
+            </div>
+            <input id="searchbox" type="text" class="form-control" placeholder="Search">
+        </div>
+    </div>
+</div>
+
+<table id="workstationSessions" class="display table table-hover border rounded w-100">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.WorkstationSessions[0].StartTime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.WorkstationSessions[0].EndTime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.WorkstationSessions[0].Duration)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.WorkstationSessions[0].UnlockedBy)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.WorkstationSessions[0].Workstation)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.WorkstationSessions[0].UserSession)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.WorkstationSessions[0].Device)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.WorkstationSessions[0].Employee)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.WorkstationSessions[0].Department.Company)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.WorkstationSessions[0].Department)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.WorkstationSessions[0].DeviceAccount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.WorkstationSessions[0].DeviceAccount.Type)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.WorkstationSessions)
+        {
+            <tr>
+                <td>
+                    @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.StartTime, TimeZoneInfo.Local).ToString("g")
+                </td>
+                <td>
+                    @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.EndTime, TimeZoneInfo.Local).ToString("g")
+                </td>
+                <td>
+                    @item.Duration.ToString(@"hh\:mm")
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UnlockedBy)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Workstation.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UserSession)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Device.Id)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Employee.FullName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Department.Company.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Department.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DeviceAccount.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DeviceAccount.Type)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@* Bottom table items *@
+<div class="row mt-2">
+    <div class="col d-flex justify-content-center justify-content-lg-start align-items-center mb-1 text-nowrap">
+        <span class="d-flex align-items-center mr-1 text-navyblue">Show entries</span>
+        <div id="entries_place"></div>
+    </div>
+    <div id="showing_place" class="col d-flex justify-content-center align-items-center mb-1 text-navyblue text-nowrap"></div>
+    <div id="pagination_place" class="col d-flex justify-content-center justify-content-lg-end align-items-center mb-1"></div>
+</div>
+
+@section Scripts{
+    <script>
+        // Init DataTables
+        var table_name = '#workstationSessions';
+        $(table_name).DataTable({
+            responsive: true,
+        });
+        var dataTable = $(table_name).dataTable();
+        // Search box
+        $('#searchbox').keyup(function () {
+            dataTable.fnFilter(this.value);
+        });
+        $('.dataTables_filter').addClass('d-none');
+        // Length
+        $('#entries_place').html($('.dataTables_length select').removeClass('custom-select-sm form-control-sm'));
+        $('.dataTables_length').addClass('d-none');
+        // Info
+        $('#showing_place').html($('.dataTables_info'));
+        // Paginate
+        $('#pagination_place').html($('.dataTables_paginate'));
+    </script>
+}
