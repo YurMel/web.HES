@@ -2,8 +2,11 @@
 using HES.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -13,6 +16,7 @@ namespace HES.Web.Pages.Audit.WorkstationSessions
     {
         private readonly IWorkstationSessionService _workstationSessionService;
         public IList<WorkstationSession> WorkstationSessions { get; set; }
+        public WorkstationSessionFilter WorkstationSessionFilter { get; set; }
 
         public IndexModel(IWorkstationSessionService workstationSessionService)
         {
@@ -28,24 +32,84 @@ namespace HES.Web.Pages.Audit.WorkstationSessions
                 .Include(w => w.Employee)
                 .Include(w => w.Department.Company)
                 .Include(w => w.DeviceAccount)
-                .OrderBy(w => w.StartTime)
+                .OrderByDescending(w => w.StartTime)
+                .Take(100)
                 .ToListAsync();
+
+            ViewData["UnlockId"] = new SelectList(Enum.GetValues(typeof(WorkstationUnlockId)).Cast<WorkstationUnlockId>().ToDictionary(t => (int)t, t => t.ToString()), "Key", "Value");
+            ViewData["Workstations"] = new SelectList(await _workstationSessionService.WorkstationQuery().ToListAsync(), "Id", "Name");
+            ViewData["Devices"] = new SelectList(await _workstationSessionService.DeviceQuery().ToListAsync(), "Id", "Id");
+            ViewData["Employees"] = new SelectList(await _workstationSessionService.EmployeeQuery().ToListAsync(), "Id", "FullName");
+            ViewData["Companies"] = new SelectList(await _workstationSessionService.CompanyQuery().ToListAsync(), "Id", "Name");
+            ViewData["Departments"] = new SelectList(await _workstationSessionService.DepartmentQuery().ToListAsync(), "Id", "Name");
+            ViewData["DeviceAccounts"] = new SelectList(await _workstationSessionService.DeviceAccountQuery().ToListAsync(), "Id", "Name");
+            ViewData["DeviceAccountTypes"] = new SelectList(Enum.GetValues(typeof(AccountType)).Cast<AccountType>().ToDictionary(t => (int)t, t => t.ToString()), "Key", "Value");
+
+            ViewData["DatePattern"] = CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern.ToLower();
         }
 
-        public async Task<JsonResult> OnGetWorkstationSessionsAsync()
+        public async Task<IActionResult> OnPostFilterWorkstationSessionsAsync(WorkstationSessionFilter WorkstationSessionFilter)
         {
-            WorkstationSessions = await _workstationSessionService
-                 .WorkstationSessionQuery()
-                 .Include(w => w.Workstation)
-                 .Include(w => w.Device)
-                 .Include(w => w.Employee)
-                 .Include(w => w.Department.Company)
-                 .Include(w => w.DeviceAccount)
-                 .OrderBy(w => w.StartTime)
-                 .ToListAsync();
+            var filter = _workstationSessionService
+                .WorkstationSessionQuery()
+                .Include(w => w.Workstation)
+                .Include(w => w.Device)
+                .Include(w => w.Employee)
+                .Include(w => w.Department.Company)
+                .Include(w => w.DeviceAccount)
+                .OrderByDescending(w => w.StartTime)
+                .AsQueryable();
 
-            return new JsonResult(WorkstationSessions);
+            if (WorkstationSessionFilter.StartTime != null && WorkstationSessionFilter.EndTime != null)
+            {
+                filter = filter
+                    .Where(w => w.StartTime >= WorkstationSessionFilter.StartTime.Value.ToUniversalTime())
+                    .Where(w => w.EndTime <= WorkstationSessionFilter.EndTime.Value.ToUniversalTime());
+            }
+            if (WorkstationSessionFilter.Duration != null)
+            {
+                filter = filter.Where(w => w.Duration == WorkstationSessionFilter.Duration);
+            }
+            if (WorkstationSessionFilter.UnlockId != null)
+            {
+                filter = filter.Where(w => w.UnlockedBy == (WorkstationUnlockId)WorkstationSessionFilter.UnlockId);
+            }
+            if (WorkstationSessionFilter.WorkstationId != null)
+            {
+                filter = filter.Where(w => w.WorkstationId == WorkstationSessionFilter.WorkstationId);
+            }
+            if (WorkstationSessionFilter.UserSession != null)
+            {
+                filter = filter.Where(w => w.UserSession.Contains(WorkstationSessionFilter.UserSession));
+            }
+            if (WorkstationSessionFilter.DeviceId != null)
+            {
+                filter = filter.Where(w => w.Device.Id == WorkstationSessionFilter.DeviceId);
+            }
+            if (WorkstationSessionFilter.EmployeeId != null)
+            {
+                filter = filter.Where(w => w.EmployeeId == WorkstationSessionFilter.EmployeeId);
+            }
+            if (WorkstationSessionFilter.CompanyId != null)
+            {
+                filter = filter.Where(w => w.Department.Company.Id == WorkstationSessionFilter.CompanyId);
+            }
+            if (WorkstationSessionFilter.DepartmentId != null)
+            {
+                filter = filter.Where(w => w.DepartmentId == WorkstationSessionFilter.DepartmentId);
+            }
+            if (WorkstationSessionFilter.DeviceAccountId != null)
+            {
+                filter = filter.Where(w => w.DeviceAccountId == WorkstationSessionFilter.DeviceAccountId);
+            }
+            if (WorkstationSessionFilter.DeviceAccountTypeId != null)
+            {
+                filter = filter.Where(w => w.DeviceAccount.Type == (AccountType)WorkstationSessionFilter.DeviceAccountTypeId);
+            }
 
+            WorkstationSessions = await filter.ToListAsync();
+
+            return Partial("_WorkstationSessionsTable", this);
         }
     }
 }

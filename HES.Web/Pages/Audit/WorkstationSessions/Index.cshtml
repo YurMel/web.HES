@@ -7,6 +7,89 @@
     ViewData["AuditPage"] = AuditNavPages.WorkstationSessions;
 }
 
+<div class="row align-items-center mr-0">
+    <div class="col">
+        <h1 class="text-navyblue">Filter</h1>
+    </div>
+</div>
+
+<div class="filter-card">
+    <form method="post" id="filterForm">
+        <div class="row">
+            <div class="col-sm-6 col-md-4 col-lg-3 form-group">
+                <label asp-for="WorkstationSessionFilter.StartTime" class="control-label"></label>
+                <input type="text" id="startTime" asp-for="WorkstationSessionFilter.StartTime" class="form-control" />
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-3 form-group">
+                <label asp-for="WorkstationSessionFilter.EndTime" class="control-label"></label>
+                <input type="text" id="endTime" asp-for="WorkstationSessionFilter.EndTime" class="form-control" />
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-3 form-group">
+                <label asp-for="WorkstationSessionFilter.Duration" class="control-label"></label>
+                <input id="duration" asp-for="WorkstationSessionFilter.Duration" class="form-control" />
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-3 form-group">
+                <label asp-for="WorkstationSessionFilter.UnlockId" class="control-label"></label>
+                <select id="unlockId" asp-for="WorkstationSessionFilter.UnlockId" class="form-control" asp-items="ViewBag.UnlockId">
+                    <option selected></option>
+                </select>
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-3 form-group">
+                <label asp-for="WorkstationSessionFilter.WorkstationId" class="control-label"></label>
+                <select id="workstationId" asp-for="WorkstationSessionFilter.WorkstationId" class="form-control" asp-items="ViewBag.Workstations">
+                    <option selected></option>
+                </select>
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-3 form-group">
+                <label asp-for="WorkstationSessionFilter.UserSession" class="control-label"></label>
+                <input id="userSession" asp-for="WorkstationSessionFilter.UserSession" class="form-control" />
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-3 form-group">
+                <label asp-for="WorkstationSessionFilter.DeviceId" class="control-label"></label>
+                <select id="deviceId" asp-for="WorkstationSessionFilter.DeviceId" class="form-control" asp-items="ViewBag.Devices">
+                    <option selected></option>
+                </select>
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-3 form-group">
+                <label asp-for="WorkstationSessionFilter.EmployeeId" class="control-label"></label>
+                <select id="employeeId" asp-for="WorkstationSessionFilter.EmployeeId" class="form-control" asp-items="ViewBag.Employees">
+                    <option selected></option>
+                </select>
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-3 form-group">
+                <label asp-for="WorkstationSessionFilter.CompanyId" class="control-label"></label>
+                <select id="companyId" asp-for="WorkstationSessionFilter.CompanyId" class="form-control" asp-items="ViewBag.Companies">
+                    <option selected></option>
+                </select>
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-3 form-group">
+                <label asp-for="WorkstationSessionFilter.DepartmentId" class="control-label"></label>
+                <select id="departmentId" asp-for="WorkstationSessionFilter.DepartmentId" class="form-control" asp-items="ViewBag.Departments">
+                    <option selected></option>
+                </select>
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-3 form-group">
+                <label asp-for="WorkstationSessionFilter.DeviceAccountId" class="control-label"></label>
+                <select id="deviceAccountId" asp-for="WorkstationSessionFilter.DeviceAccountId" class="form-control" asp-items="ViewBag.DeviceAccounts">
+                    <option selected></option>
+                </select>
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-3 form-group">
+                <label asp-for="WorkstationSessionFilter.DeviceAccountTypeId" class="control-label"></label>
+                <select id="deviceAccountTypeId" asp-for="WorkstationSessionFilter.DeviceAccountTypeId" class="form-control" asp-items="ViewBag.DeviceAccountTypes">
+                    <option selected></option>
+                </select>
+            </div>
+            <div class="col align-self-end form-group text-right">
+                <div>
+                    <button id="clearFilter" type="button" class="btn btn-secondary">Clear</button>
+                    <input id="filterBtn" type="submit" value="Filter" class="btn btn-primary" />
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
 <div id="content">
     @* Top table items *@
     <div class="row align-items-center mr-0">
@@ -123,6 +206,21 @@
 
 @section Scripts{
     <script>
+        $('#startTime').datepicker({
+            format: '@ViewBag.DatePattern',
+            uiLibrary: 'bootstrap4',
+            maxDate: function () {
+                return $('#endTime').val();
+            }
+        });
+        $('#endTime').datepicker({
+            format: '@ViewBag.DatePattern',
+            uiLibrary: 'bootstrap4',
+            minDate: function () {
+                return $('#startTime').val();
+            }
+        });
+
         // Init DataTables
         var table_name = '#workstationSessions';
         $(table_name).DataTable({
@@ -141,5 +239,35 @@
         $('#showing_place').html($('.dataTables_info'));
         // Paginate
         $('#pagination_place').html($('.dataTables_paginate'));
+
+        $(document).on('submit', '#filterForm', function (e) {
+            e.preventDefault();
+            $('#loading').html("<div class='spinner-border text-primary' role='status'></div>");
+            $.ajax({
+                method: "POST",
+                url: "/Audit/WorkstationSessions?handler=FilterWorkstationSessions",
+                headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
+                data: $('#filterForm').serialize(),
+                async: true,
+                success: function (response) {
+                    $("#content").html(response);
+                }
+            });
+        });
+
+        $(document).on('click', '#clearFilter', function () {
+            $('#startTime').val("");
+            $('#endTime').val("");
+            $('#duration').val("");
+            $('#unlockId').val("");
+            $('#workstationId').val("");
+            $('#userSession').val("");
+            $('#deviceId').val("");
+            $('#employeeId').val("");
+            $('#companyId').val("");
+            $('#departmentId').val("");
+            $('#deviceAccountId').val("");
+            $('#deviceAccountTypeId').val("");
+        });
     </script>
 }
