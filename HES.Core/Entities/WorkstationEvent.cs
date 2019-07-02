@@ -15,6 +15,7 @@ namespace HES.Core.Entities
         public WorkstationEventSeverity SeverityId { get; set; }
         public string Note { get; set; }
         public string WorkstationId { get; set; }
+        [Display(Name = "Session")]
         public string UserSession { get; set; }
         public string DeviceId { get; set; }
         public string EmployeeId { get; set; }
@@ -30,6 +31,7 @@ namespace HES.Core.Entities
         [ForeignKey("DepartmentId")]
         public Department Department { get; set; }
         [ForeignKey("DeviceAccountId")]
+        [Display(Name = "Account")]
         public DeviceAccount DeviceAccount { get; set; }
     }
 

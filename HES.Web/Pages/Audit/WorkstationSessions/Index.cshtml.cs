@@ -1,5 +1,6 @@
 ﻿using HES.Core.Entities;
 using HES.Core.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -29,6 +30,22 @@ namespace HES.Web.Pages.Audit.WorkstationSessions
                 .Include(w => w.DeviceAccount)
                 .OrderBy(w => w.StartTime)
                 .ToListAsync();
+        }
+
+        public async Task<JsonResult> OnGetWorkstationSessionsAsync()
+        {
+            WorkstationSessions = await _workstationSessionService
+                 .WorkstationSessionQuery()
+                 .Include(w => w.Workstation)
+                 .Include(w => w.Device)
+                 .Include(w => w.Employee)
+                 .Include(w => w.Department.Company)
+                 .Include(w => w.DeviceAccount)
+                 .OrderBy(w => w.StartTime)
+                 .ToListAsync();
+
+            return new JsonResult(WorkstationSessions);
+
         }
     }
 }
