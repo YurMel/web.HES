@@ -61,7 +61,7 @@
     <tbody>
         @foreach (var item in Model.Employees)
         {
-            <tr>
+            <tr data-id="@item.Id">
                 <td>
                     @Html.DisplayFor(modelItem => item.FullName)
                 </td>
@@ -147,7 +147,7 @@
 </div>
 
 @*<div class="row" id="content">
-</div>*@
+    </div>*@
 
 @section Scripts{
     <script>
@@ -162,7 +162,7 @@
         //        }
         //    });
         //}
-            
+
         // Init DataTables
         var table_name = '#employees';
         $(table_name).DataTable({
@@ -231,6 +231,13 @@
                     subList.append(dep);
                 });
         }
+
+        // Double click to details of employee
+        $('#employees tbody tr td:not(:first-child, :last-child)').dblclick(function () {
+            var currentRow = $(this).closest("tr");
+            window.location.href = window.location.origin + '/Employees/Details?id=' + currentRow.data("id");
+        });
+
     </script>
     <partial name="_ValidationScriptsPartial" />
 }

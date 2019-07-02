@@ -8,15 +8,19 @@ namespace HES.Core.Entities
     {
         [Key]
         public string Id { get; set; }
+        [Display(Name = "Start Time")]
         public DateTime StartTime { get; set; }
+        [Display(Name = "End Time")]
         public DateTime EndTime { get; set; }
         public TimeSpan Duration { get; set; }
+        [Display(Name = "Unlocked by")]
         public WorkstationUnlockId UnlockedBy { get; set; }
         public string WorkstationId { get; set; }
+        [Display(Name = "Session")]
         public string UserSession { get; set; }
         public string DeviceId { get; set; }
         public string EmployeeId { get; set; }
-        public string DepartmentId { get; set; }
+        public string DepartmentId { get; set; }      
         public string DeviceAccountId { get; set; }
 
         [ForeignKey("WorkstationId")]
@@ -27,6 +31,7 @@ namespace HES.Core.Entities
         public Employee Employee { get; set; }
         [ForeignKey("DepartmentId")]
         public Department Department { get; set; }
+        [Display(Name = "Account")]
         [ForeignKey("DeviceAccountId")]
         public DeviceAccount DeviceAccount { get; set; }
     }
