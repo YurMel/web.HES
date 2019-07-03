@@ -109,7 +109,8 @@ namespace HES.Core.Services
                 // Temp protector
                 var tempProtector = _dataProtectionProvider.CreateProtector(password);
                 // Get value
-                var appSettings = await _dataProtectionRepository.Query()
+                var appSettings = await _dataProtectionRepository
+                    .Query()
                     .Where(d => d.Key == "ProtectedValue")
                     .FirstOrDefaultAsync();
                 // If no error occurred during the decrypt, then the password is correct
@@ -147,8 +148,8 @@ namespace HES.Core.Services
 
             try
             {
+                _logger.LogInformation($"Data protection started by {user}");
                 _isBusy = true;
-
                 // Create protector
                 _dataProtector = _dataProtectionProvider.CreateProtector(password);
                 // Protect value
@@ -173,6 +174,7 @@ namespace HES.Core.Services
         {
             try
             {
+                _logger.LogInformation($"Data unprotection started by {user}");
                 _isBusy = true;
                 // Temp protector
                 var tempProtector = _dataProtectionProvider.CreateProtector(password);
@@ -230,7 +232,6 @@ namespace HES.Core.Services
                 // Protect value
                 var protectedValue = _dataProtector.Protect(Guid.NewGuid().ToString());
                 appSettings.Value = protectedValue;
-
                 await _dataProtectionRepository.UpdateOnlyPropAsync(appSettings, new string[] { "Value" });
                 // Protect all
                 await ProtectAllDataAsync();
@@ -291,7 +292,8 @@ namespace HES.Core.Services
 
         private async Task ProtectAllDataAsync()
         {
-            var devices = await _deviceRepository.GetAllAsync();
+            _logger.LogInformation($"Devices stage started");
+            var devices = await _deviceRepository.Query().AsNoTracking().ToListAsync();
             foreach (var device in devices)
             {
                 if (device.MasterPassword != null)
@@ -300,8 +302,10 @@ namespace HES.Core.Services
                     await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "MasterPassword" });
                 }
             }
+            _logger.LogInformation($"Devices stage completed");
 
-            var deviceTasks = await _deviceTaskRepository.GetAllAsync();
+            _logger.LogInformation($"DeviceTasks stage started");
+            var deviceTasks = await _deviceTaskRepository.Query().AsNoTracking().ToListAsync();
             foreach (var task in deviceTasks)
             {
                 var taskProperties = new List<string>();
@@ -317,8 +321,10 @@ namespace HES.Core.Services
                 }
                 await _deviceTaskRepository.UpdateOnlyPropAsync(task, taskProperties.ToArray());
             }
+            _logger.LogInformation($"DeviceTasks stage completed");
 
-            var sharedAccounts = await _sharedAccountRepository.GetAllAsync();
+            _logger.LogInformation($"SharedAccounts stage started");
+            var sharedAccounts = await _sharedAccountRepository.Query().AsNoTracking().ToListAsync();
             foreach (var account in sharedAccounts)
             {
                 var accountProperties = new List<string>();
@@ -334,13 +340,15 @@ namespace HES.Core.Services
                 }
                 await _sharedAccountRepository.UpdateOnlyPropAsync(account, accountProperties.ToArray());
             }
+            _logger.LogInformation($"SharedAccounts stage completed");
         }
 
         private async Task UnprotectAllDataAsync()
         {
             try
             {
-                var devices = await _deviceRepository.GetAllAsync();
+                _logger.LogInformation($"Devices stage started");
+                var devices = await _deviceRepository.Query().AsNoTracking().ToListAsync();
                 foreach (var device in devices)
                 {
                     if (device.MasterPassword != null)
@@ -349,8 +357,10 @@ namespace HES.Core.Services
                         await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "MasterPassword" });
                     }
                 }
+                _logger.LogInformation($"Devices stage completed");
 
-                var deviceTasks = await _deviceTaskRepository.GetAllAsync();
+                _logger.LogInformation($"DeviceTasks stage started");
+                var deviceTasks = await _deviceTaskRepository.Query().AsNoTracking().ToListAsync();
                 foreach (var task in deviceTasks)
                 {
                     var taskProperties = new List<string>();
@@ -366,8 +376,10 @@ namespace HES.Core.Services
                     }
                     await _deviceTaskRepository.UpdateOnlyPropAsync(task, taskProperties.ToArray());
                 }
+                _logger.LogInformation($"DeviceTasks stage completed");
 
-                var sharedAccounts = await _sharedAccountRepository.GetAllAsync();
+                _logger.LogInformation($"SharedAccounts stage started");
+                var sharedAccounts = await _sharedAccountRepository.Query().AsNoTracking().ToListAsync();
                 foreach (var account in sharedAccounts)
                 {
                     var accountProperties = new List<string>();
@@ -383,6 +395,7 @@ namespace HES.Core.Services
                     }
                     await _sharedAccountRepository.UpdateOnlyPropAsync(account, accountProperties.ToArray());
                 }
+                _logger.LogInformation($"SharedAccounts stage completed");
             }
             catch (CryptographicException)
             {

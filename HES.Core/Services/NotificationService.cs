@@ -34,6 +34,7 @@ namespace HES.Core.Services
                 case NotifyId.DataProtection:
                     if (!allNotify.Where(n => n.NotifyId == NotifyId.DataProtection).Any())
                     {
+                        _logger.LogWarning("Data protection requires activation");
                         await _notificationRepository.AddAsync(new Notification() { NotifyId = notifyId, CreatedAt = DateTime.UtcNow, Message = message, Url = url });
                     }
                     break;

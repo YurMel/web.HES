@@ -400,10 +400,13 @@
                                     }
                                     else
                                     {
-                                        <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="SetPrimaryAccount" data-title="Primary account">
-                                            <img src="~/svg/action/star.svg" />
-                                            Set as primary account
-                                        </a>
+                                        if (device.PrimaryAccountId != item.Id)
+                                        {
+                                            <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="SetPrimaryAccount" data-title="Primary account">
+                                                <img src="~/svg/action/star.svg" />
+                                                Set as primary account
+                                            </a>
+                                        }
                                         <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="DeleteAccount" data-title="Delete account">
                                             <img src="~/svg/action/delete.svg" />
                                             Delete
