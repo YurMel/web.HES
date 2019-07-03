@@ -18,11 +18,11 @@
         <div class="row">
             <div class="col-sm-6 col-md-4 col-lg-3 form-group">
                 <label asp-for="WorkstationSessionFilter.StartTime" class="control-label"></label>
-                <input type="text" id="startTime" asp-for="WorkstationSessionFilter.StartTime" class="form-control" />
+                <input disabled type="text" id="startTime" asp-for="WorkstationSessionFilter.StartTime" class="form-control" autocomplete="off" />
             </div>
             <div class="col-sm-6 col-md-4 col-lg-3 form-group">
                 <label asp-for="WorkstationSessionFilter.EndTime" class="control-label"></label>
-                <input type="text" id="endTime" asp-for="WorkstationSessionFilter.EndTime" class="form-control" />
+                <input disabled type="text" id="endTime" asp-for="WorkstationSessionFilter.EndTime" class="form-control" autocomplete="off" />
             </div>
             <div class="col-sm-6 col-md-4 col-lg-3 form-group">
                 <label asp-for="WorkstationSessionFilter.Duration" class="control-label"></label>
@@ -206,16 +206,19 @@
 
 @section Scripts{
     <script>
-        $('#startTime').datepicker({
-            format: '@ViewBag.DatePattern',
+        //DateTimePicker
+        $('#startTime').datetimepicker({
+            format: '@ViewBag.DatePattern @ViewBag.TimePattern',
             uiLibrary: 'bootstrap4',
+            footer: true,
             maxDate: function () {
                 return $('#endTime').val();
             }
         });
-        $('#endTime').datepicker({
-            format: '@ViewBag.DatePattern',
+        $('#endTime').datetimepicker({
+            format: '@ViewBag.DatePattern @ViewBag.TimePattern',
             uiLibrary: 'bootstrap4',
+            footer: true,
             minDate: function () {
                 return $('#startTime').val();
             }
