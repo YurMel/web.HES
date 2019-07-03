@@ -9,11 +9,13 @@ namespace HES.Core.Entities
         [Key]
         public string Id { get; set; }
         public string Name { get; set; }
+        [Display(Name = "Client Version")]
         public string ClientVersion { get; set; }
         public string CompanyId { get; set; }
         public string DepartmentId { get; set; }
         public string OS { get; set; }
         public string IP { get; set; }
+        [Display(Name = "Last Seen")]
         public DateTime LastSeen { get; set; }
         public bool Approved { get; set; }
         
