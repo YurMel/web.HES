@@ -184,7 +184,6 @@ namespace HES.Web
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-            app.UseCookiePolicy();
             app.UseAuthentication();
             app.UseSignalR(routes =>
             {
@@ -193,6 +192,7 @@ namespace HES.Web
                 routes.MapHub<EmployeeDetailsHub>("/employeeDetailsHub");
             });
             app.UseMvc();
+            app.UseCookiePolicy();
             app.UseStatusCodePages("text/html", "<h1>HTTP status code {0}</h1>");
 
             using (var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
