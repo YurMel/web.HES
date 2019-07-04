@@ -19,6 +19,8 @@ namespace HES.Web.Pages.Devices
         public IList<Device> Devices { get; set; }
 
         [TempData]
+        public string SuccessMessage { get; set; }
+        [TempData]
         public string ErrorMessage { get; set; }
 
         public IndexModel(IDeviceService deviceService, ILogger<IndexModel> logger)
@@ -58,6 +60,7 @@ namespace HES.Web.Pages.Devices
             try
             {
                 await _deviceService.EditDeviceRfidAsync(device);
+                SuccessMessage = $"RFID updated.";
             }
             catch (Exception ex)
             {

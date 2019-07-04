@@ -19,7 +19,8 @@ namespace HES.Web.Pages.Templates
 
         [BindProperty]
         public Template Template { get; set; }
-
+        [TempData]
+        public string SuccessMessage { get; set; }
         [TempData]
         public string ErrorMessage { get; set; }
 
@@ -52,6 +53,7 @@ namespace HES.Web.Pages.Templates
             try
             {
                 await _templateService.CreateTmplateAsync(Template);
+                SuccessMessage = $"Template created.";
             }
             catch (Exception ex)
             {
@@ -94,6 +96,7 @@ namespace HES.Web.Pages.Templates
             try
             {
                 await _templateService.EditTemplateAsync(Template);
+                SuccessMessage = $"Template updated.";
             }
             catch (Exception ex)
             {
@@ -136,6 +139,7 @@ namespace HES.Web.Pages.Templates
             try
             {
                 await _templateService.DeleteTemplateAsync(id);
+                SuccessMessage = $"Template deleted.";
             }
             catch (Exception ex)
             {

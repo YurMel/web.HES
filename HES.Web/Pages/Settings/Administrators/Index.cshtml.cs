@@ -24,7 +24,7 @@ namespace HES.Web.Pages.Settings.Administrators
         public IList<ApplicationUser> ApplicationUsers { get; set; }
 
         [TempData]
-        public string StatusMessage { get; set; }
+        public string SuccessMessage { get; set; }
         [TempData]
         public string ErrorMessage { get; set; }
         [BindProperty]
@@ -100,7 +100,7 @@ namespace HES.Web.Pages.Settings.Administrators
                     "Invite to HES",
                     $"Please enter your password by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
-                StatusMessage = "Email has been sent";
+                SuccessMessage = $"The invitation has been sent to {Input.Email}.";
             }
 
             return RedirectToPage("./Index");
@@ -154,6 +154,8 @@ namespace HES.Web.Pages.Settings.Administrators
                     await _signInManager.SignOutAsync();
                     _logger.LogInformation($"User {user.Email} deleted himself");
                 }
+
+                SuccessMessage = $"User {user.Email} deleted.";
             }
             catch (Exception ex)
             {

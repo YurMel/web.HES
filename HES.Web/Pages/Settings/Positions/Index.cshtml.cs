@@ -21,6 +21,8 @@ namespace HES.Web.Pages.Settings.Positions
         [BindProperty]
         public Position Position { get; set; }
         [TempData]
+        public string SuccessMessage { get; set; }
+        [TempData]
         public string ErrorMessage { get; set; }
 
         public IndexModel(ISettingsService settingsService, ILogger<IndexModel> logger)
@@ -52,6 +54,7 @@ namespace HES.Web.Pages.Settings.Positions
             try
             {
                 await _settingsService.CreatePositionAsync(Position);
+                SuccessMessage = $"Position created.";
             }
             catch (Exception ex)
             {
@@ -92,6 +95,7 @@ namespace HES.Web.Pages.Settings.Positions
             try
             {
                 await _settingsService.EditPositionAsync(Position);
+                SuccessMessage = $"Position updated.";
             }
             catch (Exception ex)
             {
@@ -134,6 +138,7 @@ namespace HES.Web.Pages.Settings.Positions
             try
             {
                 await _settingsService.DeletePositionAsync(id);
+                SuccessMessage = $"Position deleted.";
             }
             catch (Exception ex)
             {

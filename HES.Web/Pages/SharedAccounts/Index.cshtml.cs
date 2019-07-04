@@ -21,6 +21,8 @@ namespace HES.Web.Pages.SharedAccounts
         public InputModel Input { get; set; }
 
         [TempData]
+        public string SuccessMessage { get; set; }
+        [TempData]
         public string ErrorMessage { get; set; }
 
         public IndexModel(ISharedAccountService sharedAccountService, ILogger<IndexModel> logger)
@@ -55,6 +57,7 @@ namespace HES.Web.Pages.SharedAccounts
             try
             {
                 await _sharedAccountService.CreateSharedAccountAsync(sharedAccount, input);
+                SuccessMessage = $"Shared account created.";
             }
             catch (Exception ex)
             {
@@ -97,6 +100,7 @@ namespace HES.Web.Pages.SharedAccounts
             try
             {
                 await _sharedAccountService.EditSharedAccountAsync(sharedAccount);
+                SuccessMessage = $"Shared account updated.";
             }
             catch (Exception ex)
             {
@@ -138,6 +142,7 @@ namespace HES.Web.Pages.SharedAccounts
             try
             {
                 await _sharedAccountService.EditSharedAccountPwdAsync(sharedAccount, input);
+                SuccessMessage = $"Shared account updated.";
             }
             catch (Exception ex)
             {
@@ -174,6 +179,7 @@ namespace HES.Web.Pages.SharedAccounts
             try
             {
                 await _sharedAccountService.EditSharedAccountOtpAsync(sharedAccount);
+                SuccessMessage = $"Shared account updated.";
             }
             catch (Exception ex)
             {
@@ -215,6 +221,7 @@ namespace HES.Web.Pages.SharedAccounts
             try
             {
                 await _sharedAccountService.DeleteSharedAccountAsync(id);
+                SuccessMessage = $"Shared account deleted.";
             }
             catch (Exception ex)
             {

@@ -23,6 +23,8 @@ namespace HES.Web.Pages.Workstations
         public WorkstationFilter WorkstationFilter { get; set; }
 
         [TempData]
+        public string SuccessMessage { get; set; }
+        [TempData]
         public string ErrorMessage { get; set; }
 
         public IndexModel(IWorkstationService workstationService, ILogger<IndexModel> logger)
@@ -124,9 +126,9 @@ namespace HES.Web.Pages.Workstations
             return Partial("_EditDepartment", this);
         }
 
-        public async Task<IActionResult> OnPostEditDepartmentAsync(Workstation Computer)
+        public async Task<IActionResult> OnPostEditDepartmentAsync(Workstation Workstation)
         {
-            if (Computer == null)
+            if (Workstation == null)
             {
                 _logger.LogWarning("departmentId == null");
                 return RedirectToPage("./Index");
@@ -134,7 +136,8 @@ namespace HES.Web.Pages.Workstations
 
             try
             {
-                await _workstationService.EditDepartmentAsync(Computer);
+                await _workstationService.EditDepartmentAsync(Workstation);
+                SuccessMessage = $"Workstation updated.";
             }
             catch (Exception ex)
             {
@@ -170,6 +173,7 @@ namespace HES.Web.Pages.Workstations
             try
             {
                 await _workstationService.ApproveWorkstationAsync(computerId);
+                SuccessMessage = $"Workstation approved.";
             }
             catch (Exception ex)
             {

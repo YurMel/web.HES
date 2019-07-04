@@ -22,7 +22,8 @@ namespace HES.Web.Pages.Employees
 
         [BindProperty]
         public Employee Employee { get; set; }
-
+        [TempData]
+        public string SuccessMessage { get; set; }
         [TempData]
         public string ErrorMessage { get; set; }
 
@@ -82,6 +83,7 @@ namespace HES.Web.Pages.Employees
             try
             {
                 await _employeeService.CreateEmployeeAsync(Employee);
+                SuccessMessage = $"Employee created.";
             }
             catch (Exception ex)
             {
@@ -129,6 +131,7 @@ namespace HES.Web.Pages.Employees
             try
             {
                 await _employeeService.DeleteEmployeeAsync(id);
+                SuccessMessage = $"Employee deleted.";
             }
             catch (Exception ex)
             {

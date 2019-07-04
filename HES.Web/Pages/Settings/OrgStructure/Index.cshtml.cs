@@ -25,6 +25,8 @@ namespace HES.Web.Pages.Settings.OrgStructure
         public bool HasForeignKey { get; set; }
 
         [TempData]
+        public string SuccessMessage { get; set; }
+        [TempData]
         public string ErrorMessage { get; set; }
 
         public IndexModel(ISettingsService settingsService, ILogger<IndexModel> logger)
@@ -57,6 +59,7 @@ namespace HES.Web.Pages.Settings.OrgStructure
             try
             {
                 await _settingsService.CreateCompanyAsync(company);
+                SuccessMessage = $"Company created.";
             }
             catch (Exception ex)
             {
@@ -97,6 +100,7 @@ namespace HES.Web.Pages.Settings.OrgStructure
             try
             {
                 await _settingsService.EditCompanyAsync(company);
+                SuccessMessage = $"Company updated.";
             }
             catch (Exception ex)
             {
@@ -139,6 +143,7 @@ namespace HES.Web.Pages.Settings.OrgStructure
             try
             {
                 await _settingsService.DeleteCompanyAsync(id);
+                SuccessMessage = $"Company deleted.";
             }
             catch (Exception ex)
             {
@@ -170,6 +175,7 @@ namespace HES.Web.Pages.Settings.OrgStructure
             try
             {
                 await _settingsService.CreateDepartmentAsync(department);
+                SuccessMessage = $"Department created.";
             }
             catch (Exception ex)
             {
@@ -211,6 +217,7 @@ namespace HES.Web.Pages.Settings.OrgStructure
             try
             {
                 await _settingsService.EditDepartmentAsync(department);
+                SuccessMessage = $"Department updated.";
             }
             catch (Exception ex)
             {
@@ -256,6 +263,7 @@ namespace HES.Web.Pages.Settings.OrgStructure
             try
             {
                 await _settingsService.DeleteDepartmentAsync(id);
+                SuccessMessage = $"Department deleted.";
             }
             catch (Exception ex)
             {

@@ -28,6 +28,8 @@ namespace HES.Web.Pages.Employees
         public InputModel Input { get; set; }
 
         [TempData]
+        public string SuccessMessage { get; set; }
+        [TempData]
         public string ErrorMessage { get; set; }
 
         public DetailsModel(IEmployeeService employeeService, ILogger<DetailsModel> logger)
@@ -114,6 +116,7 @@ namespace HES.Web.Pages.Employees
             try
             {
                 await _employeeService.EditEmployeeAsync(employee);
+                SuccessMessage = $"Employee updated.";
             }
             catch (Exception ex)
             {
@@ -165,6 +168,7 @@ namespace HES.Web.Pages.Employees
             try
             {
                 await _employeeService.SetPrimaryAccount(deviceId, accountId);
+                SuccessMessage = "Primary account changed and will be recorded when the device is connected to the server.";
             }
             catch (Exception ex)
             {
@@ -217,6 +221,20 @@ namespace HES.Web.Pages.Employees
             try
             {
                 await _employeeService.AddDeviceAsync(employeeId, selectedDevices);
+
+                if (selectedDevices.Length > 1)
+                {
+                    var devices = string.Empty;
+                    foreach (var item in selectedDevices)
+                    {
+                        devices += item + Environment.NewLine;
+                    }
+                    SuccessMessage = $"Devices: {devices} added.";
+                }
+                else
+                {
+                    SuccessMessage = $"Device {selectedDevices[0]} added.";
+                }
             }
             catch (Exception ex)
             {
@@ -268,6 +286,7 @@ namespace HES.Web.Pages.Employees
             try
             {
                 await _employeeService.RemoveDeviceAsync(device.EmployeeId, device.Id);
+                SuccessMessage = $"Device {device.Id} deleted.";
             }
             catch (Exception ex)
             {
@@ -319,6 +338,7 @@ namespace HES.Web.Pages.Employees
             try
             {
                 await _employeeService.CreatePersonalAccountAsync(deviceAccount, input, selectedDevices);
+                SuccessMessage = "Account created and will be recorded when the device is connected to the server.";
             }
             catch (Exception ex)
             {
@@ -373,6 +393,7 @@ namespace HES.Web.Pages.Employees
             try
             {
                 await _employeeService.EditPersonalAccountAsync(deviceAccount);
+                SuccessMessage = "Account updated and will be recorded when the device is connected to the server.";
             }
             catch (Exception ex)
             {
@@ -419,6 +440,7 @@ namespace HES.Web.Pages.Employees
             try
             {
                 await _employeeService.EditPersonalAccountPwdAsync(deviceAccount, input);
+                SuccessMessage = "Account updated and will be recorded when the device is connected to the server.";
             }
             catch (Exception ex)
             {
@@ -459,6 +481,7 @@ namespace HES.Web.Pages.Employees
             try
             {
                 await _employeeService.EditPersonalAccountOtpAsync(deviceAccount, input);
+                SuccessMessage = "Account updated and will be recorded when the device is connected to the server.";
             }
             catch (Exception ex)
             {
@@ -509,6 +532,7 @@ namespace HES.Web.Pages.Employees
             try
             {
                 await _employeeService.AddSharedAccount(employeeId, sharedAccountId, selectedDevices);
+                SuccessMessage = "Account added and will be recorded when the device is connected to the server.";
             }
             catch (Exception ex)
             {
@@ -556,6 +580,7 @@ namespace HES.Web.Pages.Employees
             try
             {
                 await _employeeService.DeleteAccount(accountId);
+                SuccessMessage = "Account deleting and will be deleted when the device is connected to the server.";
             }
             catch (Exception ex)
             {
@@ -603,6 +628,7 @@ namespace HES.Web.Pages.Employees
             try
             {
                 await _employeeService.UndoChanges(accountId);
+                SuccessMessage = "Changes were canceled.";
             }
             catch (Exception ex)
             {

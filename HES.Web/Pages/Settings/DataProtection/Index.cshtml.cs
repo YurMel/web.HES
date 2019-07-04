@@ -20,6 +20,8 @@ namespace HES.Web.Pages.Settings.DataProtection
         public ProtectionStatus Status { get; set; }
 
         [TempData]
+        public string SuccessMessage { get; set; }
+        [TempData]
         public string ErrorMessage { get; set; }
 
         public CurrentPasswordModel CurrentPassword { get; set; }
@@ -92,6 +94,7 @@ namespace HES.Web.Pages.Settings.DataProtection
             {
                 var user = await _userManager.GetUserAsync(User);
                 await _dataProtectionService.EnableDataProtectionAsync(NewPassword.Password, user.Email);
+                SuccessMessage = "Data protection enabled";
             }
             catch (Exception ex)
             {
@@ -114,6 +117,7 @@ namespace HES.Web.Pages.Settings.DataProtection
             {
                 var user = await _userManager.GetUserAsync(User);
                 await _dataProtectionService.DisableDataProtectionAsync(CurrentPassword.Password, user.Email);
+                SuccessMessage = "Data protection disabled";
             }
             catch (Exception ex)
             {
@@ -136,6 +140,7 @@ namespace HES.Web.Pages.Settings.DataProtection
             {
                 var user = await _userManager.GetUserAsync(User);
                 await _dataProtectionService.ActivateDataProtectionAsync(CurrentPassword.Password, user.Email);
+                SuccessMessage = "Data protection activated";
             }
             catch (Exception ex)
             {
@@ -158,6 +163,7 @@ namespace HES.Web.Pages.Settings.DataProtection
             {
                 var user = await _userManager.GetUserAsync(User);
                 await _dataProtectionService.ChangeDataProtectionPasswordAsync(ChangePassword.OldPassword, ChangePassword.NewPassword, user.Email);
+                SuccessMessage = "Data protection password changed";
             }
             catch (Exception ex)
             {
