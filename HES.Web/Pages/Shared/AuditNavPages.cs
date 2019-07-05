@@ -9,10 +9,14 @@ namespace HES.Web.Pages
 
         public static string WorkstationSessions => "./WorkstationSessions/Index";
 
+        public static string WorkstationSummaries => "./WorkstationSummaries/Index";
+
 
         public static string WorkstationEventsNavClass(ViewContext viewContext) => PageNavClass(viewContext, WorkstationEvents);
 
         public static string WorkstationSessionsNavClass(ViewContext viewContext) => PageNavClass(viewContext, WorkstationSessions);
+
+        public static string WorkstationSummariesNavClass(ViewContext viewContext) => PageNavClass(viewContext, WorkstationSummaries);
 
 
         private static string PageNavClass(ViewContext viewContext, string page)

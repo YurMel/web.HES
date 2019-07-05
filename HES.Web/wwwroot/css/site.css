@@ -218,7 +218,7 @@ a.navbar-brand {
             background: #FFF;
         }
 
-.sidebar-settings {
+/*.sidebar-settings {
     margin: 2px 2px;
 }
 
@@ -228,7 +228,7 @@ a.navbar-brand {
         left: 70px;
         z-index: 500;
     }
-}
+}*/
 
 .aria-exp.collapsed > .icon-arrow {
     -ms-transform: rotate(180deg);
@@ -258,6 +258,56 @@ a.navbar-brand {
     }
 }
 /*#endregion */
+
+/*#region Horizontal Pills*/
+.custom-horizontal-pills {
+    margin-top: -24px;
+    background: #0E3059;
+    padding: 10px;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+    .custom-horizontal-pills .nav-link.active, .nav-pills .show > .nav-link {
+        color: #0E3059;
+        background-color: #FFFFFF;
+        font-weight: 500;
+        margin-left: 2px;
+        margin-right: 2px;
+    }
+
+        .custom-horizontal-pills .nav-link.active:hover {
+            color: #0E3059;
+            background-color: #FFF;
+        }
+
+            .custom-horizontal-pills .nav-link.active:hover > .i-sidebar {
+                background: #0E3059;
+            }
+
+    .custom-horizontal-pills .nav-link, .nav-pills .show > .nav-link {
+        color: #B6C0CB;
+        font-weight: 500;
+    }
+
+        .custom-horizontal-pills .nav-link > .i-sidebar {
+            background: #B6C0CB;
+        }
+
+        .custom-horizontal-pills .nav-link.active > .i-sidebar {
+            background: #0E3059;
+        }
+
+        .custom-horizontal-pills .nav-link:hover {
+            color: #FFF;
+            background-color: #304966;
+            font-weight: 500;
+        }
+
+            .custom-horizontal-pills .nav-link:hover > .i-sidebar {
+                background: #FFF;
+            }
+/*#endregion*/
 
 /* #region Size */
 .vh-90 {

@@ -354,6 +354,7 @@ namespace HES.Core.Services
                 .Where(s => s.Login == deviceAccount.Login)
                 .Where(s => s.Deleted == false)
                 .Where(s => s.Id != deviceAccount.Id)
+                .Where(s => s.DeviceId == deviceAccount.DeviceId)
                 .Any();
 
             if (exist)

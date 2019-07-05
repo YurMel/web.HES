@@ -1,0 +1,226 @@
+﻿@page
+@model HES.Web.Pages.Audit.WorkstationSummaries.IndexModel
+@{
+    ViewData["Title"] = "Workstation Summaries";
+    ViewData["ActivePage"] = MenuNavPages.Audit;
+    ViewData["AuditPage"] = AuditNavPages.WorkstationSummaries;
+}
+
+<ul class="custom-horizontal-pills nav nav-pills mb-3 nav-fill flex-column flex-md-row" id="pills-tab" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true">By days and employees</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">By employees</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="pills-contact-tab" data-toggle="pill" href="#pills-contact" role="tab" aria-controls="pills-contact" aria-selected="false">By departments</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="pills-by-workstations-tab" data-toggle="pill" href="#" role="tab" aria-controls="pills-by-workstations" aria-selected="false">By workstations</a>
+    </li>
+</ul>
+
+<div class="row align-items-center mr-0">
+    <div class="col">
+        <h1 class="text-navyblue">Filter</h1>
+    </div>
+</div>
+
+<div class="filter-card">
+    <form method="post" id="filterForm">
+        <div class="row">
+            <div class="col-sm-6 col-md-4 col-lg-3 form-group">
+                <label asp-for="SessionsSummaryFilter.StartDate" class="control-label"></label>
+                <input readonly type="text" id="startDate" asp-for="SessionsSummaryFilter.StartDate" class="form-control" autocomplete="off" />
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-3 form-group">
+                <label asp-for="SessionsSummaryFilter.EndDate" class="control-label"></label>
+                <input readonly type="text" id="endDate" asp-for="SessionsSummaryFilter.EndDate" class="form-control" autocomplete="off" />
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-3 form-group">
+                <label asp-for="SessionsSummaryFilter.EmployeeId" class="control-label"></label>
+                <select id="employeeId" asp-for="SessionsSummaryFilter.EmployeeId" class="form-control" asp-items="ViewBag.Employees">
+                    <option selected></option>
+                </select>
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-3 form-group">
+                <label asp-for="SessionsSummaryFilter.CompanyId" class="control-label"></label>
+                <select id="companyId" asp-for="SessionsSummaryFilter.CompanyId" class="form-control" asp-items="ViewBag.Companies">
+                    <option selected></option>
+                </select>
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-3 form-group">
+                <label asp-for="SessionsSummaryFilter.DepartmentId" class="control-label"></label>
+                <select id="departmentId" asp-for="SessionsSummaryFilter.DepartmentId" class="form-control" asp-items="ViewBag.Departments">
+                    <option selected></option>
+                </select>
+            </div>           
+            <div class="col align-self-end form-group text-right">
+                <div>
+                    <button id="clearFilter" type="button" class="btn btn-secondary">Clear</button>
+                    <input id="filterBtn" type="submit" value="Filter" class="btn btn-primary" />
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div id="content">
+    @* Top table items *@
+    <div class="row align-items-center mr-0">
+        <div class="col-auto">
+            <h1 class="text-navyblue">Summary</h1>
+        </div>
+        <div class="col" id="loading"></div>
+        <div class="col-auto p-1">
+            <div class="form-group has-search-right m-0">
+                <div class="form-control-feedback">
+                    <img class="img-size" src="~/svg/action/search.svg" />
+                </div>
+                <input id="searchbox" type="text" class="form-control" placeholder="Search">
+            </div>
+        </div>
+    </div>
+
+    <table id="sessionsSummary" class="display table table-hover border rounded w-100">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.SessionsByDayAndEmployee[0].Date)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.SessionsByDayAndEmployee[0].Employee)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.SessionsByDayAndEmployee[0].Department.Company)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.SessionsByDayAndEmployee[0].Department)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.SessionsByDayAndEmployee[0].WorkstationsCount)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.SessionsByDayAndEmployee[0].AvgSessionDuration)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.SessionsByDayAndEmployee[0].SessionCount)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.SessionsByDayAndEmployee[0].TotalSessionDuration)
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.SessionsByDayAndEmployee)
+            {
+                <tr>
+                    <td>
+                        @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.Date, TimeZoneInfo.Local).ToShortDateString()
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Employee.FullName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Department.Company.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Department.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.WorkstationsCount)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.AvgSessionDuration)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.SessionCount)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.TotalSessionDuration)
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    @* Bottom table items *@
+    <div class="row mt-2">
+        <div class="col d-flex justify-content-center justify-content-lg-start align-items-center mb-1 text-nowrap">
+            <span class="d-flex align-items-center mr-1 text-navyblue">Show entries</span>
+            <div id="entries_place"></div>
+        </div>
+        <div id="showing_place" class="col d-flex justify-content-center align-items-center mb-1 text-navyblue text-nowrap"></div>
+        <div id="pagination_place" class="col d-flex justify-content-center justify-content-lg-end align-items-center mb-1"></div>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        //DatePicker
+        $('#startDate').datepicker({
+            format: '@ViewBag.DatePattern',
+            uiLibrary: 'bootstrap4',
+            maxDate: function () {
+                return $('#endDate').val();
+            }
+        });
+        $('#endDate').datepicker({
+            format: '@ViewBag.DatePattern',
+            uiLibrary: 'bootstrap4',
+            minDate: function () {
+                return $('#startDate').val();
+            }
+        });
+
+        // Init DataTables
+        var table_name = '#sessionsSummary';
+        $(table_name).DataTable({
+            responsive: true,
+        });
+        var dataTable = $(table_name).dataTable();
+        // Search box
+        $('#searchbox').keyup(function () {
+            dataTable.fnFilter(this.value);
+        });
+        $('.dataTables_filter').addClass('d-none');
+        // Length
+        $('#entries_place').html($('.dataTables_length select').removeClass('custom-select-sm form-control-sm'));
+        $('.dataTables_length').addClass('d-none');
+        // Info
+        $('#showing_place').html($('.dataTables_info'));
+        // Paginate
+        $('#pagination_place').html($('.dataTables_paginate'));
+
+        $(document).on('submit', '#filterForm', function (e) {
+            e.preventDefault();
+            $('#loading').html("<div class='spinner-border text-primary' role='status'></div>");
+            $.ajax({
+                method: "POST",
+                url: "/Audit/WorkstationSummaries?handler=FilterSessionsByDayAndEmployee",
+                headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
+                data: $('#filterForm').serialize(),
+                async: true,
+                success: function (response) {
+                    $("#content").html(response);
+                }
+            });
+        });
+
+        //$(document).on('click', '#clearFilter', function () {
+        //    $('#startTime').val("");
+        //    $('#endTime').val("");
+        //    $('#duration').val("");
+        //    $('#unlockId').val("");
+        //    $('#workstationId').val("");
+        //    $('#userSession').val("");
+        //    $('#deviceId').val("");
+        //    $('#employeeId').val("");
+        //    $('#companyId').val("");
+        //    $('#departmentId').val("");
+        //    $('#deviceAccountId').val("");
+        //    $('#deviceAccountTypeId').val("");
+        //});
+    </script>
+}
