@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using HES.Core.Interfaces;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Remote;
+using Hideez.SDK.Communication.Workstation;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -170,6 +171,24 @@ namespace HES.Core.Hubs
             };
 
             return info;
+        }
+
+        public async Task RegisterWorkstationInfo(WorkstationInfo workstationInfo)
+        {
+            // todo: save workstation information because it is related to connection
+        }
+
+        public static async Task UpdateUnlockerSettings(UnlockerSettingsInfo unlockerSettingsInfo)
+        {
+            try
+            {
+                // use workstation information to get the connection
+                //await <...>.Connection.UpdateUnlockerSettings(unlockerSettingsInfo);
+            }
+            catch (Exception ex)
+            {
+                throw new HubException(ex.Message);
+            }
         }
     }
 }
