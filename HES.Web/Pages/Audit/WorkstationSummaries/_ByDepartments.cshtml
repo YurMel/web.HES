@@ -19,46 +19,43 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.SummaryByDayAndEmployee[0].Date)
+                @Html.DisplayNameFor(model => model.SummaryByDepartments[0].Department.Company)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.SummaryByDayAndEmployee[0].Employee)
+                @Html.DisplayNameFor(model => model.SummaryByDepartments[0].Department)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.SummaryByDayAndEmployee[0].Department.Company)
+                @Html.DisplayNameFor(model => model.SummaryByDepartments[0].EmployeesCount)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.SummaryByDayAndEmployee[0].Department)
+                @Html.DisplayNameFor(model => model.SummaryByDepartments[0].WorkstationsCount)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.SummaryByDayAndEmployee[0].WorkstationsCount)
+                @Html.DisplayNameFor(model => model.SummaryByDepartments[0].AvgSessionDuration)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.SummaryByDayAndEmployee[0].AvgSessionDuration)
+                @Html.DisplayNameFor(model => model.SummaryByDepartments[0].SessionCountPerDay)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.SummaryByDayAndEmployee[0].SessionCount)
+                @Html.DisplayNameFor(model => model.SummaryByDepartments[0].TotalSessions)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.SummaryByDayAndEmployee[0].TotalSessionDuration)
+                @Html.DisplayNameFor(model => model.SummaryByDepartments[0].TotalSessionDurationPerDay)
             </th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model.SummaryByDayAndEmployee)
+        @foreach (var item in Model.SummaryByDepartments)
         {
             <tr>
-                <td>
-                    @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.Date, TimeZoneInfo.Local).ToShortDateString()
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Employee.FullName)
-                </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Department.Company.Name)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Department.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EmployeesCount)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.WorkstationsCount)
@@ -67,10 +64,13 @@
                     @Html.DisplayFor(modelItem => item.AvgSessionDuration)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.SessionCount)
+                    @Html.DisplayFor(modelItem => item.SessionCountPerDay)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.TotalSessionDuration)
+                    @Html.DisplayFor(modelItem => item.TotalSessions)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TotalSessionDurationPerDay)
                 </td>
             </tr>
         }

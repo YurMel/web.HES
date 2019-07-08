@@ -29,7 +29,7 @@
     </div>
 </div>
 
-<table id="employees" class="display table table-hover border rounded w-100">
+<table id="employees" class="display table table-hover border rounded w-100 disable-selection">
     <thead>
         <tr>
             <th data-priority="1">
@@ -239,6 +239,11 @@
             window.location.href = window.location.origin + '/Employees/Details?id=' + currentRow.data("id");
         });
 
+        $(document).ready(function () {
+            // Breadcrumbs
+            $('#breadcrumb').toggleClass('d-none');
+            $('.breadcrumb').append('<li class="breadcrumb-item active">Employees</li>');
+        });
     </script>
     <partial name="_ValidationScriptsPartial" />
 }

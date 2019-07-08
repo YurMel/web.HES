@@ -266,6 +266,8 @@ a.navbar-brand {
     padding: 10px;
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
+    margin-left: 2px;
+    margin-right: 2px;
 }
 
     .custom-horizontal-pills .nav-link.active, .nav-pills .show > .nav-link {
@@ -451,6 +453,14 @@ div.dataTables_scrollHead table.dataTable {
 .table-responsive > div {
     margin-left: 0;
     margin-right: 0;
+}
+
+.disable-selection {
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer */
+    -khtml-user-select: none; /* KHTML browsers (e.g. Konqueror) */
+    -webkit-user-select: none; /* Chrome, Safari, and Opera */
+    -webkit-touch-callout: none; /* Disable Android and iOS callouts*/
 }
 /*#endregion*/
 

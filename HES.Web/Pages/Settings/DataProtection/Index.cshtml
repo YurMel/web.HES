@@ -223,6 +223,13 @@
             $('form').removeData('unobtrusiveValidation');
             $.validator.unobtrusive.parse('form');
         });
+
+        $(document).ready(function () {
+            // Breadcrumbs
+            $('#breadcrumb').toggleClass('d-none');
+            $('.breadcrumb').append('<li class="breadcrumb-item active">Settings</li>');
+            $('.breadcrumb').append('<li class="breadcrumb-item active">Data Protection</li>');
+        });
     </script>
     <partial name="_ValidationScriptsPartial" />
 }

@@ -8,16 +8,16 @@
 
 <ul class="custom-horizontal-pills nav nav-pills mb-3 nav-fill flex-column flex-md-row" id="pills-tab" role="tablist">
     <li class="nav-item">
-        <a class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true">By days and employees</a>
+        <a class="nav-link active summary-tabs" id="by-days-and-employees" data-toggle="pill" href="#" role="tab" aria-selected="true">By days and employees</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">By employees</a>
+        <a class="nav-link summary-tabs" id="by-employees" data-toggle="pill" href="#" role="tab" aria-selected="false">By employees</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" id="pills-contact-tab" data-toggle="pill" href="#pills-contact" role="tab" aria-controls="pills-contact" aria-selected="false">By departments</a>
+        <a class="nav-link summary-tabs" id="by-departments" data-toggle="pill" href="#" role="tab" aria-selected="false">By departments</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" id="pills-by-workstations-tab" data-toggle="pill" href="#" role="tab" aria-controls="pills-by-workstations" aria-selected="false">By workstations</a>
+        <a class="nav-link summary-tabs" id="by-workstations" data-toggle="pill" href="#" role="tab" aria-selected="false">By workstations</a>
     </li>
 </ul>
 
@@ -30,15 +30,15 @@
 <div class="filter-card">
     <form method="post" id="filterForm">
         <div class="row">
-            <div class="col-sm-6 col-md-4 col-lg-3 form-group">
+            <div class="col-sm-6 col-md-4 col-lg-3 form-group date-col">
                 <label asp-for="SessionsSummaryFilter.StartDate" class="control-label"></label>
                 <input readonly type="text" id="startDate" asp-for="SessionsSummaryFilter.StartDate" class="form-control" autocomplete="off" />
             </div>
-            <div class="col-sm-6 col-md-4 col-lg-3 form-group">
+            <div class="col-sm-6 col-md-4 col-lg-3 form-group date-col">
                 <label asp-for="SessionsSummaryFilter.EndDate" class="control-label"></label>
                 <input readonly type="text" id="endDate" asp-for="SessionsSummaryFilter.EndDate" class="form-control" autocomplete="off" />
             </div>
-            <div class="col-sm-6 col-md-4 col-lg-3 form-group">
+            <div class="col-sm-6 col-md-4 col-lg-3 form-group employee-col">
                 <label asp-for="SessionsSummaryFilter.EmployeeId" class="control-label"></label>
                 <select id="employeeId" asp-for="SessionsSummaryFilter.EmployeeId" class="form-control" asp-items="ViewBag.Employees">
                     <option selected></option>
@@ -55,11 +55,11 @@
                 <select id="departmentId" asp-for="SessionsSummaryFilter.DepartmentId" class="form-control" asp-items="ViewBag.Departments">
                     <option selected></option>
                 </select>
-            </div>           
+            </div>
             <div class="col align-self-end form-group text-right">
                 <div>
                     <button id="clearFilter" type="button" class="btn btn-secondary">Clear</button>
-                    <input id="filterBtn" type="submit" value="Filter" class="btn btn-primary" />
+                    <input id="filterBtn" type="submit" value="Filter" data-action="by-days-and-employees" class="btn btn-primary" />
                 </div>
             </div>
         </div>
@@ -87,33 +87,33 @@
         <thead>
             <tr>
                 <th>
-                    @Html.DisplayNameFor(model => model.SessionsByDayAndEmployee[0].Date)
+                    @Html.DisplayNameFor(model => model.SummaryByDayAndEmployee[0].Date)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.SessionsByDayAndEmployee[0].Employee)
+                    @Html.DisplayNameFor(model => model.SummaryByDayAndEmployee[0].Employee)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.SessionsByDayAndEmployee[0].Department.Company)
+                    @Html.DisplayNameFor(model => model.SummaryByDayAndEmployee[0].Department.Company)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.SessionsByDayAndEmployee[0].Department)
+                    @Html.DisplayNameFor(model => model.SummaryByDayAndEmployee[0].Department)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.SessionsByDayAndEmployee[0].WorkstationsCount)
+                    @Html.DisplayNameFor(model => model.SummaryByDayAndEmployee[0].WorkstationsCount)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.SessionsByDayAndEmployee[0].AvgSessionDuration)
+                    @Html.DisplayNameFor(model => model.SummaryByDayAndEmployee[0].AvgSessionDuration)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.SessionsByDayAndEmployee[0].SessionCount)
+                    @Html.DisplayNameFor(model => model.SummaryByDayAndEmployee[0].SessionCount)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.SessionsByDayAndEmployee[0].TotalSessionDuration)
+                    @Html.DisplayNameFor(model => model.SummaryByDayAndEmployee[0].TotalSessionDuration)
                 </th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var item in Model.SessionsByDayAndEmployee)
+            @foreach (var item in Model.SummaryByDayAndEmployee)
             {
                 <tr>
                     <td>
@@ -193,12 +193,28 @@
         // Paginate
         $('#pagination_place').html($('.dataTables_paginate'));
 
+        // Filter
         $(document).on('submit', '#filterForm', function (e) {
             e.preventDefault();
             $('#loading').html("<div class='spinner-border text-primary' role='status'></div>");
+            var action = $('#filterBtn').data("action");
+            switch (action) {
+                case 'by-days-and-employees':
+                    var url = '/Audit/WorkstationSummaries?handler=FilterSummaryByDaysAndEmployees';
+                    break;
+                case 'by-employees':
+                    var url = '/Audit/WorkstationSummaries?handler=FilterSummaryByEmployees';
+                    break;
+                case 'by-departments':
+                    var url = '/Audit/WorkstationSummaries?handler=FilterSummaryByDepartments';
+                    break;
+                case 'by-workstations':
+                    var url = '/Audit/WorkstationSummaries?handler=FilterSummaryByWorkstations';
+                    break;
+            }
             $.ajax({
                 method: "POST",
-                url: "/Audit/WorkstationSummaries?handler=FilterSessionsByDayAndEmployee",
+                url: url,
                 headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
                 data: $('#filterForm').serialize(),
                 async: true,
@@ -208,19 +224,62 @@
             });
         });
 
-        //$(document).on('click', '#clearFilter', function () {
-        //    $('#startTime').val("");
-        //    $('#endTime').val("");
-        //    $('#duration').val("");
-        //    $('#unlockId').val("");
-        //    $('#workstationId').val("");
-        //    $('#userSession').val("");
-        //    $('#deviceId').val("");
-        //    $('#employeeId').val("");
-        //    $('#companyId').val("");
-        //    $('#departmentId').val("");
-        //    $('#deviceAccountId').val("");
-        //    $('#deviceAccountTypeId').val("");
-        //});
+        // Clear filter
+        $(document).on('click', '#clearFilter', function () {
+            $('#startDate').val("");
+            $('#endDate').val("");
+            $('#employeeId').val("");
+            $('#companyId').val("");
+            $('#departmentId').val("");
+        });
+
+        // Tabs click
+        $(document).on('click', '.summary-tabs', function () {
+            var tab = $(this);
+            var id = tab.attr('id');
+            switch (id) {
+                case 'by-days-and-employees':
+                    $('#filterBtn').data("action", "by-days-and-employees");
+                    $('.date-col').removeClass('d-none');
+                    $('.employee-col').removeClass('d-none');
+                    var url = '/Audit/WorkstationSummaries?handler=FilterSummaryByDaysAndEmployees';
+                    break;
+                case 'by-employees':
+                    $('#filterBtn').data("action", "by-employees");
+                    $('.date-col').addClass('d-none');
+                    $('.employee-col').removeClass('d-none');
+                    var url = '/Audit/WorkstationSummaries?handler=FilterSummaryByEmployees';
+                    break;
+                case 'by-departments':
+                    $('#filterBtn').data("action", "by-departments");
+                    $('.date-col').addClass('d-none');
+                    $('.employee-col').addClass('d-none');
+                    var url = '/Audit/WorkstationSummaries?handler=FilterSummaryByDepartments';
+                    break;
+                case 'by-workstations':
+                    $('#filterBtn').data("action", "by-workstations");
+                    $('.date-col').addClass('d-none');
+                    $('.employee-col').addClass('d-none');
+                    var url = '/Audit/WorkstationSummaries?handler=FilterSummaryByWorkstations';
+                    break;
+            }
+            $('#loading').html("<div class='spinner-border text-primary' role='status'></div>");
+            $.ajax({
+                method: "POST",
+                url: url,
+                headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
+                async: true,
+                success: function (response) {
+                    $("#content").html(response);
+                }
+            });
+        });   
+
+        $(document).ready(function () {
+            // Breadcrumbs
+            $('#breadcrumb').toggleClass('d-none');
+            $('.breadcrumb').append('<li class="breadcrumb-item active">Audit</li>');
+            $('.breadcrumb').append('<li class="breadcrumb-item active">Summaries</li>');
+        });
     </script>
 }

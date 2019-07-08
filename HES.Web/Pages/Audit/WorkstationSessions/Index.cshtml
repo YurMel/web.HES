@@ -272,5 +272,12 @@
             $('#deviceAccountId').val("");
             $('#deviceAccountTypeId').val("");
         });
+
+        $(document).ready(function () {
+            // Breadcrumbs
+            $('#breadcrumb').toggleClass('d-none');
+            $('.breadcrumb').append('<li class="breadcrumb-item active">Audit</li>');
+            $('.breadcrumb').append('<li class="breadcrumb-item active">Sessions</li>');
+        });
     </script>
 }

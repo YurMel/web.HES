@@ -326,5 +326,11 @@
             $('#endDate').val("");
             $('#approved').val("");
         });
+
+        $(document).ready(function () {
+            // Breadcrumbs
+            $('#breadcrumb').toggleClass('d-none');
+            $('.breadcrumb').append('<li class="breadcrumb-item active">Workstations</li>');
+        });
     </script>
 }
