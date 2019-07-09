@@ -328,10 +328,10 @@ namespace HES.Core.Services
 
             bool isPrimary = dev.PrimaryAccountId == task.DeviceAccountId;
 
-            var pm = new DevicePasswordManager(device);
+            var pm = new DevicePasswordManager(device, null);
 
             ushort key = task.DeviceAccount.IdFromDevice;
-            key = await pm.SaveOrUpdateAccount(key, 0x0000, task.Name, task.Password, task.Login, task.OtpSecret, task.Apps, task.Urls, isPrimary);
+            key = await pm.SaveOrUpdateAccount(key, task.Name, task.Password, task.Login, task.OtpSecret, task.Apps, task.Urls, isPrimary);
 
             return key;
         }
@@ -345,20 +345,20 @@ namespace HES.Core.Services
 
             bool isPrimary = dev.PrimaryAccountId == task.DeviceAccountId;
 
-            var pm = new DevicePasswordManager(device);
+            var pm = new DevicePasswordManager(device, null);
 
             ushort key = task.DeviceAccount.IdFromDevice;
-            key = await pm.SaveOrUpdateAccount(key, 0x0000, task.Name, task.Password, task.Login, task.OtpSecret, task.Apps, task.Urls, isPrimary);
+            key = await pm.SaveOrUpdateAccount(key, task.Name, task.Password, task.Login, task.OtpSecret, task.Apps, task.Urls, isPrimary);
 
             return key;
         }
 
         private async Task<ushort> SetDeviceAccountAsPrimary(RemoteDevice device, DeviceTask task)
         {
-            var pm = new DevicePasswordManager(device);
+            var pm = new DevicePasswordManager(device, null);
 
             ushort key = task.DeviceAccount.IdFromDevice;
-            key = await pm.SaveOrUpdateAccount(key, 0x0000, null, null, null, null, null, null, true);
+            key = await pm.SaveOrUpdateAccount(key, null, null, null, null, null, null, true);
 
             return key;
         }
@@ -371,7 +371,7 @@ namespace HES.Core.Services
                 .FirstOrDefaultAsync();
 
             bool isPrimary = dev.PrimaryAccountId == task.DeviceAccountId;
-            var pm = new DevicePasswordManager(device);
+            var pm = new DevicePasswordManager(device, null);
             ushort key = task.DeviceAccount.IdFromDevice;
             await pm.DeleteAccount(key, isPrimary);
             return 0;
