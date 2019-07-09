@@ -24,8 +24,24 @@ namespace HES.Core.Hubs
             }
         }
 
+        class WorkstationDescription
+        {
+            public IRemoteAppConnection Connection { get; }
+
+            public string WorkstationId { get; }
+
+            public WorkstationDescription(IRemoteAppConnection connection, string workstationId)
+            {
+                Connection = connection;
+                WorkstationId = workstationId;
+            }
+        }
+
         static readonly ConcurrentDictionary<string, DeviceDescription> _deviceConnections
             = new ConcurrentDictionary<string, DeviceDescription>();
+
+        static readonly ConcurrentDictionary<string, WorkstationDescription> _workstationConnections
+                    = new ConcurrentDictionary<string, WorkstationDescription>();
 
         private readonly IRemoteTaskService _remoteTaskService;
         private readonly IEmployeeService _employeeService;
@@ -50,6 +66,11 @@ namespace HES.Core.Hubs
             var deviceList = GetDeviceList();
             foreach (var item in deviceList.ToArray())
                 OnDeviceDisconnected(item.Key);
+
+            // Remove workstation connection info
+            var workstation = GetWorkstation();
+            if (workstation != null)
+                OnWorkstationDisconnected(workstation.WorkstationId);
 
             return base.OnDisconnectedAsync(exception);
         }
@@ -173,22 +194,71 @@ namespace HES.Core.Hubs
             return info;
         }
 
+        // Incomming request
         public async Task RegisterWorkstationInfo(WorkstationInfo workstationInfo)
         {
-            // todo: save workstation information because it is related to connection
+            var workstation = _workstationConnections.AddOrUpdate(workstationInfo.Id, new WorkstationDescription(Clients.Caller, workstationInfo.Id), (workstationId, oldDescr) =>
+            {
+                return new WorkstationDescription(Clients.Caller, workstationId);
+            });
+
+            Context.Items.Add("WorkstationInfo", workstation);
+
+            // todo: save workstation info into database
+            
+            Task.Run(async () =>
+            {
+                await UpdateUnlockerSettings(workstation.WorkstationId, new UnlockerSettingsInfo()
+                {
+                    DeviceUnlockerSettings = null,
+                    LockProximity = 25,
+                    UnlockProximity = 65,
+                    LockTimeoutSeconds = 4
+                });
+            });
         }
 
-        public static async Task UpdateUnlockerSettings(UnlockerSettingsInfo unlockerSettingsInfo)
+        WorkstationDescription GetWorkstation()
+        {
+            if (Context.Items.TryGetValue("WorkstationInfo", out object workstation))
+                return workstation as WorkstationDescription;
+            else
+                return null;
+        }
+
+        static WorkstationDescription FindWorkstationDescription(string workstationId)
+        {
+            _workstationConnections.TryGetValue(workstationId, out WorkstationDescription workstation);
+            return workstation;
+        }
+
+        public static bool IsWorkstationConnectedToHost(string workstationId)
+        {
+            var workstation = FindWorkstationDescription(workstationId);
+            return workstation != null;
+        }
+
+        public static async Task UpdateUnlockerSettings(string workstationId, UnlockerSettingsInfo unlockerSettingsInfo)
         {
             try
             {
-                // use workstation information to get the connection
-                //await <...>.Connection.UpdateUnlockerSettings(unlockerSettingsInfo);
+                var workstation = FindWorkstationDescription(workstationId);
+                if (workstation != null)
+                {
+                    await workstation.Connection.UpdateUnlockerSettings(unlockerSettingsInfo);
+                }
             }
             catch (Exception ex)
             {
                 throw new HubException(ex.Message);
             }
+        }
+
+        Task OnWorkstationDisconnected(string workstationId)
+        {
+            _workstationConnections.TryRemove(workstationId, out WorkstationDescription workstation);
+
+            return Task.CompletedTask;
         }
     }
 }
