@@ -1,5 +1,4 @@
-﻿using HES.Core.Entities;
-using HES.Core.Entities.Models;
+﻿using HES.Core.Entities.Models;
 using HES.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -20,7 +19,7 @@ namespace HES.Web.Pages.Audit.WorkstationSummaries
         public IList<SummaryByEmployees> SummaryByEmployees { get; set; }
         public IList<SummaryByDepartments> SummaryByDepartments { get; set; }
         public IList<SummaryByWorkstations> SummaryByWorkstations { get; set; }
-        public SessionsSummaryFilter SessionsSummaryFilter { get; set; }
+        public SummaryFilter SummaryFilter { get; set; }
 
         public IndexModel(IWorkstationSessionService workstationSessionService)
         {
@@ -63,7 +62,7 @@ namespace HES.Web.Pages.Audit.WorkstationSummaries
             ViewData["TimePattern"] = CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern.ToUpper();
         }
 
-        public async Task<IActionResult> OnPostFilterSummaryByDaysAndEmployeesAsync(SessionsSummaryFilter SessionsSummaryFilter)
+        public async Task<IActionResult> OnPostFilterSummaryByDaysAndEmployeesAsync(SummaryFilter SummaryFilter)
         {
             var filter = _workstationSessionService
                 .WorkstationSessionQuery()
@@ -89,23 +88,23 @@ namespace HES.Web.Pages.Audit.WorkstationSummaries
                 .OrderBy(w => w.Employee.FirstName)
                 .AsQueryable();
 
-            if (SessionsSummaryFilter.StartDate != null && SessionsSummaryFilter.EndDate != null)
+            if (SummaryFilter.StartDate != null && SummaryFilter.EndDate != null)
             {
                 filter = filter
-                    .Where(w => w.Date >= SessionsSummaryFilter.StartDate.Value.Date.ToUniversalTime())
-                    .Where(w => w.Date <= SessionsSummaryFilter.EndDate.Value.Date.ToUniversalTime());
+                    .Where(w => w.Date >= SummaryFilter.StartDate.Value.Date.ToUniversalTime())
+                    .Where(w => w.Date <= SummaryFilter.EndDate.Value.Date.ToUniversalTime());
             }
-            if (SessionsSummaryFilter.EmployeeId != null)
+            if (SummaryFilter.EmployeeId != null)
             {
-                filter = filter.Where(w => w.Employee.Id == SessionsSummaryFilter.EmployeeId);
+                filter = filter.Where(w => w.Employee.Id == SummaryFilter.EmployeeId);
             }
-            if (SessionsSummaryFilter.CompanyId != null)
+            if (SummaryFilter.CompanyId != null)
             {
-                filter = filter.Where(w => w.Department.Company.Id == SessionsSummaryFilter.CompanyId);
+                filter = filter.Where(w => w.Department.Company.Id == SummaryFilter.CompanyId);
             }
-            if (SessionsSummaryFilter.DepartmentId != null)
+            if (SummaryFilter.DepartmentId != null)
             {
-                filter = filter.Where(w => w.Department.Id == SessionsSummaryFilter.DepartmentId);
+                filter = filter.Where(w => w.Department.Id == SummaryFilter.DepartmentId);
             }
 
             SummaryByDayAndEmployee = await filter.ToListAsync();
@@ -113,7 +112,7 @@ namespace HES.Web.Pages.Audit.WorkstationSummaries
             return Partial("_ByDaysAndEmployees", this);
         }
 
-        public async Task<IActionResult> OnPostFilterSummaryByEmployeesAsync(SessionsSummaryFilter SessionsSummaryFilter)
+        public async Task<IActionResult> OnPostFilterSummaryByEmployeesAsync(SummaryFilter SummaryFilter)
         {
             var filter = _workstationSessionService
                 .WorkstationSessionQuery()
@@ -129,24 +128,24 @@ namespace HES.Web.Pages.Audit.WorkstationSummaries
                     Department = g.First().Department,
                     WorkstationsCount = g.GroupBy(z => z.Workstation.Id).Count(),
                     AvgSessionDuration = TimeSpan.FromMinutes(g.Average(s => s.Duration.TotalMinutes)),
-                    SessionCountPerDay = g.Count() / g.GroupBy(z => z.StartTime).Count(),
+                    SessionCountPerDay = g.Count() / g.GroupBy(z => z.StartTime.Day).Count(),
                     TotalSessions = g.Count(),
-                    TotalSessionDurationPerDay = TimeSpan.FromMinutes(g.Sum(s => s.Duration.TotalMinutes)),
+                    TotalSessionDurationPerDay = TimeSpan.FromMinutes(g.Sum(s => s.Duration.TotalMinutes)) / g.GroupBy(z => z.StartTime.Day).Count()
                 })
                 .OrderBy(w => w.Employee.FirstName)
                 .AsQueryable();
 
-            if (SessionsSummaryFilter.EmployeeId != null)
+            if (SummaryFilter.EmployeeId != null)
             {
-                filter = filter.Where(w => w.Employee.Id == SessionsSummaryFilter.EmployeeId);
+                filter = filter.Where(w => w.Employee.Id == SummaryFilter.EmployeeId);
             }
-            if (SessionsSummaryFilter.CompanyId != null)
+            if (SummaryFilter.CompanyId != null)
             {
-                filter = filter.Where(w => w.Department.Company.Id == SessionsSummaryFilter.CompanyId);
+                filter = filter.Where(w => w.Department.Company.Id == SummaryFilter.CompanyId);
             }
-            if (SessionsSummaryFilter.DepartmentId != null)
+            if (SummaryFilter.DepartmentId != null)
             {
-                filter = filter.Where(w => w.Department.Id == SessionsSummaryFilter.DepartmentId);
+                filter = filter.Where(w => w.Department.Id == SummaryFilter.DepartmentId);
             }
 
             SummaryByEmployees = await filter.ToListAsync();
@@ -154,7 +153,7 @@ namespace HES.Web.Pages.Audit.WorkstationSummaries
             return Partial("_ByEmployees", this);
         }
 
-        public async Task<IActionResult> OnPostFilterSummaryByDepartmentsAsync(SessionsSummaryFilter SessionsSummaryFilter)
+        public async Task<IActionResult> OnPostFilterSummaryByDepartmentsAsync(SummaryFilter SummaryFilter)
         {
             var filter = _workstationSessionService
                 .WorkstationSessionQuery()
@@ -169,24 +168,20 @@ namespace HES.Web.Pages.Audit.WorkstationSummaries
                     EmployeesCount = g.GroupBy(z => z.EmployeeId).Count(),
                     WorkstationsCount = g.GroupBy(z => z.Workstation.Id).Count(),
                     AvgSessionDuration = TimeSpan.FromMinutes(g.Average(s => s.Duration.TotalMinutes)),
-                    SessionCountPerDay = g.Count() / g.GroupBy(z => z.StartTime).Count(),
+                    SessionCountPerDay = g.Count() / g.GroupBy(z => z.StartTime.Day).Count(),
                     TotalSessions = g.Count(),
-                    TotalSessionDurationPerDay = TimeSpan.FromMinutes(g.Sum(s => s.Duration.TotalMinutes)),
+                    TotalSessionDurationPerDay = TimeSpan.FromMinutes(g.Sum(s => s.Duration.TotalMinutes)) / g.GroupBy(z => z.StartTime.Day).Count()
                 })
                 .OrderBy(w => w.Department.Name)
                 .AsQueryable();
 
-            //if (SessionsSummaryFilter.EmployeeId != null)
-            //{
-            //    filter = filter.Where(w => w.Employee.Id == SessionsSummaryFilter.EmployeeId);
-            //}
-            if (SessionsSummaryFilter.CompanyId != null)
+            if (SummaryFilter.CompanyId != null)
             {
-                filter = filter.Where(w => w.Department.Company.Id == SessionsSummaryFilter.CompanyId);
+                filter = filter.Where(w => w.Department.Company.Id == SummaryFilter.CompanyId);
             }
-            if (SessionsSummaryFilter.DepartmentId != null)
+            if (SummaryFilter.DepartmentId != null)
             {
-                filter = filter.Where(w => w.Department.Id == SessionsSummaryFilter.DepartmentId);
+                filter = filter.Where(w => w.Department.Id == SummaryFilter.DepartmentId);
             }
 
             SummaryByDepartments = await filter.ToListAsync();
@@ -194,7 +189,7 @@ namespace HES.Web.Pages.Audit.WorkstationSummaries
             return Partial("_ByDepartments", this);
         }
 
-        public async Task<IActionResult> OnPostFilterSummaryByWorkstationsAsync(SessionsSummaryFilter SessionsSummaryFilter)
+        public async Task<IActionResult> OnPostFilterSummaryByWorkstationsAsync(SummaryFilter SummaryFilter)
         {
             var filter = _workstationSessionService
                 .WorkstationSessionQuery()
@@ -209,20 +204,20 @@ namespace HES.Web.Pages.Audit.WorkstationSummaries
                     Department = g.First().Department,
                     EmployeesCount = g.GroupBy(z => z.EmployeeId).Count(),
                     AvgSessionDuration = TimeSpan.FromMinutes(g.Average(s => s.Duration.TotalMinutes)),
-                    SessionCountPerDay = g.Count() / g.GroupBy(z => z.StartTime).Count(),
+                    SessionCountPerDay = g.Count() / g.GroupBy(z => z.StartTime.Day).Count(),
                     TotalSessions = g.Count(),
-                    TotalSessionDurationPerDay = TimeSpan.FromMinutes(g.Sum(s => s.Duration.TotalMinutes)),
+                    TotalSessionDurationPerDay = TimeSpan.FromMinutes(g.Sum(s => s.Duration.TotalMinutes)) / g.GroupBy(z => z.StartTime.Day).Count()
                 })
                 .OrderBy(w => w.Workstation.Name)
                 .AsQueryable();
 
-            if (SessionsSummaryFilter.CompanyId != null)
+            if (SummaryFilter.CompanyId != null)
             {
-                filter = filter.Where(w => w.Department.Company.Id == SessionsSummaryFilter.CompanyId);
+                filter = filter.Where(w => w.Department.Company.Id == SummaryFilter.CompanyId);
             }
-            if (SessionsSummaryFilter.DepartmentId != null)
+            if (SummaryFilter.DepartmentId != null)
             {
-                filter = filter.Where(w => w.Department.Id == SessionsSummaryFilter.DepartmentId);
+                filter = filter.Where(w => w.Department.Id == SummaryFilter.DepartmentId);
             }
 
             SummaryByWorkstations = await filter.ToListAsync();

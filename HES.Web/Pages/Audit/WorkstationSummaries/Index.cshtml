@@ -31,28 +31,28 @@
     <form method="post" id="filterForm">
         <div class="row">
             <div class="col-sm-6 col-md-4 col-lg-3 form-group date-col">
-                <label asp-for="SessionsSummaryFilter.StartDate" class="control-label"></label>
-                <input readonly type="text" id="startDate" asp-for="SessionsSummaryFilter.StartDate" class="form-control" autocomplete="off" />
+                <label asp-for="SummaryFilter.StartDate" class="control-label"></label>
+                <input readonly type="text" id="startDate" asp-for="SummaryFilter.StartDate" class="form-control" autocomplete="off" />
             </div>
             <div class="col-sm-6 col-md-4 col-lg-3 form-group date-col">
-                <label asp-for="SessionsSummaryFilter.EndDate" class="control-label"></label>
-                <input readonly type="text" id="endDate" asp-for="SessionsSummaryFilter.EndDate" class="form-control" autocomplete="off" />
+                <label asp-for="SummaryFilter.EndDate" class="control-label"></label>
+                <input readonly type="text" id="endDate" asp-for="SummaryFilter.EndDate" class="form-control" autocomplete="off" />
             </div>
             <div class="col-sm-6 col-md-4 col-lg-3 form-group employee-col">
-                <label asp-for="SessionsSummaryFilter.EmployeeId" class="control-label"></label>
-                <select id="employeeId" asp-for="SessionsSummaryFilter.EmployeeId" class="form-control" asp-items="ViewBag.Employees">
+                <label asp-for="SummaryFilter.EmployeeId" class="control-label"></label>
+                <select id="employeeId" asp-for="SummaryFilter.EmployeeId" class="form-control" asp-items="ViewBag.Employees">
                     <option selected></option>
                 </select>
             </div>
             <div class="col-sm-6 col-md-4 col-lg-3 form-group">
-                <label asp-for="SessionsSummaryFilter.CompanyId" class="control-label"></label>
-                <select id="companyId" asp-for="SessionsSummaryFilter.CompanyId" class="form-control" asp-items="ViewBag.Companies">
+                <label asp-for="SummaryFilter.CompanyId" class="control-label"></label>
+                <select id="companyId" asp-for="SummaryFilter.CompanyId" class="form-control" asp-items="ViewBag.Companies">
                     <option selected></option>
                 </select>
             </div>
             <div class="col-sm-6 col-md-4 col-lg-3 form-group">
-                <label asp-for="SessionsSummaryFilter.DepartmentId" class="control-label"></label>
-                <select id="departmentId" asp-for="SessionsSummaryFilter.DepartmentId" class="form-control" asp-items="ViewBag.Departments">
+                <label asp-for="SummaryFilter.DepartmentId" class="control-label"></label>
+                <select id="departmentId" asp-for="SummaryFilter.DepartmentId" class="form-control" asp-items="ViewBag.Departments">
                     <option selected></option>
                 </select>
             </div>

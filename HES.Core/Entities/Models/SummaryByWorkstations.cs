@@ -16,7 +16,7 @@ namespace HES.Core.Entities.Models
         public TimeSpan AvgSessionDuration { get; set; }
 
         [Display(Name = "Session Count Per Day")]
-        public int SessionCountPerDay { get; set; }
+        public double SessionCountPerDay { get; set; }
 
         [Display(Name = "Total Sessions")]
         public int TotalSessions { get; set; }
