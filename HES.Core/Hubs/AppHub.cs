@@ -154,6 +154,7 @@ namespace HES.Core.Hubs
             return device != null;
         }
 
+        // Incomming request
         public async Task<UserInfo> GetInfoByRfid(string rfid)
         {
             var device = await _employeeService
@@ -195,7 +196,48 @@ namespace HES.Core.Hubs
         }
 
         // Incomming request
-        public async Task RegisterWorkstationInfo(WorkstationInfo workstationInfo)
+        public async Task<UserInfo> GetInfoByMac(string mac)
+        {
+            var device = await _employeeService
+                .DeviceQuery()
+                .Include(d => d.Employee)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(d => d.MAC == mac);
+
+            if (device == null)
+                return null;
+
+            var primaryAccount = await _employeeService
+                .DeviceAccountQuery()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(d => d.Id == device.PrimaryAccountId);
+
+            bool needUpdatePrimaryAccount = false;
+            if (primaryAccount != null)
+            {
+                needUpdatePrimaryAccount = await _employeeService
+                    .DeviceTaskQuery()
+                    .Where(t => t.DeviceAccountId == primaryAccount.Id)
+                    .AsNoTracking()
+                    .AnyAsync();
+            }
+
+            var info = new UserInfo()
+            {
+                Name = device.Employee?.FullName,
+                DeviceMac = device.MAC,
+                DeviceSerialNo = device.Id,
+                PrimaryAccountLogin = primaryAccount?.Login,
+                IdFromDevice = primaryAccount?.IdFromDevice ?? 0,
+                NeedUpdatePrimaryAccount = needUpdatePrimaryAccount,
+                DeviceMasterPassword = device.MasterPassword
+            };
+
+            return info;
+        }
+
+        // Incomming request
+        public Task RegisterWorkstationInfo(WorkstationInfo workstationInfo)
         {
             var workstation = _workstationConnections.AddOrUpdate(workstationInfo.Id, new WorkstationDescription(Clients.Caller, workstationInfo.Id), (workstationId, oldDescr) =>
             {
@@ -205,17 +247,56 @@ namespace HES.Core.Hubs
             Context.Items.Add("WorkstationInfo", workstation);
 
             // todo: save workstation info into database
-            
-            Task.Run(async () =>
+
+            OnWorkstationConnected();
+
+            return Task.CompletedTask;
+        }
+
+        async void OnWorkstationConnected()
+        {
+            await Task.Run(async () =>
             {
-                await UpdateUnlockerSettings(workstation.WorkstationId, new UnlockerSettingsInfo()
+                try
                 {
-                    DeviceUnlockerSettings = null,
-                    LockProximity = 25,
-                    UnlockProximity = 65,
-                    LockTimeoutSeconds = 4
-                });
+                    var workstation = GetWorkstation();
+
+                    // Todo: read unlocker settings for workstation from database
+
+                    var deviceUnlockerSettingsInfo = new DeviceUnlockerSettingsInfo
+                    {
+                        AllowBleTap = true,
+                        AllowRfid = true,
+                        AllowProximity = true,
+                        RequirePin = true,
+                        SerialNo = "ST10399999900001",
+                        Mac = "C48F06829001"
+                    };
+                    var unlockerSettings = new UnlockerSettingsInfo()
+                    {
+                        DeviceUnlockerSettings = new DeviceUnlockerSettingsInfo[1]
+                        {
+                            deviceUnlockerSettingsInfo,
+                        },
+                        LockProximity = 30,
+                        UnlockProximity = 50,
+                        LockTimeoutSeconds = 4
+                    };
+
+                    await UpdateUnlockerSettings(workstation.WorkstationId, unlockerSettings);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex.Message);
+                }
             });
+        }
+
+        Task OnWorkstationDisconnected(string workstationId)
+        {
+            _workstationConnections.TryRemove(workstationId, out WorkstationDescription workstation);
+
+            return Task.CompletedTask;
         }
 
         WorkstationDescription GetWorkstation()
@@ -252,13 +333,6 @@ namespace HES.Core.Hubs
             {
                 throw new HubException(ex.Message);
             }
-        }
-
-        Task OnWorkstationDisconnected(string workstationId)
-        {
-            _workstationConnections.TryRemove(workstationId, out WorkstationDescription workstation);
-
-            return Task.CompletedTask;
         }
     }
 }
