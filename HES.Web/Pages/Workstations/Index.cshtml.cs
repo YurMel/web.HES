@@ -149,7 +149,7 @@ namespace HES.Web.Pages.Workstations
             return RedirectToPage("./Index");
         }
 
-        public async Task<IActionResult> OnGetApproveComputerAsync(string id)
+        public async Task<IActionResult> OnGetApproveWorkstationAsync(string id)
         {
             if (id == null)
             {
@@ -161,20 +161,56 @@ namespace HES.Web.Pages.Workstations
                .WorkstationQuery()
                .FirstOrDefaultAsync(c => c.Id == id);
 
-            return Partial("_ApproveComputer", this);
+            return Partial("_ApproveWorkstation", this);
         }
 
-        public async Task<IActionResult> OnPostApproveComputerAsync(string computerId)
+        public async Task<IActionResult> OnPostApproveWorkstationAsync(string workstationId)
         {
-            if (computerId == null)
+            if (workstationId == null)
             {
-                _logger.LogWarning("computerId == null");
+                _logger.LogWarning("workstationId == null");
                 return RedirectToPage("./Index");
             }
             try
             {
-                await _workstationService.ApproveWorkstationAsync(computerId);
+                await _workstationService.ApproveWorkstationAsync(workstationId);
                 SuccessMessage = $"Workstation approved.";
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.Message;
+                _logger.LogError(ex.Message);
+            }
+
+            return RedirectToPage("./Index");
+        }
+
+        public async Task<IActionResult> OnGetUnapproveWorkstationAsync(string id)
+        {
+            if (id == null)
+            {
+                _logger.LogWarning("id == null");
+                return NotFound();
+            }
+
+            Workstation = await _workstationService
+               .WorkstationQuery()
+               .FirstOrDefaultAsync(c => c.Id == id);
+
+            return Partial("_UnapproveWorkstation", this);
+        }
+
+        public async Task<IActionResult> OnPostUnapproveWorkstationAsync(string workstationId)
+        {
+            if (workstationId == null)
+            {
+                _logger.LogWarning("workstationId == null");
+                return RedirectToPage("./Index");
+            }
+            try
+            {
+                await _workstationService.UnapproveWorkstationAsync(workstationId);
+                SuccessMessage = $"Workstation unapproved.";
             }
             catch (Exception ex)
             {

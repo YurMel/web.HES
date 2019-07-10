@@ -36,30 +36,53 @@ namespace HES.Core.Services
             return _departmentRepository.Query();
         }
 
-        public async Task EditDepartmentAsync(Workstation computer)
+        public async Task AddWorkstation(Workstation workstation)
         {
-            if (computer == null)
-                throw new ArgumentNullException(nameof(computer));
+            if (workstation == null)
+                throw new ArgumentNullException(nameof(workstation));
 
-            computer.CompanyId = computer.Department.CompanyId;
-
-            string[] properties = { "CompanyId", "DepartmentId" };
-            await _workstationRepository.UpdateOnlyPropAsync(computer, properties);
+            await _workstationRepository.AddAsync(workstation);
         }
 
-        public async Task ApproveWorkstationAsync(string computerId)
+        public async Task EditDepartmentAsync(Workstation workstation)
         {
-            if (computerId == null)
-                throw new ArgumentNullException(nameof(computerId));
+            if (workstation == null)
+                throw new ArgumentNullException(nameof(workstation));
 
-            var computer = await _workstationRepository.GetByIdAsync(computerId);
-            if (computer == null)
-                throw new Exception("Computer not found");
+            workstation.CompanyId = workstation.Department.CompanyId;
 
-            computer.Approved = true;
+            string[] properties = { "CompanyId", "DepartmentId" };
+            await _workstationRepository.UpdateOnlyPropAsync(workstation, properties);
+        }
+
+        public async Task ApproveWorkstationAsync(string workstationId)
+        {
+            if (workstationId == null)
+                throw new ArgumentNullException(nameof(workstationId));
+
+            var workstation = await _workstationRepository.GetByIdAsync(workstationId);
+            if (workstation == null)
+                throw new Exception("Workstation not found");
+
+            workstation.Approved = true;
 
             string[] properties = { "Approved" };
-            await _workstationRepository.UpdateOnlyPropAsync(computer, properties);
+            await _workstationRepository.UpdateOnlyPropAsync(workstation, properties);
+        }
+
+        public async Task UnapproveWorkstationAsync(string workstationId)
+        {
+            if (workstationId == null)
+                throw new ArgumentNullException(nameof(workstationId));
+
+            var workstation = await _workstationRepository.GetByIdAsync(workstationId);
+            if (workstation == null)
+                throw new Exception("Workstation not found");
+
+            workstation.Approved = false;
+
+            string[] properties = { "Approved" };
+            await _workstationRepository.UpdateOnlyPropAsync(workstation, properties);
         }
     }
 }

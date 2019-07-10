@@ -1,4 +1,5 @@
-﻿using HES.Core.Entities.Models;
+﻿using HES.Core.Entities;
+using HES.Core.Entities.Models;
 using HES.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -28,6 +29,51 @@ namespace HES.Web.Pages.Audit.WorkstationSummaries
 
         public async Task OnGet()
         {
+            //    // var raw = await _workstationSessionService.WorkstationSessionQuery().FromSql("SELECT * FROM workstationsessions group BY hes.workstationsessions.EmployeeId").ToListAsync();
+            //    var test = await _workstationSessionService
+            //        .WorkstationSessionQuery()
+            //        //.Include(w => w.Employee)
+            //        //.Include(w => w.Department.Company)
+            //        .GroupBy(g => new
+            //        {
+            //            g.StartTime.Year,
+            //            g.StartTime.Month,
+            //            g.StartTime.Day,
+            //            g.Employee.Id
+            //        })
+            //        .Select(g => new SummaryByDayAndEmployee()
+            //        {
+            //            //Emp = g.Key.Id,
+            //            //Employee = _workstationSessionService.EmployeeQuery().FirstOrDefault(f=>f.Id == g.Key.Id),
+            //            //g.Key.Employee,
+            //            //g.First().Employee
+            //            //g.Select(s=>s.Workstation)
+            //            //g.Sum(z => z.)
+            //            //SessionCount = g.Count(),
+            //            //WorkstationsCount = g.GroupBy(z => z.Workstation.Id).Count(),
+            //            WorkstationsCount = g.Select(s => s.WorkstationId).Distinct().Count(),
+            //            //TotalSessionDuration = TimeSpan.FromMinutes(g.Sum(s => s.Duration.TotalMinutes)),
+            //            //Sum = g.Sum(o => o.UserSession),
+            //            //Min = g.Min(o => o.Amount),
+            //            //Max = g.Max(o => o.UserSession),
+            //            //Avg = g.Average(o => Amount)
+            //        })
+            //        //.Select(g => new SummaryByDayAndEmployee()
+            //        //{
+            //        //    Date = DateTime.Parse($"{g.Key.Year}.{g.Key.Month}.{g.Key.Day}"),
+            //        //    Employee = g.First().Employee,
+            //        //    Department = g.First().Department,
+            //        //    WorkstationsCount = g.GroupBy(z => z.Workstation.Id).Count(),
+            //        //    AvgSessionDuration = TimeSpan.FromMinutes(g.Average(s => s.Duration.TotalMinutes)),
+            //        //    SessionCount = g.Count(),
+            //        //    TotalSessionDuration = TimeSpan.FromMinutes(g.Sum(s => s.Duration.TotalMinutes)),
+            //        //})
+            //        //.OrderByDescending(w => w.Date)
+            //        //.OrderBy(w => w.Employee.FirstName)
+            //        //.Take(100)
+            //        //.AsNoTracking()
+            //        .ToListAsync();
+
             SummaryByDayAndEmployee = await _workstationSessionService
                 .WorkstationSessionQuery()
                 .Include(w => w.Employee)
@@ -52,7 +98,21 @@ namespace HES.Web.Pages.Audit.WorkstationSummaries
                 .OrderByDescending(w => w.Date)
                 .OrderBy(w => w.Employee.FirstName)
                 .Take(100)
+                .AsNoTracking()
                 .ToListAsync();
+            //SummaryByDayAndEmployee = new List<SummaryByDayAndEmployee>();
+            //var item = new SummaryByDayAndEmployee
+            //{
+            //    Date = DateTime.UtcNow,
+            //    Employee = new Employee() { FirstName = "name", LastName = "last" },
+            //    Department = new Department() { Name = "dep", Company = new Company() { Name = "comp" } },
+            //    WorkstationsCount = 20,
+            //    AvgSessionDuration = TimeSpan.FromMinutes(30),
+            //    SessionCount = 11,
+            //    TotalSessionDuration = TimeSpan.FromMinutes(12),
+            //};
+            //SummaryByDayAndEmployee.Add(item);
+
 
             ViewData["Employees"] = new SelectList(await _workstationSessionService.EmployeeQuery().ToListAsync(), "Id", "FullName");
             ViewData["Companies"] = new SelectList(await _workstationSessionService.CompanyQuery().ToListAsync(), "Id", "Name");

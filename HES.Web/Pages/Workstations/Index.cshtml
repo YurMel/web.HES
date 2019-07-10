@@ -56,7 +56,6 @@
             </div>
             <div class="col-sm-6 col-md-4 col-lg-3 form-group">
                 <label asp-for="WorkstationFilter.Approved" class="control-label"></label>
-                @*<input id="approved" asp-for="WorkstationFilter.Approved" class="form-control" />*@
                 <select id="approved" asp-for="WorkstationFilter.Approved" class="form-control">
                     <option selected></option>
                     <option value="true">True</option>
@@ -165,12 +164,19 @@
                                     <img src="~/svg/action/edit.svg" />
                                     Edit
                                 </a>
+                                <div class="dropdown-divider"></div>
                                 @if (item.Approved == false)
                                 {
-                                    @*<div class="dropdown-divider"></div>*@
-                                    <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="ApproveComputer" data-title="Approve computer">
+                                    <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="ApproveWorkstation" data-title="Approve workstation">
                                         <img src="~/svg/action/done.svg" />
                                         Approve
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="UnapproveWorkstation" data-title="Unapprove workstation">
+                                        <img src="~/svg/action/clear.svg" />
+                                        Unapprove
                                     </a>
                                 }
                             </div>
