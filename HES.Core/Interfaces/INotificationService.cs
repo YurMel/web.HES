@@ -6,9 +6,9 @@ namespace HES.Core.Interfaces
 {
     public interface INotificationService
     {
-        Task<bool> GetNotifyStatus();
-        Task AddNotify(NotifyId id, string message, string url);
-        Task RemoveNotify(NotifyId id);
-        Task <IList<Notification>> GetAllNotify();
+        Task<bool> GetNotifyStatusAsync();
+        Task AddNotifyAsync(NotifyId id, string message, string url);
+        Task RemoveNotifyAsync(NotifyId id);
+        Task <IList<Notification>> GetAllNotifyAsync();
     }
 }

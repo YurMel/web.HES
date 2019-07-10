@@ -20,12 +20,12 @@ namespace HES.Core.Services
             _notificationRepository = notificationRepository;
         }
 
-        public async Task<bool> GetNotifyStatus()
+        public async Task<bool> GetNotifyStatusAsync()
         {
-            return await _notificationRepository.Query().AnyAsync();
+            return await _notificationRepository.Query().AsNoTracking().AnyAsync();
         }
 
-        public async Task AddNotify(NotifyId notifyId, string message, string url)
+        public async Task AddNotifyAsync(NotifyId notifyId, string message, string url)
         {
             var allNotify = await _notificationRepository.Query().ToListAsync();
 
@@ -41,15 +41,15 @@ namespace HES.Core.Services
             }
         }
 
-        public async Task RemoveNotify(NotifyId notifyId)
+        public async Task RemoveNotifyAsync(NotifyId notifyId)
         {
             var notify = await _notificationRepository.Query().Where(n => n.NotifyId == notifyId).FirstOrDefaultAsync();
             await _notificationRepository.DeleteAsync(notify);
         }
 
-        public async Task<IList<Notification>> GetAllNotify()
+        public async Task<IList<Notification>> GetAllNotifyAsync()
         {
-            return await _notificationRepository.Query().ToListAsync();
+            return await _notificationRepository.Query().AsNoTracking().ToListAsync();
         }
     }
 }

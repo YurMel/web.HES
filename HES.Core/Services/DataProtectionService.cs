@@ -64,7 +64,7 @@ namespace HES.Core.Services
 
                 if (!_activatedProtection)
                 {
-                    await _notificationService.AddNotify(NotifyId.DataProtection, "Data protection is enabled and requires activation.", "/Settings/DataProtection/Index");
+                    await _notificationService.AddNotifyAsync(NotifyId.DataProtection, "Data protection is enabled and requires activation.", "/Settings/DataProtection/Index");
 
                     return ProtectionStatus.WaitingForActivation;
                 }
@@ -128,7 +128,7 @@ namespace HES.Core.Services
                 // Create protector
                 _dataProtector = _dataProtectionProvider.CreateProtector(password);
                 _activatedProtection = true;
-                await _notificationService.RemoveNotify(NotifyId.DataProtection);
+                await _notificationService.RemoveNotifyAsync(NotifyId.DataProtection);
                 _logger.LogInformation($"Protection was activated by {user}.");
             }
             catch (CryptographicException)

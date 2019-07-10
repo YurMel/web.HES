@@ -19,7 +19,7 @@ namespace HES.Web.Pages.Notifications
 
         public async Task OnGetAsync()
         {
-            Notifications = await _notificationService.GetAllNotify();
+            Notifications = await _notificationService.GetAllNotifyAsync();
         }
     }
 }
