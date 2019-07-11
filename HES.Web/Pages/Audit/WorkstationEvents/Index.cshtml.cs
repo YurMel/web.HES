@@ -1,4 +1,5 @@
 ﻿using HES.Core.Entities;
+using HES.Core.Entities.Models;
 using HES.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;

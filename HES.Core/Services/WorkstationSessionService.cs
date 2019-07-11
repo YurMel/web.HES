@@ -1,6 +1,8 @@
 ﻿using HES.Core.Entities;
 using HES.Core.Interfaces;
+using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace HES.Core.Services
 {
@@ -64,6 +66,14 @@ namespace HES.Core.Services
         public IQueryable<DeviceAccount> DeviceAccountQuery()
         {
             return _deviceAccountRepository.Query();
+        }
+
+        public async Task AddSessionAsync(WorkstationSession workstationSession)
+        {
+            if (workstationSession == null)
+                throw new ArgumentNullException(nameof(workstationSession));
+
+            await _workstationSessionRepository.AddAsync(workstationSession);
         }
     }
 }

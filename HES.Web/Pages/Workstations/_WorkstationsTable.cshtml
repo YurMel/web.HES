@@ -25,7 +25,7 @@
                 @Html.DisplayNameFor(model => model.Workstations[0].ClientVersion)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Workstations[0].Company)
+                @Html.DisplayNameFor(model => model.Workstations[0].Department.Company)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Workstations[0].Department)
@@ -56,7 +56,7 @@
                     @Html.DisplayFor(modelItem => item.ClientVersion)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Company.Name)
+                    @Html.DisplayFor(modelItem => item.Department.Company.Name)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Department.Name)
@@ -77,8 +77,15 @@
                         <span>-</span>
                     }
                 </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Approved)
+                <td data-sort="@item.Approved">
+                    @if (item.Approved)
+                    {
+                        <img src="~/svg/action/check_box.svg" alt="@item.Approved" />
+                    }
+                    else
+                    {
+                        <img src="~/svg/action/check_box_outline.svg" alt="@item.Approved" />
+                    }
                 </td>
                 <td>
                     <div class="dropdown no-arrow">
@@ -90,12 +97,19 @@
                                 <img src="~/svg/action/edit.svg" />
                                 Edit
                             </a>
+                            <div class="dropdown-divider"></div>
                             @if (item.Approved == false)
                             {
-                                @*<div class="dropdown-divider"></div>*@
-                                <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="ApproveComputer" data-title="Approve computer">
+                                <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="ApproveWorkstation" data-title="Approve workstation">
                                     <img src="~/svg/action/done.svg" />
                                     Approve
+                                </a>
+                            }
+                            else
+                            {
+                                <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="UnapproveWorkstation" data-title="Unapprove workstation">
+                                    <img src="~/svg/action/clear.svg" />
+                                    Unapprove
                                 </a>
                             }
                         </div>

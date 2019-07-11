@@ -14,5 +14,7 @@ namespace HES.Core.Interfaces
         Task<(IList<Device> devicesExists, IList<Device> devicesImported, string message)> ImportDevices(string key, byte[] fileContent);
         bool Exist(Expression<Func<Device, bool>> predicate);
         Task EditDeviceRfidAsync(Device device);
+        Task UpdateBatteryChargeAsync(string deviceId, int batteryCharge);
+        Task UpdateFirmwareVersionAsync(string deviceId, string version);
     }
 }

@@ -288,6 +288,35 @@ namespace HES.Core.Services
                 if (exist)
                     throw new Exception("An account with the same name and login exists.");
 
+                // Validate url
+                if (deviceAccount.Urls != null)
+                {
+                    List<string> verifiedUrls = new List<string>();
+                    foreach (var url in deviceAccount.Urls.Split(";"))
+                    {
+                        string uriString = url;
+                        string domain = string.Empty;
+
+                        if (string.IsNullOrWhiteSpace(uriString))
+                        {
+                            throw new Exception("Not correct url");
+                        }
+
+                        if (!uriString.Contains(Uri.SchemeDelimiter))
+                        {
+                            uriString = string.Concat(Uri.UriSchemeHttp, Uri.SchemeDelimiter, uriString);
+                        }
+
+                        domain = new Uri(uriString).Host;
+
+                        if (domain.StartsWith("www."))
+                            domain = domain.Remove(0, 4);
+
+                        verifiedUrls.Add(domain);
+                    }
+                    deviceAccount.Urls = string.Join(";", verifiedUrls.ToArray());
+                }
+
                 var deviceAccountId = Guid.NewGuid().ToString();
 
                 // Create Device Account
@@ -359,6 +388,35 @@ namespace HES.Core.Services
 
             if (exist)
                 throw new Exception("An account with the same name and login exists.");
+
+            // Validate url
+            if (deviceAccount.Urls != null)
+            {
+                List<string> verifiedUrls = new List<string>();
+                foreach (var url in deviceAccount.Urls.Split(";"))
+                {
+                    string uriString = url;
+                    string domain = string.Empty;
+
+                    if (string.IsNullOrWhiteSpace(uriString))
+                    {
+                        throw new Exception("Not correct url");
+                    }
+
+                    if (!uriString.Contains(Uri.SchemeDelimiter))
+                    {
+                        uriString = string.Concat(Uri.UriSchemeHttp, Uri.SchemeDelimiter, uriString);
+                    }
+
+                    domain = new Uri(uriString).Host;
+
+                    if (domain.StartsWith("www."))
+                        domain = domain.Remove(0, 4);
+
+                    verifiedUrls.Add(domain);
+                }
+                deviceAccount.Urls = string.Join(";", verifiedUrls.ToArray());
+            }
 
             // Update Device Account
             deviceAccount.Status = AccountStatus.Updating;

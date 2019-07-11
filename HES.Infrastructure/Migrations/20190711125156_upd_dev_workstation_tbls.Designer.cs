@@ -3,14 +3,16 @@ using System;
 using HES.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace HES.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190711125156_upd_dev_workstation_tbls")]
+    partial class upd_dev_workstation_tbls
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -141,26 +143,6 @@ namespace HES.Infrastructure.Migrations
                     b.HasIndex("SharedAccountId");
 
                     b.ToTable("DeviceAccounts");
-                });
-
-            modelBuilder.Entity("HES.Core.Entities.DevicePermission", b =>
-                {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<bool>("AllowBleTap");
-
-                    b.Property<bool>("AllowProximity");
-
-                    b.Property<bool>("AllowRfid");
-
-                    b.Property<string>("DeviceId");
-
-                    b.Property<string>("WorkstationId");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("DevicePermissions");
                 });
 
             modelBuilder.Entity("HES.Core.Entities.DeviceTask", b =>

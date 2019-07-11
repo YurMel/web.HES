@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace HES.Core.Entities
+namespace HES.Core.Entities.Models
 {
     public class WorkstationFilter
     {

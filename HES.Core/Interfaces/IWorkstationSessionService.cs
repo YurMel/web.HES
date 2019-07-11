@@ -1,5 +1,6 @@
 ﻿using HES.Core.Entities;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace HES.Core.Interfaces
 {
@@ -12,5 +13,6 @@ namespace HES.Core.Interfaces
         IQueryable<Company> CompanyQuery();
         IQueryable<Department> DepartmentQuery();
         IQueryable<DeviceAccount> DeviceAccountQuery();
+        Task AddSessionAsync(WorkstationSession workstationSession);
     }
 }

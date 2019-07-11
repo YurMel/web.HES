@@ -4,7 +4,7 @@ var connection = new signalR.HubConnectionBuilder().withUrl("/employeeDetailsHub
 
 connection.start();
 
-connection.on("ReloadPage", function () {
+connection.on("ReloadPage", function (id) {
     //var table = $('#' + id).DataTable();
     //table.rows().every(function (index, element) {
     //    var row = $(this.node());
@@ -16,6 +16,10 @@ connection.on("ReloadPage", function () {
     //});
     var isShown = $('#modalDialog').hasClass('show');
     if (isShown == false) {
-        location.reload();
+        var loc = window.location.href;
+        var emp = loc.indexOf(id);
+        if (emp != -1) {
+            location.reload();
+        }
     }
 });

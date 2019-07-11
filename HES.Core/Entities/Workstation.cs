@@ -11,16 +11,16 @@ namespace HES.Core.Entities
         public string Name { get; set; }
         [Display(Name = "Client Version")]
         public string ClientVersion { get; set; }
-        public string CompanyId { get; set; }
         public string DepartmentId { get; set; }
         public string OS { get; set; }
         public string IP { get; set; }
         [Display(Name = "Last Seen")]
         public DateTime LastSeen { get; set; }
         public bool Approved { get; set; }
-        
-        [ForeignKey("CompanyId")]
-        public Company Company { get; set; }
+        public int LockProximity { get; set; } 
+        public int UnlockProximity { get; set; }
+        public int LockTimeout { get; set; }
+
         [ForeignKey("DepartmentId")]
         public Department Department { get; set; }
     }

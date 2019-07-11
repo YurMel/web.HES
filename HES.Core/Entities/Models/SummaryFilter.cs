@@ -1,9 +1,9 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace HES.Core.Entities
+namespace HES.Core.Entities.Models
 {
-    public class SessionsSummaryFilter
+    public class SummaryFilter
     {
         [Display(Name = "Start Date")]
         public DateTime? StartDate { get; set; }

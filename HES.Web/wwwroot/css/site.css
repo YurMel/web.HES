@@ -218,17 +218,13 @@ a.navbar-brand {
             background: #FFF;
         }
 
-/*.sidebar-settings {
-    margin: 2px 2px;
-}
-
 @media (max-width: 768px) {
     .sidebar-settings {
         position: absolute;
         left: 70px;
         z-index: 500;
     }
-}*/
+}
 
 .aria-exp.collapsed > .icon-arrow {
     -ms-transform: rotate(180deg);
@@ -498,11 +494,10 @@ div.dataTables_scrollHead table.dataTable {
         width: calc(100vw - 68px);
     }
 }
-
 /*#endregion*/
 
 /*#region Spinner */
-@-webkit-keyframes spinner-grow {
+/*@-webkit-keyframes spinner-grow {
     0% {
         -webkit-transform: scale(0);
         transform: scale(0);
@@ -560,7 +555,7 @@ div.dataTables_scrollHead table.dataTable {
     overflow: visible;
     clip: auto;
     white-space: normal;
-}
+}*/
 /*#endregion*/
 
 /*#region Breadcrumb */

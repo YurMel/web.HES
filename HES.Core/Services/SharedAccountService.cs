@@ -1,6 +1,7 @@
 ﻿using HES.Core.Entities;
 using HES.Core.Interfaces;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -42,6 +43,34 @@ namespace HES.Core.Services
             {
                 throw new Exception("An account with the same name and login exists.");
             }
+            // Validate url
+            if (sharedAccount.Urls != null)
+            {
+                List<string> verifiedUrls = new List<string>();
+                foreach (var url in sharedAccount.Urls.Split(";"))
+                {
+                    string uriString = url;
+                    string domain = string.Empty;
+
+                    if (string.IsNullOrWhiteSpace(uriString))
+                    {
+                        throw new Exception("Not correct url");
+                    }
+
+                    if (!uriString.Contains(Uri.SchemeDelimiter))
+                    {
+                        uriString = string.Concat(Uri.UriSchemeHttp, Uri.SchemeDelimiter, uriString);
+                    }
+
+                    domain = new Uri(uriString).Host;
+
+                    if (domain.StartsWith("www."))
+                        domain = domain.Remove(0, 4);
+
+                    verifiedUrls.Add(domain);
+                }
+                sharedAccount.Urls = string.Join(";", verifiedUrls.ToArray());
+            }
             // Set password
             sharedAccount.Password = _dataProtectionService.Protect(input.Password);
             // Set password date change
@@ -68,6 +97,34 @@ namespace HES.Core.Services
             if (exist)
             {
                 throw new Exception("An account with the same name and login exists.");
+            }
+            // Validate url
+            if (sharedAccount.Urls != null)
+            {
+                List<string> verifiedUrls = new List<string>();
+                foreach (var url in sharedAccount.Urls.Split(";"))
+                {
+                    string uriString = url;
+                    string domain = string.Empty;
+
+                    if (string.IsNullOrWhiteSpace(uriString))
+                    {
+                        throw new Exception("Not correct url");
+                    }
+
+                    if (!uriString.Contains(Uri.SchemeDelimiter))
+                    {
+                        uriString = string.Concat(Uri.UriSchemeHttp, Uri.SchemeDelimiter, uriString);
+                    }
+
+                    domain = new Uri(uriString).Host;
+
+                    if (domain.StartsWith("www."))
+                        domain = domain.Remove(0, 4);
+
+                    verifiedUrls.Add(domain);
+                }
+                sharedAccount.Urls = string.Join(";", verifiedUrls.ToArray());
             }
             // Update Shared Account
             string[] properties = { "Name", "Urls", "Apps", "Login" };

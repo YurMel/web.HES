@@ -38,7 +38,7 @@
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item">
                         <a id="notification" class="nav-item nav-link " asp-area="" asp-page="/Notifications/Index">
-                            <img class="notification @(await NotificationService.GetNotifyStatus() == true ? "notify" : "")" />
+                            <img class="notification @(await NotificationService.GetNotifyStatusAsync() == true ? "notify" : "")" />
                         </a>
                     </li>
                     <li class="nav-item dropdown no-arrow">

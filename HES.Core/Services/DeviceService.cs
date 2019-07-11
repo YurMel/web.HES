@@ -11,6 +11,20 @@ namespace HES.Core.Services
 {
     public class DeviceService : IDeviceService
     {
+        class MyHideezDevice
+        {
+            public string Id { get; set; }
+            public string MAC { get; set; }
+            public string ManufacturerUserId { get; set; }
+            public string Model { get; set; }
+            public string BootLoaderVersion { get; set; }
+            public DateTime Manufactured { get; set; }
+            public string CpuSerialNo { get; set; }
+            public byte[] DeviceKey { get; set; }
+            public int? BleDeviceBatchId { get; set; }
+            public string RegisteredUserId { get; set; }
+        }
+
         private readonly IAsyncRepository<Device> _deviceRepository;
         private readonly IAesCryptography _aes;
 
@@ -52,11 +66,13 @@ namespace HES.Core.Services
                     MAC = d.MAC,
                     Model = d.Model,
                     RFID = null,
-                    Battery = 0,
+                    Battery = 1,
                     Firmware = null,
                     LastSynced = null,
                     EmployeeId = null,
-                    ImportedAt = DateTime.UtcNow
+                    ImportedAt = DateTime.UtcNow,
+                    UsePin = true
+
                 })
                 .ToList();
 
@@ -97,18 +113,45 @@ namespace HES.Core.Services
             await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "RFID" });
         }
 
-        class MyHideezDevice
+        /// <summary>
+        /// full battery is 1, discharged 0 
+        /// </summary>
+        public async Task UpdateBatteryChargeAsync(string deviceId, int batteryCharge)
         {
-            public string Id { get; set; }
-            public string MAC { get; set; }
-            public string ManufacturerUserId { get; set; }
-            public string Model { get; set; }
-            public string BootLoaderVersion { get; set; }
-            public DateTime Manufactured { get; set; }
-            public string CpuSerialNo { get; set; }
-            public byte[] DeviceKey { get; set; }
-            public int? BleDeviceBatchId { get; set; }
-            public string RegisteredUserId { get; set; }
+            if (deviceId == null)
+            {
+                throw new ArgumentNullException(nameof(deviceId));
+            }
+
+            var device = await _deviceRepository.GetByIdAsync(deviceId);
+            if (device == null)
+            {
+                throw new Exception($"Device not found, ID: {deviceId}");
+            }
+
+            device.Battery = batteryCharge;
+            device.LastSynced = DateTime.UtcNow;
+
+            await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "Battery", "LastSynced" });
+        }
+
+        public async Task UpdateFirmwareVersionAsync(string deviceId, string version)
+        {
+            if (deviceId == null)
+            {
+                throw new ArgumentNullException(nameof(deviceId));
+            }
+
+            var device = await _deviceRepository.GetByIdAsync(deviceId);
+            if (device == null)
+            {
+                throw new Exception($"Device not found, ID: {deviceId}");
+            }
+
+            device.Firmware = version;
+            device.LastSynced = DateTime.UtcNow;
+
+            await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "Firmware", "LastSynced" });
         }
     }
 }
