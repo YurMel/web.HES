@@ -68,7 +68,7 @@ namespace HES.Core.Services
             return _deviceAccountRepository.Query();
         }
 
-        public async Task AddEvent(WorkstationEvent workstationEvent)
+        public async Task AddEventAsync(WorkstationEvent workstationEvent)
         {
             if (workstationEvent == null)
                 throw new ArgumentNullException(nameof(workstationEvent));

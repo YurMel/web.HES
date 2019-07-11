@@ -9,7 +9,7 @@ namespace HES.Core.Interfaces
         IQueryable<Workstation> WorkstationQuery();
         IQueryable<Company> CompanyQuery();
         IQueryable<Department> DepartmentQuery();
-        Task AddWorkstation(Workstation workstation);
+        Task AddWorkstationAsync(Workstation workstation);
         Task EditDepartmentAsync(Workstation workstation);
         Task ApproveWorkstationAsync(string id);
         Task UnapproveWorkstationAsync(string id);

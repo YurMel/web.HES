@@ -38,8 +38,8 @@ namespace HES.Web.Pages.Workstations
         {
             Workstations = await _workstationService
                 .WorkstationQuery()
-                .Include(c => c.Company)
-                .Include(c => c.Department)
+                //.Include(c => c.Company)
+                .Include(c => c.Department.Company)
                 .ToListAsync();
 
             ViewData["Companies"] = new SelectList(await _workstationService.CompanyQuery().ToListAsync(), "Id", "Name");
@@ -52,8 +52,8 @@ namespace HES.Web.Pages.Workstations
         {
             var filter = _workstationService
                 .WorkstationQuery()
-                .Include(c => c.Company)
-                .Include(c => c.Department)
+                //.Include(c => c.Company)
+                .Include(c => c.Department.Company)
                 .AsQueryable();
            
             if (WorkstationFilter.Name != null)
@@ -111,13 +111,13 @@ namespace HES.Web.Pages.Workstations
 
             Workstation = await _workstationService
                 .WorkstationQuery()
-                .Include(c => c.Company)
-                .Include(c => c.Department)
+                //.Include(c => c.Company)
+                .Include(c => c.Department.Company)
                 .FirstOrDefaultAsync(c => c.Id == id);
 
             if (Workstation == null)
             {
-                _logger.LogWarning("Computer == null");
+                _logger.LogWarning("Workstation == null");
                 return NotFound();
             }
 

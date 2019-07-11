@@ -11,7 +11,6 @@ namespace HES.Core.Entities
         public string Name { get; set; }
         [Display(Name = "Client Version")]
         public string ClientVersion { get; set; }
-        public string CompanyId { get; set; }
         public string DepartmentId { get; set; }
         public string OS { get; set; }
         public string IP { get; set; }
@@ -19,8 +18,6 @@ namespace HES.Core.Entities
         public DateTime LastSeen { get; set; }
         public bool Approved { get; set; }
         
-        [ForeignKey("CompanyId")]
-        public Company Company { get; set; }
         [ForeignKey("DepartmentId")]
         public Department Department { get; set; }
     }

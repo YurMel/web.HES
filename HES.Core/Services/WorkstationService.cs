@@ -36,7 +36,7 @@ namespace HES.Core.Services
             return _departmentRepository.Query();
         }
 
-        public async Task AddWorkstation(Workstation workstation)
+        public async Task AddWorkstationAsync(Workstation workstation)
         {
             if (workstation == null)
                 throw new ArgumentNullException(nameof(workstation));
@@ -49,9 +49,7 @@ namespace HES.Core.Services
             if (workstation == null)
                 throw new ArgumentNullException(nameof(workstation));
 
-            workstation.CompanyId = workstation.Department.CompanyId;
-
-            string[] properties = { "CompanyId", "DepartmentId" };
+            string[] properties = { "DepartmentId" };
             await _workstationRepository.UpdateOnlyPropAsync(workstation, properties);
         }
 

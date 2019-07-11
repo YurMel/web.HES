@@ -68,7 +68,7 @@ namespace HES.Core.Services
             return _deviceAccountRepository.Query();
         }
 
-        public async Task AddSession(WorkstationSession workstationSession)
+        public async Task AddSessionAsync(WorkstationSession workstationSession)
         {
             if (workstationSession == null)
                 throw new ArgumentNullException(nameof(workstationSession));

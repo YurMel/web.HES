@@ -13,6 +13,6 @@ namespace HES.Core.Interfaces
         IQueryable<Company> CompanyQuery();
         IQueryable<Department> DepartmentQuery();
         IQueryable<DeviceAccount> DeviceAccountQuery();
-        Task AddSession(WorkstationSession workstationSession);
+        Task AddSessionAsync(WorkstationSession workstationSession);
     }
 }

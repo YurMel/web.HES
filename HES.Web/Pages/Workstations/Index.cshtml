@@ -99,7 +99,7 @@
                     @Html.DisplayNameFor(model => model.Workstations[0].ClientVersion)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.Workstations[0].Company)
+                    @Html.DisplayNameFor(model => model.Workstations[0].Department.Company)
                 </th>
                 <th>
                     @Html.DisplayNameFor(model => model.Workstations[0].Department)
@@ -130,7 +130,7 @@
                         @Html.DisplayFor(modelItem => item.ClientVersion)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.Company.Name)
+                        @Html.DisplayFor(modelItem => item.Department.Company.Name)
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.Department.Name)
