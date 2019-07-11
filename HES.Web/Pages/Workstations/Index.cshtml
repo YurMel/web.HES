@@ -151,8 +151,15 @@
                             <span>-</span>
                         }
                     </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Approved)
+                    <td data-sort="@item.Approved">
+                        @if (item.Approved)
+                        {
+                            <img src="~/svg/action/check_box.svg" alt="@item.Approved"/>
+                        }
+                        else
+                        {
+                            <img src="~/svg/action/check_box_outline.svg" alt="@item.Approved"/>
+                        }
                     </td>
                     <td>
                         <div class="dropdown no-arrow">
