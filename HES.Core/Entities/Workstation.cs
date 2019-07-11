@@ -17,7 +17,10 @@ namespace HES.Core.Entities
         [Display(Name = "Last Seen")]
         public DateTime LastSeen { get; set; }
         public bool Approved { get; set; }
-        
+        public int LockProximity { get; set; } 
+        public int UnlockProximity { get; set; }
+        public int LockTimeout { get; set; }
+
         [ForeignKey("DepartmentId")]
         public Department Department { get; set; }
     }

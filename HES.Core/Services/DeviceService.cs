@@ -66,11 +66,13 @@ namespace HES.Core.Services
                     MAC = d.MAC,
                     Model = d.Model,
                     RFID = null,
-                    Battery = 0,
+                    Battery = 1,
                     Firmware = null,
                     LastSynced = null,
                     EmployeeId = null,
-                    ImportedAt = DateTime.UtcNow
+                    ImportedAt = DateTime.UtcNow,
+                    UsePin = true
+
                 })
                 .ToList();
 
