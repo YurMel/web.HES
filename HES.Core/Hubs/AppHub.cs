@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using HES.Core.Entities;
@@ -47,13 +48,16 @@ namespace HES.Core.Hubs
         private readonly IRemoteTaskService _remoteTaskService;
         private readonly IEmployeeService _employeeService;
         private readonly IWorkstationService _workstationService;
+        private readonly IAsyncRepository<WorkstationBinding> _workstationBindingRepository;
         private readonly ILogger<AppHub> _logger;
 
-        public AppHub(IRemoteTaskService remoteTaskService, IEmployeeService employeeService, IWorkstationService workstationService, ILogger<AppHub> logger)
+        public AppHub(IRemoteTaskService remoteTaskService, IEmployeeService employeeService, IWorkstationService workstationService,
+            IAsyncRepository<WorkstationBinding> workstationBindingRepository, ILogger<AppHub> logger)
         {
             _remoteTaskService = remoteTaskService;
             _employeeService = employeeService;
             _workstationService = workstationService;
+            _workstationBindingRepository = workstationBindingRepository;
             _logger = logger;
         }
 
@@ -266,7 +270,7 @@ namespace HES.Core.Hubs
                 {
                     Id = workstationInfo.Id,
                     Name = workstationInfo.MachineName,
-                    Domain = workstationInfo.Domain,
+                    //Domain = workstationInfo.Domain,
                     OS = workstationInfo.OsName,
                     ClientVersion = workstationInfo.AppVersion,
                     IP = workstationInfo.IP,
@@ -275,46 +279,59 @@ namespace HES.Core.Hubs
                 await _workstationService.AddWorkstationAsync(workstation);
             }
 
-            OnWorkstationConnected();
+            await OnWorkstationConnected(workstationInfo.Id);
         }
 
-        async void OnWorkstationConnected()
+        async Task OnWorkstationConnected(string workstationId)
         {
-            await Task.Run(async () =>
+            try
             {
-                try
+                // Todo: Duplicate of WorkstationService.UpdateWorkstationUnlockerSettings()
+                var workstation = _workstationService.WorkstationQuery()
+                    .AsNoTracking()
+                    .FirstOrDefault(w => w.Id == workstationId);
+
+                if (workstation == null)
+                    throw new Exception("Workstation not found");
+
+                var deviceUnlockerSettings = new List<DeviceUnlockerSettingsInfo>();
+
+                var bindings = _workstationBindingRepository.Query()
+                    .Include(i => i.Device)
+                    .AsNoTracking()
+                    .Where(b => b.WorkstationId == workstationId);
+
+                if (workstation.Approved)
                 {
-                    var workstation = GetWorkstation();
-
-                    // Todo: read unlocker settings for workstation from database
-
-                    var deviceUnlockerSettingsInfo = new DeviceUnlockerSettingsInfo
+                    foreach (var binding in bindings)
                     {
-                        AllowBleTap = true,
-                        AllowRfid = true,
-                        AllowProximity = true,
-                        RequirePin = true,
-                        SerialNo = "ST10399999900001",
-                        Mac = "C48F06829001"
-                    };
-                    var unlockerSettings = new UnlockerSettingsInfo()
-                    {
-                        DeviceUnlockerSettings = new DeviceUnlockerSettingsInfo[1]
+                        deviceUnlockerSettings.Add(new DeviceUnlockerSettingsInfo()
                         {
-                            deviceUnlockerSettingsInfo,
-                        },
-                        LockProximity = 30,
-                        UnlockProximity = 50,
-                        LockTimeoutSeconds = 4
-                    };
+                            Mac = binding.Device.MAC,
+                            AllowRfid = binding.AllowRfid,
+                            AllowBleTap = binding.AllowBleTap,
+                            AllowProximity = binding.AllowProximity,
+                            SerialNo = binding.DeviceId,
+                            RequirePin = binding.Device.UsePin,
+                        });
+                    }
+                }
 
-                    await UpdateUnlockerSettings(workstation.WorkstationId, unlockerSettings);
-                }
-                catch (Exception ex)
+                var unlockerSettingsInfo = new UnlockerSettingsInfo()
                 {
-                    _logger.LogError(ex.Message);
-                }
-            });
+                    LockProximity = 30, //workstation.LockProximity,
+                    UnlockProximity = 50, //workstation.UnlockProximity,
+                    LockTimeoutSeconds = 3, //workstation.LockTimeout,
+                    DeviceUnlockerSettings = deviceUnlockerSettings.ToArray(),
+                };
+                // ...
+
+                await UpdateUnlockerSettings(workstationId, unlockerSettingsInfo);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+            }
         }
 
         Task OnWorkstationDisconnected(string workstationId)

@@ -1,5 +1,8 @@
 ﻿using HES.Core.Entities;
+using HES.Core.Hubs;
 using HES.Core.Interfaces;
+using Hideez.SDK.Communication.HES.Client;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -142,6 +145,7 @@ namespace HES.Core.Services
 
             string[] properties = { "Approved" };
             await _workstationRepository.UpdateOnlyPropAsync(workstation, properties);
+            await UpdateWorkstationUnlockerSettings(workstationId);
         }
 
         public async Task UnapproveWorkstationAsync(string workstationId)
@@ -157,6 +161,7 @@ namespace HES.Core.Services
 
             string[] properties = { "Approved" };
             await _workstationRepository.UpdateOnlyPropAsync(workstation, properties);
+            await UpdateWorkstationUnlockerSettings(workstationId);
         }
 
         public async Task AddBindingAsync(string workstationId, bool allowRfid, bool allowBleTap, bool allowProximity, string[] selectedDevices)
@@ -195,6 +200,7 @@ namespace HES.Core.Services
             }
             
             await _workstationBindingRepository.AddRangeAsync(workstationBindings);
+            await UpdateWorkstationUnlockerSettings(workstationId);
         }
 
         public async Task EditBindingAsync(WorkstationBinding workstationBinding)
@@ -204,6 +210,7 @@ namespace HES.Core.Services
 
             string[] properties = { "AllowRfid", "AllowBleTap", "AllowProximity" };
             await _workstationBindingRepository.UpdateOnlyPropAsync(workstationBinding, properties);
+            await UpdateWorkstationUnlockerSettings(workstationBinding.WorkstationId);
         }
 
         public async Task DeleteBindingAsync(string workstationBindingId)
@@ -220,6 +227,50 @@ namespace HES.Core.Services
             }
 
             await _workstationBindingRepository.DeleteAsync(binding);
+            await UpdateWorkstationUnlockerSettings(binding.WorkstationId);
+        }
+
+        async Task UpdateWorkstationUnlockerSettings(string workstationId)
+        {
+            var workstation = _workstationRepository.Query()
+                .AsNoTracking()
+                .FirstOrDefault(w => w.Id == workstationId);
+
+            if (workstation == null)
+                throw new Exception("Workstation not found");
+
+            var deviceUnlockerSettings = new List<DeviceUnlockerSettingsInfo>();
+
+            var bindings = _workstationBindingRepository.Query()
+                .Include(i => i.Device)
+                .AsNoTracking()
+                .Where(b => b.WorkstationId == workstationId);
+
+            if (workstation.Approved)
+            {
+                foreach (var binding in bindings)
+                {
+                    deviceUnlockerSettings.Add(new DeviceUnlockerSettingsInfo()
+                    {
+                        Mac = binding.Device.MAC,
+                        AllowRfid = binding.AllowRfid,
+                        AllowBleTap = binding.AllowBleTap,
+                        AllowProximity = binding.AllowProximity,
+                        SerialNo = binding.DeviceId,
+                        RequirePin = binding.Device.UsePin,
+                    });
+                }
+            }
+
+            var unlockerSettingsInfo = new UnlockerSettingsInfo()
+            {
+                LockProximity = 30, //workstation.LockProximity,
+                UnlockProximity = 50, //workstation.UnlockProximity,
+                LockTimeoutSeconds = 3, //workstation.LockTimeout,
+                DeviceUnlockerSettings = deviceUnlockerSettings.ToArray(),
+            };
+
+            await AppHub.UpdateUnlockerSettings(workstationId, unlockerSettingsInfo);
         }
     }
 }
