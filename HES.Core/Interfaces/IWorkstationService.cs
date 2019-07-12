@@ -9,6 +9,7 @@ namespace HES.Core.Interfaces
     public interface IWorkstationService
     {
         IQueryable<Workstation> WorkstationQuery();
+        IQueryable<WorkstationBinding> WorkstationBindingQuery();
         IQueryable<Company> CompanyQuery();
         IQueryable<Department> DepartmentQuery();
         bool Exist(Expression<Func<Workstation, bool>> predicate);
@@ -20,5 +21,8 @@ namespace HES.Core.Interfaces
         Task EditDepartmentAsync(Workstation workstation);
         Task ApproveWorkstationAsync(string id);
         Task UnapproveWorkstationAsync(string id);
+        Task AddBindingAsync(string workstationId, bool allowRfid, bool allowBleTap, bool allowProximity, string[] selectedDevices);
+        Task EditBindingAsync(WorkstationBinding workstationBinding);
+        Task DeleteBindingAsync(string workstationBindingId);
     }
 }

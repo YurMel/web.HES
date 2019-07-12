@@ -1,0 +1,29 @@
+﻿@model HES.Web.Pages.Workstations.DetailsModel
+
+<form method="post">
+    <input type="hidden" asp-for="WorkstationBinding.Id" />
+    <input type="hidden" asp-for="WorkstationBinding.WorkstationId" />
+    <div class="border p-2 mb-3 rounded">
+        <div class="custom-control custom-checkbox">
+            <input asp-for="WorkstationBinding.AllowRfid" type="checkbox" class="custom-control-input" id="allowRfid" value="true">
+            <label class="custom-control-label" for="allowRfid">Allow RFID</label>
+        </div>
+        <div class="custom-control custom-checkbox">
+            <input asp-for="WorkstationBinding.AllowBleTap" type="checkbox" class="custom-control-input" id="allowBleTap" value="true">
+            <label class="custom-control-label" for="allowBleTap">Allow BLE tap</label>
+        </div>
+        <div class="custom-control custom-checkbox">
+            <input asp-for="WorkstationBinding.AllowProximity" type="checkbox" class="custom-control-input" id="allowProximity" value="true">
+            <label class="custom-control-label" for="allowProximity">Allow proximity</label>
+        </div>
+    </div>
+
+    <div class="form-group m-0 text-right">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <input type="submit" value="Save" class="btn btn-primary" asp-page-handler="EditWorkstationBinding" />
+    </div>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

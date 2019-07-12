@@ -51,7 +51,9 @@ for details on configuring this project to bundle and minify static web assets. 
     background-color: #0396D6;
     border-color: #0396D6;
 }*/
-
+.custom-link {
+    color: #0E3059;
+}
 /*#endregion */
 
 /* #region Main */

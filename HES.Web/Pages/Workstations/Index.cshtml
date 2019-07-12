@@ -124,7 +124,9 @@
             {
                 <tr>
                     <td>
-                        @Html.DisplayFor(modelItem => item.Name)
+                        <a class="custom-link" asp-page="./Details" asp-route-id="@item.Id">
+                            @Html.DisplayFor(modelItem => item.Name)
+                        </a>
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.ClientVersion)
@@ -154,11 +156,11 @@
                     <td data-sort="@item.Approved">
                         @if (item.Approved)
                         {
-                            <img src="~/svg/action/check_box.svg" alt="@item.Approved"/>
+                            <img src="~/svg/action/check_box.svg" alt="@item.Approved" />
                         }
                         else
                         {
-                            <img src="~/svg/action/check_box_outline.svg" alt="@item.Approved"/>
+                            <img src="~/svg/action/check_box_outline.svg" alt="@item.Approved" />
                         }
                     </td>
                     <td>
@@ -167,6 +169,10 @@
                                 <img src="~/svg/action/more.svg" />
                             </a>
                             <div class="dropdown-menu dropdown-menu-right shadow" aria-labelledby="dropdownMenuLink">
+                                <a class="dropdown-item" asp-page="./Details" asp-route-id="@item.Id">
+                                    <img src="~/svg/action/details.svg" />
+                                    Details
+                                </a>
                                 <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="EditDepartment" data-title="Edit">
                                     <img src="~/svg/action/edit.svg" />
                                     Edit
