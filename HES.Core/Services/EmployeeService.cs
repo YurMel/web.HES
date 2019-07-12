@@ -150,6 +150,11 @@ namespace HES.Core.Services
             if (employee == null)
                 throw new Exception("Employee not found");
 
+            // TEMP Remove all acc
+            //var allAcc = await _deviceAccountRepository.Query().Where(t => t.EmployeeId == id).ToListAsync();
+            //await _deviceAccountRepository.DeleteRangeAsync(allAcc);
+            // TEMP
+
             await _employeeRepository.DeleteAsync(employee);
         }
 

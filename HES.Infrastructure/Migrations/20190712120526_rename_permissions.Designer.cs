@@ -3,14 +3,16 @@ using System;
 using HES.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace HES.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190712120526_rename_permissions")]
+    partial class rename_permissions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -27,6 +29,28 @@ namespace HES.Infrastructure.Migrations
                     b.HasKey("Key");
 
                     b.ToTable("AppSettings");
+                });
+
+            modelBuilder.Entity("HES.Core.Entities.AuthorizedDevice", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<bool>("AllowBleTap");
+
+                    b.Property<bool>("AllowProximity");
+
+                    b.Property<bool>("AllowRfid");
+
+                    b.Property<string>("DeviceId");
+
+                    b.Property<string>("WorkstationId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeviceId");
+
+                    b.ToTable("AuthorizedDevices");
                 });
 
             modelBuilder.Entity("HES.Core.Entities.Company", b =>
@@ -320,28 +344,6 @@ namespace HES.Infrastructure.Migrations
                     b.ToTable("Workstations");
                 });
 
-            modelBuilder.Entity("HES.Core.Entities.WorkstationBinding", b =>
-                {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<bool>("AllowBleTap");
-
-                    b.Property<bool>("AllowProximity");
-
-                    b.Property<bool>("AllowRfid");
-
-                    b.Property<string>("DeviceId");
-
-                    b.Property<string>("WorkstationId");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DeviceId");
-
-                    b.ToTable("WorkstationBindings");
-                });
-
             modelBuilder.Entity("HES.Core.Entities.WorkstationEvent", b =>
                 {
                     b.Property<string>("Id")
@@ -579,6 +581,13 @@ namespace HES.Infrastructure.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
+            modelBuilder.Entity("HES.Core.Entities.AuthorizedDevice", b =>
+                {
+                    b.HasOne("HES.Core.Entities.Device", "Device")
+                        .WithMany()
+                        .HasForeignKey("DeviceId");
+                });
+
             modelBuilder.Entity("HES.Core.Entities.Department", b =>
                 {
                     b.HasOne("HES.Core.Entities.Company", "Company")
@@ -633,13 +642,6 @@ namespace HES.Infrastructure.Migrations
                     b.HasOne("HES.Core.Entities.Department", "Department")
                         .WithMany()
                         .HasForeignKey("DepartmentId");
-                });
-
-            modelBuilder.Entity("HES.Core.Entities.WorkstationBinding", b =>
-                {
-                    b.HasOne("HES.Core.Entities.Device", "Device")
-                        .WithMany()
-                        .HasForeignKey("DeviceId");
                 });
 
             modelBuilder.Entity("HES.Core.Entities.WorkstationEvent", b =>

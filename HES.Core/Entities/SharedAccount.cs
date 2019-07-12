@@ -14,10 +14,10 @@ namespace HES.Core.Entities
         [Required]
         public string Login { get; set; }
         public string Password { get; set; }
-        [Display(Name = "Pwd updated")]
+        [Display(Name = "Password updated")]
         public DateTime? PasswordChangedAt { get; set; }
         public string OtpSecret { get; set; }
-        [Display(Name = "Otp updated")]
+        [Display(Name = "OTP updated")]
         public DateTime? OtpSecretChangedAt { get; set; }
         public bool Deleted { get; set; }
     }

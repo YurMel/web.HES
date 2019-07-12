@@ -38,7 +38,6 @@ namespace HES.Web.Pages.Workstations
         {
             Workstations = await _workstationService
                 .WorkstationQuery()
-                //.Include(c => c.Company)
                 .Include(c => c.Department.Company)
                 .ToListAsync();
 

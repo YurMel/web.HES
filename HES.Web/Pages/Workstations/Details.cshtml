@@ -1,0 +1,323 @@
+﻿@page
+@model HES.Web.Pages.Workstations.DetailsModel
+@{
+    ViewData["Title"] = "Details";
+    ViewData["ActivePage"] = MenuNavPages.Workstations;
+}
+
+<partial name="_SuccessMessage" for="SuccessMessage" />
+<partial name="_ErrorMessage" for="ErrorMessage" />
+
+@* Workstation items *@
+<div class="row align-items-center mb-2 mr-0">
+    <div class="col-auto p-1">
+        <h1 class="text-navyblue m-0">@Model.Workstation.Name</h1>
+    </div>
+    <div class="col"></div>
+    <div class="col-auto p-1">
+        <button type="button" class="btn btn-primary open-modal-dialog" data-id="@Model.Workstation.Id" data-action="AddDevice" data-title="Add device">
+            Add device
+        </button>
+    </div>
+</div>
+
+@* Workstation table *@
+<table id="workstation" class="table display border rounded w-100">
+    <thead>
+        <tr>
+            <th data-priority="1">
+                @Html.DisplayNameFor(model => model.Workstation.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Workstation.ClientVersion)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Workstation.Department.Company)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Workstation.Department)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Workstation.OS)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Workstation.IP)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Workstation.LastSeen)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Workstation.Approved)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+                @Html.DisplayFor(model => model.Workstation.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(model => model.Workstation.ClientVersion)
+            </td>
+            <td>
+                @Html.DisplayFor(model => model.Workstation.Department.Company.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(model => model.Workstation.Department.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(model => model.Workstation.OS)
+            </td>
+            <td>
+                @Html.DisplayFor(model => model.Workstation.IP)
+            </td>
+            <td>
+                @if (Model.Workstation.LastSeen != null)
+                {
+                    @TimeZoneInfo.ConvertTimeFromUtc((DateTime)Model.Workstation.LastSeen, TimeZoneInfo.Local)
+                }
+                else
+                {
+                    <span>-</span>
+                }
+            </td>
+            <td>
+                @if (Model.Workstation.Approved)
+                {
+                    <img src="~/svg/action/check_box.svg" />
+                }
+                else
+                {
+                    <img src="~/svg/action/check_box_outline.svg" />
+                }
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+@if (Model.WorkstationBindings != null)
+{
+    @*Bonded Devices title*@
+    <div class="row align-items-center m-1">
+        <div class="col-auto p-1">
+            <h4 class="text-navyblue m-0">Bonded Devices</h4>
+        </div>
+        <div class="col"></div>
+        <div class="col-auto p-1">
+            <div class="form-group has-search-right m-0">
+                <div class="form-control-feedback">
+                    <img class="img-size" src="~/svg/action/search.svg" />
+                </div>
+                <input id="searchbox" type="text" class="form-control" placeholder="Search">
+            </div>
+        </div>
+    </div>
+    @*Bonded Devices table*@
+    <table id="dondedDevices" class="table display table table-hover border rounded w-100">
+        <thead>
+            <tr>
+                <th data-priority="1">
+                    @Html.DisplayNameFor(model => model.WorkstationBindings[0].DeviceId)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.WorkstationBindings[0].Device.Employee)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.WorkstationBindings[0].Device.Employee.Department)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.WorkstationBindings[0].AllowRfid)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.WorkstationBindings[0].AllowBleTap)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.WorkstationBindings[0].AllowProximity)
+                </th>
+                <th class="table-col-menu" data-priority="2"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.WorkstationBindings)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.DeviceId)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Device.Employee.FullName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Device.Employee.Department.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.AllowRfid)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.AllowBleTap)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.AllowProximity)
+                    </td>
+                    <td>
+                        <div class="dropdown no-arrow">
+                            <a class="dropdown-toggle" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <img src="~/svg/action/more.svg" />
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right shadow" aria-labelledby="dropdownMenuLink">
+                                 <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="EditWorkstationBinding" data-title="Edit Binding">
+                                    <img src="~/svg/action/edit.svg" />
+                                    Edit
+                                </a>
+                                <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="DeleteWorkstationBinding" data-title="Delete Binding">
+                                    <img src="~/svg/action/delete.svg" />
+                                    Delete
+                                </a>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <div class="row mt-2">
+        <div class="col d-flex justify-content-center justify-content-lg-start align-items-center mb-1 text-nowrap">
+            <span class="d-flex align-items-center mr-1 text-navyblue">Show entries</span>
+            <div id="entries_place"></div>
+        </div>
+        <div id="showing_place" class="col d-flex justify-content-center align-items-center mb-1 text-navyblue text-nowrap"></div>
+        <div id="pagination_place" class="col d-flex justify-content-center justify-content-lg-end align-items-center mb-1"></div>
+    </div>
+}
+
+@* Modal *@
+<div class="modal" id="modalDialog" tabindex="-1" role="dialog" aria-labelledby="modalDialogTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-navyblue" id="modalDialogTitle">Dialog</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div id="modalBody" class="modal-body">
+                <div class="d-flex justify-content-center align-items-center">
+                    <div class="spinner-grow text-primary" style="width: 3rem; height: 3rem;" role="status">
+                        <span class="sr-only"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        // Init workstation table
+         $('#workstation').DataTable({
+             responsive: true,
+             "paging": false,
+             "ordering": false,
+             "info": false,
+             "searching": false
+         });
+        // Init Authorized devices table
+        var table_name = '#dondedDevices';
+        $(table_name).DataTable({
+            responsive: true,
+            "columnDefs": [
+                { "orderable": false, "targets": 6 }
+            ]
+        });
+        var dataTable = $(table_name).dataTable();
+        // Search box
+        $('#searchbox').keyup(function () {
+            dataTable.fnFilter(this.value);
+        });
+        $('.dataTables_filter').addClass('d-none');
+        // Length
+        $('#entries_place').html($('.dataTables_length select').removeClass('custom-select-sm form-control-sm'));
+        $('.dataTables_length').addClass('d-none');
+        // Info
+        $('#showing_place').html($('.dataTables_info'));
+        // Paginate
+        $('#pagination_place').html($('.dataTables_paginate'));
+
+        // Open modal dialog
+        $(document).on('click', '.open-modal-dialog', function () {
+            var btn = $(this);
+            var id = btn.data("id");
+            var action = btn.data("action");
+            var title = btn.data("title");
+
+            $('#modalDialogTitle').html(title);
+            $('#modalDialog').modal('toggle');
+
+            $.ajax({
+                url: "/Workstations/Details?handler=" + action,
+                type: "Get",
+                data: { id: id },
+                async: true,
+                success: function (response) {
+                    $("#modalBody").html(response);
+                    InitDevicesTable();
+                }
+            });
+        });
+
+        // Init devices
+        function InitDevicesTable() {
+            var table_name = '#devices';
+            $(table_name).DataTable({
+                "order": [[1, "asc"]],
+                "columnDefs": [
+                    { "orderable": false, "targets": 0 }
+                ],
+                "lengthMenu": [[5], [5]],
+                "scrollY": "246px",
+                "paging": false,
+                "bInfo": false,
+                "bLengthChange": false,
+            });
+            var dataTable = $(table_name).dataTable();
+            // Search box
+            $('#devices_searchbox').keyup(function () {
+                dataTable.fnFilter(this.value);
+            });
+            $('.dataTables_filter').addClass('d-none');
+        }
+
+        // On submit clear search results
+        $(document).on('submit', 'form', function () {
+            var table = $('#devices').DataTable();
+            table.search('').columns().search('').draw();
+        });
+
+        // Check all
+        function checkAll(e) {
+            //var checkboxes = document.getElementsByTagName('input');
+            var checkboxes = document.getElementsByClassName('my-chkb');
+            if (e.checked) {
+                for (var i = 0; i < checkboxes.length; i++) {
+                    if (checkboxes[i].type == 'checkbox') {
+                        checkboxes[i].checked = true;
+                    }
+                }
+            } else {
+                for (var i = 0; i < checkboxes.length; i++) {
+                    console.log(i)
+                    if (checkboxes[i].type == 'checkbox') {
+                        checkboxes[i].checked = false;
+                    }
+                }
+            }
+        }
+
+         $(document).ready(function () {
+            // Breadcrumb
+            $('#breadcrumb').toggleClass('d-none');
+            $('.breadcrumb').append('<li class="breadcrumb-item"><a href="/Workstations">Workstations</a></li>');
+            $('.breadcrumb').append('<li class="breadcrumb-item active">@Model.Workstation.Name</li>');
+        });
+    </script>
+}

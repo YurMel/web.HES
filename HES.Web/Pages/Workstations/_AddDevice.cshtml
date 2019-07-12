@@ -1,0 +1,89 @@
+﻿@model HES.Web.Pages.Workstations.DetailsModel
+
+<div class="row">
+    <div class="col">
+        <div class="form-group has-search-right m-0">
+            <div class="form-control-feedback">
+                <img class="img-size" src="~/svg/action/search.svg" />
+            </div>
+            <input id="devices_searchbox" type="text" class="form-control" placeholder="Search">
+        </div>
+    </div>
+</div>
+
+<form id="add_device" method="post">
+    <input type="hidden" asp-for="Workstation.Id" name="workstationId" />
+    <table id="devices" class="display table table-hover inside-scrollbar w-100">
+        <thead>
+            <tr>
+                <th class="table-col-menu">
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="customCheck1" onchange="checkAll(this)">
+                        <label class="custom-control-label" for="customCheck1"></label>
+                    </div>
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => Model.Devices.FirstOrDefault().Id)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => Model.Devices.FirstOrDefault().Employee.FullName)
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var device in Model.Devices)
+            {
+                <tr>
+                    <td class="table-col-menu">
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" name="selectedDevices" class="custom-control-input my-chkb" id="@device.Id" value="@device.Id">
+                            <label class="custom-control-label" for="@device.Id"></label>
+                        </div>
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => device.Id)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => device.Employee.FullName)
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <div class="border p-2 mb-3 rounded">
+        <div class="custom-control custom-checkbox">
+            <input type="checkbox" class="custom-control-input" id="allowRfid" name="allowRfid" value="true" checked>
+            <label class="custom-control-label" for="allowRfid">Allow RFID</label>
+        </div>
+        <div class="custom-control custom-checkbox">
+            <input type="checkbox" class="custom-control-input" id="allowBleTap" name="allowBleTap" value="true" checked>
+            <label class="custom-control-label" for="allowBleTap">Allow BLE tap</label>
+        </div>
+        <div class="custom-control custom-checkbox">
+            <input type="checkbox" class="custom-control-input" id="allowProximity" name="allowProximity" value="true">
+            <label class="custom-control-label" for="allowProximity">Allow proximity</label>
+        </div>
+    </div>
+    <div class="form-group m-0 text-right">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <input type="submit" value="Add" class="btn btn-primary" asp-page-handler="AddDevice" />
+    </div>
+</form>
+<script>
+    $("#add_device").on("submit", function () {
+        var devices = [];
+        $.each($("input[name='selectedDevices']:checked"), function () {
+            devices.push($(this).val());
+        });
+        if (devices.length == 0) {
+            $('.dataTables_scroll').css("border", "1px solid red")
+            return false;
+        }
+    })
+
+    $("input[type='checkbox']").change(function () {
+        if (this.checked) {
+            $('.dataTables_scroll').css("border", "1px solid #ccc")
+        }
+    });
+</script>

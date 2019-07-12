@@ -1,6 +1,8 @@
 ﻿using HES.Core.Entities;
 using HES.Core.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -9,14 +11,17 @@ namespace HES.Core.Services
     public class WorkstationService : IWorkstationService
     {
         private readonly IAsyncRepository<Workstation> _workstationRepository;
+        private readonly IAsyncRepository<WorkstationBinding> _workstationBindingRepository;
         private readonly IAsyncRepository<Company> _companyRepository;
         private readonly IAsyncRepository<Department> _departmentRepository;
 
         public WorkstationService(IAsyncRepository<Workstation> workstationRepository,
-                               IAsyncRepository<Company> companyRepository,
-                               IAsyncRepository<Department> departmentRepository)
+                                  IAsyncRepository<WorkstationBinding> workstationBindingRepository,
+                                  IAsyncRepository<Company> companyRepository,
+                                  IAsyncRepository<Department> departmentRepository)
         {
             _workstationRepository = workstationRepository;
+            _workstationBindingRepository = workstationBindingRepository;
             _companyRepository = companyRepository;
             _departmentRepository = departmentRepository;
         }
@@ -24,6 +29,11 @@ namespace HES.Core.Services
         public IQueryable<Workstation> WorkstationQuery()
         {
             return _workstationRepository.Query();
+        }
+
+        public IQueryable<WorkstationBinding> WorkstationBindingQuery()
+        {
+            return _workstationBindingRepository.Query();
         }
 
         public IQueryable<Company> CompanyQuery()
@@ -81,6 +91,69 @@ namespace HES.Core.Services
 
             string[] properties = { "Approved" };
             await _workstationRepository.UpdateOnlyPropAsync(workstation, properties);
+        }
+
+        public async Task AddBindingAsync(string workstationId, bool allowRfid, bool allowBleTap, bool allowProximity, string[] selectedDevices)
+        {
+            if (workstationId == null)
+            {
+                throw new ArgumentNullException(nameof(workstationId));
+            }
+            if (selectedDevices == null)
+            {
+                throw new ArgumentNullException(nameof(selectedDevices));
+            }
+
+            List<WorkstationBinding> workstationBindings = new List<WorkstationBinding>();
+
+            foreach (var deviceId in selectedDevices)
+            {
+                var binding = await _workstationBindingRepository
+                .Query()
+                .Where(d => d.DeviceId == deviceId)
+                .Where(d => d.WorkstationId == workstationId)
+                .FirstOrDefaultAsync();
+
+                if (binding != null)
+                {
+                    throw new Exception("Workstation binding already exist.");
+                }
+
+                workstationBindings.Add(new WorkstationBinding {
+                    WorkstationId = workstationId,
+                    DeviceId = deviceId,
+                    AllowRfid = allowRfid,
+                    AllowBleTap = allowBleTap,
+                    AllowProximity = allowProximity
+                });
+            }
+            
+            await _workstationBindingRepository.AddRangeAsync(workstationBindings);
+        }
+
+        public async Task EditBindingAsync(WorkstationBinding workstationBinding)
+        {
+            if (workstationBinding == null)
+                throw new ArgumentNullException(nameof(workstationBinding));
+
+            string[] properties = { "AllowRfid", "AllowBleTap", "AllowProximity" };
+            await _workstationBindingRepository.UpdateOnlyPropAsync(workstationBinding, properties);
+        }
+
+        public async Task DeleteBindingAsync(string workstationBindingId)
+        {
+            if (workstationBindingId == null)
+            {
+                throw new ArgumentNullException(nameof(workstationBindingId));
+            }
+
+            var binding = await _workstationBindingRepository.GetByIdAsync(workstationBindingId);
+            if (binding == null)
+            {
+                throw new Exception("Binding not found.");
+            }
+
+            await _workstationBindingRepository.DeleteAsync(binding);
         }
     }
 }
