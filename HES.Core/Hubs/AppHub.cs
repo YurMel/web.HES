@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
+using HES.Core.Entities;
 using HES.Core.Interfaces;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Remote;
@@ -45,12 +46,14 @@ namespace HES.Core.Hubs
 
         private readonly IRemoteTaskService _remoteTaskService;
         private readonly IEmployeeService _employeeService;
+        private readonly IWorkstationService _workstationService;
         private readonly ILogger<AppHub> _logger;
 
-        public AppHub(IRemoteTaskService remoteTaskService, IEmployeeService employeeService, ILogger<AppHub> logger)
+        public AppHub(IRemoteTaskService remoteTaskService, IEmployeeService employeeService, IWorkstationService workstationService, ILogger<AppHub> logger)
         {
             _remoteTaskService = remoteTaskService;
             _employeeService = employeeService;
+            _workstationService = workstationService;
             _logger = logger;
         }
 
@@ -237,20 +240,42 @@ namespace HES.Core.Hubs
         }
 
         // Incomming request
-        public Task RegisterWorkstationInfo(WorkstationInfo workstationInfo)
+        public async Task RegisterWorkstationInfo(WorkstationInfo workstationInfo)
         {
-            var workstation = _workstationConnections.AddOrUpdate(workstationInfo.Id, new WorkstationDescription(Clients.Caller, workstationInfo.Id), (workstationId, oldDescr) =>
+            var workstationDesc = _workstationConnections.AddOrUpdate(workstationInfo.Id, new WorkstationDescription(Clients.Caller, workstationInfo.Id), (workstationId, oldDescr) =>
             {
                 return new WorkstationDescription(Clients.Caller, workstationId);
             });
 
-            Context.Items.Add("WorkstationInfo", workstation);
+            Context.Items.Add("WorkstationDesc", workstationDesc);
 
-            // todo: save workstation info into database
+            // Todo: might be not the best way or place to do this
+            if (_workstationService.Exist(w => w.Id == workstationInfo.Id))
+            {
+                // Workstation exists, update its information
+                await _workstationService.UpdateClientVersionAsync(workstationInfo.Id, workstationInfo.AppVersion);
+                await _workstationService.UpdateOsAsync(workstationInfo.Id, workstationInfo.OsName);
+                await _workstationService.UpdateIpAsync(workstationInfo.Id, workstationInfo.IP);
+                await _workstationService.UpdateLastSeenAsync(workstationInfo.Id);
+            }
+            else 
+            {
+                // Workstation does not exist in DB or its name + domain was changed
+                // Create new unapproved workstation
+                var workstation = new Workstation()
+                {
+                    Id = workstationInfo.Id,
+                    Name = workstationInfo.MachineName,
+                    Domain = workstationInfo.Domain,
+                    OS = workstationInfo.OsName,
+                    ClientVersion = workstationInfo.AppVersion,
+                    IP = workstationInfo.IP,
+                    LastSeen = DateTime.UtcNow,
+                };
+                await _workstationService.AddWorkstationAsync(workstation);
+            }
 
             OnWorkstationConnected();
-
-            return Task.CompletedTask;
         }
 
         async void OnWorkstationConnected()
@@ -301,7 +326,7 @@ namespace HES.Core.Hubs
 
         WorkstationDescription GetWorkstation()
         {
-            if (Context.Items.TryGetValue("WorkstationInfo", out object workstation))
+            if (Context.Items.TryGetValue("WorkstationDesc", out object workstation))
                 return workstation as WorkstationDescription;
             else
                 return null;
