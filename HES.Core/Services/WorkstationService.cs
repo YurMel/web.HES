@@ -230,7 +230,7 @@ namespace HES.Core.Services
             await UpdateWorkstationUnlockerSettings(binding.WorkstationId);
         }
 
-        async Task UpdateWorkstationUnlockerSettings(string workstationId)
+        public UnlockerSettingsInfo GetWorkstationUnlockerSettingsInfo(string workstationId)
         {
             var workstation = _workstationRepository.Query()
                 .AsNoTracking()
@@ -264,11 +264,18 @@ namespace HES.Core.Services
 
             var unlockerSettingsInfo = new UnlockerSettingsInfo()
             {
-                LockProximity = 30, //workstation.LockProximity,
-                UnlockProximity = 50, //workstation.UnlockProximity,
+                LockProximity = 40, //workstation.LockProximity,
+                UnlockProximity = 75, //workstation.UnlockProximity,
                 LockTimeoutSeconds = 3, //workstation.LockTimeout,
                 DeviceUnlockerSettings = deviceUnlockerSettings.ToArray(),
             };
+
+            return unlockerSettingsInfo;
+        }
+
+        async Task UpdateWorkstationUnlockerSettings(string workstationId)
+        {
+            var unlockerSettingsInfo = GetWorkstationUnlockerSettingsInfo(workstationId);
 
             await AppHub.UpdateUnlockerSettings(workstationId, unlockerSettingsInfo);
         }

@@ -1,4 +1,5 @@
 ﻿using HES.Core.Entities;
+using Hideez.SDK.Communication.HES.Client;
 using System;
 using System.Linq;
 using System.Linq.Expressions;
@@ -24,5 +25,6 @@ namespace HES.Core.Interfaces
         Task AddBindingAsync(string workstationId, bool allowRfid, bool allowBleTap, bool allowProximity, string[] selectedDevices);
         Task EditBindingAsync(WorkstationBinding workstationBinding);
         Task DeleteBindingAsync(string workstationBindingId);
+        UnlockerSettingsInfo GetWorkstationUnlockerSettingsInfo(string workstationId);
     }
 }
