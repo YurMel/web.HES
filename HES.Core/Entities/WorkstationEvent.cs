@@ -34,7 +34,7 @@ namespace HES.Core.Entities
         [Display(Name = "Account")]
         public DeviceAccount DeviceAccount { get; set; }
     }
-
+    
     public enum WorkstationEventId : byte
     {
         ServiceStarted,
@@ -67,4 +67,5 @@ namespace HES.Core.Entities
         Warning,
         Info
     }
+    
 }

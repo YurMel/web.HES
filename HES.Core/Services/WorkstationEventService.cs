@@ -98,14 +98,17 @@ namespace HES.Core.Services
                     .AsNoTracking()
                     .FirstOrDefault(employee => employee.Id == e.EmployeeId)?.DepartmentId;
 
-                e.DeviceAccountId = _deviceAccountRepository.Query()
-                    .AsNoTracking()
-                    //.Include(da => da.Employee)
-                    //.Include(da => da.Device)
-                    .FirstOrDefault(da => da.EmployeeId == e.EmployeeId
-                    && da.DeviceId == e.DeviceId
-                    && da.Name == e.DeviceAccount.Name
-                    && da.Login == e.DeviceAccount.Login)?.Id;
+                if (e.DeviceAccount != null)
+                {
+                    e.DeviceAccountId = _deviceAccountRepository.Query()
+                        .AsNoTracking()
+                        //.Include(da => da.Employee)
+                        //.Include(da => da.Device)
+                        .FirstOrDefault(da => da.EmployeeId == e.EmployeeId
+                        && da.DeviceId == e.DeviceId
+                        && da.Name == e.DeviceAccount.Name
+                        && da.Login == e.DeviceAccount.Login)?.Id;
+                }
             }
 
             return await _workstationEventRepository.AddRangeAsync(workstationEvents);

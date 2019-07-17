@@ -5,6 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WorkstationEvent = HES.Core.Entities.WorkstationEvent;
+using WorkstationEventId = HES.Core.Entities.WorkstationEventId;
+using WorkstationUnlockId = HES.Core.Entities.WorkstationUnlockId;
 
 namespace HES.Core.Services
 {

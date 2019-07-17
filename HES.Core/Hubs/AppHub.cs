@@ -1,15 +1,20 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using HES.Core.Entities;
 using HES.Core.Interfaces;
+using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Remote;
 using Hideez.SDK.Communication.Workstation;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using WorkstationEvent = HES.Core.Entities.WorkstationEvent;
+using WorkstationEventId = HES.Core.Entities.WorkstationEventId;
+using WorkstationEventSeverity = HES.Core.Entities.WorkstationEventSeverity;
 
 namespace HES.Core.Hubs
 {
@@ -339,7 +344,7 @@ namespace HES.Core.Hubs
             }
         }
 
-        public async Task<bool> SaveClientEvents(WorkstationEvent[] events)
+        public async Task<bool> SaveClientEvents(Hideez.SDK.Communication.WorkstationEvent[] events)
         {
             if (events == null)
                 throw new ArgumentNullException(nameof(events));
@@ -350,9 +355,38 @@ namespace HES.Core.Hubs
             // Filter out from incomming events all those who share ID with events saved in database
             var filtered = events.Where(e => !_workstationEventService.WorkstationEventQuery().Any(we => we.Id == e.Id)).ToList();
 
-            var addedEvents = await _workstationEventService.AddEventsRangeAsync(filtered);
+            // Convert from SDK WorkstationEvent to HES WorkstationEvent
+            List<WorkstationEvent> converted = new List<WorkstationEvent>();
+            foreach (var f in filtered)
+            {
+                var convertedEvent =
+                    new WorkstationEvent()
+                    {
+                        Id = f.Id,
+                        Date = f.Date,
+                        EventId = (WorkstationEventId)f.EventId,
+                        SeverityId = (WorkstationEventSeverity)f.Severity,
+                        Note = f.Note,
+                        WorkstationId = f.Computer,
+                        UserSession = f.UserSession,
+                        DeviceId = f.DeviceId,
+                    };
 
-            var authEventsOnly = filtered.Where(e => e.EventId == WorkstationEventId.ComputerLock
+                if (!string.IsNullOrWhiteSpace(f.AccountName)
+                    && !string.IsNullOrWhiteSpace(f.AccountLogin))
+                {
+                    convertedEvent.DeviceAccount = new DeviceAccount() // todo: querry DB for the account
+                    {
+                        Name = f.AccountName,
+                        Login = f.AccountLogin,
+                    };
+                }
+                converted.Add(convertedEvent);
+            }
+
+            var addedEvents = await _workstationEventService.AddEventsRangeAsync(converted);
+
+            var authEventsOnly = converted.Where(e => e.EventId == WorkstationEventId.ComputerLock
             || e.EventId == WorkstationEventId.ComputerLogoff
             || e.EventId == WorkstationEventId.ComputerLogon
             || e.EventId == WorkstationEventId.ComputerUnlock).ToArray();
