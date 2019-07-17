@@ -16,5 +16,7 @@ namespace HES.Core.Entities
 
         [ForeignKey("DeviceId")]
         public Device Device { get; set; }
+        [ForeignKey("WorkstationId")]
+        public Workstation Workstation { get; set; }
     }
 }

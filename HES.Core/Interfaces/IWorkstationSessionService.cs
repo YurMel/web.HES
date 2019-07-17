@@ -1,4 +1,5 @@
 ﻿using HES.Core.Entities;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -14,5 +15,6 @@ namespace HES.Core.Interfaces
         IQueryable<Department> DepartmentQuery();
         IQueryable<DeviceAccount> DeviceAccountQuery();
         Task AddSessionAsync(WorkstationSession workstationSession);
+        Task UpdateWorkstationSessions(IList<WorkstationEvent> events);
     }
 }

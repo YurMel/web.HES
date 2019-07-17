@@ -47,13 +47,17 @@ namespace HES.Core.Hubs
         private readonly IRemoteTaskService _remoteTaskService;
         private readonly IEmployeeService _employeeService;
         private readonly IWorkstationService _workstationService;
+        private readonly IWorkstationEventService _workstationEventService;
+        private readonly IWorkstationSessionService _workstationSessionService;
         private readonly ILogger<AppHub> _logger;
 
-        public AppHub(IRemoteTaskService remoteTaskService, IEmployeeService employeeService, IWorkstationService workstationService, ILogger<AppHub> logger)
+        public AppHub(IRemoteTaskService remoteTaskService, IEmployeeService employeeService, IWorkstationService workstationService, IWorkstationEventService workstationEventService, IWorkstationSessionService workstationSessionService, ILogger<AppHub> logger)
         {
             _remoteTaskService = remoteTaskService;
             _employeeService = employeeService;
             _workstationService = workstationService;
+            _workstationEventService = workstationEventService;
+            _workstationSessionService = workstationSessionService;
             _logger = logger;
         }
 
@@ -333,6 +337,30 @@ namespace HES.Core.Hubs
             {
                 throw new HubException(ex.Message);
             }
+        }
+
+        public async Task<bool> SaveClientEvents(WorkstationEvent[] events)
+        {
+            if (events == null)
+                throw new ArgumentNullException(nameof(events));
+
+            // Events that duplicate ID of other events are ignored
+            events = events.GroupBy(e => e.Id).Select(s => s.First()).ToArray();
+
+            // Filter out from incomming events all those who share ID with events saved in database
+            var filtered = events.Where(e => !_workstationEventService.WorkstationEventQuery().Any(we => we.Id == e.Id)).ToList();
+
+            var addedEvents = await _workstationEventService.AddEventsRangeAsync(filtered);
+
+            var authEventsOnly = filtered.Where(e => e.EventId == WorkstationEventId.ComputerLock
+            || e.EventId == WorkstationEventId.ComputerLogoff
+            || e.EventId == WorkstationEventId.ComputerLogon
+            || e.EventId == WorkstationEventId.ComputerUnlock).ToArray();
+
+            if (authEventsOnly.Length > 0)
+                await _workstationSessionService.UpdateWorkstationSessions(authEventsOnly);
+
+            return true;
         }
     }
 }

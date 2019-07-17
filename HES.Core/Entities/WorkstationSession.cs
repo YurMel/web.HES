@@ -40,6 +40,7 @@ namespace HES.Core.Entities
     {
         RFID,
         Dongle,
+        Proximity,
         NonHideez
     }
 }
