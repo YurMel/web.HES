@@ -1,6 +1,7 @@
 ﻿using HES.Core.Entities;
 using HES.Core.Entities.Models;
 using HES.Core.Interfaces;
+using Hideez.SDK.Communication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -10,6 +11,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using WorkstationEvent = HES.Core.Entities.WorkstationEvent;
 
 namespace HES.Web.Pages.Audit.WorkstationEvents
 {

@@ -1,6 +1,7 @@
 ﻿using HES.Core.Entities;
 using HES.Core.Entities.Models;
 using HES.Core.Interfaces;
+using Hideez.SDK.Communication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;

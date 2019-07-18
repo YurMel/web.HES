@@ -39,6 +39,13 @@
 
 
   <ItemGroup>
+    <Reference Include="Communication">
+      <HintPath>..\Communication.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+
+  <ItemGroup>
     <Content Update="nlog.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

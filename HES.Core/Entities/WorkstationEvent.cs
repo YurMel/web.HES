@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Hideez.SDK.Communication;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -33,39 +34,6 @@ namespace HES.Core.Entities
         [ForeignKey("DeviceAccountId")]
         [Display(Name = "Account")]
         public DeviceAccount DeviceAccount { get; set; }
-    }
-    
-    public enum WorkstationEventId : byte
-    {
-        ServiceStarted,
-        ServiceStopped,
-        DeviceConnected,
-        DeviceDisconnected,
-        DeviceDeleted,
-        RFIDAdapterPlugged,
-        RFIDAdapterUnplugged,
-        HESConnected,
-        HESDisconnected,
-        DonglePlugged,
-        DongleUnplugged,
-        CredentialsUpdated,
-        ComputerLogon,  // (Note: Dongle, RFID, Non-Hideez)
-        ComputerUnlock, // (Note: Dongle, RFID, Non-Hideez)
-        ComputerLogoff, // (Note: Proximity, Button, Non-Hideez)
-        ComputerLock,   // (Note: Proximity, Button, Non-Hideez)
-        LowBattery,     // (Note: Actual battery value)
-        RemoteConnect,
-        RemoteDisconnect,
-        SoftwareUpdate, // (Note: The version of the new application)
-        CredentialsUsed // (Note: Name of the application where the credentials were used)
-    }
-
-    public enum WorkstationEventSeverity : byte
-    {
-        Ok,
-        Error,
-        Warning,
-        Info
     }
     
 }

@@ -13,8 +13,6 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using WorkstationEvent = HES.Core.Entities.WorkstationEvent;
-using WorkstationEventId = HES.Core.Entities.WorkstationEventId;
-using WorkstationEventSeverity = HES.Core.Entities.WorkstationEventSeverity;
 
 namespace HES.Core.Hubs
 {
@@ -349,6 +347,8 @@ namespace HES.Core.Hubs
             if (events == null)
                 throw new ArgumentNullException(nameof(events));
 
+            // todo: ignore not approved workstation
+
             // Events that duplicate ID of other events are ignored
             events = events.GroupBy(e => e.Id).Select(s => s.First()).ToArray();
 
@@ -384,15 +384,22 @@ namespace HES.Core.Hubs
                 converted.Add(convertedEvent);
             }
 
-            var addedEvents = await _workstationEventService.AddEventsRangeAsync(converted);
+            try
+            {
+                var addedEvents = await _workstationEventService.AddEventsRangeAsync(converted);
 
-            var authEventsOnly = converted.Where(e => e.EventId == WorkstationEventId.ComputerLock
-            || e.EventId == WorkstationEventId.ComputerLogoff
-            || e.EventId == WorkstationEventId.ComputerLogon
-            || e.EventId == WorkstationEventId.ComputerUnlock).ToArray();
+                var authEventsOnly = converted.Where(e => e.EventId == WorkstationEventId.ComputerLock
+                || e.EventId == WorkstationEventId.ComputerLogoff
+                || e.EventId == WorkstationEventId.ComputerLogon
+                || e.EventId == WorkstationEventId.ComputerUnlock).ToArray();
 
-            if (authEventsOnly.Length > 0)
-                await _workstationSessionService.UpdateWorkstationSessions(authEventsOnly);
+                if (authEventsOnly.Length > 0)
+                    await _workstationSessionService.UpdateWorkstationSessions(authEventsOnly);
+            }
+            catch (Exception ex)
+            {
+                // todo: report error to server logs
+            }
 
             return true;
         }

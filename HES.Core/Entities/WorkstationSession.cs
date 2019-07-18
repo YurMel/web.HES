@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Hideez.SDK.Communication;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -12,7 +13,18 @@ namespace HES.Core.Entities
         public DateTime StartTime { get; set; }
         [Display(Name = "End Time")]
         public DateTime EndTime { get; set; }
-        public TimeSpan Duration { get; set; }
+        [NotMapped]
+        public TimeSpan Duration
+        {
+            get
+            {
+                if (EndTime == DateTime.MinValue)
+                    return DateTime.UtcNow - StartTime;
+                else
+                    return EndTime - StartTime;
+            }
+        }
+
         [Display(Name = "Unlocked by")]
         public WorkstationUnlockId UnlockedBy { get; set; }
         public string WorkstationId { get; set; }
@@ -34,13 +46,5 @@ namespace HES.Core.Entities
         [Display(Name = "Account")]
         [ForeignKey("DeviceAccountId")]
         public DeviceAccount DeviceAccount { get; set; }
-    }
-
-    public enum WorkstationUnlockId : byte
-    {
-        RFID,
-        Dongle,
-        Proximity,
-        NonHideez
     }
 }

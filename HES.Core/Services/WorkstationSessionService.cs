@@ -1,13 +1,12 @@
 ﻿using HES.Core.Entities;
 using HES.Core.Interfaces;
+using Hideez.SDK.Communication;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using WorkstationEvent = HES.Core.Entities.WorkstationEvent;
-using WorkstationEventId = HES.Core.Entities.WorkstationEventId;
-using WorkstationUnlockId = HES.Core.Entities.WorkstationUnlockId;
 
 namespace HES.Core.Services
 {
@@ -93,7 +92,7 @@ namespace HES.Core.Services
             {
                 var lastSession = _workstationSessionRepository.Query()
                         .AsNoTracking()
-                        .LastOrDefault(s => s.EndTime == null
+                        .LastOrDefault(s => s.EndTime == DateTime.MinValue
                         && s.WorkstationId == e.WorkstationId);
 
                 if (e.EventId == WorkstationEventId.ComputerLock || e.EventId == WorkstationEventId.ComputerLogoff)
@@ -103,7 +102,6 @@ namespace HES.Core.Services
                         // There is no unfinished sessions for current workstation
                         var newSession = CreateSessionFromEvent(e);
                         newSession.EndTime = newSession.StartTime;
-                        newSession.Duration = TimeSpan.Zero;
                         await _workstationSessionRepository.AddAsync(newSession);
 
                         // Todo: add warning: closed a session when there were no open sessions
@@ -113,7 +111,6 @@ namespace HES.Core.Services
                     else
                     {
                         lastSession.EndTime = e.Date;
-                        lastSession.Duration = lastSession.EndTime - lastSession.StartTime;
                         await _workstationSessionRepository.UpdateAsync(lastSession);
                         continue;
                     }
@@ -125,7 +122,6 @@ namespace HES.Core.Services
                     {
                         // There is an unfinished session for current workstation
                         lastSession.EndTime = e.Date;
-                        lastSession.Duration = lastSession.EndTime - lastSession.StartTime;
                         await _workstationSessionRepository.UpdateAsync(lastSession);
 
                         // Todo: add warning notification: created a new session while the previous one was still active
@@ -146,6 +142,7 @@ namespace HES.Core.Services
             return new WorkstationSession()
             {
                 StartTime = workstationEvent.Date,
+                EndTime = DateTime.MinValue,
                 UnlockedBy = unlockedBy,
                 WorkstationId = workstationEvent.WorkstationId,
                 DeviceId = workstationEvent.DeviceId,
