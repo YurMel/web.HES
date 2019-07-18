@@ -273,7 +273,7 @@ namespace HES.Core.Hubs
                 {
                     Id = workstationInfo.Id,
                     Name = workstationInfo.MachineName,
-                    //Domain = workstationInfo.Domain,
+                    Domain = workstationInfo.Domain,
                     OS = workstationInfo.OsName,
                     ClientVersion = workstationInfo.AppVersion,
                     IP = workstationInfo.IP,
@@ -357,28 +357,28 @@ namespace HES.Core.Hubs
 
             // Convert from SDK WorkstationEvent to HES WorkstationEvent
             List<WorkstationEvent> converted = new List<WorkstationEvent>();
-            foreach (var f in filtered)
+            foreach (var other in filtered)
             {
                 var convertedEvent =
                     new WorkstationEvent()
                     {
-                        Id = f.Id,
-                        Date = f.Date,
-                        EventId = (WorkstationEventId)f.EventId,
-                        SeverityId = (WorkstationEventSeverity)f.Severity,
-                        Note = f.Note,
-                        WorkstationId = f.Computer,
-                        UserSession = f.UserSession,
-                        DeviceId = f.DeviceId,
+                        Id = other.Id,
+                        Date = other.Date,
+                        EventId = other.EventId,
+                        SeverityId = other.Severity,
+                        Note = other.Note,
+                        WorkstationId = other.WorkstationId,
+                        UserSession = other.UserSession,
+                        DeviceId = other.DeviceId,
                     };
 
-                if (!string.IsNullOrWhiteSpace(f.AccountName)
-                    && !string.IsNullOrWhiteSpace(f.AccountLogin))
+                if (!string.IsNullOrWhiteSpace(other.AccountName)
+                    && !string.IsNullOrWhiteSpace(other.AccountLogin))
                 {
                     convertedEvent.DeviceAccount = new DeviceAccount() // todo: querry DB for the account
                     {
-                        Name = f.AccountName,
-                        Login = f.AccountLogin,
+                        Name = other.AccountName,
+                        Login = other.AccountLogin,
                     };
                 }
                 converted.Add(convertedEvent);

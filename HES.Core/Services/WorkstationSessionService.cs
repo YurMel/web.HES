@@ -99,10 +99,11 @@ namespace HES.Core.Services
                 {
                     if (lastSession == null)
                     {
+                        // Todo: Sessions with 00:00 duration are confusing
                         // There is no unfinished sessions for current workstation
-                        var newSession = CreateSessionFromEvent(e);
-                        newSession.EndTime = newSession.StartTime;
-                        await _workstationSessionRepository.AddAsync(newSession);
+                        //var newSession = CreateSessionFromEvent(e);
+                        //newSession.EndTime = newSession.StartTime;
+                        //await _workstationSessionRepository.AddAsync(newSession);
 
                         // Todo: add warning: closed a session when there were no open sessions
 
