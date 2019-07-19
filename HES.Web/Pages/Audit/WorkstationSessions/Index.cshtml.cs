@@ -38,7 +38,7 @@ namespace HES.Web.Pages.Audit.WorkstationSessions
                 .Take(100)
                 .ToListAsync();
 
-            ViewData["UnlockId"] = new SelectList(Enum.GetValues(typeof(WorkstationUnlockId)).Cast<WorkstationUnlockId>().ToDictionary(t => (int)t, t => t.ToString()), "Key", "Value");
+            ViewData["UnlockId"] = new SelectList(Enum.GetValues(typeof(SessionSwitchSubject)).Cast<SessionSwitchSubject>().ToDictionary(t => (int)t, t => t.ToString()), "Key", "Value");
             ViewData["Workstations"] = new SelectList(await _workstationSessionService.WorkstationQuery().ToListAsync(), "Id", "Name");
             ViewData["Devices"] = new SelectList(await _workstationSessionService.DeviceQuery().ToListAsync(), "Id", "Id");
             ViewData["Employees"] = new SelectList(await _workstationSessionService.EmployeeQuery().ToListAsync(), "Id", "FullName");
@@ -75,7 +75,7 @@ namespace HES.Web.Pages.Audit.WorkstationSessions
             }
             if (WorkstationSessionFilter.UnlockId != null)
             {
-                filter = filter.Where(w => w.UnlockedBy == (WorkstationUnlockId)WorkstationSessionFilter.UnlockId);
+                filter = filter.Where(w => w.UnlockedBy == (SessionSwitchSubject)WorkstationSessionFilter.UnlockId);
             }
             if (WorkstationSessionFilter.WorkstationId != null)
             {

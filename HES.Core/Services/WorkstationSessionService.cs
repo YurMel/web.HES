@@ -137,8 +137,8 @@ namespace HES.Core.Services
 
         WorkstationSession CreateSessionFromEvent(WorkstationEvent workstationEvent)
         {
-            Enum.TryParse(typeof(WorkstationUnlockId), workstationEvent.Note, out object unlockMethod);
-            WorkstationUnlockId unlockedBy = unlockMethod == null ? WorkstationUnlockId.NonHideez : (WorkstationUnlockId)unlockMethod;
+            Enum.TryParse(typeof(SessionSwitchSubject), workstationEvent.Note, out object unlockMethod);
+            SessionSwitchSubject unlockedBy = unlockMethod == null ? SessionSwitchSubject.NonHideez : (SessionSwitchSubject)unlockMethod;
 
             return new WorkstationSession()
             {
@@ -150,6 +150,7 @@ namespace HES.Core.Services
                 EmployeeId = workstationEvent.EmployeeId,
                 DepartmentId = workstationEvent.DepartmentId,
                 DeviceAccountId = workstationEvent.DeviceAccountId,
+                UserSession = workstationEvent.UserSession,
             };
         }
     }

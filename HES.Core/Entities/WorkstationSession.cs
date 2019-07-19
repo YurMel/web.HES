@@ -26,7 +26,7 @@ namespace HES.Core.Entities
         }
 
         [Display(Name = "Unlocked by")]
-        public WorkstationUnlockId UnlockedBy { get; set; }
+        public SessionSwitchSubject UnlockedBy { get; set; }
         public string WorkstationId { get; set; }
         [Display(Name = "Session")]
         public string UserSession { get; set; }
