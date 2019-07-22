@@ -159,7 +159,7 @@
             {
                 <tr>
                     <td>
-                        @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.Date, TimeZoneInfo.Local).ToString("MM/dd/yyyy HH:mm:ss")
+                        @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.Date, TimeZoneInfo.Local)
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.EventId)

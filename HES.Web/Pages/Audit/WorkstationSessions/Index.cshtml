@@ -153,12 +153,12 @@
             {
                 <tr>
                     <td>
-                        @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.StartTime, TimeZoneInfo.Local).ToString("MM/dd/yyyy HH:mm:ss")
+                        @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.StartTime, TimeZoneInfo.Local)
                     </td>
                     <td>
                         @if (item != null && item.EndTime != null)
                         {
-                            @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.EndTime, TimeZoneInfo.Local).ToString("MM/dd/yyyy HH:mm:ss")
+                            @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.EndTime, TimeZoneInfo.Local)
                         }
                     </td>
                     <td>
