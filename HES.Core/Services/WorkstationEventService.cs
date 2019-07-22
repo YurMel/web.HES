@@ -89,6 +89,10 @@ namespace HES.Core.Services
             // Get EmployeeId, DepartmentId, DeviceAccountId based on DeviceId and other information from event
             foreach (var e in workstationEvents)
             {
+                // Skip events for workstations that are not present in DB
+                if (!_workstationRepository.Exist(w => w.Id == e.WorkstationId))
+                    continue;
+
                 e.EmployeeId = _employeeRepository.Query()
                     .AsNoTracking()
                     .Include(employee => employee.Devices)

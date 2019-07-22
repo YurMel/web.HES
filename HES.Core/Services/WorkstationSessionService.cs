@@ -92,7 +92,7 @@ namespace HES.Core.Services
             {
                 var lastSession = _workstationSessionRepository.Query()
                         .AsNoTracking()
-                        .LastOrDefault(s => s.EndTime == DateTime.MinValue
+                        .LastOrDefault(s => s.EndTime == null
                         && s.WorkstationId == e.WorkstationId);
 
                 if (e.EventId == WorkstationEventId.ComputerLock || e.EventId == WorkstationEventId.ComputerLogoff)

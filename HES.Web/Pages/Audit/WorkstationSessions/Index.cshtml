@@ -156,7 +156,7 @@
                         @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.StartTime, TimeZoneInfo.Local).ToString("g")
                     </td>
                     <td>
-                        @if (item != null)
+                        @if (item != null && item.EndTime != null)
                         {
                             @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.EndTime, TimeZoneInfo.Local).ToString("g")
                         }
