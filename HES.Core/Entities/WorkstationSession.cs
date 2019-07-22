@@ -11,7 +11,7 @@ namespace HES.Core.Entities
         [Display(Name = "Start Time")]
         public DateTime StartTime { get; set; }
         [Display(Name = "End Time")]
-        public DateTime EndTime { get; set; }
+        public DateTime? EndTime { get; set; }
         public TimeSpan Duration { get; set; }
         [Display(Name = "Unlocked by")]
         public WorkstationUnlockId UnlockedBy { get; set; }

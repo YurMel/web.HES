@@ -64,7 +64,10 @@
                     @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.StartTime, TimeZoneInfo.Local).ToString("g")
                 </td>
                 <td>
-                    @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.EndTime, TimeZoneInfo.Local).ToString("g")
+                    @if (item != null)
+                    {
+                        @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.EndTime, TimeZoneInfo.Local).ToString("g")
+                    }
                 </td>
                 <td>
                     @item.Duration.ToString(@"hh\:mm")
