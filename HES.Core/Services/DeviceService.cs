@@ -16,6 +16,7 @@ namespace HES.Core.Services
             public string Id { get; set; }
             public string MAC { get; set; }
             public string ManufacturerUserId { get; set; }
+            public string RFID { get; set; }
             public string Model { get; set; }
             public string BootLoaderVersion { get; set; }
             public DateTime Manufactured { get; set; }
@@ -65,7 +66,7 @@ namespace HES.Core.Services
                     Id = d.Id,
                     MAC = d.MAC,
                     Model = d.Model,
-                    RFID = null,
+                    RFID = d.RFID,
                     Battery = 1,
                     Firmware = null,
                     LastSynced = null,
