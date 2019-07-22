@@ -12,16 +12,13 @@ namespace HES.Core.Entities
         [Display(Name = "Start Time")]
         public DateTime StartTime { get; set; }
         [Display(Name = "End Time")]
-        public DateTime EndTime { get; set; }
+        public DateTime? EndTime { get; set; }
         [NotMapped]
         public TimeSpan Duration
         {
             get
             {
-                if (EndTime == DateTime.MinValue)
-                    return DateTime.UtcNow - StartTime;
-                else
-                    return EndTime - StartTime;
+                return (EndTime ?? DateTime.UtcNow) - StartTime;
             }
         }
 

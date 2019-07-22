@@ -143,7 +143,7 @@ namespace HES.Core.Services
             return new WorkstationSession()
             {
                 StartTime = workstationEvent.Date,
-                EndTime = DateTime.MinValue,
+                EndTime = null,
                 UnlockedBy = unlockedBy,
                 WorkstationId = workstationEvent.WorkstationId,
                 DeviceId = workstationEvent.DeviceId,
