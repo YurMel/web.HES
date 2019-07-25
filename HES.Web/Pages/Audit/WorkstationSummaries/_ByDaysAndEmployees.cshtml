@@ -25,7 +25,7 @@
                 @Html.DisplayNameFor(model => model.SummaryByDayAndEmployee[0].Employee)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.SummaryByDayAndEmployee[0].Department.Company)
+                @Html.DisplayNameFor(model => model.SummaryByDayAndEmployee[0].Company)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.SummaryByDayAndEmployee[0].Department)
@@ -52,13 +52,13 @@
                     @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.Date, TimeZoneInfo.Local).ToShortDateString()
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Employee.FullName)
+                    @Html.DisplayFor(modelItem => item.Employee)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Department.Company.Name)
+                    @Html.DisplayFor(modelItem => item.Company)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Department.Name)
+                    @Html.DisplayFor(modelItem => item.Department)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.WorkstationsCount)

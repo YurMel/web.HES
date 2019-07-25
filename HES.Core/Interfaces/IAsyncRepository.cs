@@ -25,5 +25,6 @@ namespace HES.Core.Interfaces
         Task DeleteRangeAsync(IList<T> entity);
         bool Exist(Expression<Func<T, bool>> predicate);
         IQueryable<T> Query();
+        IQueryable<T> SqlQuery(string sql);
     }
 }

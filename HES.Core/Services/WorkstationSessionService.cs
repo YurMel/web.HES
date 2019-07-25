@@ -1,4 +1,5 @@
 ﻿using HES.Core.Entities;
+using HES.Core.Entities.Models;
 using HES.Core.Interfaces;
 using Hideez.SDK.Communication;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +21,10 @@ namespace HES.Core.Services
         private readonly IAsyncRepository<Company> _companyRepository;
         private readonly IAsyncRepository<Department> _departmentRepository;
         private readonly IAsyncRepository<DeviceAccount> _deviceAccountRepository;
+        private readonly IAsyncRepository<SummaryByDayAndEmployee> _summaryByDayAndEmployeeRepository;
+        private readonly IAsyncRepository<SummaryByEmployees> _summaryByEmployeesRepository;
+        private readonly IAsyncRepository<SummaryByDepartments> _summaryByDepartmentsRepository;
+        private readonly IAsyncRepository<SummaryByWorkstations> _summaryByWorkstationsRepository;
 
         public WorkstationSessionService(IAsyncRepository<WorkstationSession> workstationSessionRepository,
                                        IAsyncRepository<WorkstationEvent> workstationEventRepository,
@@ -28,7 +33,11 @@ namespace HES.Core.Services
                                        IAsyncRepository<Employee> employeeRepository,
                                        IAsyncRepository<Company> companyRepository,
                                        IAsyncRepository<Department> departmentRepository,
-                                       IAsyncRepository<DeviceAccount> deviceAccountRepository)
+                                       IAsyncRepository<DeviceAccount> deviceAccountRepository,
+                                       IAsyncRepository<SummaryByDayAndEmployee> summaryByDayAndEmployeeRepository,
+                                       IAsyncRepository<SummaryByEmployees> summaryByEmployeesRepository,
+                                       IAsyncRepository<SummaryByDepartments> summaryByDepartmentsRepository,
+                                       IAsyncRepository<SummaryByWorkstations> summaryByWorkstationsRepository)
         {
             _workstationSessionRepository = workstationSessionRepository;
             _workstationEventRepository = workstationEventRepository;
@@ -38,6 +47,10 @@ namespace HES.Core.Services
             _companyRepository = companyRepository;
             _departmentRepository = departmentRepository;
             _deviceAccountRepository = deviceAccountRepository;
+            _summaryByDayAndEmployeeRepository = summaryByDayAndEmployeeRepository;
+            _summaryByEmployeesRepository = summaryByEmployeesRepository;
+            _summaryByDepartmentsRepository = summaryByDepartmentsRepository;
+            _summaryByWorkstationsRepository = summaryByWorkstationsRepository;
         }
 
         public IQueryable<WorkstationSession> WorkstationSessionQuery()
@@ -75,6 +88,26 @@ namespace HES.Core.Services
             return _deviceAccountRepository.Query();
         }
 
+        public IQueryable<SummaryByDayAndEmployee> SummaryByDayAndEmployeeSqlQuery(string sql)
+        {
+            return _summaryByDayAndEmployeeRepository.SqlQuery(sql);
+        }
+
+        public IQueryable<SummaryByEmployees> SummaryByEmployeesSqlQuery(string sql)
+        {
+            return _summaryByEmployeesRepository.SqlQuery(sql);
+        }
+
+        public IQueryable<SummaryByDepartments> SummaryByDepartmentsSqlQuery(string sql)
+        {
+            return _summaryByDepartmentsRepository.SqlQuery(sql);
+        }
+
+        public IQueryable<SummaryByWorkstations> SummaryByWorkstationsSqlQuery(string sql)
+        {
+            return _summaryByWorkstationsRepository.SqlQuery(sql);
+        }
+
         public async Task AddSessionAsync(WorkstationSession workstationSession)
         {
             if (workstationSession == null)
@@ -87,7 +120,7 @@ namespace HES.Core.Services
         {
             if (events == null)
                 throw new ArgumentNullException(nameof(events));
-            
+
             foreach (var e in events)
             {
                 var lastSession = _workstationSessionRepository.Query()
@@ -118,7 +151,7 @@ namespace HES.Core.Services
                 }
 
                 if (e.EventId == WorkstationEventId.ComputerLogon || e.EventId == WorkstationEventId.ComputerUnlock)
-                { 
+                {
                     if (lastSession != null)
                     {
                         // There is an unfinished session for current workstation

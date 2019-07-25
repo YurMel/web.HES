@@ -162,7 +162,7 @@
                         }
                     </td>
                     <td>
-                        @item.Duration.ToString(@"hh\:mm\:ss")
+                        @Html.DisplayFor(modelItem => item.Duration)
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.UnlockedBy)

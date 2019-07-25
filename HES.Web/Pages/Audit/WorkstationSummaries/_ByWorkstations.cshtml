@@ -22,25 +22,28 @@
                 @Html.DisplayNameFor(model => model.SummaryByWorkstations[0].Workstation)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.SummaryByWorkstations[0].Department.Company)
+                @Html.DisplayNameFor(model => model.SummaryByWorkstations[0].CompaniesCount)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.SummaryByWorkstations[0].Department)
+                @Html.DisplayNameFor(model => model.SummaryByWorkstations[0].DepartmentsCount)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.SummaryByWorkstations[0].EmployeesCount)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.SummaryByWorkstations[0].TotalSessionsCount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SummaryByWorkstations[0].TotalSessionsDuration)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.SummaryByWorkstations[0].AvgSessionDuration)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.SummaryByWorkstations[0].SessionCountPerDay)
+                @Html.DisplayNameFor(model => model.SummaryByWorkstations[0].AvgTotalDuartionByEmployee)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.SummaryByWorkstations[0].TotalSessions)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SummaryByWorkstations[0].TotalSessionDurationPerDay)
+                @Html.DisplayNameFor(model => model.SummaryByWorkstations[0].AvgTotalSessionCountByEmployee)
             </th>
         </tr>
     </thead>
@@ -49,28 +52,31 @@
         {
             <tr>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Workstation.Name)
+                    @Html.DisplayFor(modelItem => item.Workstation)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Department.Company.Name)
+                    @Html.DisplayFor(modelItem => item.CompaniesCount)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Department.Name)
+                    @Html.DisplayFor(modelItem => item.DepartmentsCount)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.EmployeesCount)
                 </td>
                 <td>
+                    @Html.DisplayFor(modelItem => item.TotalSessionsCount)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TotalSessionsDuration)
+                </td>
+                <td>
                     @Html.DisplayFor(modelItem => item.AvgSessionDuration)
                 </td>
-                <td>       
-                    @Math.Round(item.SessionCountPerDay, 1)              
+                <td>
+                    @Html.DisplayFor(modelItem => item.AvgTotalDuartionByEmployee)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.TotalSessions)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.TotalSessionDurationPerDay)
+                    @Html.DisplayFor(modelItem => item.AvgTotalSessionCountByEmployee)
                 </td>
             </tr>
         }

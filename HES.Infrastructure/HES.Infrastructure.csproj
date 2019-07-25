@@ -8,6 +8,7 @@
   <ItemGroup>
     <Compile Remove="Migrations\20190621143219_add_table_computers.cs" />
     <Compile Remove="Migrations\20190626075912_add_WorkstationSession.cs" />
+    <Compile Remove="Migrations\20190724123311_test.cs" />
   </ItemGroup>
 
   <ItemGroup>

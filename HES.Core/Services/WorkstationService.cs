@@ -1,8 +1,8 @@
 ﻿using HES.Core.Entities;
+using HES.Core.Entities.Models;
 using HES.Core.Hubs;
 using HES.Core.Interfaces;
 using Hideez.SDK.Communication.HES.Client;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -190,7 +190,8 @@ namespace HES.Core.Services
                     throw new Exception("Workstation binding already exist.");
                 }
 
-                workstationBindings.Add(new WorkstationBinding {
+                workstationBindings.Add(new WorkstationBinding
+                {
                     WorkstationId = workstationId,
                     DeviceId = deviceId,
                     AllowRfid = allowRfid,
@@ -198,7 +199,7 @@ namespace HES.Core.Services
                     AllowProximity = allowProximity
                 });
             }
-            
+
             await _workstationBindingRepository.AddRangeAsync(workstationBindings);
             await UpdateWorkstationUnlockerSettings(workstationId);
         }
@@ -273,7 +274,7 @@ namespace HES.Core.Services
             return unlockerSettingsInfo;
         }
 
-        async Task UpdateWorkstationUnlockerSettings(string workstationId)
+        private async Task UpdateWorkstationUnlockerSettings(string workstationId)
         {
             var unlockerSettingsInfo = GetWorkstationUnlockerSettingsInfo(workstationId);
 

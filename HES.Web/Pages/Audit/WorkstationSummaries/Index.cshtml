@@ -32,28 +32,31 @@
         <div class="row">
             <div class="col-sm-6 col-md-4 col-lg-3 form-group date-col">
                 <label asp-for="SummaryFilter.StartDate" class="control-label"></label>
-                <input readonly type="text" id="startDate" asp-for="SummaryFilter.StartDate" class="form-control" autocomplete="off" />
+                <input readonly type="text" id="startDate" value="@TimeZoneInfo.ConvertTimeFromUtc(ViewBag.StartDate, TimeZoneInfo.Local).ToShortDateString()" asp-for="SummaryFilter.StartDate" class="form-control" autocomplete="off" />
             </div>
             <div class="col-sm-6 col-md-4 col-lg-3 form-group date-col">
                 <label asp-for="SummaryFilter.EndDate" class="control-label"></label>
-                <input readonly type="text" id="endDate" asp-for="SummaryFilter.EndDate" class="form-control" autocomplete="off" />
+                <input readonly type="text" id="endDate" value="@TimeZoneInfo.ConvertTimeFromUtc(ViewBag.EndDate, TimeZoneInfo.Local).ToShortDateString()" asp-for="SummaryFilter.EndDate" class="form-control" autocomplete="off" />
             </div>
             <div class="col-sm-6 col-md-4 col-lg-3 form-group employee-col">
                 <label asp-for="SummaryFilter.EmployeeId" class="control-label"></label>
                 <select id="employeeId" asp-for="SummaryFilter.EmployeeId" class="form-control" asp-items="ViewBag.Employees">
                     <option selected></option>
+                    <option value="N/A">N/A</option>
                 </select>
             </div>
             <div class="col-sm-6 col-md-4 col-lg-3 form-group">
                 <label asp-for="SummaryFilter.CompanyId" class="control-label"></label>
                 <select id="companyId" asp-for="SummaryFilter.CompanyId" class="form-control" asp-items="ViewBag.Companies">
                     <option selected></option>
+                    <option value="N/A">N/A</option>
                 </select>
             </div>
-            <div class="col-sm-6 col-md-4 col-lg-3 form-group">
+            <div class="col-sm-6 col-md-4 col-lg-3 form-group department-col">
                 <label asp-for="SummaryFilter.DepartmentId" class="control-label"></label>
                 <select id="departmentId" asp-for="SummaryFilter.DepartmentId" class="form-control" asp-items="ViewBag.Departments">
                     <option selected></option>
+                    <option value="N/A">N/A</option>
                 </select>
             </div>
             <div class="col align-self-end form-group text-right">
@@ -93,7 +96,7 @@
                     @Html.DisplayNameFor(model => model.SummaryByDayAndEmployee[0].Employee)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.SummaryByDayAndEmployee[0].Department.Company)
+                    @Html.DisplayNameFor(model => model.SummaryByDayAndEmployee[0].Company)
                 </th>
                 <th>
                     @Html.DisplayNameFor(model => model.SummaryByDayAndEmployee[0].Department)
@@ -120,13 +123,13 @@
                         @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.Date, TimeZoneInfo.Local).ToShortDateString()
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.Employee.FullName)
+                        @Html.DisplayFor(modelItem => item.Employee)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.Department.Company.Name)
+                        @Html.DisplayFor(modelItem => item.Company)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.Department.Name)
+                        @Html.DisplayFor(modelItem => item.Department)
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.WorkstationsCount)
@@ -226,8 +229,8 @@
 
         // Clear filter
         $(document).on('click', '#clearFilter', function () {
-            $('#startDate').val("");
-            $('#endDate').val("");
+            //$('#startDate').val("");
+            //$('#endDate').val("");
             $('#employeeId').val("");
             $('#companyId').val("");
             $('#departmentId').val("");
@@ -240,26 +243,26 @@
             switch (id) {
                 case 'by-days-and-employees':
                     $('#filterBtn').data("action", "by-days-and-employees");
-                    $('.date-col').removeClass('d-none');
                     $('.employee-col').removeClass('d-none');
+                    $('.department-col').removeClass('d-none');
                     var url = '/Audit/WorkstationSummaries?handler=FilterSummaryByDaysAndEmployees';
                     break;
                 case 'by-employees':
                     $('#filterBtn').data("action", "by-employees");
-                    $('.date-col').addClass('d-none');
-                    $('.employee-col').removeClass('d-none');
+                    $('.employee-col').addClass('d-none');
+                    $('.department-col').removeClass('d-none');
                     var url = '/Audit/WorkstationSummaries?handler=FilterSummaryByEmployees';
                     break;
                 case 'by-departments':
                     $('#filterBtn').data("action", "by-departments");
-                    $('.date-col').addClass('d-none');
                     $('.employee-col').addClass('d-none');
+                    $('.department-col').addClass('d-none');
                     var url = '/Audit/WorkstationSummaries?handler=FilterSummaryByDepartments';
                     break;
                 case 'by-workstations':
                     $('#filterBtn').data("action", "by-workstations");
-                    $('.date-col').addClass('d-none');
-                    $('.employee-col').addClass('d-none');
+                    $('.employee-col').removeClass('d-none');
+                    $('.department-col').removeClass('d-none');
                     var url = '/Audit/WorkstationSummaries?handler=FilterSummaryByWorkstations';
                     break;
             }
@@ -273,7 +276,7 @@
                     $("#content").html(response);
                 }
             });
-        });   
+        });
 
         $(document).ready(function () {
             // Breadcrumbs

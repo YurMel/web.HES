@@ -13,15 +13,6 @@ namespace HES.Core.Entities
         public DateTime StartTime { get; set; }
         [Display(Name = "End Time")]
         public DateTime? EndTime { get; set; }
-        [NotMapped]
-        public TimeSpan Duration
-        {
-            get
-            {
-                return (EndTime ?? DateTime.UtcNow) - StartTime;
-            }
-        }
-
         [Display(Name = "Unlocked by")]
         public SessionSwitchSubject UnlockedBy { get; set; }
         public string WorkstationId { get; set; }
@@ -43,5 +34,8 @@ namespace HES.Core.Entities
         [Display(Name = "Account")]
         [ForeignKey("DeviceAccountId")]
         public DeviceAccount DeviceAccount { get; set; }
+
+        [NotMapped]
+        public TimeSpan Duration => (EndTime ?? DateTime.UtcNow).Subtract(StartTime);
     }
 }

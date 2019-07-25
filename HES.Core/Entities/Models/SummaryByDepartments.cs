@@ -5,7 +5,8 @@ namespace HES.Core.Entities.Models
 {
     public class SummaryByDepartments
     {
-        public Department Department { get; set; }
+        public string Company { get; set; }
+        public string Department { get; set; }
 
         [Display(Name = "Employees Count")]
         public int EmployeesCount { get; set; }
@@ -13,18 +14,19 @@ namespace HES.Core.Entities.Models
         [Display(Name = "Workstations Count")]
         public int WorkstationsCount { get; set; }
 
+        [Display(Name = "Total Sessions Count")]
+        public int TotalSessionsCount { get; set; }
+
+        [Display(Name = "Total Sessions Duration")]
+        public TimeSpan TotalSessionsDuration { get; set; }
+
         [Display(Name = "AVG Session Duration")]
-        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:hh\\:mm}")]
         public TimeSpan AvgSessionDuration { get; set; }
 
-        [Display(Name = "Session Count Per Day")]
-        public double SessionCountPerDay { get; set; }
+        [Display(Name = "AVG Total Duartion By Employee")]
+        public TimeSpan AvgTotalDuartionByEmployee { get; set; }
 
-        [Display(Name = "Total Sessions")]
-        public int TotalSessions { get; set; }
-
-        [Display(Name = "Total Session Duration Per Day")]
-        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:hh\\:mm}")]
-        public TimeSpan TotalSessionDurationPerDay { get; set; }
+        [Display(Name = "AVG Total Session Count By Employee")]
+        public int AvgTotalSessionCountByEmployee { get; set; }
     }
 }

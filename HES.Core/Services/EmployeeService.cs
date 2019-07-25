@@ -22,6 +22,8 @@ namespace HES.Core.Services
         private readonly IAsyncRepository<Company> _companyRepository;
         private readonly IAsyncRepository<Department> _departmentRepository;
         private readonly IAsyncRepository<Position> _positionRepository;
+        private readonly IAsyncRepository<WorkstationEvent> _workstationEventRepository;
+        private readonly IAsyncRepository<WorkstationSession> _workstationSessionRepository;
         private readonly IRemoteTaskService _remoteTaskService;
         private readonly IDataProtectionService _dataProtectionService;
 
@@ -34,7 +36,9 @@ namespace HES.Core.Services
                                IAsyncRepository<Company> companyRepository,
                                IAsyncRepository<Department> departmentRepository,
                                IAsyncRepository<Position> positionRepository,
-                               IRemoteTaskService remoteTaskService,
+                               IAsyncRepository<WorkstationEvent> workstationEventRepository,
+                               IAsyncRepository<WorkstationSession> workstationSessionRepository,
+        IRemoteTaskService remoteTaskService,
                                IDataProtectionService dataProtectionService)
         {
             _employeeRepository = employeeRepository;
@@ -46,6 +50,8 @@ namespace HES.Core.Services
             _companyRepository = companyRepository;
             _departmentRepository = departmentRepository;
             _positionRepository = positionRepository;
+            _workstationEventRepository = workstationEventRepository;
+            _workstationSessionRepository = workstationSessionRepository;
             _remoteTaskService = remoteTaskService;
             _dataProtectionService = dataProtectionService;
         }
@@ -150,10 +156,15 @@ namespace HES.Core.Services
             if (employee == null)
                 throw new Exception("Employee not found");
 
-            // TEMP Remove all acc
-            //var allAcc = await _deviceAccountRepository.Query().Where(t => t.EmployeeId == id).ToListAsync();
-            //await _deviceAccountRepository.DeleteRangeAsync(allAcc);
-            // TEMP
+            // Remove all events
+            var allEvents = await _workstationEventRepository.Query().Where(e => e.EmployeeId == id).ToListAsync();
+            await _workstationEventRepository.DeleteRangeAsync(allEvents);
+            // Remove all events
+            var allSessions = await _workstationSessionRepository.Query().Where(s => s.EmployeeId == id).ToListAsync();
+            await _workstationSessionRepository.DeleteRangeAsync(allSessions);
+            // Remove all accounts
+            var allAccounts = await _deviceAccountRepository.Query().Where(t => t.EmployeeId == id).ToListAsync();
+            await _deviceAccountRepository.DeleteRangeAsync(allAccounts);
 
             await _employeeRepository.DeleteAsync(employee);
         }

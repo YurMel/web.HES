@@ -61,16 +61,16 @@
         {
             <tr>
                 <td>
-                    @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.StartTime, TimeZoneInfo.Local).ToString("g")
+                    @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.StartTime, TimeZoneInfo.Local)
                 </td>
                 <td>
-                    @if (item != null)
+                    @if (item != null && item.EndTime != null)
                     {
-                        @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.EndTime, TimeZoneInfo.Local).ToString("g")
+                        @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.EndTime, TimeZoneInfo.Local)
                     }
                 </td>
                 <td>
-                    @item.Duration.ToString(@"hh\:mm")
+                    @Html.DisplayFor(modelItem => item.Duration)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.UnlockedBy)

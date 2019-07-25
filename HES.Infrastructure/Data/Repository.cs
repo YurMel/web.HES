@@ -22,6 +22,11 @@ namespace HES.Infrastructure
             return _context.Set<T>().AsQueryable();
         }
 
+        public IQueryable<T> SqlQuery(string sql)
+        {
+            return _context.Query<T>().FromSql(sql);
+        }
+
         public async Task<IList<T>> GetAllAsync()
         {
             return await _context.Set<T>().ToListAsync();

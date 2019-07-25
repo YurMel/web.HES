@@ -1,4 +1,5 @@
 ﻿using HES.Core.Entities;
+using HES.Core.Entities.Models;
 using Hideez.SDK.Communication.HES.Client;
 using System;
 using System.Linq;

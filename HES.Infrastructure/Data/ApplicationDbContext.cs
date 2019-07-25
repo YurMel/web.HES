@@ -1,4 +1,5 @@
 ﻿using HES.Core.Entities;
+using HES.Core.Entities.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -26,5 +27,10 @@ namespace HES.Infrastructure
         public DbSet<Position> Positions { get; set; }
         public DbSet<AppSettings> AppSettings { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+
+        public DbQuery<SummaryByDayAndEmployee> SummaryByDayAndEmployee { get; set; }
+        public DbQuery<SummaryByEmployees> SummaryByEmployees { get; set; }
+        public DbQuery<SummaryByDepartments> SummaryByDepartments { get; set; }
+        public DbQuery<SummaryByWorkstations> SummaryByWorkstations { get; set; }
     }
 }
