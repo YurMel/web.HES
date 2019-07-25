@@ -36,7 +36,7 @@ namespace HES.Web.Pages.Audit.WorkstationEvents
                 .Include(w => w.Department.Company)
                 .Include(w => w.DeviceAccount)
                 .OrderByDescending(w => w.Date)
-                .Take(100)
+                .Where(w => w.Date.Date >= DateTime.UtcNow.Date.AddDays(-30) && w.Date.Date <= DateTime.UtcNow.Date)
                 .ToListAsync();
 
             ViewData["Events"] = new SelectList(Enum.GetValues(typeof(WorkstationEventId)).Cast<WorkstationEventId>().ToDictionary(t => (int)t, t => t.ToString()), "Key", "Value");
@@ -50,6 +50,8 @@ namespace HES.Web.Pages.Audit.WorkstationEvents
             ViewData["DeviceAccountTypes"] = new SelectList(Enum.GetValues(typeof(AccountType)).Cast<AccountType>().ToDictionary(t => (int)t, t => t.ToString()), "Key", "Value");
 
             ViewData["DatePattern"] = CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern.ToLower();
+            ViewData["StartDate"] = DateTime.UtcNow.AddDays(-30);
+            ViewData["EndDate"] = DateTime.UtcNow;
         }
 
         public async Task<IActionResult> OnPostFilterWorkstationEventsAsync(WorkstationEventFilter WorkstationEventFilter)
@@ -66,9 +68,12 @@ namespace HES.Web.Pages.Audit.WorkstationEvents
 
             if (WorkstationEventFilter.StartDate != null && WorkstationEventFilter.EndDate != null)
             {
-                filter = filter
-                    .Where(w => w.Date.Date <= WorkstationEventFilter.EndDate.Value.Date.ToUniversalTime())
-                    .Where(w => w.Date.Date >= WorkstationEventFilter.StartDate.Value.Date.ToUniversalTime());
+                filter = filter.Where(w => w.Date.Date >= WorkstationEventFilter.StartDate.Value.Date.ToUniversalTime() &&
+                                      w.Date.Date <= WorkstationEventFilter.EndDate.Value.Date.ToUniversalTime());
+            }
+            else
+            {
+                filter = filter.Where(w => w.Date.Date >= DateTime.UtcNow.Date.AddDays(-30) && w.Date.Date <= DateTime.UtcNow.Date);
             }
             if (WorkstationEventFilter.EventId != null)
             {

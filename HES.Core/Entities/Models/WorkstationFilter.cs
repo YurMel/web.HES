@@ -6,6 +6,7 @@ namespace HES.Core.Entities.Models
     public class WorkstationFilter
     {
         public string Name { get; set; }
+        public string Domain { get; set; }
         [Display(Name = "Client Version")]
         public string ClientVersion { get; set; }
         [Display(Name = "Company")]

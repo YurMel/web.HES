@@ -6,13 +6,7 @@ namespace HES.Core.Entities.Models
     public class SummaryByWorkstations
     {
         public string Workstation { get; set; }
-
-        [Display(Name = "Companies Count")]
-        public int CompaniesCount { get; set; }
-
-        [Display(Name = "Departments Count")]
-        public int DepartmentsCount { get; set; }
-
+                
         [Display(Name = "Employees Count")]
         public int EmployeesCount { get; set; }
 

@@ -35,7 +35,7 @@ namespace HES.Web.Pages.Audit.WorkstationSessions
                 .Include(w => w.Department.Company)
                 .Include(w => w.DeviceAccount)
                 .OrderByDescending(w => w.StartTime)
-                .Take(100)
+                .Where(w => w.StartTime >= DateTime.UtcNow.AddDays(-30) && w.EndTime <= DateTime.UtcNow)
                 .ToListAsync();
 
             ViewData["UnlockId"] = new SelectList(Enum.GetValues(typeof(SessionSwitchSubject)).Cast<SessionSwitchSubject>().ToDictionary(t => (int)t, t => t.ToString()), "Key", "Value");
@@ -49,6 +49,8 @@ namespace HES.Web.Pages.Audit.WorkstationSessions
 
             ViewData["DatePattern"] = CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern.ToLower();
             ViewData["TimePattern"] = CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern.ToUpper();
+            ViewData["StartDate"] = DateTime.UtcNow.AddDays(-30);
+            ViewData["EndDate"] = DateTime.UtcNow;
         }
 
         public async Task<IActionResult> OnPostFilterWorkstationSessionsAsync(WorkstationSessionFilter WorkstationSessionFilter)
@@ -65,9 +67,12 @@ namespace HES.Web.Pages.Audit.WorkstationSessions
 
             if (WorkstationSessionFilter.StartTime != null && WorkstationSessionFilter.EndTime != null)
             {
-                filter = filter
-                    .Where(w => w.StartTime >= WorkstationSessionFilter.StartTime.Value.ToUniversalTime())
-                    .Where(w => w.EndTime <= WorkstationSessionFilter.EndTime.Value.ToUniversalTime());
+                filter = filter.Where(w => w.StartTime >= WorkstationSessionFilter.StartTime.Value.ToUniversalTime() &&
+                                      w.EndTime <= WorkstationSessionFilter.EndTime.Value.ToUniversalTime());
+            }
+            else
+            {
+                filter = filter.Where(w => w.StartTime >= DateTime.UtcNow.AddDays(-30) && w.EndTime <= DateTime.UtcNow);
             }
             if (WorkstationSessionFilter.Duration != null)
             {

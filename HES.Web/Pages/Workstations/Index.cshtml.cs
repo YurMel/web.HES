@@ -51,13 +51,16 @@ namespace HES.Web.Pages.Workstations
         {
             var filter = _workstationService
                 .WorkstationQuery()
-                //.Include(c => c.Company)
                 .Include(c => c.Department.Company)
                 .AsQueryable();
            
             if (WorkstationFilter.Name != null)
             {
                 filter = filter.Where(w => w.Name.Contains(WorkstationFilter.Name));
+            }
+            if (WorkstationFilter.Domain != null)
+            {
+                filter = filter.Where(w => w.Domain.Contains(WorkstationFilter.Domain));
             }
             if (WorkstationFilter.ClientVersion != null)
             {
@@ -110,7 +113,6 @@ namespace HES.Web.Pages.Workstations
 
             Workstation = await _workstationService
                 .WorkstationQuery()
-                //.Include(c => c.Company)
                 .Include(c => c.Department.Company)
                 .FirstOrDefaultAsync(c => c.Id == id);
 
