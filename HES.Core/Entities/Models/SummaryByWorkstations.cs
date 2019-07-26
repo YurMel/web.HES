@@ -16,13 +16,13 @@ namespace HES.Core.Entities.Models
         [Display(Name = "Total Sessions Duration")]
         public TimeSpan TotalSessionsDuration { get; set; }
 
-        [Display(Name = "AVG Session Duration")]
-        public TimeSpan AvgSessionDuration { get; set; }
+        [Display(Name = "AVG Sessions Duration")]
+        public TimeSpan AvgSessionsDuration { get; set; }
 
         [Display(Name = "AVG Total Duartion By Employee")]
         public TimeSpan AvgTotalDuartionByEmployee { get; set; }
 
-        [Display(Name = "AVG Total Session Count By Employee")]
-        public int AvgTotalSessionCountByEmployee { get; set; }
+        [Display(Name = "AVG Total Sessions Count By Employee")]
+        public int AvgTotalSessionsCountByEmployee { get; set; }
     }
 }

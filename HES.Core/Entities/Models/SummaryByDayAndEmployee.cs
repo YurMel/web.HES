@@ -9,13 +9,17 @@ namespace HES.Core.Entities.Models
         public string Employee { get; set; }
         public string Company { get; set; }
         public string Department { get; set; }
+
         [Display(Name = "Workstations Count")]
         public int WorkstationsCount { get; set; }
-        [Display(Name = "AVG Session Duration")]
-        public TimeSpan AvgSessionDuration { get; set; }
-        [Display(Name = "Session Count")]
-        public int SessionCount { get; set; }
-        [Display(Name = "Total Session Duration")]
-        public TimeSpan TotalSessionDuration { get; set; }
+
+        [Display(Name = "AVG Sessions Duration")]
+        public TimeSpan AvgSessionsDuration { get; set; }
+
+        [Display(Name = "Sessions Count")]
+        public int SessionsCount { get; set; }
+
+        [Display(Name = "Total Sessions Duration")]
+        public TimeSpan TotalSessionsDuration { get; set; }
     }
 }

@@ -40,10 +40,10 @@
                 @Html.DisplayNameFor(model => model.SummaryByEmployees[0].TotalSessionsDuration)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.SummaryByEmployees[0].AvgSessionDuration)
+                @Html.DisplayNameFor(model => model.SummaryByEmployees[0].AvgSessionsDuration)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.SummaryByEmployees[0].AvgSessionCountPerDay)
+                @Html.DisplayNameFor(model => model.SummaryByEmployees[0].AvgSessionsCountPerDay)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.SummaryByEmployees[0].AvgWorkingHoursPerDay)
@@ -73,13 +73,27 @@
                     @Html.DisplayFor(modelItem => item.TotalSessionsCount)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.TotalSessionsDuration)
+                    @if (item.TotalSessionsDuration.Days != 0)
+                    {
+                        @item.TotalSessionsDuration.ToString("%d") <span>day(s)</span> @item.TotalSessionsDuration.ToString("hh\\:mm\\:ss")
+                    }
+                    else
+                    {
+                        @item.TotalSessionsDuration.ToString("hh\\:mm\\:ss")
+                    }
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.AvgSessionDuration)
+                    @if (item.AvgSessionsDuration.Days != 0)
+                    {
+                        @item.AvgSessionsDuration.ToString("%d") <span>day(s)</span> @item.AvgSessionsDuration.ToString("hh\\:mm\\:ss")
+                    }
+                    else
+                    {
+                        @item.AvgSessionsDuration.ToString("hh\\:mm\\:ss")
+                    }
                 </td>
                 <td>
-                    @Math.Round(item.AvgSessionCountPerDay, 1)        
+                    @Math.Round(item.AvgSessionsCountPerDay, 1)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.AvgWorkingHoursPerDay)

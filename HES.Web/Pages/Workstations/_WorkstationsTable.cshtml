@@ -80,10 +80,6 @@
                     {
                         @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.LastSeen, TimeZoneInfo.Local)
                     }
-                    else
-                    {
-                        <span>-</span>
-                    }
                 </td>
                 <td data-sort="@item.Approved">
                     @if (item.Approved)

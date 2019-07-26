@@ -34,13 +34,13 @@
                 @Html.DisplayNameFor(model => model.SummaryByDayAndEmployee[0].WorkstationsCount)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.SummaryByDayAndEmployee[0].AvgSessionDuration)
+                @Html.DisplayNameFor(model => model.SummaryByDayAndEmployee[0].AvgSessionsDuration)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.SummaryByDayAndEmployee[0].SessionCount)
+                @Html.DisplayNameFor(model => model.SummaryByDayAndEmployee[0].SessionsCount)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.SummaryByDayAndEmployee[0].TotalSessionDuration)
+                @Html.DisplayNameFor(model => model.SummaryByDayAndEmployee[0].TotalSessionsDuration)
             </th>
         </tr>
     </thead>
@@ -64,13 +64,27 @@
                     @Html.DisplayFor(modelItem => item.WorkstationsCount)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.AvgSessionDuration)
+                    @if (item.AvgSessionsDuration.Days != 0)
+                    {
+                        @item.AvgSessionsDuration.ToString("%d") <span>day(s)</span> @item.AvgSessionsDuration.ToString("hh\\:mm\\:ss")
+                    }
+                    else
+                    {
+                        @item.AvgSessionsDuration.ToString("hh\\:mm\\:ss")
+                    }
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.SessionCount)
+                    @Html.DisplayFor(modelItem => item.SessionsCount)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.TotalSessionDuration)
+                    @if (item.TotalSessionsDuration.Days != 0)
+                    {
+                        @item.TotalSessionsDuration.ToString("%d") <span>day(s)</span> @item.TotalSessionsDuration.ToString("hh\\:mm\\:ss")
+                    }
+                    else
+                    {
+                        @item.TotalSessionsDuration.ToString("hh\\:mm\\:ss")
+                    }
                 </td>
             </tr>
         }

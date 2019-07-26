@@ -61,7 +61,7 @@
         {
             <tr>
                 <td>
-                    @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.Date, TimeZoneInfo.Local).ToString("g")
+                    @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.Date, TimeZoneInfo.Local)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.EventId)
@@ -100,6 +100,7 @@
         }
     </tbody>
 </table>
+
 @* Bottom table items *@
 <div class="row mt-2">
     <div class="col d-flex justify-content-center justify-content-lg-start align-items-center mb-1 text-nowrap">
