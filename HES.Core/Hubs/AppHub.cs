@@ -400,7 +400,7 @@ namespace HES.Core.Hubs
             }
             catch (Exception ex)
             {
-                // todo: report error to server logs
+                _logger.LogError(ex.Message);
             }
 
             return true;

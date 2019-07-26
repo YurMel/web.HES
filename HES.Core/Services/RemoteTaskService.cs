@@ -381,6 +381,7 @@ namespace HES.Core.Services
         {
             //var key = ConvertUtils.HexStringToBytes(task.Password);
             //var respData = await device.Wipe(key);
+            await Task.Delay(1);
             return 0;
         }
 
@@ -388,6 +389,7 @@ namespace HES.Core.Services
         {
             //var key = ConvertUtils.HexStringToBytes(task.Password);
             //var respData = await device.Link(key);
+            await Task.Delay(1);
             return 0;
         }
     }
