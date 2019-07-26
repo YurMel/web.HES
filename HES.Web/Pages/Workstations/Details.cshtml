@@ -29,6 +29,9 @@
                 @Html.DisplayNameFor(model => model.Workstation.Name)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.Workstation.Domain)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.Workstation.ClientVersion)
             </th>
             <th>
@@ -57,6 +60,9 @@
                 @Html.DisplayFor(model => model.Workstation.Name)
             </td>
             <td>
+                @Html.DisplayFor(model => model.Workstation.Domain)
+            </td>
+            <td>
                 @Html.DisplayFor(model => model.Workstation.ClientVersion)
             </td>
             <td>
@@ -75,10 +81,6 @@
                 @if (Model.Workstation.LastSeen != null)
                 {
                     @TimeZoneInfo.ConvertTimeFromUtc((DateTime)Model.Workstation.LastSeen, TimeZoneInfo.Local)
-                }
-                else
-                {
-                    <span>-</span>
                 }
             </td>
             <td>
@@ -165,7 +167,7 @@
                                 <img src="~/svg/action/more.svg" />
                             </a>
                             <div class="dropdown-menu dropdown-menu-right shadow" aria-labelledby="dropdownMenuLink">
-                                 <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="EditWorkstationBinding" data-title="Edit Binding">
+                                <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="EditWorkstationBinding" data-title="Edit Binding">
                                     <img src="~/svg/action/edit.svg" />
                                     Edit
                                 </a>
