@@ -20,6 +20,6 @@ namespace HES.Core.Interfaces
         IQueryable<SummaryByDepartments> SummaryByDepartmentsSqlQuery(string sql);
         IQueryable<SummaryByWorkstations> SummaryByWorkstationsSqlQuery(string sql);
         Task AddSessionAsync(WorkstationSession workstationSession);
-        Task UpdateWorkstationSessions(IList<WorkstationEvent> events);
+        Task UpdateWorkstationSessionsAsync(IList<WorkstationEvent> events);
     }
 }

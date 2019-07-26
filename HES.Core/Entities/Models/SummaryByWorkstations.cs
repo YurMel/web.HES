@@ -23,6 +23,6 @@ namespace HES.Core.Entities.Models
         public TimeSpan AvgTotalDuartionByEmployee { get; set; }
 
         [Display(Name = "AVG Total Sessions Count By Employee")]
-        public int AvgTotalSessionsCountByEmployee { get; set; }
+        public decimal AvgTotalSessionsCountByEmployee { get; set; }
     }
 }

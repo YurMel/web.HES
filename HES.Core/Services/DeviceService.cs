@@ -1,5 +1,6 @@
 ﻿using HES.Core.Entities;
 using HES.Core.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -55,7 +56,7 @@ namespace HES.Core.Services
             if (objects.Count > 0)
             {
                 // Get all exists devices
-                var isExist = await _deviceRepository.GetAllWhereAsync(d => objects.Select(o => o.Id).Contains(d.Id));
+                var isExist = await _deviceRepository.Query().Where(d => objects.Select(o => o.Id).Contains(d.Id)).ToListAsync();
                 if (isExist.Count > 0)
                 {
                     devicesExists = isExist;

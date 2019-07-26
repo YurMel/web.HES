@@ -111,22 +111,26 @@ namespace HES.Core.Services
         public async Task AddSessionAsync(WorkstationSession workstationSession)
         {
             if (workstationSession == null)
+            {
                 throw new ArgumentNullException(nameof(workstationSession));
+            }
 
             await _workstationSessionRepository.AddAsync(workstationSession);
         }
 
-        public async Task UpdateWorkstationSessions(IList<WorkstationEvent> events)
+        public async Task UpdateWorkstationSessionsAsync(IList<WorkstationEvent> events)
         {
             if (events == null)
+            {
                 throw new ArgumentNullException(nameof(events));
+            }
 
             foreach (var e in events)
             {
-                var lastSession = _workstationSessionRepository.Query()
-                        .AsNoTracking()
-                        .LastOrDefault(s => s.EndTime == null
-                        && s.WorkstationId == e.WorkstationId);
+                var lastSession = await _workstationSessionRepository
+                    .Query()
+                    .AsNoTracking()
+                    .LastOrDefaultAsync(s => s.EndTime == null && s.WorkstationId == e.WorkstationId);
 
                 if (e.EventId == WorkstationEventId.ComputerLock || e.EventId == WorkstationEventId.ComputerLogoff)
                 {
@@ -168,7 +172,7 @@ namespace HES.Core.Services
             }
         }
 
-        WorkstationSession CreateSessionFromEvent(WorkstationEvent workstationEvent)
+        private WorkstationSession CreateSessionFromEvent(WorkstationEvent workstationEvent)
         {
             Enum.TryParse(typeof(SessionSwitchSubject), workstationEvent.Note, out object unlockMethod);
             SessionSwitchSubject unlockedBy = unlockMethod == null ? SessionSwitchSubject.NonHideez : (SessionSwitchSubject)unlockMethod;

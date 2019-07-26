@@ -27,60 +27,6 @@ namespace HES.Infrastructure
             return _context.Query<T>().FromSql(sql);
         }
 
-        public async Task<IList<T>> GetAllAsync()
-        {
-            return await _context.Set<T>().ToListAsync();
-        }
-
-        public async Task<IList<T>> GetAllIncludeAsync(params Expression<Func<T, object>>[] navigationProperties)
-        {
-            IQueryable<T> dbQuery = _context.Set<T>();
-
-            foreach (Expression<Func<T, object>> navigationProperty in navigationProperties)
-                dbQuery = dbQuery.Include<T, object>(navigationProperty);
-
-            return await dbQuery.AsNoTracking().ToListAsync();
-        }
-
-        public async Task<IList<T>> GetAllWhereAsync(Expression<Func<T, bool>> predicate)
-        {
-            return await _context.Set<T>().Where(predicate).ToListAsync();
-        }
-
-        public async Task<IList<T>> GetAllWhereIncludeAsync(Expression<Func<T, bool>> where, params Expression<Func<T, object>>[] navigationProperties)
-        {
-            IQueryable<T> dbQuery = _context.Set<T>().Where(where);
-
-            foreach (Expression<Func<T, object>> navigationProperty in navigationProperties)
-                dbQuery = dbQuery.Include<T, object>(navigationProperty);
-
-            return await dbQuery.AsNoTracking().ToListAsync();
-        }
-
-        public async Task<T> GetFirstOrDefaulAsync()
-        {
-            return await _context.Set<T>().FirstOrDefaultAsync();
-        }
-
-        public async Task<T> GetFirstOrDefaulAsync(Expression<Func<T, bool>> match)
-        {
-            return await _context.Set<T>().FirstOrDefaultAsync(match);
-        }
-
-        public async Task<T> GetFirstOrDefaulIncludeAsync(Expression<Func<T, bool>> where, params Expression<Func<T, object>>[] navigationProperties)
-        {
-            T item = null;
-            IQueryable<T> dbQuery = _context.Set<T>();
-
-            foreach (Expression<Func<T, object>> navigationProperty in navigationProperties)
-                dbQuery = dbQuery.Include<T, object>(navigationProperty);
-
-            item = await dbQuery
-                .AsNoTracking() //Don't track any changes for the selected item
-                .FirstOrDefaultAsync(where); //Apply where clause
-            return item;
-        }
-
         public async Task<T> GetByIdAsync(dynamic id)
         {
             return await _context.Set<T>().FindAsync(id);

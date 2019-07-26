@@ -8,13 +8,8 @@ namespace HES.Core.Interfaces
 {
     public interface IAsyncRepository<T> where T : class
     {
-        Task<IList<T>> GetAllAsync();
-        Task<IList<T>> GetAllIncludeAsync(params Expression<Func<T, object>>[] navigationProperties);
-        Task<IList<T>> GetAllWhereAsync(Expression<Func<T, bool>> predicate);
-        Task<IList<T>> GetAllWhereIncludeAsync(Expression<Func<T, bool>> where, params Expression<Func<T, object>>[] navigationProperties);
-        Task<T> GetFirstOrDefaulAsync();
-        Task<T> GetFirstOrDefaulAsync(Expression<Func<T, bool>> match);
-        Task<T> GetFirstOrDefaulIncludeAsync(Expression<Func<T, bool>> where, params Expression<Func<T, object>>[] navigationProperties);
+        IQueryable<T> Query();
+        IQueryable<T> SqlQuery(string sql);
         Task<T> GetByIdAsync(dynamic id);
         Task<T> AddAsync(T entity);
         Task<IList<T>> AddRangeAsync(IList<T> entity);
@@ -24,7 +19,5 @@ namespace HES.Core.Interfaces
         Task DeleteAsync(T entity);
         Task DeleteRangeAsync(IList<T> entity);
         bool Exist(Expression<Func<T, bool>> predicate);
-        IQueryable<T> Query();
-        IQueryable<T> SqlQuery(string sql);
     }
 }
