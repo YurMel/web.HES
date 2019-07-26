@@ -118,6 +118,7 @@
         var table_name = '#workstationSessions';
         $(table_name).DataTable({
             responsive: true,
+            "order": [[0, "desc"]]
         });
         var dataTable = $(table_name).dataTable();
         // Search box

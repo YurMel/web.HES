@@ -70,7 +70,14 @@
                     }
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Duration)
+                    @if (item.Duration.Days != 0)
+                    {
+                        @item.Duration.ToString("%d") <span>day(s)</span> @item.Duration.ToString("hh\\:mm\\:ss")
+                    }
+                    else
+                    {
+                        @item.Duration.ToString("hh\\:mm\\:ss")
+                    }
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.UnlockedBy)
@@ -119,6 +126,7 @@
     var table_name = '#workstationSessions';
     $(table_name).DataTable({
         responsive: true,
+        "order": [[0, "desc"]]
     });
     var dataTable = $(table_name).dataTable();
     // Search box
