@@ -97,7 +97,7 @@
                     }
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.AvgTotalSessionsCountByEmployee)
+                    @Math.Round(item.AvgTotalSessionsCountByEmployee, 1)
                 </td>
             </tr>
         }
