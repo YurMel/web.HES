@@ -87,9 +87,9 @@ namespace HES.Web.Pages.Audit.WorkstationSummaries
 	                    departments.Id AS DepartmentId,
 	                    IFNULL(departments.Name, 'N/A') AS Department,
 	                    COUNT(DISTINCT WorkstationId) AS WorkstationsCount,
-	                    SEC_TO_TIME(AVG(TIME_TO_SEC(TIMEDIFF(IFNULL(workstationsessions.EndTime, NOW()), workstationsessions.StartTime)))) AS AvgSessionDuration,
-	                    COUNT(*) AS SessionCount,
-	                    SEC_TO_TIME(SUM(TIME_TO_SEC(TIMEDIFF(IFNULL(workstationsessions.EndTime, NOW()), workstationsessions.StartTime)))) AS TotalSessionDuration
+	                    SEC_TO_TIME(AVG(TIME_TO_SEC(TIMEDIFF(IFNULL(workstationsessions.EndTime, NOW()), workstationsessions.StartTime)))) AS AvgSessionsDuration,
+	                    COUNT(*) AS SessionsCount,
+	                    SEC_TO_TIME(SUM(TIME_TO_SEC(TIMEDIFF(IFNULL(workstationsessions.EndTime, NOW()), workstationsessions.StartTime)))) AS TotalSessionsDuration
                     FROM workstationsessions
 	                    LEFT JOIN employees ON workstationsessions.EmployeeId = employees.Id
 	                    LEFT JOIN departments ON employees.DepartmentId = departments.Id
@@ -177,9 +177,9 @@ namespace HES.Web.Pages.Audit.WorkstationSummaries
 	                    departments.Id AS DepartmentId,
 	                    IFNULL(departments.Name, 'N/A') AS Department,
 	                    COUNT(DISTINCT WorkstationId) AS WorkstationsCount,
-	                    SEC_TO_TIME(AVG(TIME_TO_SEC(TIMEDIFF(IFNULL(workstationsessions.EndTime, NOW()), workstationsessions.StartTime)))) AS AvgSessionDuration,
-	                    COUNT(*) AS SessionCount,
-	                    SEC_TO_TIME(SUM(TIME_TO_SEC(TIMEDIFF(IFNULL(workstationsessions.EndTime, NOW()), workstationsessions.StartTime)))) AS TotalSessionDuration
+	                    SEC_TO_TIME(AVG(TIME_TO_SEC(TIMEDIFF(IFNULL(workstationsessions.EndTime, NOW()), workstationsessions.StartTime)))) AS AvgSessionsDuration,
+	                    COUNT(*) AS SessionsCount,
+	                    SEC_TO_TIME(SUM(TIME_TO_SEC(TIMEDIFF(IFNULL(workstationsessions.EndTime, NOW()), workstationsessions.StartTime)))) AS TotalSessionsDuration
                     FROM workstationsessions
 	                    LEFT JOIN employees ON workstationsessions.EmployeeId = employees.Id
 	                    LEFT JOIN departments ON employees.DepartmentId = departments.Id
@@ -250,8 +250,8 @@ namespace HES.Web.Pages.Audit.WorkstationSummaries
 	                    COUNT(DISTINCT DATE(workstationsessions.StartTime)) AS WorkingDaysCount,
 	                    COUNT(*) AS TotalSessionsCount,
 	                    SEC_TO_TIME(SUM(TIME_TO_SEC(TIMEDIFF(IFNULL(workstationsessions.EndTime, NOW()), workstationsessions.StartTime)))) AS TotalSessionsDuration,	
-	                    SEC_TO_TIME(AVG(TIME_TO_SEC(TIMEDIFF(IFNULL(workstationsessions.EndTime, NOW()), workstationsessions.StartTime)))) AS AvgSessionDuration,	
-	                    COUNT(*) / COUNT(DISTINCT DATE(workstationsessions.StartTime)) AS AvgSessionCountPerDay,
+	                    SEC_TO_TIME(AVG(TIME_TO_SEC(TIMEDIFF(IFNULL(workstationsessions.EndTime, NOW()), workstationsessions.StartTime)))) AS AvgSessionsDuration,	
+	                    COUNT(*) / COUNT(DISTINCT DATE(workstationsessions.StartTime)) AS AvgSessionsCountPerDay,
 	                    SEC_TO_TIME(SUM(TIME_TO_SEC(TIMEDIFF(IFNULL(workstationsessions.EndTime, NOW()), workstationsessions.StartTime))) / COUNT(DISTINCT DATE(workstationsessions.StartTime))) AS AvgWorkingHoursPerDay
                     FROM workstationsessions
 	                    LEFT JOIN employees ON workstationsessions.EmployeeId = employees.Id
@@ -309,9 +309,9 @@ namespace HES.Web.Pages.Audit.WorkstationSummaries
 	                    COUNT(DISTINCT WorkstationId) AS WorkstationsCount,
 	                    COUNT(*) AS TotalSessionsCount,
 	                    SEC_TO_TIME(SUM(TIME_TO_SEC(TIMEDIFF(IFNULL(workstationsessions.EndTime, NOW()), workstationsessions.StartTime)))) AS TotalSessionsDuration,	
-	                    SEC_TO_TIME(AVG(TIME_TO_SEC(TIMEDIFF(IFNULL(workstationsessions.EndTime, NOW()), workstationsessions.StartTime)))) AS AvgSessionDuration,	
+	                    SEC_TO_TIME(AVG(TIME_TO_SEC(TIMEDIFF(IFNULL(workstationsessions.EndTime, NOW()), workstationsessions.StartTime)))) AS AvgSessionsDuration,	
 	                    SEC_TO_TIME(SUM(TIME_TO_SEC(TIMEDIFF(IFNULL(workstationsessions.EndTime, NOW()), workstationsessions.StartTime))) / COUNT(DISTINCT IFNULL(employees.Id, 'N/A'))) AS AvgTotalDuartionByEmployee,
-	                    COUNT(*) / COUNT(DISTINCT IFNULL(employees.Id, 'N/A')) AS AvgTotalSessionCountByEmployee
+	                    COUNT(*) / COUNT(DISTINCT IFNULL(employees.Id, 'N/A')) AS AvgTotalSessionsCountByEmployee
                     FROM workstationsessions
 	                    LEFT JOIN employees ON workstationsessions.EmployeeId = employees.Id
 	                    LEFT JOIN departments ON employees.DepartmentId = departments.Id
@@ -388,9 +388,9 @@ namespace HES.Web.Pages.Audit.WorkstationSummaries
 	                    COUNT(DISTINCT IFNULL(employees.Id, 'N/A')) AS EmployeesCount,
 	                    COUNT(*) AS TotalSessionsCount,
 	                    SEC_TO_TIME(SUM(TIME_TO_SEC(TIMEDIFF(IFNULL(workstationsessions.EndTime, NOW()), workstationsessions.StartTime)))) AS TotalSessionsDuration,	
-	                    SEC_TO_TIME(AVG(TIME_TO_SEC(TIMEDIFF(IFNULL(workstationsessions.EndTime, NOW()), workstationsessions.StartTime)))) AS AvgSessionDuration,	
+	                    SEC_TO_TIME(AVG(TIME_TO_SEC(TIMEDIFF(IFNULL(workstationsessions.EndTime, NOW()), workstationsessions.StartTime)))) AS AvgSessionsDuration,	
 	                    SEC_TO_TIME(SUM(TIME_TO_SEC(TIMEDIFF(IFNULL(workstationsessions.EndTime, NOW()), workstationsessions.StartTime))) / COUNT(DISTINCT IFNULL(employees.Id, 'N/A'))) AS AvgTotalDuartionByEmployee,
-	                    COUNT(*) / COUNT(DISTINCT IFNULL(employees.Id, 'N/A')) AS AvgTotalSessionCountByEmployee
+	                    COUNT(*) / COUNT(DISTINCT IFNULL(employees.Id, 'N/A')) AS AvgTotalSessionsCountByEmployee
                     FROM workstationsessions
 	                    LEFT JOIN workstations ON workstationsessions.WorkstationId = workstations.Id
 	                    LEFT JOIN employees ON workstationsessions.EmployeeId = employees.Id
