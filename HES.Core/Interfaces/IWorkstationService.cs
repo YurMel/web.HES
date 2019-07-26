@@ -26,6 +26,6 @@ namespace HES.Core.Interfaces
         Task AddBindingAsync(string workstationId, bool allowRfid, bool allowBleTap, bool allowProximity, string[] selectedDevices);
         Task EditBindingAsync(WorkstationBinding workstationBinding);
         Task DeleteBindingAsync(string workstationBindingId);
-        UnlockerSettingsInfo GetWorkstationUnlockerSettingsInfo(string workstationId);
+        Task<UnlockerSettingsInfo> GetWorkstationUnlockerSettingsInfoAsync(string workstationId);
     }
 }

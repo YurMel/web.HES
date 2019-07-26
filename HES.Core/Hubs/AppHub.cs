@@ -85,7 +85,7 @@ namespace HES.Core.Hubs
             return base.OnDisconnectedAsync(exception);
         }
 
-        ConcurrentDictionary<string, string> GetDeviceList()
+        private ConcurrentDictionary<string, string> GetDeviceList()
         {
             if (Context.Items.TryGetValue("DeviceList", out object deviceList))
                 return deviceList as ConcurrentDictionary<string, string>;
@@ -287,11 +287,11 @@ namespace HES.Core.Hubs
             await OnWorkstationConnected(workstationInfo.Id);
         }
 
-        async Task OnWorkstationConnected(string workstationId)
+        private async Task OnWorkstationConnected(string workstationId)
         {
             try
             {
-                var unlockerSettingsInfo = _workstationService.GetWorkstationUnlockerSettingsInfo(workstationId);
+                var unlockerSettingsInfo = await _workstationService.GetWorkstationUnlockerSettingsInfoAsync(workstationId);
 
                 await UpdateUnlockerSettings(workstationId, unlockerSettingsInfo);
             }
@@ -301,14 +301,14 @@ namespace HES.Core.Hubs
             }
         }
 
-        Task OnWorkstationDisconnected(string workstationId)
+        private Task OnWorkstationDisconnected(string workstationId)
         {
             _workstationConnections.TryRemove(workstationId, out WorkstationDescription workstation);
 
             return Task.CompletedTask;
         }
 
-        WorkstationDescription GetWorkstation()
+        private WorkstationDescription GetWorkstation()
         {
             if (Context.Items.TryGetValue("WorkstationDesc", out object workstation))
                 return workstation as WorkstationDescription;
@@ -316,7 +316,7 @@ namespace HES.Core.Hubs
                 return null;
         }
 
-        static WorkstationDescription FindWorkstationDescription(string workstationId)
+        private static WorkstationDescription FindWorkstationDescription(string workstationId)
         {
             _workstationConnections.TryGetValue(workstationId, out WorkstationDescription workstation);
             return workstation;
@@ -396,7 +396,7 @@ namespace HES.Core.Hubs
                 || e.EventId == WorkstationEventId.ComputerUnlock).ToArray();
 
                 if (authEventsOnly.Length > 0)
-                    await _workstationSessionService.UpdateWorkstationSessions(authEventsOnly);
+                    await _workstationSessionService.UpdateWorkstationSessionsAsync(authEventsOnly);
             }
             catch (Exception ex)
             {

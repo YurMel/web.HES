@@ -1,5 +1,4 @@
 ﻿using HES.Core.Entities;
-using HES.Core.Entities.Models;
 using HES.Core.Hubs;
 using HES.Core.Interfaces;
 using Hideez.SDK.Communication.HES.Client;
@@ -145,7 +144,7 @@ namespace HES.Core.Services
 
             string[] properties = { "Approved" };
             await _workstationRepository.UpdateOnlyPropAsync(workstation, properties);
-            await UpdateWorkstationUnlockerSettings(workstationId);
+            await UpdateWorkstationUnlockerSettingsAsync(workstationId);
         }
 
         public async Task UnapproveWorkstationAsync(string workstationId)
@@ -161,7 +160,7 @@ namespace HES.Core.Services
 
             string[] properties = { "Approved" };
             await _workstationRepository.UpdateOnlyPropAsync(workstation, properties);
-            await UpdateWorkstationUnlockerSettings(workstationId);
+            await UpdateWorkstationUnlockerSettingsAsync(workstationId);
         }
 
         public async Task AddBindingAsync(string workstationId, bool allowRfid, bool allowBleTap, bool allowProximity, string[] selectedDevices)
@@ -201,7 +200,7 @@ namespace HES.Core.Services
             }
 
             await _workstationBindingRepository.AddRangeAsync(workstationBindings);
-            await UpdateWorkstationUnlockerSettings(workstationId);
+            await UpdateWorkstationUnlockerSettingsAsync(workstationId);
         }
 
         public async Task EditBindingAsync(WorkstationBinding workstationBinding)
@@ -211,7 +210,7 @@ namespace HES.Core.Services
 
             string[] properties = { "AllowRfid", "AllowBleTap", "AllowProximity" };
             await _workstationBindingRepository.UpdateOnlyPropAsync(workstationBinding, properties);
-            await UpdateWorkstationUnlockerSettings(workstationBinding.WorkstationId);
+            await UpdateWorkstationUnlockerSettingsAsync(workstationBinding.WorkstationId);
         }
 
         public async Task DeleteBindingAsync(string workstationBindingId)
@@ -228,24 +227,29 @@ namespace HES.Core.Services
             }
 
             await _workstationBindingRepository.DeleteAsync(binding);
-            await UpdateWorkstationUnlockerSettings(binding.WorkstationId);
+            await UpdateWorkstationUnlockerSettingsAsync(binding.WorkstationId);
         }
 
-        public UnlockerSettingsInfo GetWorkstationUnlockerSettingsInfo(string workstationId)
+        public async Task<UnlockerSettingsInfo> GetWorkstationUnlockerSettingsInfoAsync(string workstationId)
         {
-            var workstation = _workstationRepository.Query()
+            var workstation = await _workstationRepository
+                .Query()
                 .AsNoTracking()
-                .FirstOrDefault(w => w.Id == workstationId);
+                .FirstOrDefaultAsync(w => w.Id == workstationId);
 
             if (workstation == null)
+            {
                 throw new Exception("Workstation not found");
+            }
 
             var deviceUnlockerSettings = new List<DeviceUnlockerSettingsInfo>();
 
-            var bindings = _workstationBindingRepository.Query()
+            var bindings = await _workstationBindingRepository
+                .Query()
                 .Include(i => i.Device)
+                .Where(b => b.WorkstationId == workstationId)
                 .AsNoTracking()
-                .Where(b => b.WorkstationId == workstationId);
+                .ToListAsync();
 
             if (workstation.Approved)
             {
@@ -274,9 +278,9 @@ namespace HES.Core.Services
             return unlockerSettingsInfo;
         }
 
-        private async Task UpdateWorkstationUnlockerSettings(string workstationId)
+        private async Task UpdateWorkstationUnlockerSettingsAsync(string workstationId)
         {
-            var unlockerSettingsInfo = GetWorkstationUnlockerSettingsInfo(workstationId);
+            var unlockerSettingsInfo = await GetWorkstationUnlockerSettingsInfoAsync(workstationId);
 
             await AppHub.UpdateUnlockerSettings(workstationId, unlockerSettingsInfo);
         }

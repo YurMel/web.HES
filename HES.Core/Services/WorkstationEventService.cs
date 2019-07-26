@@ -94,8 +94,8 @@ namespace HES.Core.Services
                     continue;
 
                 e.EmployeeId = _employeeRepository.Query()
-                    .AsNoTracking()
                     .Include(employee => employee.Devices)
+                    .AsNoTracking()
                     .FirstOrDefault(employee => employee.Devices.Any(d => d.Id == e.DeviceId))?.Id;
 
                 e.DepartmentId = _employeeRepository.Query()
@@ -106,8 +106,6 @@ namespace HES.Core.Services
                 {
                     e.DeviceAccountId = _deviceAccountRepository.Query()
                         .AsNoTracking()
-                        //.Include(da => da.Employee)
-                        //.Include(da => da.Device)
                         .FirstOrDefault(da => da.EmployeeId == e.EmployeeId
                         && da.DeviceId == e.DeviceId
                         && da.Name == e.DeviceAccount.Name
