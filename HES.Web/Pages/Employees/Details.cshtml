@@ -272,7 +272,6 @@
                             @{
                                 if (item.Urls != null)
                                 {
-                                    @*@item.Urls*@
                                     foreach (var urls in item.Urls.Split(';'))
                                     {
                                         @*<span class="badge badge-primary custom-badge">@urls</span>*@
@@ -285,7 +284,6 @@
                             @{
                                 if (item.Apps != null)
                                 {
-                                    @*@item.Apps*@
                                     foreach (var apps in item.Apps.Split(';'))
                                     {
                                         @*<span class="badge badge-primary custom-badge">@apps</span>*@
@@ -392,7 +390,7 @@
                                             Edit OTP
                                         </a>
                                     }
-                                    @if (item.Status == Core.Entities.AccountStatus.Updating || item.Status == Core.Entities.AccountStatus.Removing)
+                                    @if (item.Type == Core.Entities.AccountType.Personal && (item.Status == Core.Entities.AccountStatus.Updating || item.Status == Core.Entities.AccountStatus.Removing))
                                     {
                                         <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="UndoChanges" data-title="Undo changes">
                                             <img src="~/svg/action/undo.svg" />

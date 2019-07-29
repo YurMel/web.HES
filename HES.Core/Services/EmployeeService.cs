@@ -38,7 +38,7 @@ namespace HES.Core.Services
                                IAsyncRepository<Position> positionRepository,
                                IAsyncRepository<WorkstationEvent> workstationEventRepository,
                                IAsyncRepository<WorkstationSession> workstationSessionRepository,
-        IRemoteTaskService remoteTaskService,
+                               IRemoteTaskService remoteTaskService,
                                IDataProtectionService dataProtectionService)
         {
             _employeeRepository = employeeRepository;
@@ -512,11 +512,6 @@ namespace HES.Core.Services
             if (deviceAccount == null)
                 throw new ArgumentNullException(nameof(deviceAccount));
 
-            //if (string.IsNullOrWhiteSpace(input.OtpSecret))
-            //{
-            //    input.OtpSecret = null;
-            //}
-
             // Update Device Account
             deviceAccount.Status = AccountStatus.Updating;
             deviceAccount.UpdatedAt = DateTime.UtcNow;
@@ -527,7 +522,6 @@ namespace HES.Core.Services
             // Create Device Task
             try
             {
-                //input.OtpSecret = input.OtpSecret ?? string.Empty;
                 await _remoteTaskService.AddTaskAsync(new DeviceTask
                 {
                     DeviceAccountId = deviceAccount.Id,
