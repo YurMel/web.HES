@@ -38,7 +38,7 @@ namespace HES.Core.Services
                                IAsyncRepository<Position> positionRepository,
                                IAsyncRepository<WorkstationEvent> workstationEventRepository,
                                IAsyncRepository<WorkstationSession> workstationSessionRepository,
-        IRemoteTaskService remoteTaskService,
+                               IRemoteTaskService remoteTaskService,
                                IDataProtectionService dataProtectionService)
         {
             _employeeRepository = employeeRepository;
@@ -294,12 +294,13 @@ namespace HES.Core.Services
 
             foreach (var deviceId in selectedDevices)
             {
-                var exist = _deviceAccountRepository.Query()
+                var exist = await _deviceAccountRepository
+                    .Query()
                     .Where(s => s.Name == deviceAccount.Name)
                     .Where(s => s.Login == deviceAccount.Login)
                     .Where(s => s.Deleted == false)
                     .Where(s => s.DeviceId == deviceId)
-                    .Any();
+                    .AnyAsync();
 
                 if (exist)
                     throw new Exception("An account with the same name and login exists.");
@@ -394,13 +395,14 @@ namespace HES.Core.Services
             if (deviceAccount == null)
                 throw new ArgumentNullException(nameof(deviceAccount));
 
-            var exist = _deviceAccountRepository.Query()
+            var exist = await _deviceAccountRepository
+                .Query()
                 .Where(s => s.Name == deviceAccount.Name)
                 .Where(s => s.Login == deviceAccount.Login)
                 .Where(s => s.Deleted == false)
                 .Where(s => s.Id != deviceAccount.Id)
                 .Where(s => s.DeviceId == deviceAccount.DeviceId)
-                .Any();
+                .AnyAsync();
 
             if (exist)
                 throw new Exception("An account with the same name and login exists.");
@@ -489,7 +491,7 @@ namespace HES.Core.Services
                 await _remoteTaskService.AddTaskAsync(new DeviceTask
                 {
                     DeviceAccountId = deviceAccount.Id,
-                    Password = input.Password,
+                    Password = _dataProtectionService.Protect(input.Password),
                     CreatedAt = DateTime.UtcNow,
                     Operation = TaskOperation.Update,
                     DeviceId = deviceAccount.DeviceId
@@ -512,11 +514,6 @@ namespace HES.Core.Services
             if (deviceAccount == null)
                 throw new ArgumentNullException(nameof(deviceAccount));
 
-            //if (string.IsNullOrWhiteSpace(input.OtpSecret))
-            //{
-            //    input.OtpSecret = null;
-            //}
-
             // Update Device Account
             deviceAccount.Status = AccountStatus.Updating;
             deviceAccount.UpdatedAt = DateTime.UtcNow;
@@ -527,11 +524,10 @@ namespace HES.Core.Services
             // Create Device Task
             try
             {
-                //input.OtpSecret = input.OtpSecret ?? string.Empty;
                 await _remoteTaskService.AddTaskAsync(new DeviceTask
                 {
                     DeviceAccountId = deviceAccount.Id,
-                    OtpSecret = input.OtpSecret ?? string.Empty, //todo - check
+                    OtpSecret = _dataProtectionService.Protect(input.OtpSecret ?? string.Empty),
                     CreatedAt = DateTime.UtcNow,
                     Operation = TaskOperation.Update,
                     DeviceId = deviceAccount.DeviceId
@@ -571,12 +567,13 @@ namespace HES.Core.Services
                 if (sharedAccount == null)
                     throw new Exception("SharedAccount not found");
 
-                var exist = _deviceAccountRepository.Query()
+                var exist = await _deviceAccountRepository
+                    .Query()
                     .Where(s => s.Name == sharedAccount.Name)
                     .Where(s => s.Login == sharedAccount.Login)
                     .Where(s => s.Deleted == false)
                     .Where(d => d.DeviceId == deviceId)
-                    .Any();
+                    .AnyAsync();
 
                 if (exist)
                     throw new Exception("An account with the same name and login exists");
@@ -594,7 +591,7 @@ namespace HES.Core.Services
                     Status = AccountStatus.Creating,
                     CreatedAt = DateTime.UtcNow,
                     PasswordUpdatedAt = DateTime.UtcNow,
-                    OtpUpdatedAt = sharedAccount.OtpSecret != null ? new DateTime?(DateTime.UtcNow) : null, //todo - check
+                    OtpUpdatedAt = sharedAccount.OtpSecret != null ? new DateTime?(DateTime.UtcNow) : null,
                     EmployeeId = employeeId,
                     DeviceId = deviceId,
                     SharedAccountId = sharedAccountId

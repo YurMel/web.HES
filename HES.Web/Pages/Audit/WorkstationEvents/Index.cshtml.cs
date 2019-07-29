@@ -35,8 +35,8 @@ namespace HES.Web.Pages.Audit.WorkstationEvents
                 .Include(w => w.Employee)
                 .Include(w => w.Department.Company)
                 .Include(w => w.DeviceAccount)
-                .OrderByDescending(w => w.Date)
                 .Where(w => w.Date.Date >= DateTime.UtcNow.Date.AddDays(-30) && w.Date.Date <= DateTime.UtcNow.Date)
+                .OrderByDescending(w => w.Date)
                 .ToListAsync();
 
             ViewData["Events"] = new SelectList(Enum.GetValues(typeof(WorkstationEventId)).Cast<WorkstationEventId>().ToDictionary(t => (int)t, t => t.ToString()), "Key", "Value");
@@ -63,7 +63,6 @@ namespace HES.Web.Pages.Audit.WorkstationEvents
                  .Include(w => w.Employee)
                  .Include(w => w.Department.Company)
                  .Include(w => w.DeviceAccount)
-                 .OrderByDescending(w => w.Date)
                  .AsQueryable();
 
             if (WorkstationEventFilter.StartDate != null && WorkstationEventFilter.EndDate != null)
@@ -120,7 +119,7 @@ namespace HES.Web.Pages.Audit.WorkstationEvents
                 filter = filter.Where(w => w.DeviceAccount.Type == (AccountType)WorkstationEventFilter.DeviceAccountTypeId);
             }
 
-            WorkstationEvents = await filter.ToListAsync();
+            WorkstationEvents = await filter.OrderByDescending(w => w.Date).ToListAsync();
 
             return Partial("_WorkstationEventsTable", this);
         }

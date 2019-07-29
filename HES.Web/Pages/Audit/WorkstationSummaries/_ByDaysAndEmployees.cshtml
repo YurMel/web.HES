@@ -106,6 +106,7 @@
     var table_name = '#sessionsSummary';
     $(table_name).DataTable({
         responsive: true,
+        "order": [[0, "desc"]]
     });
     var dataTable = $(table_name).dataTable();
     // Search box

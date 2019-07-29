@@ -1,18 +1,17 @@
-﻿using System;
+﻿using HES.Core.Entities;
+using HES.Core.Hubs;
+using HES.Core.Interfaces;
+using Hideez.SDK.Communication.PasswordManager;
+using Hideez.SDK.Communication.Remote;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using HES.Core.Entities;
-using HES.Core.Hubs;
-using HES.Core.Interfaces;
-using Hideez.SDK.Communication.PasswordManager;
-using Hideez.SDK.Communication.Remote;
-using Hideez.SDK.Communication.Utils;
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace HES.Core.Services
 {
@@ -188,7 +187,8 @@ namespace HES.Core.Services
         private async Task TaskCompleted(string taskId, ushort idFromDevice)
         {
             // Get task
-            var deviceTask = await _deviceTaskRepository.Query()
+            var deviceTask = await _deviceTaskRepository
+                .Query()
                 .Include(d => d.DeviceAccount)
                 .FirstOrDefaultAsync(t => t.Id == taskId);
 

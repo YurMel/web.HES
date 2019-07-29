@@ -174,11 +174,11 @@ namespace HES.Web.Pages.SharedAccounts
             return Partial("_EditSharedAccountOtp", this);
         }
 
-        public async Task<IActionResult> OnPostEditSharedAccountOtpAsync(SharedAccount sharedAccount)
+        public async Task<IActionResult> OnPostEditSharedAccountOtpAsync(SharedAccount sharedAccount, InputModel input)
         {
             try
             {
-                await _sharedAccountService.EditSharedAccountOtpAsync(sharedAccount);
+                await _sharedAccountService.EditSharedAccountOtpAsync(sharedAccount, input);
                 SuccessMessage = $"Shared account updated.";
             }
             catch (Exception ex)

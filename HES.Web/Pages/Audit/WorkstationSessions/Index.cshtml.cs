@@ -34,8 +34,8 @@ namespace HES.Web.Pages.Audit.WorkstationSessions
                 .Include(w => w.Employee)
                 .Include(w => w.Department.Company)
                 .Include(w => w.DeviceAccount)
-                .OrderByDescending(w => w.StartTime)
                 .Where(w => w.StartTime >= DateTime.UtcNow.AddDays(-30) && w.EndTime <= DateTime.UtcNow)
+                .OrderByDescending(w => w.StartTime)
                 .ToListAsync();
 
             ViewData["UnlockId"] = new SelectList(Enum.GetValues(typeof(SessionSwitchSubject)).Cast<SessionSwitchSubject>().ToDictionary(t => (int)t, t => t.ToString()), "Key", "Value");
@@ -62,7 +62,6 @@ namespace HES.Web.Pages.Audit.WorkstationSessions
                 .Include(w => w.Employee)
                 .Include(w => w.Department.Company)
                 .Include(w => w.DeviceAccount)
-                .OrderByDescending(w => w.StartTime)
                 .AsQueryable();
 
             if (WorkstationSessionFilter.StartTime != null && WorkstationSessionFilter.EndTime != null)
@@ -115,7 +114,7 @@ namespace HES.Web.Pages.Audit.WorkstationSessions
                 filter = filter.Where(w => w.DeviceAccount.Type == (AccountType)WorkstationSessionFilter.DeviceAccountTypeId);
             }
 
-            WorkstationSessions = await filter.ToListAsync();
+            WorkstationSessions = await filter.OrderByDescending(w => w.StartTime).ToListAsync();
 
             return Partial("_WorkstationSessionsTable", this);
         }
