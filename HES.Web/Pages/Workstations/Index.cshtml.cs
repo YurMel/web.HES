@@ -53,7 +53,7 @@ namespace HES.Web.Pages.Workstations
                 .WorkstationQuery()
                 .Include(c => c.Department.Company)
                 .AsQueryable();
-           
+
             if (WorkstationFilter.Name != null)
             {
                 filter = filter.Where(w => w.Name.Contains(WorkstationFilter.Name));
@@ -121,9 +121,20 @@ namespace HES.Web.Pages.Workstations
                 _logger.LogWarning("Workstation == null");
                 return NotFound();
             }
+            
+            var companies = await _workstationService.CompanyQuery().ToListAsync();
+            List<Department> departments;
+            if (Workstation.DepartmentId == null)
+            {
+                departments = await _workstationService.DepartmentQuery().Where(d => d.CompanyId == companies.FirstOrDefault().Id).ToListAsync();
+            }
+            else
+            {
+                departments = await _workstationService.DepartmentQuery().Where(d => d.CompanyId == Workstation.Department.CompanyId).ToListAsync();
+            }
 
-            ViewData["CompanyId"] = new SelectList(await _workstationService.CompanyQuery().ToListAsync(), "Id", "Name");
-            ViewData["DepartmentId"] = new SelectList(await _workstationService.DepartmentQuery().Where(d => d.CompanyId == Workstation.Department.CompanyId).ToListAsync(), "Id", "Name");
+            ViewData["CompanyId"] = new SelectList(companies, "Id", "Name");
+            ViewData["DepartmentId"] = new SelectList(departments, "Id", "Name");
 
             return Partial("_EditDepartment", this);
         }
