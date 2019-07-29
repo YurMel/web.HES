@@ -1,12 +1,7 @@
-﻿@page "{handler?}"
+﻿@page
 @model HES.Web.Pages.Logs.IndexModel
 @{
     Layout = null;
-    int infoCount = 0;
-    int debugCount = 0;
-    int warnCount = 0;
-    int errorCount = 0;
-    int fatalCount = 0;
 }
 
 <!DOCTYPE html>
@@ -43,32 +38,32 @@
                         @foreach (var log in Model.OwnLogs.OrderByDescending(x => x.Name))
                         {
                             <form method="post" class="mt-1 mb-1">
-                                <input type="hidden" asp-for="OwnLogFile.Name" value="@log.Name" />
+                                <input id="name" type="hidden" asp-for="OwnLogFile.Name" value="@log.Name" />
                                 <input type="hidden" asp-for="OwnLogFile.Path" value="@log.Path" />
                                 <input type="hidden" asp-for="OwnLogFile.Separator" value="@log.Name.Replace("hes-log-own-", "").Replace(".log", "")" />
-                                <input type="submit" value="@log.Name" class="btn" asp-page-handler="ShowOwn" />
+                                <input type="submit" value="@log.Name" class="btn" />
                             </form>
                         }
                     </div>
                 </div>
-                <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
-                    <div class="border rounded bg-white">
-                        @foreach (var log in Model.AllLogs.OrderByDescending(x => x.Name))
-                        {
-                            <form method="post" class="mt-1 mb-1">
-                                <input type="hidden" asp-for="AllLogFile.Name" value="@log.Name" />
-                                <input type="hidden" asp-for="AllLogFile.Path" value="@log.Path" />
-                                <input type="hidden" asp-for="AllLogFile.Separator" value="@log.Name.Replace("hes-log-all-", "").Replace(".log", "")" />
-                                <input type="submit" value="@log.Name" class="btn" asp-page-handler="ShowAll" />
-                            </form>
-                        }
-                    </div>
-                </div>
+                @*<div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+                        <div class="border rounded bg-white">
+                            @foreach (var log in Model.AllLogs.OrderByDescending(x => x.Name))
+                            {
+                                <form id="fileForm" method="post" class="mt-1 mb-1">
+                                    <input type="hidden" asp-for="AllLogFile.Name" value="@log.Name" />
+                                    <input type="hidden" asp-for="AllLogFile.Path" value="@log.Path" />
+                                    <input type="hidden" asp-for="AllLogFile.Separator" value="@log.Name.Replace("hes-log-all-", "").Replace(".log", "")" />
+                                    <input type="submit" value="@log.Name" class="btn" asp-page-handler="ShowAll" />
+                                </form>
+                            }
+                        </div>
+                    </div>*@
             </div>
         </div>
         <div class="d-flex flex-column custom-main">
             <nav class="navbar navbar-light bg-light border-bottom">
-                <span id="main_title" class="navbar-brand mb-0 h1">@Model.CurrentName</span>
+                <span id="main_title" class="navbar-brand mb-0 h1">no logs selected</span>
                 <div>
                     <span class="badge badge-success">INFO</span> <span id="infoLabel" class="badge badge-light">0</span>
                     <span class="badge badge-info">DEBUG</span> <span id="debugLabel" class="badge badge-light">0</span>
@@ -83,80 +78,7 @@
                     <input id="searchbox" type="text" class="form-control" placeholder="Search">
                 </div>
             </nav>
-            <div class="p-2">
-                <table id="logs" class="display table table-hover border rounded w-100" style="table-layout:fixed">
-                    <thead>
-                        <tr>
-                            <th style="width: 180px">
-                                @Html.DisplayNameFor(model => model.CurrentLog[0].Date)
-                            </th>
-                            <th style="width: 80px">
-                                @Html.DisplayNameFor(model => model.CurrentLog[0].Level)
-                            </th>
-                            <th>
-                                @Html.DisplayNameFor(model => model.CurrentLog[0].Logger)
-                            </th>
-                            <th>
-                                @Html.DisplayNameFor(model => model.CurrentLog[0].Message)
-                            </th>
-                            <th style="width: 80px">
-                                @Html.DisplayNameFor(model => model.CurrentLog[0].Method)
-                            </th>
-                            <th>
-                                @Html.DisplayNameFor(model => model.CurrentLog[0].Url)
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in Model.CurrentLog)
-                        {
-                            <tr>
-                                <td style="width: 180px">
-                                    @Html.DisplayFor(modelItem => item.Date)
-                                </td>
-                                <td style="width: 80px">
-                                    @{
-                                        switch (item.Level)
-                                        {
-                                            case "INFO":
-                                                <span class="badge badge-success">@item.Level</span>
-                                                infoCount++;
-                                                break;
-                                            case "DEBUG":
-                                                <span class="badge badge-info">@item.Level</span>
-                                                debugCount++;
-                                                break;
-                                            case "WARN":
-                                                <span class="badge badge-warning">@item.Level</span>
-                                                warnCount++;
-                                                break;
-                                            case "ERROR":
-                                                <span class="badge badge-danger">@item.Level</span>
-                                                errorCount++;
-                                                break;
-                                            case "FATAL":
-                                                <span class="badge badge-dark">@item.Level</span>
-                                                fatalCount++;
-                                                break;
-                                        }
-                                    }
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Logger)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Message)
-                                </td>
-                                <td style="width: 80px">
-                                    @Html.DisplayFor(modelItem => item.Method)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Url)
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+            <div id="content" class="p-2">
             </div>
         </div>
     </div>
@@ -196,50 +118,24 @@
     <script src="~/lib/datatebles/dataTables.bootstrap4.min.js"></script>
 
     <script>
-        $('#logs').DataTable({
-            "paging": false,
-            "info": false,
-            "order": [[0, "desc"]]
+        $(document).delegate('form', 'submit', function (event) {
+            event.preventDefault();
+            $('#content').html("<div class='text-center d-flex align-items-center justify-content-center' style='height: calc(100vh - 73px);'><div class='spinner-border text-primary' role='status'></div></div>");
+            var $form = $(this);
+            //var id = $form.attr('id');
+            var data = $form.serialize();
+            $('#main_title').html($form.find('input[id="name"]').val());
+            $.ajax({
+                method: "POST",
+                url: '/logs?handler=ShowOwn',
+                headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
+                data: data,
+                async: true,
+                success: function (response) {
+                    $("#content").html(response);
+                }
+            });
         });
-        var dataTable = $('#logs').dataTable();
-        $('#searchbox').keyup(function () {
-            dataTable.fnFilter(this.value);
-        });
-        $('.dataTables_filter').addClass('d-none');
-
-        $('#logs tbody tr').click(function () {
-            var currentRow = $(this).closest("tr");
-            var date = currentRow.find("td:eq(0)").html();
-            var level = currentRow.find("td:eq(1)").text();
-            var logger = currentRow.find("td:eq(2)").html();
-            var message = currentRow.find("td:eq(3)").html();
-            var method = currentRow.find("td:eq(4)").html();
-            var url = currentRow.find("td:eq(5)").html();
-            SetText(date, level, logger, message, method, url);
-        });
-
-        function SetText(date, level, logger, message, method, url) {
-            $('#date').text(date);
-            $('#level').text(level);
-            $('#logger').text(logger);
-            $('#message').text(message);
-            $('#method').text(method);
-            $('#url').text(url);
-            $('#modalView').modal('toggle');
-        }
-
-        $(document).ready(function () {
-            $('#infoLabel').html(@infoCount);
-            $('#debugLabel').html(@debugCount);
-            $('#warnLabel').html(@warnCount);
-            $('#errorLabel').html(@errorCount);
-            $('#fatalLabel').html(@fatalCount);
-        });
-
-        //var table = $('#logs').DataTable();
-        //$('#input').on('keyup', function () {
-        //    table.column(1).search(this.value).draw();
-        //});
     </script>
 </body>
 </html>

@@ -19,7 +19,7 @@ namespace HES.Web.Pages.Logs
         public List<StructureModel> CurrentLog { get; set; } = new List<StructureModel>();
         public FileModel OwnLogFile { get; set; }
         public FileModel AllLogFile { get; set; }
-        public string CurrentName { get; set; }
+
         [TempData]
         public string ErrorMessage { get; set; }
 
@@ -41,25 +41,24 @@ namespace HES.Web.Pages.Logs
             }
 
             CurrentLog = GetCurrentLog(OwnLogFile.Path, OwnLogFile.Separator, "own");
-            CurrentName = OwnLogFile.Name;
             GetFiles();
 
-            return Page();
+            return Partial("_LogsTable", this);
         }
 
-        public IActionResult OnPostShowAll(FileModel AllLogFile)
-        {
-            if (AllLogFile == null)
-            {
-                return RedirectToPage("./Index");
-            }
+        //public IActionResult OnPostShowAll(FileModel AllLogFile)
+        //{
+        //    if (AllLogFile == null)
+        //    {
+        //        return RedirectToPage("./Index");
+        //    }
 
-            CurrentLog = GetCurrentLog(AllLogFile.Path, AllLogFile.Separator, "all");
-            CurrentName = AllLogFile.Name;
-            GetFiles();
+        //    CurrentLog = GetCurrentLog(AllLogFile.Path, AllLogFile.Separator, "all");
+        //    CurrentName = AllLogFile.Name;
+        //    GetFiles();
 
-            return Page();
-        }
+        //    return Page();
+        //}
 
         private void GetFiles()
         {
@@ -113,7 +112,7 @@ namespace HES.Web.Pages.Logs
             }
             catch (Exception ex)
             {
-                ErrorMessage += ex.Message;
+                ErrorMessage = ex.Message;
             }
         }
 
