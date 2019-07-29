@@ -45,11 +45,19 @@ namespace HES.Core.Services
             {
                 throw new Exception("The parameter must not be null.");
             }
-            var exist = _sharedAccountRepository.Query().Where(s => s.Name == sharedAccount.Name).Where(s => s.Login == sharedAccount.Login).Where(s => s.Deleted == false).Any();
+
+            var exist = await _sharedAccountRepository
+                .Query()
+                .Where(s => s.Name == sharedAccount.Name)
+                .Where(s => s.Login == sharedAccount.Login)
+                .Where(s => s.Deleted == false)
+                .AnyAsync();
+
             if (exist)
             {
                 throw new Exception("An account with the same name and login exists.");
             }
+
             // Validate url
             if (sharedAccount.Urls != null)
             {
