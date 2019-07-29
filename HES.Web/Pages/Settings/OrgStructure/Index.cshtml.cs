@@ -15,6 +15,7 @@ namespace HES.Web.Pages.Settings.OrgStructure
     public class IndexModel : PageModel
     {
         private readonly ISettingsService _settingsService;
+        private readonly IWorkstationService _workstationService;
         private readonly ILogger<IndexModel> _logger;
 
         public IList<Company> Companies { get; set; }
@@ -23,15 +24,17 @@ namespace HES.Web.Pages.Settings.OrgStructure
         public Company Company { get; set; }
         public Department Department { get; set; }
         public bool HasForeignKey { get; set; }
+        public bool HasForeignKeyWorkstation { get; set; }
 
         [TempData]
         public string SuccessMessage { get; set; }
         [TempData]
         public string ErrorMessage { get; set; }
 
-        public IndexModel(ISettingsService settingsService, ILogger<IndexModel> logger)
+        public IndexModel(ISettingsService settingsService, IWorkstationService workstationService, ILogger<IndexModel> logger)
         {
             _settingsService = settingsService;
+            _workstationService = workstationService;
             _logger = logger;
         }
 
@@ -248,6 +251,7 @@ namespace HES.Web.Pages.Settings.OrgStructure
             }
 
             HasForeignKey = await _settingsService.EmployeeQuery().AnyAsync(x => x.DepartmentId == id);
+            HasForeignKeyWorkstation = await _workstationService.WorkstationQuery().AnyAsync(x => x.DepartmentId == id);
 
             return Partial("_DeleteDepartment", this);
         }
