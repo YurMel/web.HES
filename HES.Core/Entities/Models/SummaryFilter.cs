@@ -15,5 +15,6 @@ namespace HES.Core.Entities.Models
         public string CompanyId { get; set; }
         [Display(Name = "Department")]
         public string DepartmentId { get; set; }
+        public int Records { get; set; }
     }
 }

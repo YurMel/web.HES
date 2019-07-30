@@ -99,7 +99,8 @@ namespace HES.Web.Pages.Audit.WorkstationSummaries
 	                    DATE(workstationsessions.StartTime),
 	                    workstationsessions.EmployeeId
                     ORDER BY
-	                    DATE(workstationsessions.StartTime) DESC, Employee ASC")
+	                    DATE(workstationsessions.StartTime) DESC, Employee ASC
+                    LIMIT 500")
                 .AsNoTracking()
                 .ToListAsync();
 
@@ -166,6 +167,11 @@ namespace HES.Web.Pages.Audit.WorkstationSummaries
                 where = string.Join(" AND ", parameters).Insert(0, "WHERE ");
             }
 
+            if (SummaryFilter.Records == 0)
+            {
+                SummaryFilter.Records = 500;
+            }
+
             SummaryByDayAndEmployee = await _workstationSessionService
                 .SummaryByDayAndEmployeeSqlQuery
                 ($@"SELECT
@@ -189,7 +195,8 @@ namespace HES.Web.Pages.Audit.WorkstationSummaries
 	                    DATE(workstationsessions.StartTime),
 	                    workstationsessions.EmployeeId
                     ORDER BY
-	                    DATE(workstationsessions.StartTime) DESC, Employee ASC")
+	                    DATE(workstationsessions.StartTime) DESC, Employee ASC
+                    LIMIT {SummaryFilter.Records}")
                 .AsNoTracking()
                 .ToListAsync();
 
@@ -237,6 +244,11 @@ namespace HES.Web.Pages.Audit.WorkstationSummaries
                 where = string.Join(" AND ", parameters).Insert(0, "WHERE ");
             }
 
+            if (SummaryFilter.Records == 0)
+            {
+                SummaryFilter.Records = 500;
+            }
+
             SummaryByEmployees = await _workstationSessionService
                 .SummaryByEmployeesSqlQuery
                 ($@"SELECT
@@ -261,7 +273,8 @@ namespace HES.Web.Pages.Audit.WorkstationSummaries
                     GROUP BY
 	                    workstationsessions.EmployeeId
                     ORDER BY
-	                    Employee ASC")
+	                    Employee ASC
+                    LIMIT {SummaryFilter.Records}")
                 .AsNoTracking()
                 .ToListAsync();
 
@@ -298,6 +311,11 @@ namespace HES.Web.Pages.Audit.WorkstationSummaries
                 where = string.Join(" AND ", parameters).Insert(0, "WHERE ");
             }
 
+            if (SummaryFilter.Records == 0)
+            {
+                SummaryFilter.Records = 500;
+            }
+
             SummaryByDepartments = await _workstationSessionService
                 .SummaryByDepartmentsSqlQuery
                 ($@"SELECT
@@ -320,7 +338,8 @@ namespace HES.Web.Pages.Audit.WorkstationSummaries
                     GROUP BY
 	                    departments.Id
                     ORDER BY
-	                    Company ASC, Department ASC")
+	                    Company ASC, Department ASC
+                    LIMIT {SummaryFilter.Records}")
                 .AsNoTracking()
                 .ToListAsync();
 
@@ -379,6 +398,11 @@ namespace HES.Web.Pages.Audit.WorkstationSummaries
                 where = string.Join(" AND ", parameters).Insert(0, "WHERE ");
             }
 
+            if (SummaryFilter.Records == 0)
+            {
+                SummaryFilter.Records = 500;
+            }
+
             SummaryByWorkstations = await _workstationSessionService
                 .SummaryByWorkstationsSqlQuery
                 ($@"SELECT
@@ -398,7 +422,8 @@ namespace HES.Web.Pages.Audit.WorkstationSummaries
 	                    LEFT JOIN companies ON departments.CompanyId = companies.Id
                 {where}
                     GROUP BY
-	                    WorkstationId")
+	                    WorkstationId
+                    LIMIT {SummaryFilter.Records}")
                 .AsNoTracking()
                 .ToListAsync();
 

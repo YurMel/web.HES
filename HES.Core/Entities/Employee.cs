@@ -37,5 +37,11 @@ namespace HES.Core.Entities
         [NotMapped]
         [Display(Name = "Name")]
         public string FullName => $"{FirstName} {LastName}";
+        [NotMapped]
+        [Display(Name = "Company")]
+        public string EmpCompany => Department.Company.Name;
+        [NotMapped]
+        [Display(Name = "Department")]
+        public string EmpDepartment => Department.Name;
     }
 }

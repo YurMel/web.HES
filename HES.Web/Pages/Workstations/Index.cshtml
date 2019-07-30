@@ -9,61 +9,69 @@
 <partial name="_SuccessMessage" for="SuccessMessage" />
 <partial name="_ErrorMessage" for="ErrorMessage" />
 
-<div class="row align-items-center mr-0">
-    <div class="col">
-        <h1 class="text-navyblue">Filter</h1>
-    </div>
-</div>
-
-<div class="filter-card">
+<div id="filter-collapse" class="filter-card collapse pb-1">
     <form method="post" id="filterForm">
         <div class="row">
-            <div class="col-sm-6 col-md-4 col-lg-3 form-group">
+            <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
                 <label asp-for="WorkstationFilter.StartDate" class="control-label"></label>
                 <input readonly type="text" id="startDate" asp-for="WorkstationFilter.StartDate" class="form-control" autocomplete="off" />
             </div>
-            <div class="col-sm-6 col-md-4 col-lg-3 form-group">
+            <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
                 <label asp-for="WorkstationFilter.EndDate" class="control-label"></label>
                 <input readonly type="text" id="endDate" asp-for="WorkstationFilter.EndDate" class="form-control" autocomplete="off" />
             </div>
-            <div class="col-sm-6 col-md-4 col-lg-3 form-group">
+            <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
                 <label asp-for="WorkstationFilter.Name" class="control-label"></label>
                 <input id="name" asp-for="WorkstationFilter.Name" class="form-control" />
             </div>
-            <div class="col-sm-6 col-md-4 col-lg-3 form-group">
+            <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
                 <label asp-for="WorkstationFilter.Domain" class="control-label"></label>
                 <input id="domain" asp-for="WorkstationFilter.Domain" class="form-control" />
             </div>
-            <div class="col-sm-6 col-md-4 col-lg-3 form-group">
+            <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
                 <label asp-for="WorkstationFilter.ClientVersion" class="control-label"></label>
                 <input id="clientVersion" asp-for="WorkstationFilter.ClientVersion" class="form-control" />
             </div>
-            <div class="col-sm-6 col-md-4 col-lg-3 form-group">
+            <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
                 <label asp-for="WorkstationFilter.CompanyId" class="control-label"></label>
                 <select id="companyId" asp-for="WorkstationFilter.CompanyId" class="form-control" asp-items="ViewBag.Companies">
                     <option selected></option>
                 </select>
             </div>
-            <div class="col-sm-6 col-md-4 col-lg-3 form-group">
+            <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
                 <label asp-for="WorkstationFilter.DepartmentId" class="control-label"></label>
                 <select id="departmentId" asp-for="WorkstationFilter.DepartmentId" class="form-control" asp-items="ViewBag.Departments">
                     <option selected></option>
                 </select>
             </div>
-            <div class="col-sm-6 col-md-4 col-lg-3 form-group">
+            <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
                 <label asp-for="WorkstationFilter.OS" class="control-label"></label>
                 <input id="os" asp-for="WorkstationFilter.OS" class="form-control" />
             </div>
-            <div class="col-sm-6 col-md-4 col-lg-3 form-group">
+            <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
                 <label asp-for="WorkstationFilter.IP" class="control-label"></label>
                 <input id="ip" asp-for="WorkstationFilter.IP" class="form-control" />
             </div>
-            <div class="col-sm-6 col-md-4 col-lg-3 form-group">
+            <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
                 <label asp-for="WorkstationFilter.Approved" class="control-label"></label>
                 <select id="approved" asp-for="WorkstationFilter.Approved" class="form-control">
                     <option selected></option>
                     <option value="true">True</option>
                     <option value="false">False</option>
+                </select>
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
+                <label asp-for="WorkstationFilter.Records" class="control-label"></label>
+                <select id="records" asp-for="WorkstationFilter.Records" class="form-control">
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                    <option selected value="500">500</option>
+                    <option value="1000">1000</option>
+                    <option value="3000">3000</option>
+                    <option value="5000">5000</option>
+                    <option value="10000">10000</option>
                 </select>
             </div>
             <div class="col align-self-end form-group text-right">
@@ -124,7 +132,7 @@
         $(table_name).DataTable({
             responsive: true,
             "columnDefs": [
-                { "orderable": false, "targets": 8 }
+                { "orderable": false, "targets": 9 }
             ]
         });
         var dataTable = $(table_name).dataTable();
@@ -214,6 +222,7 @@
             $('#startDate').val("");
             $('#endDate').val("");
             $('#approved').val("");
+            $('#records').val("500");
         });
 
         $(document).ready(function () {

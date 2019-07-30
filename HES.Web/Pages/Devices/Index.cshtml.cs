@@ -31,7 +31,7 @@ namespace HES.Web.Pages.Devices
 
         public async Task OnGetAsync()
         {
-            Devices = await _deviceService.DeviceQuery().Include(d => d.Employee).ToListAsync();
+            Devices = await _deviceService.DeviceQuery().Include(d => d.Employee.Department.Company).ToListAsync();
         }
 
         public async Task<IActionResult> OnGetEditDeviceRfidAsync(string id)

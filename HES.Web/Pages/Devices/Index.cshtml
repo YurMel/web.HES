@@ -53,6 +53,12 @@
             <th>
                 @Html.DisplayNameFor(model => model.Devices[0].Employee)
             </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Devices[0].Employee.EmpCompany)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Devices[0].Employee.EmpDepartment)
+            </th>
             <th class="table-col-menu" data-priority="2"></th>
         </tr>
     </thead>
@@ -99,6 +105,12 @@
                     @Html.DisplayFor(modelItem => item.Employee.FullName)
                 </td>
                 <td>
+                    @Html.DisplayFor(modelItem => item.Employee.EmpCompany)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Employee.EmpDepartment)
+                </td>
+                <td>
                     <div class="dropdown no-arrow">
                         <a class="dropdown-toggle" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <img src="~/svg/action/more.svg" />
@@ -118,14 +130,6 @@
 
 @* Bottom table items *@
 <div class="row mt-2">
-    @*
-        <div class="col-sm-12 col-md-auto d-flex justify-content-start align-items-center mb-1">
-                <span class="d-flex align-items-center mr-1 text-navyblue">Show entries</span>
-                <div id="entries_place"></div>
-            </div>
-        <div id="showing_place" class="col-sm-12 col-md d-flex justify-content-md-center align-items-center mb-1 text-navyblue"></div>
-        <div id="pagination_place" class="col-sm-12 col-md-auto d-flex justify-content-md-end align-items-center mb-1"></div>
-    *@
     <div class="col d-flex justify-content-center justify-content-lg-start align-items-center mb-1 text-nowrap">
         <span class="d-flex align-items-center mr-1 text-navyblue">Show entries</span>
         <div id="entries_place"></div>
@@ -162,7 +166,7 @@
         $(table_name).DataTable({
             responsive: true,
             "columnDefs": [
-                { "orderable": false, "targets": 8 }
+                { "orderable": false, "targets": 10 }
             ]
         });
         var dataTable = $(table_name).dataTable();

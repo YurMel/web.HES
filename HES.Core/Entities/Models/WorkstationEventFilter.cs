@@ -30,5 +30,6 @@ namespace HES.Core.Entities.Models
         public string DeviceAccountId { get; set; }
         [Display(Name = "Account Type")]
         public int? DeviceAccountTypeId { get; set; }
+        public int Records { get; set; }
     }
 }
