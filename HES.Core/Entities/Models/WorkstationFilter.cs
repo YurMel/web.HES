@@ -20,5 +20,6 @@ namespace HES.Core.Entities.Models
         [Display(Name = "End Date")]
         public DateTime? EndDate { get; set; }
         public bool? Approved { get; set; }
+        public int Records { get; set; }
     }
 }

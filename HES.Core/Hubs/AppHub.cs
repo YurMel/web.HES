@@ -269,7 +269,7 @@ namespace HES.Core.Hubs
             {
                 // Workstation does not exist in DB or its name + domain was changed
                 // Create new unapproved workstation
-                var defaultDepartment = await _employeeService.DepartmentQuery().FirstOrDefaultAsync();
+                //var defaultDepartment = await _employeeService.DepartmentQuery().FirstOrDefaultAsync();
                 var workstation = new Workstation()
                 {
                     Id = workstationInfo.Id,
@@ -279,7 +279,7 @@ namespace HES.Core.Hubs
                     ClientVersion = workstationInfo.AppVersion,
                     IP = workstationInfo.IP,
                     LastSeen = DateTime.UtcNow,
-                    DepartmentId = defaultDepartment?.Id,
+                    DepartmentId = null//defaultDepartment?.Id,
                 };
                 await _workstationService.AddWorkstationAsync(workstation);
             }

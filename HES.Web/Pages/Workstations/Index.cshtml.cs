@@ -93,7 +93,7 @@ namespace HES.Web.Pages.Workstations
                 filter = filter.Where(w => w.Approved == WorkstationFilter.Approved);
             }
 
-            Workstations = await filter.ToListAsync();
+            Workstations = await filter.Take(WorkstationFilter.Records).ToListAsync();
 
             return Partial("_WorkstationsTable", this);
         }
@@ -121,7 +121,7 @@ namespace HES.Web.Pages.Workstations
                 _logger.LogWarning("Workstation == null");
                 return NotFound();
             }
-            
+
             var companies = await _workstationService.CompanyQuery().ToListAsync();
             List<Department> departments;
             if (Workstation.DepartmentId == null)
