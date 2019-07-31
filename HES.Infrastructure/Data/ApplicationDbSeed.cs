@@ -40,7 +40,7 @@ namespace HES.Infrastructure
                 // Add user to role
                 await _userManager.AddToRoleAsync(user, ApplicationRoles.AdminRole);
                 // Create data
-                await InitData();
+                //await InitData();
             }
         }
 
