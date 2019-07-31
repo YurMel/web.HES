@@ -78,7 +78,7 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.RFID)
                 </td>
-                <td data-sort="@item.Battery">
+                <td data-sort="@item.Battery" class="pl-4">
                     @if (item.Battery == 1)
                     {
                         <img src="~/svg/device/battery_full.svg" alt="@item.Battery" />
