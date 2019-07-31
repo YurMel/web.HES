@@ -1,6 +1,31 @@
 ﻿@model HES.Web.Pages.Employees.IndexModel
 
-<table id="employees1" class="display table table-hover border rounded w-100">
+<div class="row align-items-center mr-0">
+    <div class="col-auto">
+        <h1 class="text-navyblue">Employees</h1>
+    </div>
+    <div class="col" id="loading"></div>
+    <div class="col-auto">
+        <button class="btn btn-light p-0" data-toggle="collapse" data-target="#filter-collapse" title="Filter">
+            <img style="width:32px;height:32px;" src="~/svg/action/filter.svg" />
+        </button>
+    </div>
+    <div class="col-auto p-1">
+        <div class="form-group has-search-right m-0">
+            <div class="form-control-feedback">
+                <img class="img-size" src="~/svg/action/search.svg" />
+            </div>
+            <input id="searchbox" type="text" class="form-control" placeholder="Search">
+        </div>
+    </div>
+    <div class="col-auto p-1">
+        <button type="button" class="btn btn-primary open-modal-dialog" data-id="" data-action="CreateEmployee" data-title="Create employee">
+            Create employee
+        </button>
+    </div>
+</div>
+
+<table id="employees" class="display table table-hover border rounded w-100 disable-selection">
     <thead>
         <tr>
             <th data-priority="1">
@@ -33,7 +58,7 @@
     <tbody>
         @foreach (var item in Model.Employees)
         {
-            <tr>
+            <tr data-id="@item.Id">
                 <td>
                     @Html.DisplayFor(modelItem => item.FullName)
                 </td>
@@ -56,10 +81,6 @@
                     @if (item.LastSeen != null)
                     {
                         @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.LastSeen, TimeZoneInfo.Local)
-                    }
-                    else
-                    {
-                        <span>-</span>
                     }
                 </td>
                 <td>
@@ -88,11 +109,35 @@
 </table>
 
 @* Bottom table items *@
-@*<div class="row mt-2">
+<div class="row mt-2">
     <div class="col d-flex justify-content-center justify-content-lg-start align-items-center mb-1 text-nowrap">
         <span class="d-flex align-items-center mr-1 text-navyblue">Show entries</span>
         <div id="entries_place"></div>
     </div>
     <div id="showing_place" class="col d-flex justify-content-center align-items-center mb-1 text-navyblue text-nowrap"></div>
     <div id="pagination_place" class="col d-flex justify-content-center justify-content-lg-end align-items-center mb-1"></div>
-</div>*@
+</div>
+
+<script>
+    // Initialize DataTables
+    var table_name = '#employees';
+    $(table_name).DataTable({
+        responsive: true,
+        "columnDefs": [
+            { "orderable": false, "targets": 8 }
+        ]
+    });
+    var dataTable = $(table_name).dataTable();
+    // Search box
+    $('#searchbox').keyup(function () {
+        dataTable.fnFilter(this.value);
+    });
+    $('.dataTables_filter').addClass('d-none');
+    // Length
+    $('#entries_place').html($('.dataTables_length select').removeClass('custom-select-sm form-control-sm'));
+    $('.dataTables_length').addClass('d-none');
+    // Info
+    $('#showing_place').html($('.dataTables_info'));
+    // Paginate
+    $('#pagination_place').html($('.dataTables_paginate'));
+</script>

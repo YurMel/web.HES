@@ -175,8 +175,15 @@
                 <td>
                     @Html.DisplayFor(modelItem => device.RFID)
                 </td>
-                <td>
-                    @Html.DisplayFor(modelItem => device.Battery)
+                <td class="pl-4">
+                    @if (device.Battery == 1)
+                    {
+                        <img src="~/svg/device/battery_full.svg" />
+                    }
+                    else
+                    {
+                        <img src="~/svg/device/battery_20.svg" />
+                    }
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => device.Firmware)

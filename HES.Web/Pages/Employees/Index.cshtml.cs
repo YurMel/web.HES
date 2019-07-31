@@ -1,4 +1,5 @@
 ﻿using HES.Core.Entities;
+using HES.Core.Entities.Models;
 using HES.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -7,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -18,6 +20,7 @@ namespace HES.Web.Pages.Employees
         private readonly ILogger<IndexModel> _logger;
 
         public IList<Employee> Employees { get; set; }
+        public EmployeeFilter EmployeeFilter { get; set; }
         public bool HasForeignKey { get; set; }
 
         [BindProperty]
@@ -38,10 +41,56 @@ namespace HES.Web.Pages.Employees
             Employees = await _employeeService
                 .EmployeeQuery()
                 .Include(e => e.Department.Company)
-                .Include(e => e.Department)
                 .Include(e => e.Position)
                 .Include(e => e.Devices)
                 .ToListAsync();
+
+            ViewData["Companies"] = new SelectList(await _employeeService.CompanyQuery().ToListAsync(), "Id", "Name");
+            ViewData["Departments"] = new SelectList(await _employeeService.DepartmentQuery().ToListAsync(), "Id", "Name");
+            ViewData["Positions"] = new SelectList(await _employeeService.PositionQuery().ToListAsync(), "Id", "Name");
+            ViewData["DevicesCount"] = new SelectList(Employees.Select(s => s.Devices.Count()).Distinct().OrderBy(f => f).ToDictionary(t => t, t => t), "Key", "Value");
+
+            ViewData["DatePattern"] = CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern.ToLower();
+        }
+
+        public async Task<IActionResult> OnPostFilterEmployeesAsync(EmployeeFilter EmployeeFilter)
+        {
+            var filter = _employeeService
+                .EmployeeQuery()
+                .Include(e => e.Department.Company)
+                .Include(e => e.Position)
+                .Include(e => e.Devices)
+                .AsQueryable();
+
+            if (EmployeeFilter.CompanyId != null)
+            {
+                filter = filter.Where(w => w.Department.Company.Id == EmployeeFilter.CompanyId);
+            }
+            if (EmployeeFilter.DepartmentId != null)
+            {
+                filter = filter.Where(w => w.DepartmentId == EmployeeFilter.DepartmentId);
+            }
+            if (EmployeeFilter.PositionId != null)
+            {
+                filter = filter.Where(w => w.PositionId == EmployeeFilter.PositionId);
+            }
+            if (EmployeeFilter.DevicesCount != null)
+            {
+                filter = filter.Where(w => w.Devices.Count() == EmployeeFilter.DevicesCount);
+            }
+            if (EmployeeFilter.StartDate != null && EmployeeFilter.EndDate != null)
+            {
+                filter = filter
+                    .Where(w => w.LastSeen.HasValue && w.LastSeen.Value.Date <= EmployeeFilter.EndDate.Value.Date.ToUniversalTime())
+                    .Where(w => w.LastSeen.HasValue && w.LastSeen.Value.Date >= EmployeeFilter.StartDate.Value.Date.ToUniversalTime());
+            }
+
+            Employees = await filter
+                .OrderBy(e => e.FullName)
+                .Take(EmployeeFilter.Records)
+                .ToListAsync();
+
+            return Partial("_EmployeesTable", this);
         }
 
         #region Employee
