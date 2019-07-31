@@ -93,10 +93,6 @@
                     {
                         @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.LastSynced, TimeZoneInfo.Local)
                     }
-                    else
-                    {
-                        <span>-</span>
-                    }
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Employee.FullName)

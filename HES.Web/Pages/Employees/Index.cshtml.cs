@@ -41,7 +41,6 @@ namespace HES.Web.Pages.Employees
             Employees = await _employeeService
                 .EmployeeQuery()
                 .Include(e => e.Department.Company)
-                //.Include(e => e.Department)
                 .Include(e => e.Position)
                 .Include(e => e.Devices)
                 .ToListAsync();
