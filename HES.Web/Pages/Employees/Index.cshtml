@@ -9,121 +9,67 @@
 <partial name="_SuccessMessage" for="SuccessMessage" />
 <partial name="_ErrorMessage" for="ErrorMessage" />
 
-@* Top table items *@
-<div class="row align-items-center mr-0">
-    <div class="col">
-        <h1 class="text-navyblue">Employees</h1>
-    </div>
-    <div class="col-auto p-1">
-        <div class="form-group has-search-right m-0">
-            <div class="form-control-feedback">
-                <img class="img-size" src="~/svg/action/search.svg" />
+<div id="filter-collapse" class="filter-card collapse pb-1">
+    <form method="post" id="filterForm">
+        <div class="row">
+            <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
+                <label asp-for="EmployeeFilter.StartDate" class="control-label"></label>
+                <input readonly type="text" id="startDate" asp-for="EmployeeFilter.StartDate" class="form-control" autocomplete="off" />
             </div>
-            <input id="searchbox" type="text" class="form-control" placeholder="Search">
+            <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
+                <label asp-for="EmployeeFilter.EndDate" class="control-label"></label>
+                <input readonly type="text" id="endDate" asp-for="EmployeeFilter.EndDate" class="form-control" autocomplete="off" />
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
+                <label asp-for="EmployeeFilter.CompanyId" class="control-label"></label>
+                <select id="companyId" asp-for="EmployeeFilter.CompanyId" class="form-control" asp-items="ViewBag.Companies">
+                    <option selected></option>
+                </select>
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
+                <label asp-for="EmployeeFilter.DepartmentId" class="control-label"></label>
+                <select id="departmentId" asp-for="EmployeeFilter.DepartmentId" class="form-control" asp-items="ViewBag.Departments">
+                    <option selected></option>
+                </select>
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
+                <label asp-for="EmployeeFilter.PositionId" class="control-label"></label>
+                <select id="positionId" asp-for="EmployeeFilter.PositionId" class="form-control" asp-items="ViewBag.Positions">
+                    <option selected></option>
+                </select>
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
+                <label asp-for="EmployeeFilter.DevicesCount" class="control-label"></label>
+                <select id="devicesCount" asp-for="EmployeeFilter.DevicesCount" class="form-control" asp-items="ViewBag.DevicesCount">
+                    <option selected></option>
+                </select>
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
+                <label asp-for="EmployeeFilter.Records" class="control-label"></label>
+                <select id="records" asp-for="EmployeeFilter.Records" class="form-control">
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                    <option selected value="500">500</option>
+                    <option value="1000">1000</option>
+                    <option value="3000">3000</option>
+                    <option value="5000">5000</option>
+                    <option value="10000">10000</option>
+                </select>
+            </div>
+            <div class="col align-self-end form-group text-right">
+                <div>
+                    <button id="clearFilter" type="button" class="btn btn-secondary">Clear</button>
+                    <input id="filterBtn" type="submit" value="Filter" class="btn btn-primary" />
+                </div>
+            </div>
         </div>
-    </div>
-    <div class="col-auto p-1">
-        <button type="button" class="btn btn-primary open-modal-dialog" data-id="" data-action="CreateEmployee" data-title="Create employee">
-            Create employee
-        </button>
-    </div>
+    </form>
 </div>
 
-<table id="employees" class="display table table-hover border rounded w-100 disable-selection">
-    <thead>
-        <tr>
-            <th data-priority="1">
-                @Html.DisplayNameFor(model => model.Employees[0].FullName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Employees[0].Email)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Employees[0].PhoneNumber)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Employees[0].Department.Company)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Employees[0].Department)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Employees[0].Position)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Employees[0].LastSeen)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Employees[0].Devices)
-            </th>
-            <th class="table-col-menu" data-priority="2"></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.Employees)
-        {
-            <tr data-id="@item.Id">
-                <td>
-                    @Html.DisplayFor(modelItem => item.FullName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Email)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.PhoneNumber)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Department.Company.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Department.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Position.Name)
-                </td>
-                <td>
-                    @if (item.LastSeen != null)
-                    {
-                        @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.LastSeen, TimeZoneInfo.Local)
-                    }
-                    else
-                    {
-                        <span>-</span>
-                    }
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Devices.Count)
-                </td>
-                <td>
-                    <div class="dropdown no-arrow">
-                        <a class="dropdown-toggle" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <img src="~/svg/action/more.svg" />
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right shadow" aria-labelledby="dropdownMenuLink">
-                            <a class="dropdown-item" asp-page="./Details" asp-route-id="@item.Id">
-                                <img src="~/svg/action/details.svg" />
-                                Details
-                            </a>
-                            <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="DeleteEmployee" data-title="Delete employee">
-                                <img src="~/svg/action/delete.svg" />
-                                Delete
-                            </a>
-                        </div>
-                    </div>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
-
-@* Bottom table items *@
-<div class="row mt-2">
-    <div class="col d-flex justify-content-center justify-content-lg-start align-items-center mb-1 text-nowrap">
-        <span class="d-flex align-items-center mr-1 text-navyblue">Show entries</span>
-        <div id="entries_place"></div>
-    </div>
-    <div id="showing_place" class="col d-flex justify-content-center align-items-center mb-1 text-navyblue text-nowrap"></div>
-    <div id="pagination_place" class="col d-flex justify-content-center justify-content-lg-end align-items-center mb-1"></div>
+<div id="content">
+    <partial name="_EmployeesTable" />
 </div>
 
 @* Modal *@
@@ -147,24 +93,25 @@
     </div>
 </div>
 
-@*<div class="row" id="content">
-    </div>*@
-
 @section Scripts{
     <script>
-        //OnGet();
-        //function OnGet() {
-        //    $.ajax({
-        //        type: "Get",
-        //        url: "/Employees?handler=EmploeeDetails",
-        //        async: true,
-        //        success: function (response) {
-        //            $("#content").html(response);
-        //        }
-        //    });
-        //}
+         // DatePicker
+        $('#startDate').datepicker({
+            format: '@ViewBag.DatePattern',
+            uiLibrary: 'bootstrap4',
+            maxDate: function () {
+                return $('#endDate').val();
+            }
+        });
+        $('#endDate').datepicker({
+            format: '@ViewBag.DatePattern',
+            uiLibrary: 'bootstrap4',
+            minDate: function () {
+                return $('#startDate').val();
+            }
+        });
 
-        // Init DataTables
+        // Initialize DataTables
         var table_name = '#employees';
         $(table_name).DataTable({
             responsive: true,
@@ -237,6 +184,33 @@
         $('#employees tbody tr td:not(:first-child, :last-child)').dblclick(function () {
             var currentRow = $(this).closest("tr");
             window.location.href = window.location.origin + '/Employees/Details?id=' + currentRow.data("id");
+        });
+
+        // Filter
+        $(document).on('submit', '#filterForm', function (e) {
+            e.preventDefault();
+            $('#loading').html("<div class='spinner-border text-primary' role='status'></div>");
+            $.ajax({
+                method: "POST",
+                url: "/Employees?handler=FilterEmployees",
+                headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
+                data: $('#filterForm').serialize(),
+                async: true,
+                success: function (response) {
+                    $("#content").html(response);
+                }
+            });
+        });
+
+        //Clear filter
+        $(document).on('click', '#clearFilter', function () {
+            $('#devicesCount').val("");
+            $('#positionId').val("");
+            $('#companyId').val("");
+            $('#departmentId').val("");
+            $('#startDate').val("");
+            $('#endDate').val("");
+            $('#records').val("500");
         });
 
         $(document).ready(function () {

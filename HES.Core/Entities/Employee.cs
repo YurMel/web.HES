@@ -39,9 +39,9 @@ namespace HES.Core.Entities
         public string FullName => $"{FirstName} {LastName}";
         [NotMapped]
         [Display(Name = "Company")]
-        public string EmpCompany => Department.Company.Name;
+        public string EmpCompany => Department?.Company?.Name;
         [NotMapped]
         [Display(Name = "Department")]
-        public string EmpDepartment => Department.Name;
+        public string EmpDepartment => Department?.Name;
     }
 }

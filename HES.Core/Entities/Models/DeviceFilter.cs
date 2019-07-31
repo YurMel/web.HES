@@ -5,12 +5,12 @@ namespace HES.Core.Entities.Models
 {
     public class DeviceFilter
     {
-        public int? Battery { get; set; }
-        public string Firmware { get; set; }
         [Display(Name = "Start Date")]
         public DateTime? StartDate { get; set; }
         [Display(Name = "End Date")]
         public DateTime? EndDate { get; set; }
+        public int? Battery { get; set; }
+        public string Firmware { get; set; }        
         [Display(Name = "Employee")]
         public string EmployeeId { get; set; }
         [Display(Name = "Company")]
