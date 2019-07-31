@@ -9,133 +9,76 @@
 <partial name="_SuccessMessage" for="SuccessMessage" />
 <partial name="_ErrorMessage" for="ErrorMessage" />
 
-<div class="row align-items-center mr-0">
-    <div class="col">
-        <h1 class="text-navyblue">Devices</h1>
-    </div>
-    <div class="col-auto p-1">
-        <div class="form-group has-search-right m-0">
-            <div class="form-control-feedback">
-                <img class="img-size" src="~/svg/action/search.svg" />
+<div id="filter-collapse" class="filter-card collapse pb-1">
+    <form method="post" id="filterForm">
+        <div class="row">
+            <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
+                <label asp-for="DeviceFilter.StartDate" class="control-label"></label>
+                <input readonly type="text" id="startDate" asp-for="DeviceFilter.StartDate" class="form-control" autocomplete="off" />
             </div>
-            <input id="searchbox" type="text" class="form-control" placeholder="Search">
+            <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
+                <label asp-for="DeviceFilter.EndDate" class="control-label"></label>
+                <input readonly type="text" id="endDate" asp-for="DeviceFilter.EndDate" class="form-control" autocomplete="off" />
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
+                <label asp-for="DeviceFilter.Battery" class="control-label"></label>
+                <select id="battery" asp-for="DeviceFilter.Battery" class="form-control">
+                    <option selected></option>
+                    <option value="0">Low</option>
+                    <option value="1">Full</option>
+                </select>
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
+                <label asp-for="DeviceFilter.Firmware" class="control-label"></label>
+                <select id="firmware" asp-for="DeviceFilter.Firmware" class="form-control" asp-items="ViewBag.Firmware">
+                    <option selected></option>
+                </select>
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
+                <label asp-for="DeviceFilter.EmployeeId" class="control-label"></label>
+                <select id="employeeId" asp-for="DeviceFilter.EmployeeId" class="form-control" asp-items="ViewBag.Employees">
+                    <option selected></option>
+                    <option value="N/A">N/A</option>
+                </select>
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
+                <label asp-for="DeviceFilter.CompanyId" class="control-label"></label>
+                <select id="companyId" asp-for="DeviceFilter.CompanyId" class="form-control" asp-items="ViewBag.Companies">
+                    <option selected></option>
+                </select>
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
+                <label asp-for="DeviceFilter.DepartmentId" class="control-label"></label>
+                <select id="departmentId" asp-for="DeviceFilter.DepartmentId" class="form-control" asp-items="ViewBag.Departments">
+                    <option selected></option>
+                </select>
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
+                <label asp-for="DeviceFilter.Records" class="control-label"></label>
+                <select id="records" asp-for="DeviceFilter.Records" class="form-control">
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                    <option selected value="500">500</option>
+                    <option value="1000">1000</option>
+                    <option value="3000">3000</option>
+                    <option value="5000">5000</option>
+                    <option value="10000">10000</option>
+                </select>
+            </div>
+            <div class="col align-self-end form-group text-right">
+                <div>
+                    <button id="clearFilter" type="button" class="btn btn-secondary">Clear</button>
+                    <input id="filterBtn" type="submit" value="Filter" class="btn btn-primary" />
+                </div>
+            </div>
         </div>
-    </div>
-    <div class="col-auto p-1">
-        <a class="btn btn-primary" asp-page="Import">Import</a>
-    </div>
+    </form>
 </div>
 
-<table id="devices" class="display table table-hover border rounded" style="width:100%">
-    <thead>
-        <tr>
-            <th data-priority="1">
-                @Html.DisplayNameFor(model => model.Devices[0].Id)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Devices[0].MAC)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Devices[0].Model)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Devices[0].RFID)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Devices[0].Battery)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Devices[0].Firmware)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Devices[0].LastSynced)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Devices[0].Employee)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Devices[0].Employee.EmpCompany)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Devices[0].Employee.EmpDepartment)
-            </th>
-            <th class="table-col-menu" data-priority="2"></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.Devices)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Id)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.MAC)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Model)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.RFID)
-                </td>
-                <td data-sort="@item.Battery" class="pl-4">
-                    @if (item.Battery == 1)
-                    {
-                        <img src="~/svg/device/battery_full.svg" alt="@item.Battery" />
-                    }
-                    else
-                    {
-                        <img src="~/svg/device/battery_20.svg" alt="@item.Battery" />
-                    }
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Firmware)
-                </td>
-                <td>
-                    @if (item.LastSynced != null)
-                    {
-                        @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.LastSynced, TimeZoneInfo.Local)
-                    }
-                    else
-                    {
-                        <span>-</span>
-                    }
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Employee.FullName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Employee.EmpCompany)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Employee.EmpDepartment)
-                </td>
-                <td>
-                    <div class="dropdown no-arrow">
-                        <a class="dropdown-toggle" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <img src="~/svg/action/more.svg" />
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right shadow" aria-labelledby="dropdownMenuLink">
-                            <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="EditDeviceRfid" data-title="Edit device RFID">
-                                <img src="~/svg/action/edit.svg" />
-                                Edit RFID
-                            </a>
-                        </div>
-                    </div>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
-
-@* Bottom table items *@
-<div class="row mt-2">
-    <div class="col d-flex justify-content-center justify-content-lg-start align-items-center mb-1 text-nowrap">
-        <span class="d-flex align-items-center mr-1 text-navyblue">Show entries</span>
-        <div id="entries_place"></div>
-    </div>
-    <div id="showing_place" class="col d-flex justify-content-center align-items-center mb-1 text-navyblue text-nowrap"></div>
-    <div id="pagination_place" class="col d-flex justify-content-center justify-content-lg-end align-items-center mb-1"></div>
+<div id="content">
+    <partial name="_DevicesTable" />
 </div>
 
 @* Modal *@
@@ -161,7 +104,23 @@
 
 @section scripts{
     <script>
-        // Init DataTables
+        // DatePicker
+        $('#startDate').datepicker({
+            format: '@ViewBag.DatePattern',
+            uiLibrary: 'bootstrap4',
+            maxDate: function () {
+                return $('#endDate').val();
+            }
+        });
+        $('#endDate').datepicker({
+            format: '@ViewBag.DatePattern',
+            uiLibrary: 'bootstrap4',
+            minDate: function () {
+                return $('#startDate').val();
+            }
+        });
+
+        // Initialize DataTables
         var table_name = '#devices';
         $(table_name).DataTable({
             responsive: true,
@@ -208,10 +167,39 @@
                 }
             });
         });
+
         // Clear content on modal hide
         $('#modalDialog').on('hidden.bs.modal', function (e) {
             $("#modalBody").html("<div class='d-flex justify-content-center align-items-center'><div class='spinner-grow text-primary' style='width: 3rem; height: 3rem;' role='status'><span class='sr-only'></span></div></div>");
         })
+
+        // Filter
+        $(document).on('submit', '#filterForm', function (e) {
+            e.preventDefault();
+            $('#loading').html("<div class='spinner-border text-primary' role='status'></div>");
+            $.ajax({
+                method: "POST",
+                url: "/Devices?handler=FilterDevices",
+                headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
+                data: $('#filterForm').serialize(),
+                async: true,
+                success: function (response) {
+                    $("#content").html(response);
+                }
+            });
+        });
+
+        //Clear filter
+        $(document).on('click', '#clearFilter', function () {
+            $('#battery').val("");
+            $('#firmware').val("");
+            $('#employeeId').val("");
+            $('#companyId').val("");
+            $('#departmentId').val("");
+            $('#startDate').val("");
+            $('#endDate').val("");
+            $('#records').val("500");
+        });
 
         $(document).ready(function () {
             // Breadcrumbs

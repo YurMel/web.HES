@@ -93,7 +93,10 @@ namespace HES.Web.Pages.Workstations
                 filter = filter.Where(w => w.Approved == WorkstationFilter.Approved);
             }
 
-            Workstations = await filter.Take(WorkstationFilter.Records).ToListAsync();
+            Workstations = await filter
+                .OrderBy(w => w.Name)
+                .Take(WorkstationFilter.Records)
+                .ToListAsync();
 
             return Partial("_WorkstationsTable", this);
         }
