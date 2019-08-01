@@ -95,9 +95,9 @@ namespace HES.Core.Services
             }
         }
 
-        public bool Exist(Expression<Func<Device, bool>> predicate)
+        public async Task<bool> ExistAsync(Expression<Func<Device, bool>> predicate)
         {
-            return _deviceRepository.Exist(predicate);
+            return await _deviceRepository.ExistAsync(predicate);
         }
 
         public async Task EditDeviceRfidAsync(Device device)

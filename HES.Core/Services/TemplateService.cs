@@ -119,9 +119,9 @@ namespace HES.Core.Services
             await _templateRepository.DeleteAsync(template);
         }
 
-        public bool Exist(Expression<Func<Template, bool>> predicate)
+        public async Task<bool> ExistAsync(Expression<Func<Template, bool>> predicate)
         {
-            return _templateRepository.Exist(predicate);
+            return await _templateRepository.ExistAsync(predicate);
         }
     }
 }

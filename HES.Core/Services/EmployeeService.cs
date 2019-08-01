@@ -169,9 +169,9 @@ namespace HES.Core.Services
             await _employeeRepository.DeleteAsync(employee);
         }
 
-        public bool Exist(Expression<Func<Employee, bool>> predicate)
+        public async Task<bool> ExistAsync(Expression<Func<Employee, bool>> predicate)
         {
-            return _employeeRepository.Exist(predicate);
+            return await _employeeRepository.ExistAsync(predicate);
         }
 
         public async Task SetPrimaryAccount(string deviceId, string deviceAccountId)

@@ -13,6 +13,6 @@ namespace HES.Core.Interfaces
         Task<Template> CreateTmplateAsync(Template entity);
         Task EditTemplateAsync(Template template);
         Task DeleteTemplateAsync(string id);
-        bool Exist(Expression<Func<Template, bool>> predicate);
+        Task<bool> ExistAsync(Expression<Func<Template, bool>> predicate);
     }
 }

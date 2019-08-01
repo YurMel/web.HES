@@ -129,6 +129,7 @@ namespace HES.Core.Services
             {
                 var lastSession = await _workstationSessionRepository
                     .Query()
+                    .OrderBy(o => o.EndTime)
                     .AsNoTracking()
                     .LastOrDefaultAsync(s => s.EndTime == null && s.WorkstationId == e.WorkstationId);
 

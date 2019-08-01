@@ -26,7 +26,7 @@ namespace HES.Core.Interfaces
         Task CreateEmployeeAsync(Employee employee);
         Task EditEmployeeAsync(Employee employee);
         Task DeleteEmployeeAsync(string id);
-        bool Exist(Expression<Func<Employee, bool>> predicate);
+        Task<bool> ExistAsync(Expression<Func<Employee, bool>> predicate);
         Task SetPrimaryAccount(string deviceId, string deviceAccountId);
         Task AddDeviceAsync(string employeeId, string[] selectedDevices);
         Task RemoveDeviceAsync(string employeeId, string deviceId);

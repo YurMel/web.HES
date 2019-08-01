@@ -354,9 +354,9 @@ namespace HES.Core.Services
             _remoteTaskService.StartTaskProcessing(devices);
         }
 
-        public bool Exist(Expression<Func<SharedAccount, bool>> predicate)
+        public async Task<bool> ExistAync(Expression<Func<SharedAccount, bool>> predicate)
         {
-            return _sharedAccountRepository.Exist(predicate);
+            return await _sharedAccountRepository.ExistAsync(predicate);
         }
     }
 }

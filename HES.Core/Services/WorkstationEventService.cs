@@ -90,7 +90,8 @@ namespace HES.Core.Services
             foreach (var e in workstationEvents)
             {
                 // Skip events for workstations that are not present in DB
-                if (!_workstationRepository.Exist(w => w.Id == e.WorkstationId))
+                var workstationExist = await _workstationRepository.ExistAsync(w => w.Id == e.WorkstationId);
+                if (!workstationExist)
                     continue;
 
                 e.EmployeeId = _employeeRepository.Query()

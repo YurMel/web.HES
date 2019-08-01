@@ -72,7 +72,7 @@ namespace HES.Infrastructure
                     _context.Entry(item).Property(prop).IsModified = true;
                 }
             }
-           
+
             _context.UpdateRange(entity);
             await _context.SaveChangesAsync();
         }
@@ -89,10 +89,9 @@ namespace HES.Infrastructure
             await _context.SaveChangesAsync();
         }
 
-        public bool Exist(Expression<Func<T, bool>> predicate)
+        public async Task<bool> ExistAsync(Expression<Func<T, bool>> predicate)
         {
-            var exist = _context.Set<T>().Where(predicate);
-            return exist.Any();
+            return await _context.Set<T>().Where(predicate).AnyAsync();
         }
     }
 }

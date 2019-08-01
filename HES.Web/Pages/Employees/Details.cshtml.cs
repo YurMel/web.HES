@@ -120,7 +120,7 @@ namespace HES.Web.Pages.Employees
             }
             catch (Exception ex)
             {
-                if (!EmployeeExists(employee.Id))
+                if (!await EmployeeExists(employee.Id))
                 {
                     _logger.LogError("Employee dos not exists.");
                     return NotFound();
@@ -135,9 +135,9 @@ namespace HES.Web.Pages.Employees
             return RedirectToPage("./Details", new { id });
         }
 
-        private bool EmployeeExists(string id)
+        private async Task<bool> EmployeeExists(string id)
         {
-            return _employeeService.Exist(e => e.Id == id);
+            return await _employeeService.ExistAsync(e => e.Id == id);
         }
 
         public async Task<IActionResult> OnGetSetPrimaryAccountAsync(string id)
@@ -238,7 +238,7 @@ namespace HES.Web.Pages.Employees
             }
             catch (Exception ex)
             {
-                if (!EmployeeExists(employeeId))
+                if (!await EmployeeExists(employeeId))
                 {
                     _logger.LogError("Employee dos not exists.");
                     return NotFound();
@@ -290,7 +290,7 @@ namespace HES.Web.Pages.Employees
             }
             catch (Exception ex)
             {
-                if (!EmployeeExists(device.EmployeeId))
+                if (!await EmployeeExists(device.EmployeeId))
                 {
                     _logger.LogError("Employee dos not exists.");
                     return NotFound();
@@ -342,7 +342,7 @@ namespace HES.Web.Pages.Employees
             }
             catch (Exception ex)
             {
-                if (!EmployeeExists(id))
+                if (!await EmployeeExists(id))
                 {
                     _logger.LogError("Employee dos not exists.");
                     return NotFound();
