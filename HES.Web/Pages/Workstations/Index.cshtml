@@ -225,6 +225,12 @@
             $('#records').val("500");
         });
 
+        // Double click to details of workstation
+        $('#workstations tbody tr td:not(:first-child, :last-child)').dblclick(function () {
+            var currentRow = $(this).closest("tr");
+            window.location.href = window.location.origin + '/Workstations/Details?id=' + currentRow.data("id");
+        });
+
         $(document).ready(function () {
             // Breadcrumbs
             $('#breadcrumb').toggleClass('d-none');
