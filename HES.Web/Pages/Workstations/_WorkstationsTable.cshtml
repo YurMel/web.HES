@@ -81,7 +81,13 @@
                     @Html.DisplayFor(modelItem => item.IP)
                 </td>
                 <td>
-                    @if (item.LastSeen != null)
+                    @if (item.IsOnline)
+                    {
+                        <span class="badge badge-success custom-badge" title="Workstation is online">
+                            Online
+                        </span>
+                    }
+                    else
                     {
                         @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.LastSeen, TimeZoneInfo.Local)
                     }
