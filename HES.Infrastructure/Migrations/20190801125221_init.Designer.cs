@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HES.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20190731125343_init")]
+    [Migration("20190801125221_init")]
     partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -193,8 +193,6 @@ namespace HES.Infrastructure.Migrations
 
                     b.Property<string>("LastName")
                         .IsRequired();
-
-                    b.Property<DateTime?>("LastSeen");
 
                     b.Property<string>("PhoneNumber");
 

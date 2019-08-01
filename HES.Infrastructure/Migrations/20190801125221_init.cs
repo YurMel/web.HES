@@ -268,8 +268,7 @@ namespace HES.Infrastructure.Migrations
                     Email = table.Column<string>(nullable: false),
                     PhoneNumber = table.Column<string>(nullable: true),
                     DepartmentId = table.Column<string>(nullable: false),
-                    PositionId = table.Column<string>(nullable: false),
-                    LastSeen = table.Column<DateTime>(nullable: true)
+                    PositionId = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {

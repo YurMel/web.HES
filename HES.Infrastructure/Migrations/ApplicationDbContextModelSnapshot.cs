@@ -192,8 +192,6 @@ namespace HES.Infrastructure.Migrations
                     b.Property<string>("LastName")
                         .IsRequired();
 
-                    b.Property<DateTime?>("LastSeen");
-
                     b.Property<string>("PhoneNumber");
 
                     b.Property<string>("PositionId")
