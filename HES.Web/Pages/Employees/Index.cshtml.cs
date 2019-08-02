@@ -80,9 +80,12 @@ namespace HES.Web.Pages.Employees
             }
             if (EmployeeFilter.StartDate != null && EmployeeFilter.EndDate != null)
             {
-                filter = filter
-                    .Where(w => w.LastSeen.HasValue && w.LastSeen.Value.Date <= EmployeeFilter.EndDate.Value.Date.ToUniversalTime())
-                    .Where(w => w.LastSeen.HasValue && w.LastSeen.Value.Date >= EmployeeFilter.StartDate.Value.Date.ToUniversalTime());
+                filter = filter.Where(w => w.LastSeen.HasValue
+                                        && w.LastSeen.Value.Date >= EmployeeFilter.StartDate.Value.Date.ToUniversalTime()
+                                        && w.LastSeen.Value.Date <= EmployeeFilter.EndDate.Value.Date.ToUniversalTime());
+                //filter = filter
+                //    .Where(w => w.LastSeen.HasValue && w.LastSeen.Value.Date <= EmployeeFilter.EndDate.Value.Date.ToUniversalTime())
+                //    .Where(w => w.LastSeen.HasValue && w.LastSeen.Value.Date >= EmployeeFilter.StartDate.Value.Date.ToUniversalTime());
             }
 
             Employees = await filter

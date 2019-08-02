@@ -14,11 +14,11 @@
         <div class="row">
             <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
                 <label asp-for="DeviceFilter.StartDate" class="control-label"></label>
-                <input readonly type="text" id="startDate" asp-for="DeviceFilter.StartDate" class="form-control" autocomplete="off" />
+                <input id="startDate" class="datepicker-here form-control" data-timepicker="true" type="text" asp-for="DeviceFilter.StartDate" />
             </div>
             <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
                 <label asp-for="DeviceFilter.EndDate" class="control-label"></label>
-                <input readonly type="text" id="endDate" asp-for="DeviceFilter.EndDate" class="form-control" autocomplete="off" />
+                <input id="endDate" class="datepicker-here form-control" data-timepicker="true" type="text" asp-for="DeviceFilter.EndDate" />
             </div>
             <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
                 <label asp-for="DeviceFilter.Battery" class="control-label"></label>
@@ -104,19 +104,35 @@
 
 @section scripts{
     <script>
-        // DatePicker
+        // Initialize DateTimePicker
+        function GetTime(value) {
+            var time = new Date();
+            if (value == 'min') {
+                time.setHours(0);
+                time.setMinutes(0);
+                time.setSeconds(0);
+                time.setMilliseconds(000);
+            }
+            else {
+                time.setHours(23);
+                time.setMinutes(59);
+                time.setSeconds(59);
+                time.setMilliseconds(999);
+            }
+            return time;
+        }
         $('#startDate').datepicker({
-            format: '@ViewBag.DatePattern',
-            uiLibrary: 'bootstrap4',
-            maxDate: function () {
-                return $('#endDate').val();
+            timepicker: true,
+            startDate: GetTime('min'),
+            onSelect: function (fd, d) {
+                $('#endDate').datepicker().data('datepicker').update('minDate', d);
             }
         });
         $('#endDate').datepicker({
-            format: '@ViewBag.DatePattern',
-            uiLibrary: 'bootstrap4',
-            minDate: function () {
-                return $('#startDate').val();
+            timepicker: true,
+            startDate: GetTime('max'),
+            onSelect: function (fd, d) {
+                $('#startDate').datepicker().data('datepicker').update('maxDate', d);
             }
         });
 

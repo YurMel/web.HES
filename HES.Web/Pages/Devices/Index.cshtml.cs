@@ -89,9 +89,9 @@ namespace HES.Web.Pages.Devices
             }
             if (DeviceFilter.StartDate != null && DeviceFilter.EndDate != null)
             {
-                filter = filter
-                    .Where(w => w.LastSynced.HasValue && w.LastSynced.Value.Date <= DeviceFilter.EndDate.Value.Date.ToUniversalTime())
-                    .Where(w => w.LastSynced.HasValue && w.LastSynced.Value.Date >= DeviceFilter.StartDate.Value.Date.ToUniversalTime());
+                filter = filter.Where(w => w.LastSynced.HasValue
+                                        && w.LastSynced.Value >= DeviceFilter.StartDate.Value.AddSeconds(59).AddMilliseconds(999).ToUniversalTime()
+                                        && w.LastSynced.Value <= DeviceFilter.EndDate.Value.AddSeconds(59).AddMilliseconds(999).ToUniversalTime());
             }
 
             Devices = await filter

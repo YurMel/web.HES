@@ -84,9 +84,12 @@ namespace HES.Web.Pages.Workstations
             }
             if (WorkstationFilter.StartDate != null && WorkstationFilter.EndDate != null)
             {
-                filter = filter
-                    .Where(w => w.LastSeen.Date <= WorkstationFilter.EndDate.Value.Date.ToUniversalTime())
-                    .Where(w => w.LastSeen.Date >= WorkstationFilter.StartDate.Value.Date.ToUniversalTime());
+                filter = filter.Where(w => w.LastSeen.Date >= WorkstationFilter.StartDate.Value.Date.ToUniversalTime()
+                                   && w.LastSeen.Date <= WorkstationFilter.EndDate.Value.Date.ToUniversalTime());
+              
+                //filter = filter
+                //    .Where(w => w.LastSeen.Date <= WorkstationFilter.EndDate.Value.Date.ToUniversalTime())
+                //    .Where(w => w.LastSeen.Date >= WorkstationFilter.StartDate.Value.Date.ToUniversalTime());
             }
             if (WorkstationFilter.Approved != null)
             {
