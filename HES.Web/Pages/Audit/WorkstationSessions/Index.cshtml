@@ -11,16 +11,26 @@
     <form method="post" id="filterForm">
         <div class="row">
             <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
-                <label asp-for="WorkstationSessionFilter.StartTime" class="control-label"></label>
-                <input readonly type="text" id="startTime" value="@TimeZoneInfo.ConvertTimeFromUtc(ViewBag.StartDate, TimeZoneInfo.Local)" asp-for="WorkstationSessionFilter.StartTime" class="form-control" autocomplete="off" />
+                <label asp-for="WorkstationSessionFilter.StartDate" class="control-label"></label>
+                <div class="input-group">
+                    <input readonly id="startDate" class="datepicker-here form-control readonly-white" data-timepicker="true" type="text" asp-for="WorkstationSessionFilter.StartDate" aria-describedby="startDateAppend" />
+                    <div class="input-group-append" onclick="ShowStartDate()">
+                        <span class="input-group-text custom-group" id="startDateAppend">
+                            <img src="~/svg/action/event.svg" style="width:21px;" />
+                        </span>
+                    </div>
+                </div>
             </div>
             <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
-                <label asp-for="WorkstationSessionFilter.EndTime" class="control-label"></label>
-                <input readonly type="text" id="endTime" value="@TimeZoneInfo.ConvertTimeFromUtc(ViewBag.EndDate, TimeZoneInfo.Local)" asp-for="WorkstationSessionFilter.EndTime" class="form-control" autocomplete="off" />
-            </div>
-            <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
-                <label asp-for="WorkstationSessionFilter.Duration" class="control-label"></label>
-                <input id="duration" asp-for="WorkstationSessionFilter.Duration" class="form-control" />
+                <label asp-for="WorkstationSessionFilter.EndDate" class="control-label"></label>
+                <div class="input-group">
+                    <input readonly id="endDate" class="datepicker-here form-control readonly-white" data-timepicker="true" type="text" asp-for="WorkstationSessionFilter.EndDate" aria-describedby="endDateAppend" />
+                    <div class="input-group-append" onclick="ShowEndDate()">
+                        <span class="input-group-text custom-group" id="endDateAppend">
+                            <img src="~/svg/action/event.svg" style="width:21px;" />
+                        </span>
+                    </div>
+                </div>
             </div>
             <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
                 <label asp-for="WorkstationSessionFilter.UnlockId" class="control-label"></label>
@@ -104,23 +114,47 @@
 
 @section Scripts{
     <script>
-        //DateTimePicker
-        $('#startTime').datetimepicker({
-            format: '@ViewBag.DatePattern @ViewBag.TimePattern',
-            uiLibrary: 'bootstrap4',
-            footer: true,
-            maxDate: function () {
-                return $('#endTime').val();
+        // Initialize DateTimePicker
+        $('#startDate').datepicker({
+            timepicker: true,
+            startDate: GetTime('min'),
+            dateFormat: '@ViewBag.DatePattern',
+            timeFormat: '@ViewBag.TimePattern',
+            onSelect: function (fd, d) {
+                $('#endDate').datepicker().data('datepicker').update('minDate', d);
             }
         });
-        $('#endTime').datetimepicker({
-            format: '@ViewBag.DatePattern @ViewBag.TimePattern',
-            uiLibrary: 'bootstrap4',
-            footer: true,
-            minDate: function () {
-                return $('#startTime').val();
+        $('#endDate').datepicker({
+            timepicker: true,
+            startDate: GetTime('max'),
+            dateFormat: '@ViewBag.DatePattern',
+            timeFormat: '@ViewBag.TimePattern',
+            onSelect: function (fd, d) {
+                $('#startDate').datepicker().data('datepicker').update('maxDate', d);
             }
         });
+        function GetTime(value) {
+            var time = new Date();
+            if (value == 'min') {
+                time.setHours(0);
+                time.setMinutes(0);
+                time.setSeconds(0);
+                time.setMilliseconds(000);
+            }
+            else {
+                time.setHours(23);
+                time.setMinutes(59);
+                time.setSeconds(59);
+                time.setMilliseconds(999);
+            }
+            return time;
+        }
+        function ShowStartDate() {
+            $('#startDate').datepicker().data('datepicker').show();
+        }
+        function ShowEndDate() {
+            $('#endDate').datepicker().data('datepicker').show();
+        }
 
         // Init DataTables
         var table_name = '#workstationSessions';
@@ -158,9 +192,8 @@
         });
 
         $(document).on('click', '#clearFilter', function () {
-            //$('#startTime').val("");
-            //$('#endTime').val("");
-            $('#duration').val("");
+            $('#startDate').datepicker().data('datepicker').clear();
+            $('#endDate').datepicker().data('datepicker').clear();
             $('#unlockId').val("");
             $('#workstationId').val("");
             $('#userSession').val("");

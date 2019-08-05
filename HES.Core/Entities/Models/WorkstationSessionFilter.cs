@@ -5,11 +5,10 @@ namespace HES.Core.Entities.Models
 {
     public class WorkstationSessionFilter
     {
-        [Display(Name = "Start Time")]
-        public DateTime? StartTime { get; set; }
-        [Display(Name = "End Time")]
-        public DateTime? EndTime { get; set; }
-        public TimeSpan? Duration { get; set; }
+        [Display(Name = "Start Date")]
+        public DateTime? StartDate { get; set; }
+        [Display(Name = "End Date")]
+        public DateTime? EndDate { get; set; }
         [Display(Name = "Unlocked by")]
         public int? UnlockId { get; set; }
         [Display(Name = "Workstation")]

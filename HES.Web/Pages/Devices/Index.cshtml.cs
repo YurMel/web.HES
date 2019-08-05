@@ -91,7 +91,7 @@ namespace HES.Web.Pages.Devices
             if (DeviceFilter.StartDate != null && DeviceFilter.EndDate != null)
             {
                 filter = filter.Where(w => w.LastSynced.HasValue
-                                        && w.LastSynced.Value >= DeviceFilter.StartDate.Value.AddSeconds(59).AddMilliseconds(999).ToUniversalTime()
+                                        && w.LastSynced.Value >= DeviceFilter.StartDate.Value.AddSeconds(0).AddMilliseconds(0).ToUniversalTime()
                                         && w.LastSynced.Value <= DeviceFilter.EndDate.Value.AddSeconds(59).AddMilliseconds(999).ToUniversalTime());
             }
 

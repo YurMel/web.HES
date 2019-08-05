@@ -51,6 +51,7 @@ namespace HES.Web.Pages.Employees
             ViewData["DevicesCount"] = new SelectList(Employees.Select(s => s.Devices.Count()).Distinct().OrderBy(f => f).ToDictionary(t => t, t => t), "Key", "Value");
 
             ViewData["DatePattern"] = CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern.ToLower();
+            ViewData["TimePattern"] = CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern.ToUpper() == "H:MM" ? "hh:ii" : "hh:ii aa";
         }
 
         public async Task<IActionResult> OnPostFilterEmployeesAsync(EmployeeFilter EmployeeFilter)
@@ -81,15 +82,13 @@ namespace HES.Web.Pages.Employees
             if (EmployeeFilter.StartDate != null && EmployeeFilter.EndDate != null)
             {
                 filter = filter.Where(w => w.LastSeen.HasValue
-                                        && w.LastSeen.Value.Date >= EmployeeFilter.StartDate.Value.Date.ToUniversalTime()
-                                        && w.LastSeen.Value.Date <= EmployeeFilter.EndDate.Value.Date.ToUniversalTime());
-                //filter = filter
-                //    .Where(w => w.LastSeen.HasValue && w.LastSeen.Value.Date <= EmployeeFilter.EndDate.Value.Date.ToUniversalTime())
-                //    .Where(w => w.LastSeen.HasValue && w.LastSeen.Value.Date >= EmployeeFilter.StartDate.Value.Date.ToUniversalTime());
+                                        && w.LastSeen.Value >= EmployeeFilter.StartDate.Value.AddSeconds(0).AddMilliseconds(0).ToUniversalTime()
+                                        && w.LastSeen.Value <= EmployeeFilter.EndDate.Value.AddSeconds(59).AddMilliseconds(999).ToUniversalTime());
             }
 
             Employees = await filter
-                .OrderBy(e => e.FullName)
+                .OrderBy(e => e.FirstName)
+                .ThenBy(e => e.LastName)
                 .Take(EmployeeFilter.Records)
                 .ToListAsync();
 

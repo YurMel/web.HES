@@ -24,10 +24,10 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.WorkstationSessions[0].StartTime)
+                @Html.DisplayNameFor(model => model.WorkstationSessions[0].StartDate)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.WorkstationSessions[0].EndTime)
+                @Html.DisplayNameFor(model => model.WorkstationSessions[0].EndDate)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.WorkstationSessions[0].Duration)
@@ -66,12 +66,12 @@
         {
             <tr>
                 <td>
-                    @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.StartTime, TimeZoneInfo.Local)
+                    @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.StartDate, TimeZoneInfo.Local)
                 </td>
                 <td>
-                    @if (item != null && item.EndTime != null)
+                    @if (item != null && item.EndDate != null)
                     {
-                        @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.EndTime, TimeZoneInfo.Local)
+                        @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.EndDate, TimeZoneInfo.Local)
                     }
                 </td>
                 <td>

@@ -241,13 +241,13 @@
 
         //Clear filter
         $(document).on('click', '#clearFilter', function () {
+            $('#startDate').datepicker().data('datepicker').clear();
+            $('#endDate').datepicker().data('datepicker').clear();
             $('#battery').val("");
             $('#firmware').val("");
             $('#employeeId').val("");
             $('#companyId').val("");
             $('#departmentId').val("");
-            $('#startDate').val("");
-            $('#endDate').val("");
             $('#records').val("500");
         });
 

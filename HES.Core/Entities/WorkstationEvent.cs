@@ -19,9 +19,9 @@ namespace HES.Core.Entities
         [Display(Name = "Session")]
         public string UserSession { get; set; }
         public string DeviceId { get; set; }
-        public string EmployeeId { get; set; } // Only available to server
-        public string DepartmentId { get; set; } // Only available to server
-        public string DeviceAccountId { get; set; } // Only available to server
+        public string EmployeeId { get; set; }
+        public string DepartmentId { get; set; }
+        public string DeviceAccountId { get; set; }
 
         [ForeignKey("WorkstationId")]
         public Workstation Workstation { get; set; }
@@ -34,6 +34,5 @@ namespace HES.Core.Entities
         [ForeignKey("DeviceAccountId")]
         [Display(Name = "Account")]
         public DeviceAccount DeviceAccount { get; set; }
-    }
-    
+    }    
 }

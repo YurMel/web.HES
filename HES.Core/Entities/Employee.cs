@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
 
 namespace HES.Core.Entities
 {
@@ -25,7 +24,9 @@ namespace HES.Core.Entities
         public string DepartmentId { get; set; }
         [Display(Name = "Position")]
         [Required]
-        public string PositionId { get; set; }        
+        public string PositionId { get; set; }
+        [Display(Name = "Last Seen")]
+        public DateTime? LastSeen { get; set; }
         public List<Device> Devices { get; set; }
 
         [ForeignKey("DepartmentId")]
@@ -42,8 +43,5 @@ namespace HES.Core.Entities
         [NotMapped]
         [Display(Name = "Department")]
         public string EmpDepartment => Department?.Name;
-        [NotMapped]
-        [Display(Name = "Last Seen")]
-        public DateTime? LastSeen => Devices?.Max(m => m.LastSynced);
     }
 }

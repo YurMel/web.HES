@@ -9,11 +9,11 @@ namespace HES.Core.Entities
     {
         [Key]
         public string Id { get; set; }
-        [Display(Name = "Start Time")]
-        public DateTime StartTime { get; set; }
-        [Display(Name = "End Time")]
-        public DateTime? EndTime { get; set; }
-        [Display(Name = "Unlocked by")]
+        [Display(Name = "Start Date")]
+        public DateTime StartDate { get; set; }
+        [Display(Name = "End Date")]
+        public DateTime? EndDate { get; set; }
+        [Display(Name = "Unlocked By")]
         public SessionSwitchSubject UnlockedBy { get; set; }
         public string WorkstationId { get; set; }
         [Display(Name = "Session")]
@@ -36,6 +36,6 @@ namespace HES.Core.Entities
         public DeviceAccount DeviceAccount { get; set; }
 
         [NotMapped]
-        public TimeSpan Duration => (EndTime ?? DateTime.UtcNow).Subtract(StartTime);
+        public TimeSpan Duration => (EndDate ?? DateTime.UtcNow).Subtract(StartDate);
     }
 }

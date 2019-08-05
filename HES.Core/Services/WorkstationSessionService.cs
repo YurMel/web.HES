@@ -129,9 +129,9 @@ namespace HES.Core.Services
             {
                 var lastSession = await _workstationSessionRepository
                     .Query()
-                    .OrderBy(o => o.EndTime)
+                    .OrderBy(o => o.EndDate)
                     .AsNoTracking()
-                    .LastOrDefaultAsync(s => s.EndTime == null && s.WorkstationId == e.WorkstationId);
+                    .LastOrDefaultAsync(s => s.EndDate == null && s.WorkstationId == e.WorkstationId);
 
                 if (e.EventId == WorkstationEventId.ComputerLock || e.EventId == WorkstationEventId.ComputerLogoff)
                 {
@@ -149,7 +149,7 @@ namespace HES.Core.Services
                     }
                     else
                     {
-                        lastSession.EndTime = e.Date;
+                        lastSession.EndDate = e.Date;
                         await _workstationSessionRepository.UpdateAsync(lastSession);
                         continue;
                     }
@@ -160,7 +160,7 @@ namespace HES.Core.Services
                     if (lastSession != null)
                     {
                         // There is an unfinished session for current workstation
-                        lastSession.EndTime = e.Date;
+                        lastSession.EndDate = e.Date;
                         await _workstationSessionRepository.UpdateAsync(lastSession);
 
                         // Todo: add warning notification: created a new session while the previous one was still active
@@ -180,8 +180,8 @@ namespace HES.Core.Services
 
             return new WorkstationSession()
             {
-                StartTime = workstationEvent.Date,
-                EndTime = null,
+                StartDate = workstationEvent.Date,
+                EndDate = null,
                 UnlockedBy = unlockedBy,
                 WorkstationId = workstationEvent.WorkstationId,
                 DeviceId = workstationEvent.DeviceId,
