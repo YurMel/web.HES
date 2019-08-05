@@ -366,6 +366,17 @@ a.navbar-brand {
 }
 /*#endregion*/
 
+/*#region Input group*/
+.custom-group {
+    padding: 0.375rem 0.375rem;
+    background-color: #ffffff;
+    cursor: pointer;
+}
+.readonly-white {
+    background-color: #fff !important;
+}
+/*#endregion*/
+
 /*#region Table */
 .table {
     background: #fff;
