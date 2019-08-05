@@ -268,7 +268,8 @@ namespace HES.Infrastructure.Migrations
                     Email = table.Column<string>(nullable: false),
                     PhoneNumber = table.Column<string>(nullable: true),
                     DepartmentId = table.Column<string>(nullable: false),
-                    PositionId = table.Column<string>(nullable: false)
+                    PositionId = table.Column<string>(nullable: false),
+                    LastSeen = table.Column<DateTime>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -499,8 +500,8 @@ namespace HES.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(nullable: false),
-                    StartTime = table.Column<DateTime>(nullable: false),
-                    EndTime = table.Column<DateTime>(nullable: true),
+                    StartDate = table.Column<DateTime>(nullable: false),
+                    EndDate = table.Column<DateTime>(nullable: true),
                     UnlockedBy = table.Column<int>(nullable: false),
                     WorkstationId = table.Column<string>(nullable: true),
                     UserSession = table.Column<string>(nullable: true),
