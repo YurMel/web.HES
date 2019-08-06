@@ -46,7 +46,7 @@ namespace HES.Web.Pages.Employees
                 .ToListAsync();
 
             ViewData["Companies"] = new SelectList(await _employeeService.CompanyQuery().ToListAsync(), "Id", "Name");
-            ViewData["Departments"] = new SelectList(await _employeeService.DepartmentQuery().ToListAsync(), "Id", "Name");
+            //ViewData["Departments"] = new SelectList(await _employeeService.DepartmentQuery().ToListAsync(), "Id", "Name");
             ViewData["Positions"] = new SelectList(await _employeeService.PositionQuery().ToListAsync(), "Id", "Name");
             ViewData["DevicesCount"] = new SelectList(Employees.Select(s => s.Devices.Count()).Distinct().OrderBy(f => f).ToDictionary(t => t, t => t), "Key", "Value");
 

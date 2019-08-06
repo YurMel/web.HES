@@ -42,7 +42,7 @@ namespace HES.Web.Pages.Workstations
                 .ToListAsync();
 
             ViewData["Companies"] = new SelectList(await _workstationService.CompanyQuery().ToListAsync(), "Id", "Name");
-            ViewData["Departments"] = new SelectList(await _workstationService.DepartmentQuery().ToListAsync(), "Id", "Name");
+            //ViewData["Departments"] = new SelectList(await _workstationService.DepartmentQuery().ToListAsync(), "Id", "Name");
 
             ViewData["DatePattern"] = CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern.ToLower();
             ViewData["TimePattern"] = CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern.ToUpper() == "H:MM" ? "hh:ii" : "hh:ii aa";

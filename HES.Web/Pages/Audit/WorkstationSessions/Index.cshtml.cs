@@ -43,7 +43,7 @@ namespace HES.Web.Pages.Audit.WorkstationSessions
             ViewData["Devices"] = new SelectList(await _workstationSessionService.DeviceQuery().ToListAsync(), "Id", "Id");
             ViewData["Employees"] = new SelectList(await _workstationSessionService.EmployeeQuery().ToListAsync(), "Id", "FullName");
             ViewData["Companies"] = new SelectList(await _workstationSessionService.CompanyQuery().ToListAsync(), "Id", "Name");
-            ViewData["Departments"] = new SelectList(await _workstationSessionService.DepartmentQuery().ToListAsync(), "Id", "Name");
+            //ViewData["Departments"] = new SelectList(await _workstationSessionService.DepartmentQuery().ToListAsync(), "Id", "Name");
             ViewData["DeviceAccounts"] = new SelectList(await _workstationSessionService.DeviceAccountQuery().ToListAsync(), "Id", "Name");
             ViewData["DeviceAccountTypes"] = new SelectList(Enum.GetValues(typeof(AccountType)).Cast<AccountType>().ToDictionary(t => (int)t, t => t.ToString()), "Key", "Value");
             
@@ -110,6 +110,11 @@ namespace HES.Web.Pages.Audit.WorkstationSessions
                 .ToListAsync();
 
             return Partial("_WorkstationSessionsTable", this);
+        }
+
+        public async Task<JsonResult> OnGetJsonDepartmentAsync(string id)
+        {
+            return new JsonResult(await _workstationSessionService.DepartmentQuery().Where(d => d.CompanyId == id).ToListAsync());
         }
     }
 }

@@ -9,6 +9,14 @@ $(document).ready(function () {
     if (toggled === 'true') {
         ToggleSidebarClass();
     }
+
+    $('#collapseAudit').on('shown.bs.collapse', function () {
+        $('#collapseSettings').collapse('hide');
+    });
+
+    $('#collapseSettings').on('shown.bs.collapse', function () {
+        $('#collapseAudit').collapse('hide');
+    });
 });
 
 function ToggleSidebar() {

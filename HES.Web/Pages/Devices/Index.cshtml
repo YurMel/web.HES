@@ -67,13 +67,13 @@
             </div>
             <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
                 <label asp-for="DeviceFilter.CompanyId" class="control-label"></label>
-                <select id="companyId" asp-for="DeviceFilter.CompanyId" class="form-control" asp-items="ViewBag.Companies">
+                <select id="companyId" onchange="GetDepartment(this.value)" asp-for="DeviceFilter.CompanyId" class="form-control" asp-items="ViewBag.Companies">
                     <option selected></option>
                 </select>
             </div>
             <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
                 <label asp-for="DeviceFilter.DepartmentId" class="control-label"></label>
-                <select id="departmentId" asp-for="DeviceFilter.DepartmentId" class="form-control" asp-items="ViewBag.Departments">
+                <select id="departmentId" asp-for="DeviceFilter.DepartmentId" class="form-control" disabled>
                     <option selected></option>
                 </select>
             </div>
@@ -250,6 +250,21 @@
             $('#departmentId').val("");
             $('#records').val("500");
         });
+
+        // Dropdown Department
+        function GetDepartment(id) {
+            $.getJSON('/Devices?handler=JsonDepartment', { id: id },
+                function (data) {
+                    var dep = "<option selected=''></option>";
+                    $(data).each(function () {
+                        dep = dep + '<option value="' + this.id + '">' + this.name + '</option>'
+                    });
+                    var subList = $("#departmentId");
+                    subList.empty();
+                    subList.append(dep);
+                    subList.removeAttr("disabled");
+                });
+        }
 
         $(document).ready(function () {
             // Breadcrumbs

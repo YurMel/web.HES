@@ -48,13 +48,13 @@
             </div>
             <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
                 <label asp-for="WorkstationFilter.CompanyId" class="control-label"></label>
-                <select id="companyId" asp-for="WorkstationFilter.CompanyId" class="form-control" asp-items="ViewBag.Companies">
+                <select id="companyId" onchange="GetDepartmentFilter(this.value)" asp-for="WorkstationFilter.CompanyId" class="form-control" asp-items="ViewBag.Companies">
                     <option selected></option>
                 </select>
             </div>
             <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
                 <label asp-for="WorkstationFilter.DepartmentId" class="control-label"></label>
-                <select id="departmentId" asp-for="WorkstationFilter.DepartmentId" class="form-control" asp-items="ViewBag.Departments">
+                <select id="departmentId" asp-for="WorkstationFilter.DepartmentId" class="form-control" disabled>
                     <option selected></option>
                 </select>
             </div>
@@ -232,6 +232,21 @@
                     var subList = $("#departments");
                     subList.empty();
                     subList.append(dep);
+                });
+        }
+
+        // Dropdown Department Filter
+        function GetDepartmentFilter(id) {
+            $.getJSON('/Audit/WorkstationEvents?handler=JsonDepartment', { id: id },
+                function (data) {
+                    var dep = "<option selected=''></option>";
+                    $(data).each(function () {
+                        dep = dep + '<option value="' + this.id + '">' + this.name + '</option>'
+                    });
+                    var subList = $("#departmentId");
+                    subList.empty();
+                    subList.append(dep);
+                    subList.removeAttr("disabled");
                 });
         }
 
