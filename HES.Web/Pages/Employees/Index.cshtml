@@ -36,7 +36,7 @@
             </div>
             <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
                 <label asp-for="EmployeeFilter.CompanyId" class="control-label"></label>
-                <select id="companyId" onchange="GetDepartment(this.value)" asp-for="EmployeeFilter.CompanyId" class="form-control" asp-items="ViewBag.Companies">
+                <select id="companyId" onchange="GetDepartmentFilter(this.value)" asp-for="EmployeeFilter.CompanyId" class="form-control" asp-items="ViewBag.Companies">
                     <option selected></option>
                 </select>
             </div>
@@ -254,7 +254,7 @@
         });
 
         // Dropdown Department
-        function GetDepartment(id) {
+        function GetDepartmentFilter(id) {
             $.getJSON('/Employees?handler=JsonDepartment', { id: id },
                 function (data) {
                     var dep = "<option selected=''></option>";
