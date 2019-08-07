@@ -67,24 +67,6 @@
             var title = btn.data("title");
 
             ShowPartial(id, action, title);
-
-            //$('#modalDialogTitle').html(title);
-            //$('#modalDialog').modal('toggle');
-
-            //$.ajax({
-            //    url: "/Settings/DeviceAccessProfiles?handler=" + action,
-            //    type: "Get",
-            //    data: { id: id },
-            //    async: true,
-            //    success: function (response) {
-            //        $("#modalBody").html(response);
-
-            //        // Validation partial view
-            //        $('form').removeData('validator');
-            //        $('form').removeData('unobtrusiveValidation');
-            //        $.validator.unobtrusive.parse('form');
-            //    }
-            //});
         });
 
         // Click to details of profile
@@ -95,43 +77,6 @@
             var title = row.data("title");
 
             ShowPartial(id, action, title);
-            //$('#modalDialogTitle').html(title);
-            //$('#modalDialog').modal('toggle');
-
-            //$.ajax({
-            //    url: "/Settings/DeviceAccessProfiles?handler=" + action,
-            //    type: "Get",
-            //    data: { id: id },
-            //    async: true,
-            //    success: function (response) {
-            //        $("#modalBody").html(response);
-
-            //        $('#pin_expiration').slider({
-            //            formatter: function (value) {
-            //                $('#pin_expiration_value').html(value + ' sec');
-            //                return 'Current value: ' + value;
-            //            }
-            //        });
-            //        $('#pin_length').slider({
-            //            formatter: function (value) {
-            //                $('#pin_length_value').html(value);
-            //                return 'Current value: ' + value;
-            //            }
-            //        });
-            //        $('#pin_try_count').slider({
-            //            formatter: function (value) {
-            //                $('#pin_try_count_value').html(value);
-            //                return 'Current value: ' + value;
-            //            }
-            //        });
-            //        $('#button_expiration_timeout').slider({
-            //            formatter: function (value) {
-            //                $('#button_expiration_timeout_value').html(value + ' ms');
-            //                return 'Current value: ' + value;
-            //            }
-            //        });
-            //    }
-            //});
         });
 
         function ShowPartial(id, action, title) {
@@ -145,39 +90,36 @@
                 async: true,
                 success: function (response) {
                     $("#modalBody").html(response);
-
-                    if (action == 'DetailsProfile') {
-                        $('#pin_expiration').slider({
-                            formatter: function (value) {
-                                $('#pin_expiration_value').html(value + ' sec');
-                                return 'Current value: ' + value;
-                            }
-                        });
-                        $('#pin_length').slider({
-                            formatter: function (value) {
-                                $('#pin_length_value').html(value);
-                                return 'Current value: ' + value;
-                            }
-                        });
-                        $('#pin_try_count').slider({
-                            formatter: function (value) {
-                                $('#pin_try_count_value').html(value);
-                                return 'Current value: ' + value;
-                            }
-                        });
-                        $('#button_expiration_timeout').slider({
-                            formatter: function (value) {
-                                $('#button_expiration_timeout_value').html(value + ' ms');
-                                return 'Current value: ' + value;
-                            }
-                        });
-                    }
-                    else {
-                        // Validation partial view
-                        $('form').removeData('validator');
-                        $('form').removeData('unobtrusiveValidation');
-                        $.validator.unobtrusive.parse('form');
-                    }                   
+                                        
+                    $('#pin_expiration').slider({
+                        formatter: function (value) {
+                            $('#pin_expiration_value').html(value + ' sec');
+                            return 'Current value: ' + value;
+                        }
+                    });
+                    $('#pin_length').slider({
+                        formatter: function (value) {
+                            $('#pin_length_value').html(value);
+                            return 'Current value: ' + value;
+                        }
+                    });
+                    $('#pin_try_count').slider({
+                        formatter: function (value) {
+                            $('#pin_try_count_value').html(value);
+                            return 'Current value: ' + value;
+                        }
+                    });
+                    $('#button_expiration_timeout').slider({
+                        formatter: function (value) {
+                            $('#button_expiration_timeout_value').html(value + ' ms');
+                            return 'Current value: ' + value;
+                        }
+                    });
+                    
+                    // Validation partial view
+                    $('form').removeData('validator');
+                    $('form').removeData('unobtrusiveValidation');
+                    $.validator.unobtrusive.parse('form');
                 }
             });
         }

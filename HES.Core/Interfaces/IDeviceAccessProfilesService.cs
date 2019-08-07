@@ -8,7 +8,7 @@ namespace HES.Core.Interfaces
     {
         IQueryable<DeviceAccessProfile> DeviceAccessProfilesQuery();
         Task<DeviceAccessProfile> GetByIdAsync(dynamic id);
-        Task<DeviceAccessProfile> CreateProfileAsync(DeviceAccessProfile deviceAccessProfile);
+        Task CreateProfileAsync(DeviceAccessProfile deviceAccessProfile);
         Task EditProfileAsync(DeviceAccessProfile deviceAccessProfile);
         Task DeleteProfileAsync(string id);
     }

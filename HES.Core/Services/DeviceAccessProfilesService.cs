@@ -1,9 +1,7 @@
 ﻿using HES.Core.Entities;
 using HES.Core.Interfaces;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace HES.Core.Services
@@ -27,19 +25,42 @@ namespace HES.Core.Services
             return await _deviceAccessProfileRepository.GetByIdAsync(id);
         }
 
-        public Task<DeviceAccessProfile> CreateProfileAsync(DeviceAccessProfile deviceAccessProfile)
+        public async Task CreateProfileAsync(DeviceAccessProfile deviceAccessProfile)
         {
-            throw new NotImplementedException();
+            if (deviceAccessProfile == null)
+            {
+                throw new ArgumentNullException(nameof(deviceAccessProfile));
+            }
+
+            deviceAccessProfile.CreatedAt = DateTime.UtcNow;
+            await _deviceAccessProfileRepository.AddAsync(deviceAccessProfile);
         }
 
-        public Task EditProfileAsync(DeviceAccessProfile deviceAccessProfile)
+        public async Task EditProfileAsync(DeviceAccessProfile deviceAccessProfile)
         {
-            throw new NotImplementedException();
+            if (deviceAccessProfile == null)
+            {
+                throw new ArgumentNullException(nameof(deviceAccessProfile));
+            }
+
+            deviceAccessProfile.UpdatedAt = DateTime.UtcNow;
+            await _deviceAccessProfileRepository.UpdateAsync(deviceAccessProfile);
         }
 
-        public Task DeleteProfileAsync(string id)
+        public async Task DeleteProfileAsync(string id)
         {
-            throw new NotImplementedException();
+            if (id == null)
+            {
+                throw new ArgumentNullException(nameof(id));
+            }
+
+            var deviceAccessProfile = await _deviceAccessProfileRepository.GetByIdAsync(id);
+            if (deviceAccessProfile == null)
+            {
+                throw new Exception("Device access profile not found");
+            }
+
+            await _deviceAccessProfileRepository.DeleteAsync(deviceAccessProfile);
         }
     }
 }

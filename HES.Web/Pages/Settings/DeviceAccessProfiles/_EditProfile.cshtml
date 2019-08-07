@@ -1,0 +1,145 @@
+﻿@model HES.Web.Pages.Settings.DeviceAccessProfiles.IndexModel
+
+<form method="post">
+    <input type="hidden" asp-for="DeviceAccessProfile.Id" />
+    <input type="hidden" asp-for="DeviceAccessProfile.CreatedAt" />
+    <div class="form-group">
+        <label asp-for="DeviceAccessProfile.Name" class="control-label text-gray"></label>
+        <input asp-for="DeviceAccessProfile.Name" class="form-control text-navyblue" />
+        <span asp-validation-for="DeviceAccessProfile.Name" class="text-danger"></span>
+    </div>
+    <label class="text-gray">Authorization parameters</label>
+    <table class="table border rounded w-100 disable-selection">
+        <thead>
+            <tr>
+                <th></th>
+                <th class="text-center align-middle">
+                    Bonding
+                </th>
+                <th class="text-center align-middle">
+                    Connection
+                </th>
+                <th class="text-center align-middle">
+                    New Channel
+                </th>
+                <th class="text-center align-middle">
+                    New Link
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    Button
+                </td>
+                <td class="text-center">
+                    <input type="checkbox" asp-for="DeviceAccessProfile.ButtonBonding" />
+                </td>
+                <td class="text-center">
+                    <input type="checkbox" asp-for="DeviceAccessProfile.ButtonConnection" />
+                </td>
+                <td class="text-center">
+                    <input type="checkbox" asp-for="DeviceAccessProfile.ButtonNewChannel" />
+                </td>
+                <td class="text-center">
+                    <input type="checkbox" asp-for="DeviceAccessProfile.ButtonNewLink" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    PIN
+                </td>
+                <td class="text-center">
+                    <input type="checkbox" asp-for="DeviceAccessProfile.PinBonding" />
+                </td>
+                <td class="text-center">
+                    <input type="checkbox" asp-for="DeviceAccessProfile.PinConnection" />
+                </td>
+                <td class="text-center">
+                    <input type="checkbox" asp-for="DeviceAccessProfile.PinNewChannel" />
+                </td>
+                <td class="text-center">
+                    <input type="checkbox" asp-for="DeviceAccessProfile.PinNewLink" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Master-key
+                </td>
+                <td class="text-center">
+                    <input type="checkbox" asp-for="DeviceAccessProfile.MasterKeyBonding" />
+                </td>
+                <td class="text-center">
+                    <input type="checkbox" asp-for="DeviceAccessProfile.MasterKeyConnection" />
+                </td>
+                <td class="text-center">
+                    <input type="checkbox" asp-for="DeviceAccessProfile.MasterKeyNewChannel" />
+                </td>
+                <td class="text-center">
+                    <input type="checkbox" asp-for="DeviceAccessProfile.MasterKeyNewLink" />
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <label class="text-gray">PIN settings</label>
+    <table class="table border rounded w-100 disable-selection">
+        <thead>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    PIN expiration
+                </td>
+                <td class="text-center pr-1">
+                    <input id="pin_expiration" asp-for="DeviceAccessProfile.PinExpiration" type="text" data-slider-min="4" data-slider-max="300" data-slider-step="1" data-slider-value="@Model.DeviceAccessProfile.PinExpiration" />
+                </td>
+                <td class="text-center">
+                    <h6 id="pin_expiration_value"></h6>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    PIN length
+                </td>
+                <td class="text-center pr-1">
+                    <input id="pin_length" asp-for="DeviceAccessProfile.PinLength" type="text" data-slider-min="4" data-slider-max="8" data-slider-step="1" data-slider-value="@Model.DeviceAccessProfile.PinLength" />
+                </td>
+                <td class="text-center">
+                    <h6 id="pin_length_value"></h6>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    PIN try count
+                </td>
+                <td class="text-center pr-1">
+                    <input id="pin_try_count" asp-for="DeviceAccessProfile.PinTryCount" type="text" data-slider-min="3" data-slider-max="300" data-slider-step="1" data-slider-value="@Model.DeviceAccessProfile.PinTryCount" />
+                </td>
+                <td class="text-center">
+                    <h6 id="pin_try_count_value"></h6>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Button expiration
+                </td>
+                <td class="text-center pr-1">
+                    <input id="button_expiration_timeout" asp-for="DeviceAccessProfile.ButtonExpirationTimeout" type="text" data-slider-min="500" data-slider-max="15000" data-slider-step="100" data-slider-value="@Model.DeviceAccessProfile.ButtonExpirationTimeout" />
+                </td>
+                <td class="text-center">
+                    <h6 id="button_expiration_timeout_value" style="width:68px;"></h6>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="form-group m-0 text-right">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <input type="submit" value="Save" class="btn btn-primary" asp-page-handler="EditProfile" />
+    </div>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
