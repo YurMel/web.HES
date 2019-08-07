@@ -89,7 +89,7 @@
                 PIN expiration
             </td>
             <td class="text-center pr-1">
-                <input id="pin_expiration" asp-for="DeviceAccessProfile.PinExpiration" type="text" data-slider-min="4" data-slider-max="300" data-slider-step="1" data-slider-value="@Model.DeviceAccessProfile.PinExpiration" data-slider-enabled="false" />
+                <input id="pin_expiration" asp-for="DeviceAccessProfile.PinExpiration" type="text" data-slider-min="1" data-slider-max="1140" data-slider-step="1" data-slider-value="@Model.DeviceAccessProfile.PinExpiration" data-slider-enabled="false" />
             </td>
             <td class="text-center">
                 <h6 id="pin_expiration_value"></h6>
@@ -122,7 +122,7 @@
                 Button expiration
             </td>
             <td class="text-center pr-1">
-                <input id="button_expiration_timeout" asp-for="DeviceAccessProfile.ButtonExpirationTimeout" type="text" data-slider-min="500" data-slider-max="15000" data-slider-step="100" data-slider-value="@Model.DeviceAccessProfile.ButtonExpirationTimeout" data-slider-enabled="false" />
+                <input id="button_expiration_timeout" asp-for="DeviceAccessProfile.ButtonExpirationTimeout" type="text" data-slider-min="1" data-slider-max="15" data-slider-step="1" data-slider-value="@Model.DeviceAccessProfile.ButtonExpirationTimeout" data-slider-enabled="false" />
             </td>
             <td class="text-center">
                 <h6 id="button_expiration_timeout_value" style="width:68px;"></h6>

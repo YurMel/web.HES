@@ -90,10 +90,10 @@
                 async: true,
                 success: function (response) {
                     $("#modalBody").html(response);
-                                        
+
                     $('#pin_expiration').slider({
                         formatter: function (value) {
-                            $('#pin_expiration_value').html(value + ' sec');
+                            $('#pin_expiration_value').html(value + ' min');
                             return 'Current value: ' + value;
                         }
                     });
@@ -111,11 +111,11 @@
                     });
                     $('#button_expiration_timeout').slider({
                         formatter: function (value) {
-                            $('#button_expiration_timeout_value').html(value + ' ms');
+                            $('#button_expiration_timeout_value').html(value + ' sec');
                             return 'Current value: ' + value;
                         }
                     });
-                    
+
                     // Validation partial view
                     $('form').removeData('validator');
                     $('form').removeData('unobtrusiveValidation');
