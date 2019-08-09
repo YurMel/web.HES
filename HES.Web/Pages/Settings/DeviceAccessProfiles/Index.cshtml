@@ -93,7 +93,12 @@
 
                     $('#pin_expiration').slider({
                         formatter: function (value) {
-                            $('#pin_expiration_value').html(value + ' min');
+                            if (value <= 59) {
+                                $('#pin_expiration_value').html(value + ' min');
+                            }
+                            else {
+                                $('#pin_expiration_value').html((value - 59) + ' hrs');
+                            }                  
                             return 'Current value: ' + value;
                         }
                     });

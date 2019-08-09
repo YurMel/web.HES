@@ -65,7 +65,7 @@ namespace HES.Infrastructure
                     MasterKeyConnection = false,
                     MasterKeyNewChannel = false,
                     MasterKeyNewLink = false,
-                    PinExpiration = 1140,
+                    PinExpiration = 86400,
                     PinLength = 4,
                     PinTryCount = 10,
                     ButtonExpirationTimeout = 15

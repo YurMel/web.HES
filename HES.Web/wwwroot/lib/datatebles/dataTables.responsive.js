@@ -608,7 +608,7 @@ $.extend( Responsive.prototype, {
 
 		// The inline type always uses the first child as the target
 		if ( details.type === 'inline' ) {
-			details.target = 'td:first-child, th:first-child';
+			details.target = 'td:nth-child(2), th:nth-child(2)';
 		}
 
 		// Keyboard accessibility
@@ -982,8 +982,8 @@ $.extend( Responsive.prototype, {
 		else {
 			// This is a bit of a hack - we need to limit the selected nodes to just
 			// those of this table
-			if ( target === 'td:first-child, th:first-child' ) {
-				target = '>td:first-child, >th:first-child';
+			if ( target === 'td:nth-child(2), th:nth-child(2)' ) {
+				target = '>td:nth-child(2), >th:nth-child(2)';
 			}
 
 			$( target, dt.rows( { page: 'current' } ).nodes() )

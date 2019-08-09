@@ -30,7 +30,7 @@ namespace HES.Core.Services
             if (deviceAccessProfile == null)
             {
                 throw new ArgumentNullException(nameof(deviceAccessProfile));
-            }
+            }            
 
             deviceAccessProfile.CreatedAt = DateTime.UtcNow;
             await _deviceAccessProfileRepository.AddAsync(deviceAccessProfile);
@@ -43,6 +43,11 @@ namespace HES.Core.Services
                 throw new ArgumentNullException(nameof(deviceAccessProfile));
             }
 
+            if (deviceAccessProfile.Id == "default")
+            {
+                throw new Exception("Cannot edit a default profile");
+            }
+
             deviceAccessProfile.UpdatedAt = DateTime.UtcNow;
             await _deviceAccessProfileRepository.UpdateAsync(deviceAccessProfile);
         }
@@ -52,6 +57,11 @@ namespace HES.Core.Services
             if (id == null)
             {
                 throw new ArgumentNullException(nameof(id));
+            }
+
+            if (id == "default")
+            {
+                throw new Exception("Cannot delete a default profile");
             }
 
             var deviceAccessProfile = await _deviceAccessProfileRepository.GetByIdAsync(id);

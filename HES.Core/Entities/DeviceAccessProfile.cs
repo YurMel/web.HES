@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HES.Core.Entities
 {
@@ -31,5 +32,24 @@ namespace HES.Core.Entities
         public int PinLength { get; set; }
         public int PinTryCount { get; set; }
         public int ButtonExpirationTimeout { get; set; }
+
+        /// <summary>
+        /// logic min value: 1, max value: 107
+        /// minutes: 1-59
+        /// hours: 60-107 (value - 59) = hrs
+        /// </summary>
+        [NotMapped]
+        public int PinExpirationConverted
+        {
+            get
+            {
+                var prop = PinExpiration / 60;
+                return prop <= 59 ? prop : (prop / 60) + 59;
+            }
+            set
+            {
+                PinExpiration = value <= 59 ? value * 60 : (value - 59) * 3600;
+            }
+        }
     }
 }
