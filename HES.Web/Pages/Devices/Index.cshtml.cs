@@ -62,6 +62,7 @@ namespace HES.Web.Pages.Devices
         {
             var filter = _deviceService
                 .DeviceQuery()
+                .Include(d => d.DeviceAccessProfile)
                 .Include(c => c.Employee.Department.Company)
                 .AsQueryable();
 

@@ -117,9 +117,9 @@
 </div>
 
 @section scripts{
+    <script src="~/js/dt-init-devices.js"></script>
+    <script src="~/js/dt-checkboxes.js"></script>
     <script>
-        var devices = [];
-
         // Initialize DateTimePicker
         $('#startDate').datepicker({
             timepicker: true,
@@ -161,68 +161,6 @@
         function ShowEndDate() {
             $('#endDate').datepicker().data('datepicker').show();
         }
-
-        // Initialize DataTables
-        var table_name = '#devices';
-        var table = $(table_name).DataTable({
-            responsive: true,
-            "order": [[1, "asc"]],
-            "columnDefs": [
-                { "orderable": false, "targets": [0,11] }
-            ],
-        });
-        var dataTable = $(table_name).dataTable();
-        // Search box
-        $('#searchbox').keyup(function () {
-            dataTable.fnFilter(this.value);
-        });
-        $('.dataTables_filter').addClass('d-none');
-        // Length
-        $('#entries_place').html($('.dataTables_length select').removeClass('custom-select-sm form-control-sm'));
-        $('.dataTables_length').addClass('d-none');
-        // Info
-        $('#showing_place').html($('.dataTables_info'));
-        // Paginate
-        $('#pagination_place').html($('.dataTables_paginate'));
-
-        // Check all
-        $(document).on('change', '#checkbox_all', function () {
-            if (this.checked) {
-                devices = [];
-                table.$('input[type="checkbox"]').each(function () {
-                    this.checked = true;
-                    devices.push(this.id);
-                });
-            }
-            else {
-                devices = [];
-                table.$('input[type="checkbox"]').each(function () {
-                    this.checked = false;
-                });
-            }
-
-            if (devices.length > 0) {
-                $('#btnProfile').removeClass('d-none');
-            } else {
-                $('#btnProfile').addClass('d-none');
-            }
-        });
-
-        // Check single
-        $(document).on('change', '.table-checkbox', function () {
-            devices = [];
-            table.$('input[type="checkbox"]').each(function () {
-                if (this.checked) {
-                    devices.push(this.id);
-                }
-            });
-
-            if (devices.length > 0) {
-                $('#btnProfile').removeClass('d-none');
-            } else {
-                $('#btnProfile').addClass('d-none');
-            }
-        });
 
         // Open modal dialog
         $(document).on('click', '.open-modal-dialog', function () {
