@@ -164,6 +164,11 @@ namespace HES.Core.Hubs
             return device != null;
         }
 
+        public static bool IsWorkstationOnline(string workstationId)
+        {
+            var r = new Random().Next(100) < 50 ? true : false;
+            return r;
+        }
         // Incomming request
         public async Task<UserInfo> GetInfoByRfid(string rfid)
         {
@@ -256,32 +261,16 @@ namespace HES.Core.Hubs
 
             Context.Items.Add("WorkstationDesc", workstationDesc);
 
-            // Todo: might be not the best way or place to do this
-            if (_workstationService.Exist(w => w.Id == workstationInfo.Id))
+            if (await _workstationService.ExistAsync(w => w.Id == workstationInfo.Id))
             {
                 // Workstation exists, update its information
-                await _workstationService.UpdateClientVersionAsync(workstationInfo.Id, workstationInfo.AppVersion);
-                await _workstationService.UpdateOsAsync(workstationInfo.Id, workstationInfo.OsName);
-                await _workstationService.UpdateIpAsync(workstationInfo.Id, workstationInfo.IP);
-                await _workstationService.UpdateLastSeenAsync(workstationInfo.Id);
+                await _workstationService.UpdateWorkstationAsync(workstationInfo);
             }
-            else 
+            else
             {
                 // Workstation does not exist in DB or its name + domain was changed
-                // Create new unapproved workstation
-                //var defaultDepartment = await _employeeService.DepartmentQuery().FirstOrDefaultAsync();
-                var workstation = new Workstation()
-                {
-                    Id = workstationInfo.Id,
-                    Name = workstationInfo.MachineName,
-                    Domain = workstationInfo.Domain,
-                    OS = workstationInfo.OsName,
-                    ClientVersion = workstationInfo.AppVersion,
-                    IP = workstationInfo.IP,
-                    LastSeen = DateTime.UtcNow,
-                    DepartmentId = null//defaultDepartment?.Id,
-                };
-                await _workstationService.AddWorkstationAsync(workstation);
+                // Create new unapproved workstation      
+                await _workstationService.AddWorkstationAsync(workstationInfo);
             }
 
             await OnWorkstationConnected(workstationInfo.Id);

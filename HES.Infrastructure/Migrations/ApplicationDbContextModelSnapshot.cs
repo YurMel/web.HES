@@ -399,9 +399,9 @@ namespace HES.Infrastructure.Migrations
 
                     b.Property<string>("EmployeeId");
 
-                    b.Property<DateTime?>("EndTime");
+                    b.Property<DateTime?>("EndDate");
 
-                    b.Property<DateTime>("StartTime");
+                    b.Property<DateTime>("StartDate");
 
                     b.Property<int>("UnlockedBy");
 

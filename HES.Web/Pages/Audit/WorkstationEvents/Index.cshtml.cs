@@ -35,8 +35,8 @@ namespace HES.Web.Pages.Audit.WorkstationEvents
                 .Include(w => w.Employee)
                 .Include(w => w.Department.Company)
                 .Include(w => w.DeviceAccount)
-                .Where(w => w.Date.Date >= DateTime.UtcNow.Date.AddDays(-30) && w.Date.Date <= DateTime.UtcNow.Date)
                 .OrderByDescending(w => w.Date)
+                .Take(500)
                 .ToListAsync();
 
             ViewData["Events"] = new SelectList(Enum.GetValues(typeof(WorkstationEventId)).Cast<WorkstationEventId>().ToDictionary(t => (int)t, t => t.ToString()), "Key", "Value");
@@ -45,13 +45,12 @@ namespace HES.Web.Pages.Audit.WorkstationEvents
             ViewData["Devices"] = new SelectList(await _workstationEventService.DeviceQuery().ToListAsync(), "Id", "Id");
             ViewData["Employees"] = new SelectList(await _workstationEventService.EmployeeQuery().ToListAsync(), "Id", "FullName");
             ViewData["Companies"] = new SelectList(await _workstationEventService.CompanyQuery().ToListAsync(), "Id", "Name");
-            ViewData["Departments"] = new SelectList(await _workstationEventService.DepartmentQuery().ToListAsync(), "Id", "Name");
+            //ViewData["Departments"] = new SelectList(await _workstationEventService.DepartmentQuery().ToListAsync(), "Id", "Name");
             ViewData["DeviceAccounts"] = new SelectList(await _workstationEventService.DeviceAccountQuery().ToListAsync(), "Id", "Name");
             ViewData["DeviceAccountTypes"] = new SelectList(Enum.GetValues(typeof(AccountType)).Cast<AccountType>().ToDictionary(t => (int)t, t => t.ToString()), "Key", "Value");
 
             ViewData["DatePattern"] = CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern.ToLower();
-            ViewData["StartDate"] = DateTime.UtcNow.AddDays(-30);
-            ViewData["EndDate"] = DateTime.UtcNow;
+            ViewData["TimePattern"] = CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern.ToUpper() == "H:MM" ? "hh:ii" : "hh:ii aa";
         }
 
         public async Task<IActionResult> OnPostFilterWorkstationEventsAsync(WorkstationEventFilter WorkstationEventFilter)
@@ -67,12 +66,8 @@ namespace HES.Web.Pages.Audit.WorkstationEvents
 
             if (WorkstationEventFilter.StartDate != null && WorkstationEventFilter.EndDate != null)
             {
-                filter = filter.Where(w => w.Date.Date >= WorkstationEventFilter.StartDate.Value.Date.ToUniversalTime() &&
-                                      w.Date.Date <= WorkstationEventFilter.EndDate.Value.Date.ToUniversalTime());
-            }
-            else
-            {
-                filter = filter.Where(w => w.Date.Date >= DateTime.UtcNow.Date.AddDays(-30) && w.Date.Date <= DateTime.UtcNow.Date);
+                filter = filter.Where(w => w.Date >= WorkstationEventFilter.StartDate.Value.Date.AddSeconds(0).AddMilliseconds(0).ToUniversalTime() &&
+                                           w.Date <= WorkstationEventFilter.EndDate.Value.Date.AddSeconds(59).AddMilliseconds(999).ToUniversalTime());
             }
             if (WorkstationEventFilter.EventId != null)
             {
@@ -119,9 +114,17 @@ namespace HES.Web.Pages.Audit.WorkstationEvents
                 filter = filter.Where(w => w.DeviceAccount.Type == (AccountType)WorkstationEventFilter.DeviceAccountTypeId);
             }
 
-            WorkstationEvents = await filter.OrderByDescending(w => w.Date).ToListAsync();
+            WorkstationEvents = await filter
+                .OrderByDescending(w => w.Date)
+                .Take(WorkstationEventFilter.Records)
+                .ToListAsync();
 
             return Partial("_WorkstationEventsTable", this);
+        }
+
+        public async Task<JsonResult> OnGetJsonDepartmentAsync(string id)
+        {
+            return new JsonResult(await _workstationEventService.DepartmentQuery().Where(d => d.CompanyId == id).ToListAsync());
         }
     }
 }

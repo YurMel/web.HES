@@ -28,58 +28,10 @@ namespace HES.Web.Pages.Audit.WorkstationSummaries
 
         public async Task OnGet()
         {
-            #region linq
-            //SummaryByDayAndEmployee = await _workstationSessionService
-            //   .WorkstationSessionQuery()
-            //   .Include(w => w.Employee)
-            //   .Include(w => w.Department.Company)
-            //   .GroupBy(w => new
-            //   {
-            //       w.StartTime.Date,
-            //       w.Employee,
-            //   })
-            //   .Select(g => new SummaryByDayAndEmployee()
-            //   {
-            //       Date = g.Key.Date,
-            //       //Employee = g.First().Employee ?? new Employee { Id = "N/A", FirstName = "N/A", LastName = "" },
-            //       //Department = g.First().Department ?? new Department { Company = new Company { Id = "N/A", Name = "N/A" }, Id = "N/A", Name = "N/A" },
-            //       WorkstationsCount = g.GroupBy(z => z.Workstation.Id).Count(),
-            //       AvgSessionDuration = TimeSpan.FromMinutes(g.Average(s => s.Duration.TotalMinutes)),
-            //       SessionCount = g.Count(),
-            //       TotalSessionDuration = TimeSpan.FromMinutes(g.Sum(s => s.Duration.TotalMinutes)),
-            //   })
-            //      .OrderByDescending(w => w.Date)
-            //      //.OrderBy(w => w.Employee.FullName)
-            //      .Take(100)
-            //      .AsNoTracking()
-            //      .ToListAsync();
-
-            //if (SummaryFilter.StartDate != null && SummaryFilter.EndDate != null)
-            //{
-            //    //filter = filter
-            //    //    .Where(w => w.Date >= SummaryFilter.StartDate.Value.Date.ToUniversalTime())
-            //    //    .Where(w => w.Date <= SummaryFilter.EndDate.Value.Date.ToUniversalTime());
-            //}
-            //if (SummaryFilter.EmployeeId != null)
-            //{
-            //    //filter = filter.Where(w => w.Employee.Id == SummaryFilter.EmployeeId);
-            //}
-            //if (SummaryFilter.CompanyId != null)
-            //{
-            //    //filter = filter.Where(w => w.Department.Company.Id == SummaryFilter.CompanyId);
-            //}
-            //if (SummaryFilter.DepartmentId != null)
-            //{
-            //    //filter = filter.Where(w => w.Department.Id == SummaryFilter.DepartmentId);
-            //}
-
-            //SummaryByDayAndEmployee = await filter.AsNoTracking().ToListAsync();
-            #endregion
-
             SummaryByDayAndEmployee = await _workstationSessionService
                 .SummaryByDayAndEmployeeSqlQuery
                 ($@"SELECT
-	                    DATE(workstationsessions.StartTime) AS Date,
+	                    DATE(workstationsessions.StartDate) AS Date,
 	                    employees.Id AS EmployeeId,
 	                    IFNULL(CONCAT(employees.FirstName,' ',employees.LastName), 'N/A') AS Employee,
 	                    companies.Id AS CompanyId,
@@ -87,32 +39,28 @@ namespace HES.Web.Pages.Audit.WorkstationSummaries
 	                    departments.Id AS DepartmentId,
 	                    IFNULL(departments.Name, 'N/A') AS Department,
 	                    COUNT(DISTINCT WorkstationId) AS WorkstationsCount,
-	                    SEC_TO_TIME(AVG(TIME_TO_SEC(TIMEDIFF(IFNULL(workstationsessions.EndTime, NOW()), workstationsessions.StartTime)))) AS AvgSessionsDuration,
+	                    SEC_TO_TIME(AVG(TIME_TO_SEC(TIMEDIFF(IFNULL(workstationsessions.EndDate, NOW()), workstationsessions.StartDate)))) AS AvgSessionsDuration,
 	                    COUNT(*) AS SessionsCount,
-	                    SEC_TO_TIME(SUM(TIME_TO_SEC(TIMEDIFF(IFNULL(workstationsessions.EndTime, NOW()), workstationsessions.StartTime)))) AS TotalSessionsDuration
+	                    SEC_TO_TIME(SUM(TIME_TO_SEC(TIMEDIFF(IFNULL(workstationsessions.EndDate, NOW()), workstationsessions.StartDate)))) AS TotalSessionsDuration
                     FROM workstationsessions
 	                    LEFT JOIN employees ON workstationsessions.EmployeeId = employees.Id
 	                    LEFT JOIN departments ON employees.DepartmentId = departments.Id
 	                    LEFT JOIN companies ON departments.CompanyId = companies.Id
-                    WHERE workstationsessions.StartTime BETWEEN '{DateTime.UtcNow.AddDays(-30).ToString("yyyy-MM-dd HH:mm:ss")}' AND '{DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")}'
                     GROUP BY
-	                    DATE(workstationsessions.StartTime),
+	                    DATE(workstationsessions.StartDate),
 	                    workstationsessions.EmployeeId
                     ORDER BY
-	                    DATE(workstationsessions.StartTime) DESC, Employee ASC
+	                    DATE(workstationsessions.StartDate) DESC, Employee ASC
                     LIMIT 500")
                 .AsNoTracking()
                 .ToListAsync();
 
             ViewData["Employees"] = new SelectList(await _workstationSessionService.EmployeeQuery().ToListAsync(), "Id", "FullName");
             ViewData["Companies"] = new SelectList(await _workstationSessionService.CompanyQuery().ToListAsync(), "Id", "Name");
-            ViewData["Departments"] = new SelectList(await _workstationSessionService.DepartmentQuery().ToListAsync(), "Id", "Name");
+            //ViewData["Departments"] = new SelectList(await _workstationSessionService.DepartmentQuery().ToListAsync(), "Id", "Name");
 
             ViewData["DatePattern"] = CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern.ToLower();
-            ViewData["TimePattern"] = CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern.ToUpper();
-
-            ViewData["StartDate"] = DateTime.UtcNow.AddDays(-30);
-            ViewData["EndDate"] = DateTime.UtcNow;
+            ViewData["TimePattern"] = CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern.ToUpper() == "H:MM" ? "hh:ii" : "hh:ii aa";
         }
 
         public async Task<IActionResult> OnPostFilterSummaryByDaysAndEmployeesAsync(SummaryFilter SummaryFilter)
@@ -122,11 +70,7 @@ namespace HES.Web.Pages.Audit.WorkstationSummaries
 
             if (SummaryFilter.StartDate != null && SummaryFilter.EndDate != null)
             {
-                parameters.Add($"workstationsessions.StartTime BETWEEN '{SummaryFilter.StartDate.Value.Date.ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss")}' AND '{SummaryFilter.EndDate.Value.Date.ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss")}'");
-            }
-            else
-            {
-                parameters.Add($"workstationsessions.StartTime BETWEEN '{DateTime.UtcNow.AddDays(-30).ToString("yyyy-MM-dd HH:mm:ss")}' AND '{DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")}'");
+                parameters.Add($"workstationsessions.StartDate BETWEEN '{SummaryFilter.StartDate.Value.AddSeconds(0).ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss")}' AND '{SummaryFilter.EndDate.Value.AddSeconds(59).ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss")}'");
             }
             if (SummaryFilter.EmployeeId != null)
             {
@@ -175,7 +119,7 @@ namespace HES.Web.Pages.Audit.WorkstationSummaries
             SummaryByDayAndEmployee = await _workstationSessionService
                 .SummaryByDayAndEmployeeSqlQuery
                 ($@"SELECT
-	                    DATE(workstationsessions.StartTime) AS Date,
+	                    DATE(workstationsessions.StartDate) AS Date,
 	                    employees.Id AS EmployeeId,
 	                    IFNULL(CONCAT(employees.FirstName,' ',employees.LastName), 'N/A') AS Employee,
 	                    companies.Id AS CompanyId,
@@ -183,19 +127,19 @@ namespace HES.Web.Pages.Audit.WorkstationSummaries
 	                    departments.Id AS DepartmentId,
 	                    IFNULL(departments.Name, 'N/A') AS Department,
 	                    COUNT(DISTINCT WorkstationId) AS WorkstationsCount,
-	                    SEC_TO_TIME(AVG(TIME_TO_SEC(TIMEDIFF(IFNULL(workstationsessions.EndTime, NOW()), workstationsessions.StartTime)))) AS AvgSessionsDuration,
+	                    SEC_TO_TIME(AVG(TIME_TO_SEC(TIMEDIFF(IFNULL(workstationsessions.EndDate, NOW()), workstationsessions.StartDate)))) AS AvgSessionsDuration,
 	                    COUNT(*) AS SessionsCount,
-	                    SEC_TO_TIME(SUM(TIME_TO_SEC(TIMEDIFF(IFNULL(workstationsessions.EndTime, NOW()), workstationsessions.StartTime)))) AS TotalSessionsDuration
+	                    SEC_TO_TIME(SUM(TIME_TO_SEC(TIMEDIFF(IFNULL(workstationsessions.EndDate, NOW()), workstationsessions.StartDate)))) AS TotalSessionsDuration
                     FROM workstationsessions
 	                    LEFT JOIN employees ON workstationsessions.EmployeeId = employees.Id
 	                    LEFT JOIN departments ON employees.DepartmentId = departments.Id
 	                    LEFT JOIN companies ON departments.CompanyId = companies.Id
                 {where}
                     GROUP BY
-	                    DATE(workstationsessions.StartTime),
+	                    DATE(workstationsessions.StartDate),
 	                    workstationsessions.EmployeeId
                     ORDER BY
-	                    DATE(workstationsessions.StartTime) DESC, Employee ASC
+	                    DATE(workstationsessions.StartDate) DESC, Employee ASC
                     LIMIT {SummaryFilter.Records}")
                 .AsNoTracking()
                 .ToListAsync();
@@ -210,12 +154,8 @@ namespace HES.Web.Pages.Audit.WorkstationSummaries
 
             if (SummaryFilter.StartDate != null && SummaryFilter.EndDate != null)
             {
-                parameters.Add($"workstationsessions.StartTime BETWEEN '{SummaryFilter.StartDate.Value.Date.ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss")}' AND '{SummaryFilter.EndDate.Value.Date.ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss")}'");
-            }
-            else
-            {
-                parameters.Add($"workstationsessions.StartTime BETWEEN '{DateTime.UtcNow.AddDays(-30).ToString("yyyy-MM-dd HH:mm:ss")}' AND '{DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")}'");
-            }
+                parameters.Add($"workstationsessions.StartDate BETWEEN '{SummaryFilter.StartDate.Value.AddSeconds(0).ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss")}' AND '{SummaryFilter.EndDate.Value.AddSeconds(59).ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss")}'");
+            }           
             if (SummaryFilter.CompanyId != null)
             {
                 if (SummaryFilter.CompanyId == "N/A")
@@ -259,12 +199,12 @@ namespace HES.Web.Pages.Audit.WorkstationSummaries
 	                    departments.Id AS DepartmentId,
 	                    IFNULL(departments.Name, 'N/A') AS Department,
 	                    COUNT(DISTINCT WorkstationId) AS WorkstationsCount,
-	                    COUNT(DISTINCT DATE(workstationsessions.StartTime)) AS WorkingDaysCount,
+	                    COUNT(DISTINCT DATE(workstationsessions.StartDate)) AS WorkingDaysCount,
 	                    COUNT(*) AS TotalSessionsCount,
-	                    SEC_TO_TIME(SUM(TIME_TO_SEC(TIMEDIFF(IFNULL(workstationsessions.EndTime, NOW()), workstationsessions.StartTime)))) AS TotalSessionsDuration,	
-	                    SEC_TO_TIME(AVG(TIME_TO_SEC(TIMEDIFF(IFNULL(workstationsessions.EndTime, NOW()), workstationsessions.StartTime)))) AS AvgSessionsDuration,	
-	                    COUNT(*) / COUNT(DISTINCT DATE(workstationsessions.StartTime)) AS AvgSessionsCountPerDay,
-	                    SEC_TO_TIME(SUM(TIME_TO_SEC(TIMEDIFF(IFNULL(workstationsessions.EndTime, NOW()), workstationsessions.StartTime))) / COUNT(DISTINCT DATE(workstationsessions.StartTime))) AS AvgWorkingHoursPerDay
+	                    SEC_TO_TIME(SUM(TIME_TO_SEC(TIMEDIFF(IFNULL(workstationsessions.EndDate, NOW()), workstationsessions.StartDate)))) AS TotalSessionsDuration,	
+	                    SEC_TO_TIME(AVG(TIME_TO_SEC(TIMEDIFF(IFNULL(workstationsessions.EndDate, NOW()), workstationsessions.StartDate)))) AS AvgSessionsDuration,	
+	                    COUNT(*) / COUNT(DISTINCT DATE(workstationsessions.StartDate)) AS AvgSessionsCountPerDay,
+	                    SEC_TO_TIME(SUM(TIME_TO_SEC(TIMEDIFF(IFNULL(workstationsessions.EndDate, NOW()), workstationsessions.StartDate))) / COUNT(DISTINCT DATE(workstationsessions.StartDate))) AS AvgWorkingHoursPerDay
                     FROM workstationsessions
 	                    LEFT JOIN employees ON workstationsessions.EmployeeId = employees.Id
 	                    LEFT JOIN departments ON employees.DepartmentId = departments.Id
@@ -288,12 +228,9 @@ namespace HES.Web.Pages.Audit.WorkstationSummaries
 
             if (SummaryFilter.StartDate != null && SummaryFilter.EndDate != null)
             {
-                parameters.Add($"workstationsessions.StartTime BETWEEN '{SummaryFilter.StartDate.Value.Date.ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss")}' AND '{SummaryFilter.EndDate.Value.Date.ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss")}'");
+                parameters.Add($"workstationsessions.StartDate BETWEEN '{SummaryFilter.StartDate.Value.AddSeconds(0).ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss")}' AND '{SummaryFilter.EndDate.Value.AddSeconds(59).ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss")}'");
             }
-            else
-            {
-                parameters.Add($"workstationsessions.StartTime BETWEEN '{DateTime.UtcNow.AddDays(-30).ToString("yyyy-MM-dd HH:mm:ss")}' AND '{DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")}'");
-            }
+
             if (SummaryFilter.CompanyId != null)
             {
                 if (SummaryFilter.CompanyId == "N/A")
@@ -326,9 +263,9 @@ namespace HES.Web.Pages.Audit.WorkstationSummaries
 	                    COUNT(DISTINCT IFNULL(employees.Id, 'N/A')) AS EmployeesCount,
 	                    COUNT(DISTINCT WorkstationId) AS WorkstationsCount,
 	                    COUNT(*) AS TotalSessionsCount,
-	                    SEC_TO_TIME(SUM(TIME_TO_SEC(TIMEDIFF(IFNULL(workstationsessions.EndTime, NOW()), workstationsessions.StartTime)))) AS TotalSessionsDuration,	
-	                    SEC_TO_TIME(AVG(TIME_TO_SEC(TIMEDIFF(IFNULL(workstationsessions.EndTime, NOW()), workstationsessions.StartTime)))) AS AvgSessionsDuration,	
-	                    SEC_TO_TIME(SUM(TIME_TO_SEC(TIMEDIFF(IFNULL(workstationsessions.EndTime, NOW()), workstationsessions.StartTime))) / COUNT(DISTINCT IFNULL(employees.Id, 'N/A'))) AS AvgTotalDuartionByEmployee,
+	                    SEC_TO_TIME(SUM(TIME_TO_SEC(TIMEDIFF(IFNULL(workstationsessions.EndDate, NOW()), workstationsessions.StartDate)))) AS TotalSessionsDuration,	
+	                    SEC_TO_TIME(AVG(TIME_TO_SEC(TIMEDIFF(IFNULL(workstationsessions.EndDate, NOW()), workstationsessions.StartDate)))) AS AvgSessionsDuration,	
+	                    SEC_TO_TIME(SUM(TIME_TO_SEC(TIMEDIFF(IFNULL(workstationsessions.EndDate, NOW()), workstationsessions.StartDate))) / COUNT(DISTINCT IFNULL(employees.Id, 'N/A'))) AS AvgTotalDuartionByEmployee,
 	                    COUNT(*) / COUNT(DISTINCT IFNULL(employees.Id, 'N/A')) AS AvgTotalSessionsCountByEmployee
                     FROM workstationsessions
 	                    LEFT JOIN employees ON workstationsessions.EmployeeId = employees.Id
@@ -353,11 +290,7 @@ namespace HES.Web.Pages.Audit.WorkstationSummaries
 
             if (SummaryFilter.StartDate != null && SummaryFilter.EndDate != null)
             {
-                parameters.Add($"workstationsessions.StartTime BETWEEN '{SummaryFilter.StartDate.Value.Date.ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss")}' AND '{SummaryFilter.EndDate.Value.Date.ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss")}'");
-            }
-            else
-            {
-                parameters.Add($"workstationsessions.StartTime BETWEEN '{DateTime.UtcNow.AddDays(-30).ToString("yyyy-MM-dd HH:mm:ss")}' AND '{DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")}'");
+                parameters.Add($"workstationsessions.StartDate BETWEEN '{SummaryFilter.StartDate.Value.AddSeconds(0).ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss")}' AND '{SummaryFilter.EndDate.Value.AddSeconds(59).ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss")}'");
             }
             if (SummaryFilter.EmployeeId != null)
             {
@@ -411,9 +344,9 @@ namespace HES.Web.Pages.Audit.WorkstationSummaries
 	                    COUNT(DISTINCT IFNULL(departments.Id, 'N/A')) AS DepartmentsCount,
 	                    COUNT(DISTINCT IFNULL(employees.Id, 'N/A')) AS EmployeesCount,
 	                    COUNT(*) AS TotalSessionsCount,
-	                    SEC_TO_TIME(SUM(TIME_TO_SEC(TIMEDIFF(IFNULL(workstationsessions.EndTime, NOW()), workstationsessions.StartTime)))) AS TotalSessionsDuration,	
-	                    SEC_TO_TIME(AVG(TIME_TO_SEC(TIMEDIFF(IFNULL(workstationsessions.EndTime, NOW()), workstationsessions.StartTime)))) AS AvgSessionsDuration,	
-	                    SEC_TO_TIME(SUM(TIME_TO_SEC(TIMEDIFF(IFNULL(workstationsessions.EndTime, NOW()), workstationsessions.StartTime))) / COUNT(DISTINCT IFNULL(employees.Id, 'N/A'))) AS AvgTotalDuartionByEmployee,
+	                    SEC_TO_TIME(SUM(TIME_TO_SEC(TIMEDIFF(IFNULL(workstationsessions.EndDate, NOW()), workstationsessions.StartDate)))) AS TotalSessionsDuration,	
+	                    SEC_TO_TIME(AVG(TIME_TO_SEC(TIMEDIFF(IFNULL(workstationsessions.EndDate, NOW()), workstationsessions.StartDate)))) AS AvgSessionsDuration,	
+	                    SEC_TO_TIME(SUM(TIME_TO_SEC(TIMEDIFF(IFNULL(workstationsessions.EndDate, NOW()), workstationsessions.StartDate))) / COUNT(DISTINCT IFNULL(employees.Id, 'N/A'))) AS AvgTotalDuartionByEmployee,
 	                    COUNT(*) / COUNT(DISTINCT IFNULL(employees.Id, 'N/A')) AS AvgTotalSessionsCountByEmployee
                     FROM workstationsessions
 	                    LEFT JOIN workstations ON workstationsessions.WorkstationId = workstations.Id
@@ -428,6 +361,11 @@ namespace HES.Web.Pages.Audit.WorkstationSummaries
                 .ToListAsync();
 
             return Partial("_ByWorkstations", this);
+        }
+
+        public async Task<JsonResult> OnGetJsonDepartmentAsync(string id)
+        {
+            return new JsonResult(await _workstationSessionService.DepartmentQuery().Where(d => d.CompanyId == id).ToListAsync());
         }
     }
 }

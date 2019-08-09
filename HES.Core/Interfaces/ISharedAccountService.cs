@@ -15,6 +15,6 @@ namespace HES.Core.Interfaces
         Task EditSharedAccountPwdAsync(SharedAccount sharedAccount, InputModel input);
         Task EditSharedAccountOtpAsync(SharedAccount sharedAccount, InputModel input);
         Task DeleteSharedAccountAsync(string id);
-        bool Exist(Expression<Func<SharedAccount, bool>> predicate);
+        Task<bool> ExistAync(Expression<Func<SharedAccount, bool>> predicate);
     }
 }

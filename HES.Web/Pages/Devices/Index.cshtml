@@ -12,13 +12,37 @@
 <div id="filter-collapse" class="filter-card collapse pb-1">
     <form method="post" id="filterForm">
         <div class="row">
+            @*<div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
+                    <label asp-for="DeviceFilter.StartDate" class="control-label"></label>
+                    <input readonly id="startDate" class="datepicker-here form-control" data-timepicker="true" type="text" asp-for="DeviceFilter.StartDate" />
+                </div>
+            *@
+            @*<div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
+                    <label asp-for="DeviceFilter.EndDate" class="control-label"></label>
+                    <input readonly id="endDate" class="datepicker-here form-control" data-timepicker="true" type="text" asp-for="DeviceFilter.EndDate" />
+                </div>
+            *@
             <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
                 <label asp-for="DeviceFilter.StartDate" class="control-label"></label>
-                <input readonly type="text" id="startDate" asp-for="DeviceFilter.StartDate" class="form-control" autocomplete="off" />
+                <div class="input-group">
+                    <input readonly id="startDate" class="datepicker-here form-control readonly-white" data-timepicker="true" type="text" asp-for="DeviceFilter.StartDate" aria-describedby="startDateAppend" />
+                    <div class="input-group-append" onclick="ShowStartDate()">
+                        <span class="input-group-text custom-group" id="startDateAppend">
+                            <img src="~/svg/action/event.svg" style="width:21px;" />
+                        </span>
+                    </div>
+                </div>
             </div>
             <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
                 <label asp-for="DeviceFilter.EndDate" class="control-label"></label>
-                <input readonly type="text" id="endDate" asp-for="DeviceFilter.EndDate" class="form-control" autocomplete="off" />
+                <div class="input-group">
+                    <input readonly id="endDate" class="datepicker-here form-control readonly-white" data-timepicker="true" type="text" asp-for="DeviceFilter.EndDate" aria-describedby="endDateAppend" />
+                    <div class="input-group-append" onclick="ShowEndDate()">
+                        <span class="input-group-text custom-group" id="endDateAppend">
+                            <img src="~/svg/action/event.svg" style="width:21px;" />
+                        </span>
+                    </div>
+                </div>
             </div>
             <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
                 <label asp-for="DeviceFilter.Battery" class="control-label"></label>
@@ -43,13 +67,13 @@
             </div>
             <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
                 <label asp-for="DeviceFilter.CompanyId" class="control-label"></label>
-                <select id="companyId" asp-for="DeviceFilter.CompanyId" class="form-control" asp-items="ViewBag.Companies">
+                <select id="companyId" onchange="GetDepartment(this.value)" asp-for="DeviceFilter.CompanyId" class="form-control" asp-items="ViewBag.Companies">
                     <option selected></option>
                 </select>
             </div>
             <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
                 <label asp-for="DeviceFilter.DepartmentId" class="control-label"></label>
-                <select id="departmentId" asp-for="DeviceFilter.DepartmentId" class="form-control" asp-items="ViewBag.Departments">
+                <select id="departmentId" asp-for="DeviceFilter.DepartmentId" class="form-control" disabled>
                     <option selected></option>
                 </select>
             </div>
@@ -68,7 +92,7 @@
                 </select>
             </div>
             <div class="col align-self-end form-group text-right">
-                <div>
+                <div class="text-nowrap">
                     <button id="clearFilter" type="button" class="btn btn-secondary">Clear</button>
                     <input id="filterBtn" type="submit" value="Filter" class="btn btn-primary" />
                 </div>
@@ -104,21 +128,47 @@
 
 @section scripts{
     <script>
-        // DatePicker
+        // Initialize DateTimePicker
         $('#startDate').datepicker({
-            format: '@ViewBag.DatePattern',
-            uiLibrary: 'bootstrap4',
-            maxDate: function () {
-                return $('#endDate').val();
+            timepicker: true,
+            startDate: GetTime('min'),
+            dateFormat: '@ViewBag.DatePattern',
+            timeFormat: '@ViewBag.TimePattern',
+            onSelect: function (fd, d) {
+                $('#endDate').datepicker().data('datepicker').update('minDate', d);
             }
         });
         $('#endDate').datepicker({
-            format: '@ViewBag.DatePattern',
-            uiLibrary: 'bootstrap4',
-            minDate: function () {
-                return $('#startDate').val();
+            timepicker: true,
+            startDate: GetTime('max'),
+            dateFormat: '@ViewBag.DatePattern',
+            timeFormat: '@ViewBag.TimePattern',
+            onSelect: function (fd, d) {
+                $('#startDate').datepicker().data('datepicker').update('maxDate', d);
             }
         });
+        function GetTime(value) {
+            var time = new Date();
+            if (value == 'min') {
+                time.setHours(0);
+                time.setMinutes(0);
+                time.setSeconds(0);
+                time.setMilliseconds(000);
+            }
+            else {
+                time.setHours(23);
+                time.setMinutes(59);
+                time.setSeconds(59);
+                time.setMilliseconds(999);
+            }
+            return time;
+        }
+        function ShowStartDate() {
+            $('#startDate').datepicker().data('datepicker').show();
+        }
+        function ShowEndDate() {
+            $('#endDate').datepicker().data('datepicker').show();
+        }
 
         // Initialize DataTables
         var table_name = '#devices';
@@ -191,15 +241,30 @@
 
         //Clear filter
         $(document).on('click', '#clearFilter', function () {
+            $('#startDate').datepicker().data('datepicker').clear();
+            $('#endDate').datepicker().data('datepicker').clear();
             $('#battery').val("");
             $('#firmware').val("");
             $('#employeeId').val("");
             $('#companyId').val("");
             $('#departmentId').val("");
-            $('#startDate').val("");
-            $('#endDate').val("");
             $('#records').val("500");
         });
+
+        // Dropdown Department
+        function GetDepartment(id) {
+            $.getJSON('/Devices?handler=JsonDepartment', { id: id },
+                function (data) {
+                    var dep = "<option selected=''></option>";
+                    $(data).each(function () {
+                        dep = dep + '<option value="' + this.id + '">' + this.name + '</option>'
+                    });
+                    var subList = $("#departmentId");
+                    subList.empty();
+                    subList.append(dep);
+                    subList.removeAttr("disabled");
+                });
+        }
 
         $(document).ready(function () {
             // Breadcrumbs

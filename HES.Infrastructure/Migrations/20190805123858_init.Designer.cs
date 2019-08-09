@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HES.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20190722123811_upd_workstation")]
-    partial class upd_workstation
+    [Migration("20190805123858_init")]
+    partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -401,9 +401,9 @@ namespace HES.Infrastructure.Migrations
 
                     b.Property<string>("EmployeeId");
 
-                    b.Property<DateTime?>("EndTime");
+                    b.Property<DateTime?>("EndDate");
 
-                    b.Property<DateTime>("StartTime");
+                    b.Property<DateTime>("StartDate");
 
                     b.Property<int>("UnlockedBy");
 

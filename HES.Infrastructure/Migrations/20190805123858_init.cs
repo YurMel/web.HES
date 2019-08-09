@@ -12,12 +12,12 @@ namespace HES.Infrastructure.Migrations
                 name: "AppSettings",
                 columns: table => new
                 {
-                    Id = table.Column<string>(nullable: false),
-                    ProtectedValue = table.Column<string>(nullable: true)
+                    Key = table.Column<string>(nullable: false),
+                    Value = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AppSettings", x => x.Id);
+                    table.PrimaryKey("PK_AppSettings", x => x.Key);
                 });
 
             migrationBuilder.CreateTable(
@@ -69,6 +69,21 @@ namespace HES.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Companies", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Notifications",
+                columns: table => new
+                {
+                    Id = table.Column<string>(nullable: false),
+                    NotifyId = table.Column<int>(nullable: false),
+                    CreatedAt = table.Column<DateTime>(nullable: false),
+                    Message = table.Column<string>(nullable: true),
+                    Url = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Notifications", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -274,6 +289,34 @@ namespace HES.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Workstations",
+                columns: table => new
+                {
+                    Id = table.Column<string>(nullable: false),
+                    Name = table.Column<string>(nullable: true),
+                    Domain = table.Column<string>(nullable: true),
+                    ClientVersion = table.Column<string>(nullable: true),
+                    DepartmentId = table.Column<string>(nullable: true),
+                    OS = table.Column<string>(nullable: true),
+                    IP = table.Column<string>(nullable: true),
+                    LastSeen = table.Column<DateTime>(nullable: false),
+                    Approved = table.Column<bool>(nullable: false),
+                    LockProximity = table.Column<int>(nullable: false),
+                    UnlockProximity = table.Column<int>(nullable: false),
+                    LockTimeout = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Workstations", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Workstations_Departments_DepartmentId",
+                        column: x => x.DepartmentId,
+                        principalTable: "Departments",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Devices",
                 columns: table => new
                 {
@@ -287,7 +330,8 @@ namespace HES.Infrastructure.Migrations
                     EmployeeId = table.Column<string>(nullable: true),
                     PrimaryAccountId = table.Column<string>(nullable: true),
                     MasterPassword = table.Column<string>(nullable: true),
-                    ImportedAt = table.Column<DateTime>(nullable: false)
+                    ImportedAt = table.Column<DateTime>(nullable: false),
+                    UsePin = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -346,6 +390,34 @@ namespace HES.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "WorkstationBindings",
+                columns: table => new
+                {
+                    Id = table.Column<string>(nullable: false),
+                    DeviceId = table.Column<string>(nullable: true),
+                    WorkstationId = table.Column<string>(nullable: true),
+                    AllowRfid = table.Column<bool>(nullable: false),
+                    AllowBleTap = table.Column<bool>(nullable: false),
+                    AllowProximity = table.Column<bool>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_WorkstationBindings", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_WorkstationBindings_Devices_DeviceId",
+                        column: x => x.DeviceId,
+                        principalTable: "Devices",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_WorkstationBindings_Workstations_WorkstationId",
+                        column: x => x.WorkstationId,
+                        principalTable: "Workstations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "DeviceTasks",
                 columns: table => new
                 {
@@ -368,6 +440,107 @@ namespace HES.Infrastructure.Migrations
                         name: "FK_DeviceTasks_DeviceAccounts_DeviceAccountId",
                         column: x => x.DeviceAccountId,
                         principalTable: "DeviceAccounts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "WorkstationEvents",
+                columns: table => new
+                {
+                    Id = table.Column<string>(nullable: false),
+                    Date = table.Column<DateTime>(nullable: false),
+                    EventId = table.Column<int>(nullable: false),
+                    SeverityId = table.Column<int>(nullable: false),
+                    Note = table.Column<string>(nullable: true),
+                    WorkstationId = table.Column<string>(nullable: true),
+                    UserSession = table.Column<string>(nullable: true),
+                    DeviceId = table.Column<string>(nullable: true),
+                    EmployeeId = table.Column<string>(nullable: true),
+                    DepartmentId = table.Column<string>(nullable: true),
+                    DeviceAccountId = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_WorkstationEvents", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_WorkstationEvents_Departments_DepartmentId",
+                        column: x => x.DepartmentId,
+                        principalTable: "Departments",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_WorkstationEvents_DeviceAccounts_DeviceAccountId",
+                        column: x => x.DeviceAccountId,
+                        principalTable: "DeviceAccounts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_WorkstationEvents_Devices_DeviceId",
+                        column: x => x.DeviceId,
+                        principalTable: "Devices",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_WorkstationEvents_Employees_EmployeeId",
+                        column: x => x.EmployeeId,
+                        principalTable: "Employees",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_WorkstationEvents_Workstations_WorkstationId",
+                        column: x => x.WorkstationId,
+                        principalTable: "Workstations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "WorkstationSessions",
+                columns: table => new
+                {
+                    Id = table.Column<string>(nullable: false),
+                    StartDate = table.Column<DateTime>(nullable: false),
+                    EndDate = table.Column<DateTime>(nullable: true),
+                    UnlockedBy = table.Column<int>(nullable: false),
+                    WorkstationId = table.Column<string>(nullable: true),
+                    UserSession = table.Column<string>(nullable: true),
+                    DeviceId = table.Column<string>(nullable: true),
+                    EmployeeId = table.Column<string>(nullable: true),
+                    DepartmentId = table.Column<string>(nullable: true),
+                    DeviceAccountId = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_WorkstationSessions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_WorkstationSessions_Departments_DepartmentId",
+                        column: x => x.DepartmentId,
+                        principalTable: "Departments",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_WorkstationSessions_DeviceAccounts_DeviceAccountId",
+                        column: x => x.DeviceAccountId,
+                        principalTable: "DeviceAccounts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_WorkstationSessions_Devices_DeviceId",
+                        column: x => x.DeviceId,
+                        principalTable: "Devices",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_WorkstationSessions_Employees_EmployeeId",
+                        column: x => x.EmployeeId,
+                        principalTable: "Employees",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_WorkstationSessions_Workstations_WorkstationId",
+                        column: x => x.WorkstationId,
+                        principalTable: "Workstations",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -448,6 +621,71 @@ namespace HES.Infrastructure.Migrations
                 name: "IX_Employees_PositionId",
                 table: "Employees",
                 column: "PositionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WorkstationBindings_DeviceId",
+                table: "WorkstationBindings",
+                column: "DeviceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WorkstationBindings_WorkstationId",
+                table: "WorkstationBindings",
+                column: "WorkstationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WorkstationEvents_DepartmentId",
+                table: "WorkstationEvents",
+                column: "DepartmentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WorkstationEvents_DeviceAccountId",
+                table: "WorkstationEvents",
+                column: "DeviceAccountId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WorkstationEvents_DeviceId",
+                table: "WorkstationEvents",
+                column: "DeviceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WorkstationEvents_EmployeeId",
+                table: "WorkstationEvents",
+                column: "EmployeeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WorkstationEvents_WorkstationId",
+                table: "WorkstationEvents",
+                column: "WorkstationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Workstations_DepartmentId",
+                table: "Workstations",
+                column: "DepartmentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WorkstationSessions_DepartmentId",
+                table: "WorkstationSessions",
+                column: "DepartmentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WorkstationSessions_DeviceAccountId",
+                table: "WorkstationSessions",
+                column: "DeviceAccountId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WorkstationSessions_DeviceId",
+                table: "WorkstationSessions",
+                column: "DeviceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WorkstationSessions_EmployeeId",
+                table: "WorkstationSessions",
+                column: "EmployeeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WorkstationSessions_WorkstationId",
+                table: "WorkstationSessions",
+                column: "WorkstationId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -474,7 +712,19 @@ namespace HES.Infrastructure.Migrations
                 name: "DeviceTasks");
 
             migrationBuilder.DropTable(
+                name: "Notifications");
+
+            migrationBuilder.DropTable(
                 name: "Templates");
+
+            migrationBuilder.DropTable(
+                name: "WorkstationBindings");
+
+            migrationBuilder.DropTable(
+                name: "WorkstationEvents");
+
+            migrationBuilder.DropTable(
+                name: "WorkstationSessions");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
@@ -484,6 +734,9 @@ namespace HES.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "DeviceAccounts");
+
+            migrationBuilder.DropTable(
+                name: "Workstations");
 
             migrationBuilder.DropTable(
                 name: "Devices");

@@ -42,9 +42,10 @@ namespace HES.Web.Pages.Workstations
                 .ToListAsync();
 
             ViewData["Companies"] = new SelectList(await _workstationService.CompanyQuery().ToListAsync(), "Id", "Name");
-            ViewData["Departments"] = new SelectList(await _workstationService.DepartmentQuery().ToListAsync(), "Id", "Name");
+            //ViewData["Departments"] = new SelectList(await _workstationService.DepartmentQuery().ToListAsync(), "Id", "Name");
 
             ViewData["DatePattern"] = CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern.ToLower();
+            ViewData["TimePattern"] = CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern.ToUpper() == "H:MM" ? "hh:ii" : "hh:ii aa";
         }
 
         public async Task<IActionResult> OnPostFilterWorkstationsAsync(WorkstationFilter WorkstationFilter)
@@ -84,9 +85,8 @@ namespace HES.Web.Pages.Workstations
             }
             if (WorkstationFilter.StartDate != null && WorkstationFilter.EndDate != null)
             {
-                filter = filter
-                    .Where(w => w.LastSeen.Date <= WorkstationFilter.EndDate.Value.Date.ToUniversalTime())
-                    .Where(w => w.LastSeen.Date >= WorkstationFilter.StartDate.Value.Date.ToUniversalTime());
+                filter = filter.Where(w => w.LastSeen >= WorkstationFilter.StartDate.Value.AddSeconds(0).AddMilliseconds(0).ToUniversalTime()
+                                        && w.LastSeen <= WorkstationFilter.EndDate.Value.AddSeconds(59).AddMilliseconds(999).ToUniversalTime());
             }
             if (WorkstationFilter.Approved != null)
             {

@@ -20,7 +20,7 @@
     </div>
 </div>
 
-<table id="workstations" class="display table table-hover border rounded w-100">
+<table id="workstations" class="display table table-hover border rounded w-100 disable-selection">
     <thead>
         <tr>
             <th data-priority="1">
@@ -56,11 +56,9 @@
     <tbody>
         @foreach (var item in Model.Workstations)
         {
-            <tr>
+            <tr data-id="@item.Id">
                 <td>
-                    <a class="custom-link" asp-page="./Details" asp-route-id="@item.Id">
-                        @Html.DisplayFor(modelItem => item.Name)
-                    </a>
+                    @Html.DisplayFor(modelItem => item.Name)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Domain)
@@ -81,7 +79,13 @@
                     @Html.DisplayFor(modelItem => item.IP)
                 </td>
                 <td>
-                    @if (item.LastSeen != null)
+                    @if (item.IsOnline)
+                    {
+                        <span class="badge badge-success custom-badge" title="Workstation is online">
+                            Online
+                        </span>
+                    }
+                    else
                     {
                         @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.LastSeen, TimeZoneInfo.Local)
                     }

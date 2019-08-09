@@ -48,9 +48,10 @@ namespace HES.Web.Pages.Devices
             ViewData["Firmware"] = new SelectList(Devices.Select(s => s.Firmware).Distinct().OrderBy(f => f).ToDictionary(t => t, t => t), "Key", "Value");
             ViewData["Employees"] = new SelectList(await _employeeService.EmployeeQuery().ToListAsync(), "Id", "FullName");
             ViewData["Companies"] = new SelectList(await _employeeService.CompanyQuery().ToListAsync(), "Id", "Name");
-            ViewData["Departments"] = new SelectList(await _employeeService.DepartmentQuery().ToListAsync(), "Id", "Name");
+            //ViewData["Departments"] = new SelectList(await _employeeService.DepartmentQuery().ToListAsync(), "Id", "Name");
 
             ViewData["DatePattern"] = CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern.ToLower();
+            ViewData["TimePattern"] = CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern.ToUpper() == "H:MM" ? "hh:ii" : "hh:ii aa";
         }
 
         public async Task<IActionResult> OnPostFilterDevicesAsync(DeviceFilter DeviceFilter)
@@ -89,9 +90,9 @@ namespace HES.Web.Pages.Devices
             }
             if (DeviceFilter.StartDate != null && DeviceFilter.EndDate != null)
             {
-                filter = filter
-                    .Where(w => w.LastSynced.HasValue && w.LastSynced.Value.Date <= DeviceFilter.EndDate.Value.Date.ToUniversalTime())
-                    .Where(w => w.LastSynced.HasValue && w.LastSynced.Value.Date >= DeviceFilter.StartDate.Value.Date.ToUniversalTime());
+                filter = filter.Where(w => w.LastSynced.HasValue
+                                        && w.LastSynced.Value >= DeviceFilter.StartDate.Value.AddSeconds(0).AddMilliseconds(0).ToUniversalTime()
+                                        && w.LastSynced.Value <= DeviceFilter.EndDate.Value.AddSeconds(59).AddMilliseconds(999).ToUniversalTime());
             }
 
             Devices = await filter
@@ -137,6 +138,11 @@ namespace HES.Web.Pages.Devices
             }
 
             return RedirectToPage("./Index");
+        }
+
+        public async Task<JsonResult> OnGetJsonDepartmentAsync(string id)
+        {
+            return new JsonResult(await _employeeService.DepartmentQuery().Where(d => d.CompanyId == id).ToListAsync());
         }
     }
 }

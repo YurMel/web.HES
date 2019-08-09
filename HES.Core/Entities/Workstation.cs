@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HES.Core.Hubs;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -24,5 +25,8 @@ namespace HES.Core.Entities
 
         [ForeignKey("DepartmentId")]
         public Department Department { get; set; }
+
+        [NotMapped]
+        public bool IsOnline => AppHub.IsWorkstationOnline(Id);
     }
 }

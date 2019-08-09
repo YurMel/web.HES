@@ -1,6 +1,6 @@
 ﻿using HES.Core.Entities;
-using HES.Core.Entities.Models;
 using Hideez.SDK.Communication.HES.Client;
+using Hideez.SDK.Communication.Workstation;
 using System;
 using System.Linq;
 using System.Linq.Expressions;
@@ -14,12 +14,9 @@ namespace HES.Core.Interfaces
         IQueryable<WorkstationBinding> WorkstationBindingQuery();
         IQueryable<Company> CompanyQuery();
         IQueryable<Department> DepartmentQuery();
-        bool Exist(Expression<Func<Workstation, bool>> predicate);
-        Task AddWorkstationAsync(Workstation workstation);
-        Task UpdateClientVersionAsync(string workstationId, string clientVersion);
-        Task UpdateOsAsync(string workstationId, string os);
-        Task UpdateIpAsync(string workstationId, string os);
-        Task UpdateLastSeenAsync(string workstationId);
+        Task<bool> ExistAsync(Expression<Func<Workstation, bool>> predicate);
+        Task AddWorkstationAsync(WorkstationInfo workstationInfo);
+        Task UpdateWorkstationAsync(WorkstationInfo workstationInfo);
         Task EditDepartmentAsync(Workstation workstation);
         Task ApproveWorkstationAsync(string id);
         Task UnapproveWorkstationAsync(string id);
