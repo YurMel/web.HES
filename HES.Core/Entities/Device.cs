@@ -17,11 +17,18 @@ namespace HES.Core.Entities
         public DateTime? LastSynced { get; set; }
         public string EmployeeId { get; set; }
         public string PrimaryAccountId { get; set; }
+        public string AcceessProfileId { get; set; }
         public string MasterPassword { get; set; }
         public DateTime ImportedAt { get; set; }
         public bool UsePin { get; set; }
 
         [ForeignKey("EmployeeId")]
         public Employee Employee { get; set; }
+        [ForeignKey("AcceessProfileId")]
+        public DeviceAccessProfile DeviceAccessProfile { get; set; }
+
+        [NotMapped]
+        [Display(Name = "Access Profile")]
+        public string AccessProfile => DeviceAccessProfile?.Name;
     }
 }

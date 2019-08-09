@@ -27,13 +27,23 @@ namespace HES.Core.Services
             public string RegisteredUserId { get; set; }
         }
 
-        private readonly IAsyncRepository<Device> _deviceRepository;
         private readonly IAesCryptography _aes;
+        private readonly IAsyncRepository<Device> _deviceRepository;
+        private readonly IAsyncRepository<DeviceTask> _deviceTaskRepository;
+        private readonly IDeviceAccessProfilesService _deviceAccessProfilesService;
+        private readonly IRemoteTaskService _remoteTaskService;
 
-        public DeviceService(IAsyncRepository<Device> deviceRepository, IAesCryptography aes)
+        public DeviceService(IAesCryptography aes,
+                             IAsyncRepository<Device> deviceRepository,
+                             IAsyncRepository<DeviceTask> deviceTaskRepository,                             
+                             IDeviceAccessProfilesService deviceAccessProfilesService,
+                             IRemoteTaskService remoteTaskService)
         {
-            _deviceRepository = deviceRepository;
             _aes = aes;
+            _deviceRepository = deviceRepository;
+            _deviceTaskRepository = deviceTaskRepository;
+            _deviceAccessProfilesService = deviceAccessProfilesService;
+            _remoteTaskService = remoteTaskService;
         }
 
         public IQueryable<Device> DeviceQuery()
@@ -69,12 +79,14 @@ namespace HES.Core.Services
                     Model = d.Model,
                     RFID = d.RFID,
                     Battery = 1,
-                    Firmware = null,
+                    Firmware = "3.0.0",
                     LastSynced = null,
                     EmployeeId = null,
+                    PrimaryAccountId = null,
+                    MasterPassword = null,
+                    AcceessProfileId = "default",
                     ImportedAt = DateTime.UtcNow,
                     UsePin = true
-
                 })
                 .ToList();
 
@@ -95,11 +107,6 @@ namespace HES.Core.Services
             }
         }
 
-        public async Task<bool> ExistAsync(Expression<Func<Device, bool>> predicate)
-        {
-            return await _deviceRepository.ExistAsync(predicate);
-        }
-
         public async Task EditDeviceRfidAsync(Device device)
         {
             if (device == null)
@@ -115,10 +122,7 @@ namespace HES.Core.Services
             await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "RFID" });
         }
 
-        /// <summary>
-        /// full battery is 1, discharged 0 
-        /// </summary>
-        public async Task UpdateBatteryChargeAsync(string deviceId, int batteryCharge)
+        public async Task UpdateDevicePropAsync(string deviceId, int batteryCharge, string version)
         {
             if (deviceId == null)
             {
@@ -132,28 +136,60 @@ namespace HES.Core.Services
             }
 
             device.Battery = batteryCharge;
-            device.LastSynced = DateTime.UtcNow;
-
-            await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "Battery", "LastSynced" });
-        }
-
-        public async Task UpdateFirmwareVersionAsync(string deviceId, string version)
-        {
-            if (deviceId == null)
-            {
-                throw new ArgumentNullException(nameof(deviceId));
-            }
-
-            var device = await _deviceRepository.GetByIdAsync(deviceId);
-            if (device == null)
-            {
-                throw new Exception($"Device not found, ID: {deviceId}");
-            }
-
             device.Firmware = version;
             device.LastSynced = DateTime.UtcNow;
 
-            await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "Firmware", "LastSynced" });
+            await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "Battery", "Firmware", "LastSynced" });
+        }
+
+        public async Task UpdateProfileAsync(string[] devices, string profileId)
+        {
+            if (devices == null)
+            {
+                throw new NullReferenceException(nameof(devices));
+            }
+            if (profileId == null)
+            {
+                throw new NullReferenceException(nameof(devices));
+            }
+
+            var profile = await _deviceAccessProfilesService.GetByIdAsync(profileId);
+            if (profileId == null)
+            {
+                throw new Exception("Profile not found");
+            }
+
+            foreach (var deviceId in devices)
+            {
+                var device = await _deviceRepository.GetByIdAsync(deviceId);
+                if (device == null)
+                {
+                    throw new Exception($"Device not found, ID: {deviceId}");
+                }
+
+                device.AcceessProfileId = profileId;
+                await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "AcceessProfileId" });
+
+                // Delete all previous tasks for update profile
+                var allProfileTasks = await _deviceTaskRepository
+                    .Query()
+                    .Where(t => t.DeviceId == deviceId && t.Operation == TaskOperation.Profile)                    
+                    .ToListAsync();
+                await _deviceTaskRepository.DeleteRangeAsync(allProfileTasks);
+
+                await _remoteTaskService.AddTaskAsync(new DeviceTask
+                {
+                    Operation = TaskOperation.Profile,
+                    CreatedAt = DateTime.UtcNow,
+                    DeviceId = device.Id
+                });
+            }
+            _remoteTaskService.StartTaskProcessing(devices);
+        }
+
+        public async Task<bool> ExistAsync(Expression<Func<Device, bool>> predicate)
+        {
+            return await _deviceRepository.ExistAsync(predicate);
         }
     }
 }

@@ -6,7 +6,7 @@
     </div>
     <div class="col-auto d-none" id="loading"></div>
     <div class="col">
-        <button id="btnProfile" class="btn btn-primary d-none">
+        <button id="btnProfile" class="btn btn-primary d-none open-modal-dialog" data-id="" data-action="SetProfile" data-title="Set profile">
             Set profile
         </button>
     </div>
@@ -33,8 +33,8 @@
         <tr>
             <th style="width:1px;">
                 <div class="custom-control custom-checkbox">
-                    <input type="checkbox" class="custom-control-input" id="main_chackbox">
-                    <label class="custom-control-label" for="main_chackbox"></label>
+                    <input type="checkbox" class="custom-control-input" id="checkbox_all">
+                    <label class="custom-control-label" for="checkbox_all"></label>
                 </div>
             </th>
             <th data-priority="1">
@@ -56,6 +56,9 @@
                 @Html.DisplayNameFor(model => model.Devices[0].Firmware)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.Devices[0].AccessProfile)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.Devices[0].LastSynced)
             </th>
             <th>
@@ -73,67 +76,70 @@
     <tbody>
         @foreach (var item in Model.Devices)
         {
-            <tr>
-                <td>
-                    <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input table-checkbox" id="@item.Id">
-                        <label class="custom-control-label" for="@item.Id"></label>
-                    </div>
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Id)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.MAC)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Model)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.RFID)
-                </td>
-                <td data-sort="@item.Battery" class="pl-4">
-                    @if (item.Battery == 1)
-                    {
-                        <img src="~/svg/device/battery_full.svg" alt="@item.Battery" />
-                    }
-                    else
-                    {
-                        <img src="~/svg/device/battery_20.svg" alt="@item.Battery" />
-                    }
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Firmware)
-                </td>
-                <td>
-                    @if (item.LastSynced != null)
-                    {
-                        @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.LastSynced, TimeZoneInfo.Local)
-                    }
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Employee.FullName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Employee.EmpCompany)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Employee.EmpDepartment)
-                </td>
-                <td>
-                    <div class="dropdown no-arrow">
-                        <a class="dropdown-toggle" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <img src="~/svg/action/more.svg" />
+        <tr>
+            <td>
+                <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input table-checkbox" id="@item.Id">
+                    <label class="custom-control-label" for="@item.Id"></label>
+                </div>
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MAC)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Model)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RFID)
+            </td>
+            <td data-sort="@item.Battery" class="pl-4">
+                @if (item.Battery == 1)
+                {
+                    <img src="~/svg/device/battery_full.svg" alt="@item.Battery" />
+                }
+                else
+                {
+                    <img src="~/svg/device/battery_20.svg" alt="@item.Battery" />
+                }
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Firmware)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DeviceAccessProfile.Name)
+            </td>
+            <td>
+                @if (item.LastSynced != null)
+                {
+                    @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.LastSynced, TimeZoneInfo.Local)
+                }
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Employee.FullName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Employee.EmpCompany)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Employee.EmpDepartment)
+            </td>
+            <td>
+                <div class="dropdown no-arrow">
+                    <a class="dropdown-toggle" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <img src="~/svg/action/more.svg" />
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right shadow" aria-labelledby="dropdownMenuLink">
+                        <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="EditDeviceRfid" data-title="Edit device RFID">
+                            <img src="~/svg/action/edit.svg" />
+                            Edit RFID
                         </a>
-                        <div class="dropdown-menu dropdown-menu-right shadow" aria-labelledby="dropdownMenuLink">
-                            <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="EditDeviceRfid" data-title="Edit device RFID">
-                                <img src="~/svg/action/edit.svg" />
-                                Edit RFID
-                            </a>
-                        </div>
                     </div>
-                </td>
-            </tr>
+                </div>
+            </td>
+        </tr>
         }
     </tbody>
 </table>

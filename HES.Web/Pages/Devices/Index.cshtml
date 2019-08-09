@@ -12,16 +12,6 @@
 <div id="filter-collapse" class="filter-card collapse pb-1">
     <form method="post" id="filterForm">
         <div class="row">
-            @*<div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
-                    <label asp-for="DeviceFilter.StartDate" class="control-label"></label>
-                    <input readonly id="startDate" class="datepicker-here form-control" data-timepicker="true" type="text" asp-for="DeviceFilter.StartDate" />
-                </div>
-            *@
-            @*<div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
-                    <label asp-for="DeviceFilter.EndDate" class="control-label"></label>
-                    <input readonly id="endDate" class="datepicker-here form-control" data-timepicker="true" type="text" asp-for="DeviceFilter.EndDate" />
-                </div>
-            *@
             <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
                 <label asp-for="DeviceFilter.StartDate" class="control-label"></label>
                 <div class="input-group">
@@ -195,9 +185,32 @@
         // Paginate
         $('#pagination_place').html($('.dataTables_paginate'));
 
-        // Checkboxs
-        $(document).on('change', '.table-checkbox', function () {
+        // Check all
+        $(document).on('change', '#checkbox_all', function () {
+            if (this.checked) {
+                devices = [];
+                table.$('input[type="checkbox"]').each(function () {
+                    this.checked = true;
+                    devices.push(this.id);
+                });
+            }
+            else {
+                devices = [];
+                table.$('input[type="checkbox"]').each(function () {
+                    this.checked = false;
+                });
+            }
 
+            if (devices.length > 0) {
+                $('#btnProfile').removeClass('d-none');
+            } else {
+                $('#btnProfile').addClass('d-none');
+            }
+        });
+
+        // Check single
+        $(document).on('change', '.table-checkbox', function () {
+            devices = [];
             table.$('input[type="checkbox"]').each(function () {
                 if (this.checked) {
                     devices.push(this.id);
@@ -210,7 +223,6 @@
                 $('#btnProfile').addClass('d-none');
             }
         });
-
 
         // Open modal dialog
         $(document).on('click', '.open-modal-dialog', function () {

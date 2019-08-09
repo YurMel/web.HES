@@ -18,8 +18,10 @@ namespace HES.Web.Pages.Devices
     {
         private readonly IDeviceService _deviceService;
         private readonly IEmployeeService _employeeService;
+        private readonly IDeviceAccessProfilesService _deviceAccessProfilesService;
         private readonly ILogger<IndexModel> _logger;
 
+        public IList<DeviceAccessProfile> DeviceAccessProfiles { get; set; }
         public IList<Device> Devices { get; set; }
         public Device Device { get; set; }
         public DeviceFilter DeviceFilter { get; set; }
@@ -31,10 +33,12 @@ namespace HES.Web.Pages.Devices
 
         public IndexModel(IDeviceService deviceService,
                           IEmployeeService employeeService,
+                          IDeviceAccessProfilesService deviceAccessProfilesService,
                           ILogger<IndexModel> logger)
         {
             _deviceService = deviceService;
             _employeeService = employeeService;
+            _deviceAccessProfilesService = deviceAccessProfilesService;
             _logger = logger;
         }
 
@@ -42,13 +46,13 @@ namespace HES.Web.Pages.Devices
         {
             Devices = await _deviceService
                 .DeviceQuery()
+                .Include(d => d.DeviceAccessProfile)
                 .Include(d => d.Employee.Department.Company)
                 .ToListAsync();
 
             ViewData["Firmware"] = new SelectList(Devices.Select(s => s.Firmware).Distinct().OrderBy(f => f).ToDictionary(t => t, t => t), "Key", "Value");
             ViewData["Employees"] = new SelectList(await _employeeService.EmployeeQuery().ToListAsync(), "Id", "FullName");
             ViewData["Companies"] = new SelectList(await _employeeService.CompanyQuery().ToListAsync(), "Id", "Name");
-            //ViewData["Departments"] = new SelectList(await _employeeService.DepartmentQuery().ToListAsync(), "Id", "Name");
 
             ViewData["DatePattern"] = CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern.ToLower();
             ViewData["TimePattern"] = CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern.ToUpper() == "H:MM" ? "hh:ii" : "hh:ii aa";
@@ -143,6 +147,34 @@ namespace HES.Web.Pages.Devices
         public async Task<JsonResult> OnGetJsonDepartmentAsync(string id)
         {
             return new JsonResult(await _employeeService.DepartmentQuery().Where(d => d.CompanyId == id).ToListAsync());
+        }
+
+        public async Task<IActionResult> OnGetSetProfile()
+        {
+            DeviceAccessProfiles = await _deviceAccessProfilesService.DeviceAccessProfilesQuery().ToListAsync();
+            return Partial("_SetProfile", this);
+        }
+
+        public async Task<IActionResult> OnPostSetProfileAsync(string[] devices, string profileId)
+        {
+            if (devices == null && profileId == null)
+            {
+                _logger.LogWarning("devices == null && profileId == null");
+                return RedirectToPage("./Index");
+            }
+
+            try
+            {
+                await _deviceService.UpdateProfileAsync(devices, profileId);
+                SuccessMessage = $"New profile sent to server for processing.";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                ErrorMessage = ex.Message;
+            }
+
+            return RedirectToPage("./Index");
         }
     }
 }

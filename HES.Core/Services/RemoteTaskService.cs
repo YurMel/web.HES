@@ -24,6 +24,7 @@ namespace HES.Core.Services
         readonly IAsyncRepository<Device> _deviceRepository;
         readonly ILogger<RemoteTaskService> _logger;
         readonly IDataProtectionService _dataProtectionService;
+        readonly IDeviceAccessProfilesService _deviceAccessProfilesService;
         readonly IHubContext<EmployeeDetailsHub> _hubContext;
 
         public RemoteTaskService(IAsyncRepository<DeviceAccount> deviceAccountRepository,
@@ -31,6 +32,7 @@ namespace HES.Core.Services
                                  IAsyncRepository<Device> deviceRepository,
                                  ILogger<RemoteTaskService> logger,
                                  IDataProtectionService dataProtectionService,
+                                 IDeviceAccessProfilesService deviceAccessProfilesService,
                                  IHubContext<EmployeeDetailsHub> hubContext)
         {
             _deviceAccountRepository = deviceAccountRepository;
@@ -38,6 +40,7 @@ namespace HES.Core.Services
             _deviceRepository = deviceRepository;
             _logger = logger;
             _dataProtectionService = dataProtectionService;
+            _deviceAccessProfilesService = deviceAccessProfilesService;
             _hubContext = hubContext;
         }
 
@@ -315,6 +318,9 @@ namespace HES.Core.Services
                 case TaskOperation.Link:
                     idFromDevice = await LinkDevice(device, task);
                     break;
+                case TaskOperation.Profile:
+                    idFromDevice = await LinkDevice(device, task);
+                    break;
             }
             return idFromDevice;
         }
@@ -387,8 +393,30 @@ namespace HES.Core.Services
 
         private async Task<ushort> LinkDevice(RemoteDevice device, DeviceTask task)
         {
+            //
+            // Set LINK
+            //
+
             //var key = ConvertUtils.HexStringToBytes(task.Password);
             //var respData = await device.Link(key);
+
+            //
+            // SET default Profile
+            //
+
+            await Task.Delay(1);
+            return 0;
+        }
+
+        private async Task<ushort> ProfileDevice(RemoteDevice device, DeviceTask task)
+        {
+            var dev = await _deviceRepository.GetByIdAsync(task.DeviceId);
+            var profile = await _deviceAccessProfilesService.GetByIdAsync(dev.AcceessProfileId);
+
+            //
+            // SET Profile
+            //
+
             await Task.Delay(1);
             return 0;
         }

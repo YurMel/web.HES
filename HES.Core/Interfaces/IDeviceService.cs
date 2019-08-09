@@ -12,9 +12,9 @@ namespace HES.Core.Interfaces
         IQueryable<Device> DeviceQuery();
         Task<Device> DeviceGetByIdAsync(dynamic id);
         Task<(IList<Device> devicesExists, IList<Device> devicesImported, string message)> ImportDevices(string key, byte[] fileContent);
-        Task<bool> ExistAsync(Expression<Func<Device, bool>> predicate);
         Task EditDeviceRfidAsync(Device device);
-        Task UpdateBatteryChargeAsync(string deviceId, int batteryCharge);
-        Task UpdateFirmwareVersionAsync(string deviceId, string version);
+        Task UpdateDevicePropAsync(string deviceId, int batteryCharge, string version);
+        Task UpdateProfileAsync(string[] devices, string profileId);
+        Task<bool> ExistAsync(Expression<Func<Device, bool>> predicate);
     }
 }
