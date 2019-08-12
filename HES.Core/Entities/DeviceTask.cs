@@ -29,9 +29,10 @@ namespace HES.Core.Entities
         Create,
         Update,
         Delete,
+        Wipe,
         Link,
         Primary,
         Profile,
-        Wipe
+        UnlockPin
     }
 }

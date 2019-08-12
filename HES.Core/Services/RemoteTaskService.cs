@@ -150,7 +150,7 @@ namespace HES.Core.Services
             }
         }
 
-        async Task ExecuteRemoteTasks(string deviceId)
+        private async Task ExecuteRemoteTasks(string deviceId)
         {
             try
             {
@@ -319,7 +319,10 @@ namespace HES.Core.Services
                     idFromDevice = await LinkDevice(device, task);
                     break;
                 case TaskOperation.Profile:
-                    idFromDevice = await LinkDevice(device, task);
+                    idFromDevice = await ProfileDevice(device, task);
+                    break;
+                case TaskOperation.UnlockPin:
+                    idFromDevice = await UnlockPin(device, task);
                     break;
             }
             return idFromDevice;
@@ -393,6 +396,8 @@ namespace HES.Core.Services
 
         private async Task<ushort> LinkDevice(RemoteDevice device, DeviceTask task)
         {
+            var dev = await _deviceRepository.GetByIdAsync(task.DeviceId);
+
             //
             // Set LINK
             //
@@ -404,7 +409,6 @@ namespace HES.Core.Services
             // SET default Profile
             //
 
-            await Task.Delay(1);
             return 0;
         }
 
@@ -417,7 +421,21 @@ namespace HES.Core.Services
             // SET Profile
             //
 
-            await Task.Delay(1);
+            return 0;
+        }
+
+        private async Task<ushort> UnlockPin(RemoteDevice device, DeviceTask task)
+        {
+            var dev = await _deviceRepository.GetByIdAsync(task.DeviceId);
+
+             // Update device state
+            dev.State = DeviceState.Ok;
+            await _deviceRepository.UpdateOnlyPropAsync(dev, new string[] { "State" });
+
+            //
+            // Unlock pin
+            //
+
             return 0;
         }
     }

@@ -15,6 +15,7 @@ namespace HES.Core.Interfaces
         Task EditDeviceRfidAsync(Device device);
         Task UpdateDevicePropAsync(string deviceId, int batteryCharge, string version);
         Task UpdateProfileAsync(string[] devices, string profileId);
+        Task UnlockPinAsync(string deviceId);
         Task<bool> ExistAsync(Expression<Func<Device, bool>> predicate);
     }
 }

@@ -187,6 +187,34 @@ namespace HES.Core.Services
             _remoteTaskService.StartTaskProcessing(devices);
         }
 
+        public async Task UnlockPinAsync(string deviceId)
+        {
+            if (deviceId == null)
+            {
+                throw new ArgumentNullException(nameof(deviceId));
+            }
+
+            var device = await _deviceRepository.GetByIdAsync(deviceId);
+            if (device == null)
+            {
+                throw new Exception($"Device not found, ID: {deviceId}");
+            }
+
+            // Update device state
+            device.State = DeviceState.PendingUnlock;
+            await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "State" });
+
+            // Create task
+            await _remoteTaskService.AddTaskAsync(new DeviceTask
+            {
+                Operation = TaskOperation.UnlockPin,
+                CreatedAt = DateTime.UtcNow,
+                DeviceId = device.Id
+            });
+
+            _remoteTaskService.StartTaskProcessing(deviceId);
+        }
+
         public async Task<bool> ExistAsync(Expression<Func<Device, bool>> predicate)
         {
             return await _deviceRepository.ExistAsync(predicate);

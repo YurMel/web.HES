@@ -131,6 +131,12 @@ namespace HES.Web.Pages.Devices
 
         public async Task<IActionResult> OnPostEditDeviceRfidAsync(Device device)
         {
+            if (device == null)
+            {
+                _logger.LogWarning("device == null");
+                return NotFound();
+            }
+
             try
             {
                 await _deviceService.EditDeviceRfidAsync(device);
@@ -150,7 +156,7 @@ namespace HES.Web.Pages.Devices
             return new JsonResult(await _employeeService.DepartmentQuery().Where(d => d.CompanyId == id).ToListAsync());
         }
 
-        public async Task<IActionResult> OnGetSetProfile()
+        public async Task<IActionResult> OnGetSetProfileAsync()
         {
             DeviceAccessProfiles = await _deviceAccessProfilesService.DeviceAccessProfilesQuery().ToListAsync();
             return Partial("_SetProfile", this);
@@ -168,6 +174,48 @@ namespace HES.Web.Pages.Devices
             {
                 await _deviceService.UpdateProfileAsync(devices, profileId);
                 SuccessMessage = $"New profile sent to server for processing.";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                ErrorMessage = ex.Message;
+            }
+
+            return RedirectToPage("./Index");
+        }
+
+        public async Task<IActionResult> OnGetUnlockPinAsync(string id)
+        {
+            if (id == null)
+            {
+                _logger.LogWarning("id == null");
+                return NotFound();
+            }
+
+            Device = await _deviceService.DeviceQuery()
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (Device == null)
+            {
+                _logger.LogWarning("Device == null");
+                return NotFound();
+            }
+
+            return Partial("_UnlockPin", this);
+        }
+
+        public async Task<IActionResult> OnPostUnlockPinAsync(string deviceId)
+        {
+            if (deviceId == null)
+            {
+                _logger.LogWarning("id == null");
+                return NotFound();
+            }
+
+            try
+            {
+                await _deviceService.UnlockPinAsync(deviceId);
+                SuccessMessage = $"Pending unlock.";
             }
             catch (Exception ex)
             {

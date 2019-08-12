@@ -59,6 +59,9 @@
                 @Html.DisplayNameFor(model => model.Devices[0].AccessProfile)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.Devices[0].State)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.Devices[0].LastSynced)
             </th>
             <th>
@@ -76,70 +79,98 @@
     <tbody>
         @foreach (var item in Model.Devices)
         {
-        <tr>
-            <td>
-                <div class="custom-control custom-checkbox">
-                    <input type="checkbox" class="custom-control-input table-checkbox" id="@item.Id">
-                    <label class="custom-control-label" for="@item.Id"></label>
-                </div>
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.MAC)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Model)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.RFID)
-            </td>
-            <td data-sort="@item.Battery" class="pl-4">
-                @if (item.Battery == 1)
-                {
-                    <img src="~/svg/device/battery_full.svg" alt="@item.Battery" />
-                }
-                else
-                {
-                    <img src="~/svg/device/battery_20.svg" alt="@item.Battery" />
-                }
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Firmware)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DeviceAccessProfile.Name)
-            </td>
-            <td>
-                @if (item.LastSynced != null)
-                {
-                    @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.LastSynced, TimeZoneInfo.Local)
-                }
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Employee.FullName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Employee.EmpCompany)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Employee.EmpDepartment)
-            </td>
-            <td>
-                <div class="dropdown no-arrow">
-                    <a class="dropdown-toggle" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <img src="~/svg/action/more.svg" />
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right shadow" aria-labelledby="dropdownMenuLink">
-                        <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="EditDeviceRfid" data-title="Edit device RFID">
-                            <img src="~/svg/action/edit.svg" />
-                            Edit RFID
-                        </a>
+            <tr>
+                <td>
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input table-checkbox" id="@item.Id">
+                        <label class="custom-control-label" for="@item.Id"></label>
                     </div>
-                </div>
-            </td>
-        </tr>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Id)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.MAC)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Model)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RFID)
+                </td>
+                <td data-sort="@item.Battery" class="pl-4">
+                    @if (item.Battery == 1)
+                    {
+                        <img src="~/svg/device/battery_full.svg" alt="@item.Battery" />
+                    }
+                    else
+                    {
+                        <img src="~/svg/device/battery_20.svg" alt="@item.Battery" />
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Firmware)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DeviceAccessProfile.Name)
+                </td>
+                <td>
+                    @switch (item.State)
+                    {
+                        case Core.Entities.DeviceState.Ok:
+                            <span class="badge badge-light">@Html.DisplayFor(modelItem => item.State)</span>
+                            break;
+                        case Core.Entities.DeviceState.Online:
+                            <span class="badge badge-success">@Html.DisplayFor(modelItem => item.State)</span>
+                            break;
+                        case Core.Entities.DeviceState.Locked:
+                            <span class="badge badge-danger">@Html.DisplayFor(modelItem => item.State)</span>
+                            break;
+                        case Core.Entities.DeviceState.PendingUnlock:
+                            <span class="badge badge-warning">@Html.DisplayFor(modelItem => item.State)</span>
+                            break;
+                        case Core.Entities.DeviceState.Disabled:
+                            <span class="badge badge-dark">@Html.DisplayFor(modelItem => item.State)</span>
+                            break;
+                    }
+                </td>
+                <td>
+                    @if (item.LastSynced != null)
+                    {
+                        @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.LastSynced, TimeZoneInfo.Local)
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Employee.FullName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Employee.EmpCompany)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Employee.EmpDepartment)
+                </td>
+                <td>
+                    <div class="dropdown no-arrow">
+                        <a class="dropdown-toggle" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <img src="~/svg/action/more.svg" />
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right shadow" aria-labelledby="dropdownMenuLink">
+                            <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="EditDeviceRfid" data-title="Edit device RFID">
+                                <img src="~/svg/action/edit.svg" />
+                                Edit RFID
+                            </a>
+                            @if (item.State == Core.Entities.DeviceState.Locked)
+                            {
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="UnlockPin" data-title="Unlock PIN">
+                                    <img src="~/svg/action/unlock.svg" />
+                                    Unlock PIN
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </td>
+            </tr>
         }
     </tbody>
 </table>

@@ -14,6 +14,7 @@ namespace HES.Core.Entities
         public string RFID { get; set; }
         public int Battery { get; set; }
         public string Firmware { get; set; }
+        public DeviceState State { get; set; }
         public DateTime? LastSynced { get; set; }
         public string EmployeeId { get; set; }
         public string PrimaryAccountId { get; set; }
@@ -32,5 +33,14 @@ namespace HES.Core.Entities
         public string AccessProfile => DeviceAccessProfile?.Name;
         [Display(Name = "Employee")]
         public string EmployeeFullName => Employee?.FullName;
+    }
+
+    public enum DeviceState
+    {
+        Ok,
+        Online,
+        Locked,
+        PendingUnlock,
+        Disabled
     }
 }
