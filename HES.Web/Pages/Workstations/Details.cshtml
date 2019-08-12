@@ -86,14 +86,10 @@
                 }
             </td>
             <td>
-                @if (Model.Workstation.Approved)
-                {
-                    <img src="~/svg/action/check_box.svg" />
-                }
-                else
-                {
-                    <img src="~/svg/action/check_box_outline.svg" />
-                }
+                <div class="custom-control custom-checkbox green-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="approved" checked="@Model.Workstation.Approved" disabled>
+                    <label class="custom-control-label" for="approved"></label>
+                </div>
             </td>
         </tr>
     </tbody>
@@ -157,13 +153,22 @@
                         @Html.DisplayFor(modelItem => item.Device.Employee.Department.Name)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.AllowRfid)
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="AllowRfid" checked="@item.AllowRfid" disabled>
+                            <label class="custom-control-label" for="AllowRfid"></label>
+                        </div>
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.AllowBleTap)
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="AllowBleTap" checked="@item.AllowBleTap" disabled>
+                            <label class="custom-control-label" for="AllowBleTap"></label>
+                        </div>
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.AllowProximity)
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="AllowProximity" checked="@item.AllowProximity" disabled>
+                            <label class="custom-control-label" for="AllowProximity"></label>
+                        </div>
                     </td>
                     <td>
                         <div class="dropdown no-arrow">

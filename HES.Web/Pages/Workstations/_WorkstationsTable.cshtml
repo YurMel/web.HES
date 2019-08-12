@@ -92,15 +92,11 @@
                         @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.LastSeen, TimeZoneInfo.Local)
                     }
                 </td>
-                <td data-sort="@item.Approved">
-                    @if (item.Approved)
-                    {
-                        <img src="~/svg/action/check_box.svg" alt="@item.Approved" />
-                    }
-                    else
-                    {
-                        <img src="~/svg/action/check_box_outline.svg" alt="@item.Approved" />
-                    }
+                <td data-sort="@item.Approved">        
+                    <div class="custom-control custom-checkbox green-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="approved_@item.Id" checked="@item.Approved" disabled>
+                        <label class="custom-control-label" for="approved_@item.Id"></label>
+                    </div>
                 </td>
                 <td>
                     <div class="dropdown no-arrow">

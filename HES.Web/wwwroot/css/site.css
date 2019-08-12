@@ -372,9 +372,19 @@ a.navbar-brand {
     background-color: #ffffff;
     cursor: pointer;
 }
+
 .readonly-white {
     background-color: #fff !important;
 }
+
+.green-checkbox .custom-control-input:checked ~ .custom-control-label::before {
+    border-color: #28a745 !important;
+    background-color: #28a745 !important;
+}
+
+/*.custom-checkbox .custom-control-input:disabled:checked ~ .custom-control-label::before {
+    background-color: rgba(0, 123, 255, 0.5);
+}*/
 /*#endregion*/
 
 /*#region Table */

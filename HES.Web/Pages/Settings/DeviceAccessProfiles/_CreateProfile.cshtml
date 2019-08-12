@@ -32,16 +32,28 @@
                     Button
                 </td>
                 <td class="text-center">
-                    <input type="checkbox" asp-for="DeviceAccessProfile.ButtonBonding" />
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="ButtonBonding" asp-for="DeviceAccessProfile.ButtonBonding">
+                        <label class="custom-control-label" for="ButtonBonding"></label>
+                    </div>
                 </td>
                 <td class="text-center">
-                    <input type="checkbox" asp-for="DeviceAccessProfile.ButtonConnection" />
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="ButtonConnection" asp-for="DeviceAccessProfile.ButtonConnection">
+                        <label class="custom-control-label" for="ButtonConnection"></label>
+                    </div>
                 </td>
                 <td class="text-center">
-                    <input type="checkbox" asp-for="DeviceAccessProfile.ButtonNewChannel" />
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="ButtonNewChannel" asp-for="DeviceAccessProfile.ButtonNewChannel">
+                        <label class="custom-control-label" for="ButtonNewChannel"></label>
+                    </div>
                 </td>
                 <td class="text-center">
-                    <input type="checkbox" asp-for="DeviceAccessProfile.ButtonNewLink" />
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="ButtonNewLink" asp-for="DeviceAccessProfile.ButtonNewLink">
+                        <label class="custom-control-label" for="ButtonNewLink"></label>
+                    </div>
                 </td>
             </tr>
             <tr>
@@ -49,16 +61,28 @@
                     PIN
                 </td>
                 <td class="text-center">
-                    <input type="checkbox" asp-for="DeviceAccessProfile.PinBonding" />
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="PinBonding" asp-for="DeviceAccessProfile.PinBonding">
+                        <label class="custom-control-label" for="PinBonding"></label>
+                    </div>
                 </td>
                 <td class="text-center">
-                    <input type="checkbox" asp-for="DeviceAccessProfile.PinConnection" />
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="PinConnection" asp-for="DeviceAccessProfile.PinConnection">
+                        <label class="custom-control-label" for="PinConnection"></label>
+                    </div>
                 </td>
                 <td class="text-center">
-                    <input type="checkbox" asp-for="DeviceAccessProfile.PinNewChannel" />
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="PinNewChannel" asp-for="DeviceAccessProfile.PinNewChannel">
+                        <label class="custom-control-label" for="PinNewChannel"></label>
+                    </div>
                 </td>
                 <td class="text-center">
-                    <input type="checkbox" asp-for="DeviceAccessProfile.PinNewLink" />
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="PinNewLink" asp-for="DeviceAccessProfile.PinNewLink">
+                        <label class="custom-control-label" for="PinNewLink"></label>
+                    </div>
                 </td>
             </tr>
             <tr>
@@ -66,16 +90,28 @@
                     Master-key
                 </td>
                 <td class="text-center">
-                    <input type="checkbox" asp-for="DeviceAccessProfile.MasterKeyBonding" />
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="MasterKeyBonding" asp-for="DeviceAccessProfile.MasterKeyBonding">
+                        <label class="custom-control-label" for="MasterKeyBonding"></label>
+                    </div>
                 </td>
                 <td class="text-center">
-                    <input type="checkbox" asp-for="DeviceAccessProfile.MasterKeyConnection" />
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="MasterKeyConnection" asp-for="DeviceAccessProfile.MasterKeyConnection">
+                        <label class="custom-control-label" for="MasterKeyConnection"></label>
+                    </div>
                 </td>
                 <td class="text-center">
-                    <input type="checkbox" asp-for="DeviceAccessProfile.MasterKeyNewChannel" />
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="MasterKeyNewChannel" asp-for="DeviceAccessProfile.MasterKeyNewChannel">
+                        <label class="custom-control-label" for="MasterKeyNewChannel"></label>
+                    </div>
                 </td>
                 <td class="text-center">
-                    <input type="checkbox" asp-for="DeviceAccessProfile.MasterKeyNewLink" />
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="MasterKeyNewLink" asp-for="DeviceAccessProfile.MasterKeyNewLink">
+                        <label class="custom-control-label" for="MasterKeyNewLink"></label>
+                    </div>
                 </td>
             </tr>
         </tbody>
@@ -102,7 +138,7 @@
                     PIN length
                 </td>
                 <td class="text-center pr-1">
-                    <input id="pin_length" asp-for="DeviceAccessProfile.PinLength" type="text" data-slider-min="4" data-slider-max="8" data-slider-step="1" data-slider-value="4"/>
+                    <input id="pin_length" asp-for="DeviceAccessProfile.PinLength" type="text" data-slider-min="4" data-slider-max="8" data-slider-step="1" data-slider-value="4" />
                 </td>
                 <td class="text-center">
                     <h6 id="pin_length_value"></h6>
