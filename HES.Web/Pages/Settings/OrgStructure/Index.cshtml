@@ -9,6 +9,7 @@
 <partial name="_SuccessMessage" for="SuccessMessage" />
 <partial name="_ErrorMessage" for="ErrorMessage" />
 
+@* Top items *@
 <div class="row align-items-center mb-3 mr-0">
     <div class="col">
         <h1 class="text-navyblue text-nowrap">Org structure</h1>
@@ -25,6 +26,7 @@
     </div>
 </div>
 
+@* Company *@
 @foreach (var company in Model.Companies)
 {
     <div class="row align-items-center m-1">
@@ -59,9 +61,11 @@
         </div>
     </div>
 
+    @* Department *@
     <table id="@company.Id" class="display table table-hover border rounded w-100">
         <thead>
             <tr>
+                <th class="d-none"></th>
                 <th>
                     @Html.DisplayNameFor(model => model.Departments[0].Name)
                 </th>
@@ -72,10 +76,10 @@
             @foreach (var department in Model.Departments.Where(d => d.CompanyId == company.Id))
             {
                 <tr>
+                    <td class="d-none"></td>
                     <td>
                         @Html.DisplayFor(modelItem => department.Name)
                     </td>
-
                     <td>
                         <div class="dropdown no-arrow">
                             <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -166,7 +170,7 @@
             if (currentId != 'undefined') {
                 $('#' + currentId).DataTable({
                     "columnDefs": [
-                        { "orderable": false, "targets": 1 }
+                        { "orderable": false, "targets": [0, 2] }
                     ]
                 });
                 var dataTable = $('#' + currentId).dataTable();

@@ -32,6 +32,7 @@
 <table id="positions" class="display table table-hover border rounded w-100">
     <thead>
         <tr>
+            <th class="d-none"></th>
             <th>
                 @Html.DisplayNameFor(model => model.Positions[0].Name)
             </th>
@@ -42,6 +43,7 @@
         @foreach (var item in Model.Positions)
         {
             <tr>
+                <td class="d-none"></td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Name)
                 </td>
@@ -104,7 +106,7 @@
         var table_name = '#positions';
         $(table_name).DataTable({
             "columnDefs": [
-                { "orderable": false, "targets": 1 }
+                { "orderable": false, "targets": [0, 2] }
             ]
         });
         var dataTable = $(table_name).dataTable();
@@ -151,6 +153,7 @@
         $('#modalDialog').on('hidden.bs.modal', function (e) {
             $("#modalBody").html("<div class='d-flex justify-content-center align-items-center'><div class='spinner-grow text-primary' style='width: 3rem; height: 3rem;' role='status'><span class='sr-only'></span></div></div>");
         })
+
         $(document).ready(function () {
             // Breadcrumbs
             $('#breadcrumb').toggleClass('d-none');

@@ -50,6 +50,7 @@
 <table id="title_employee" class="table display border rounded w-100">
     <thead>
         <tr>
+            <th class="d-none"></th>
             <th>
                 @Html.DisplayNameFor(model => model.Employee.FullName)
             </th>
@@ -78,6 +79,7 @@
     </thead>
     <tbody>
         <tr>
+            <td class="d-none"></td>
             <td>
                 @Html.DisplayFor(model => model.Employee.FullName)
             </td>
@@ -134,6 +136,7 @@
     <table id="title_@device.Id" class="table display border rounded w-100">
         <thead>
             <tr>
+                <th class="d-none"></th>
                 <th>
                     @Html.DisplayNameFor(model => device.Id)
                 </th>
@@ -159,6 +162,7 @@
         </thead>
         <tbody>
             <tr>
+                <td class="d-none"></td>
                 <td>
                     @Html.DisplayFor(modelItem => device.Id)
                 </td>
@@ -215,6 +219,7 @@
         <table id="@device.Id" class="table display table table-hover border rounded w-100">
             <thead>
                 <tr>
+                    <th class="d-none"></th>
                     <th data-priority="1">
                         @Html.DisplayNameFor(model => model.DeviceAccounts[0].Name)
                     </th>
@@ -255,6 +260,7 @@
                 @foreach (var item in Model.DeviceAccounts.Where(e => e.EmployeeId == Model.Employee.Id).Where(d => d.DeviceId == device.Id))
                 {
                     <tr>
+                        <td class="d-none"></td>
                         <td style="vertical-align:middle">
                             @if (device.PrimaryAccountId == item.Id)
                             {
@@ -273,7 +279,6 @@
                                 {
                                     foreach (var urls in item.Urls.Split(';'))
                                     {
-                                        @*<span class="badge badge-primary custom-badge">@urls</span>*@
                                         <span style="white-space: pre-line">@urls</span>
                                     }
                                 }
@@ -285,7 +290,6 @@
                                 {
                                     foreach (var apps in item.Apps.Split(';'))
                                     {
-                                        @*<span class="badge badge-primary custom-badge">@apps</span>*@
                                         <span style="white-space: pre-line">@apps</span>
 
                                     }
@@ -305,13 +309,13 @@
                             @if (item.LastSyncedAt != null)
                             {
                                 @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.LastSyncedAt, TimeZoneInfo.Local)
-                            }                    
+                            }
                         </td>
                         <td>
                             @if (item.CreatedAt != null)
                             {
                                 @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.CreatedAt, TimeZoneInfo.Local)
-                            }                            
+                            }
                         </td>
                         <td>
                             @if (item.UpdatedAt != null)
@@ -466,9 +470,6 @@
                     $('form').removeData('unobtrusiveValidation');
                     $.validator.unobtrusive.parse('form');
 
-                    // Init devices
-                    InitDevicesTable();
-
                     // Enable tags
                     $("input[data-role=tagsinput], select[multiple][data-role=tagsinput]").tagsinput();
 
@@ -482,51 +483,10 @@
             });
         });
 
-        // On submit clear search results
-        $(document).on('submit', 'form', function () {
-            var table = $('#devices').DataTable();
-            table.search('').columns().search('').draw();
-        });
-
-        // Init devices
-        function InitDevicesTable() {
-            var table_name = '#devices';
-            $(table_name).DataTable({
-                "order": [[1, "asc"]],
-                "columnDefs": [
-                    { "orderable": false, "targets": 0 }
-                ],
-                "lengthMenu": [[5], [5]],
-                "scrollY": "246px",
-                "paging": false,
-                "bInfo": false,
-                "bLengthChange": false,
-            });
-            var dataTable = $(table_name).dataTable();
-            // Search box
-            $('#devices_searchbox').keyup(function () {
-                dataTable.fnFilter(this.value);
-            });
-            $('.dataTables_filter').addClass('d-none');
-        }
-
-        // Check all
-        function checkAll(e) {
-            var checkboxes = document.getElementsByTagName('input');
-            if (e.checked) {
-                for (var i = 0; i < checkboxes.length; i++) {
-                    if (checkboxes[i].type == 'checkbox') {
-                        checkboxes[i].checked = true;
-                    }
-                }
-            } else {
-                for (var i = 0; i < checkboxes.length; i++) {
-                    if (checkboxes[i].type == 'checkbox') {
-                        checkboxes[i].checked = false;
-                    }
-                }
-            }
-        }
+        // Clear content on modal hide
+        $('#modalDialog').on('hidden.bs.modal', function (e) {
+            $("#modalBody").html("<div class='d-flex justify-content-center align-items-center'><div class='spinner-grow text-primary' style='width: 3rem; height: 3rem;' role='status'><span class='sr-only'></span></div></div>");
+        })
 
         // Dropdown SharedAccount
         function GetSharedAccount(id) {
@@ -605,11 +565,6 @@
                 $('#pagination_place_' + currentId).html($('#' + currentId + '_paginate'));
             }
         });
-
-        // Clear content on modal hide
-        $('#modalDialog').on('hidden.bs.modal', function (e) {
-            $("#modalBody").html("<div class='d-flex justify-content-center align-items-center'><div class='spinner-grow text-primary' style='width: 3rem; height: 3rem;' role='status'><span class='sr-only'></span></div></div>");
-        })
 
         $(document).ready(function () {
             // Set btn disable if device count 0

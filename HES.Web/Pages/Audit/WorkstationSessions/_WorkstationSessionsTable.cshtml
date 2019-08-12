@@ -23,6 +23,7 @@
 <table id="workstationSessions" class="display table table-hover border rounded w-100">
     <thead>
         <tr>
+            <th class="d-none"></th>
             <th>
                 @Html.DisplayNameFor(model => model.WorkstationSessions[0].StartDate)
             </th>
@@ -65,6 +66,7 @@
         @foreach (var item in Model.WorkstationSessions)
         {
             <tr>
+                <td class="d-none"></td>
                 <td>
                     @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.StartDate, TimeZoneInfo.Local)
                 </td>
@@ -126,24 +128,4 @@
     <div id="pagination_place" class="col d-flex justify-content-center justify-content-lg-end align-items-center mb-1"></div>
 </div>
 
-<script>
-    // Init DataTables
-    var table_name = '#workstationSessions';
-    $(table_name).DataTable({
-        responsive: true,
-        "order": [[0, "desc"]]
-    });
-    var dataTable = $(table_name).dataTable();
-    // Search box
-    $('#searchbox').keyup(function () {
-        dataTable.fnFilter(this.value);
-    });
-    $('.dataTables_filter').addClass('d-none');
-    // Length
-    $('#entries_place').html($('.dataTables_length select').removeClass('custom-select-sm form-control-sm'));
-    $('.dataTables_length').addClass('d-none');
-    // Info
-    $('#showing_place').html($('.dataTables_info'));
-    // Paginate
-    $('#pagination_place').html($('.dataTables_paginate'));
-</script>
+<script src="~/js/dt-init-workstation-sessions.js"></script>

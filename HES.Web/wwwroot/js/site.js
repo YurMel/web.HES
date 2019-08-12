@@ -1,7 +1,4 @@
-﻿// Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
-
-$(document).ready(function () {
+﻿$(document).ready(function () {
     $('.loading').removeClass('d-flex');
     $('.loading').addClass('d-none');
 
@@ -10,11 +7,11 @@ $(document).ready(function () {
         ToggleSidebarClass();
     }
 
-    $('#collapseAudit').on('shown.bs.collapse', function () {
+    $('#collapseAudit').on('show.bs.collapse', function () {
         $('#collapseSettings').collapse('hide');
     });
 
-    $('#collapseSettings').on('shown.bs.collapse', function () {
+    $('#collapseSettings').on('show.bs.collapse', function () {
         $('#collapseAudit').collapse('hide');
     });
 });

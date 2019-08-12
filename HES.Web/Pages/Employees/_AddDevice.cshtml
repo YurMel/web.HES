@@ -17,9 +17,9 @@
         <thead>
             <tr>
                 <th class="table-col-menu">
-                    <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="customCheck1" onchange="checkAll(this)">
-                        <label class="custom-control-label" for="customCheck1"></label>
+                    <div class="custom-control custom-checkbox">   
+                        <input type="checkbox" class="custom-control-input" id="checkbox_all">
+                        <label class="custom-control-label" for="checkbox_all"></label>
                     </div>
                 </th>
                 <th>
@@ -33,7 +33,7 @@
                 <tr>
                     <td class="table-col-menu">
                         <div class="custom-control custom-checkbox">
-                            <input type="checkbox" name="selectedDevices" class="custom-control-input" id="@device.Id" value="@device.Id">
+                            <input type="checkbox" class="custom-control-input" name="selectedDevices" id="@device.Id" value="@device.Id">
                             <label class="custom-control-label" for="@device.Id"></label>
                         </div>
                     </td>
@@ -50,15 +50,52 @@
     </div>
 </form>
 <script>
+    var table_name = '#devices';
+    var device_table = $(table_name).DataTable({
+        "order": [[1, "asc"]],
+        "columnDefs": [
+            { "orderable": false, "targets": 0 }
+        ],
+        "lengthMenu": [[5], [5]],
+        "scrollY": "246px",
+        "paging": false,
+        "bInfo": false,
+        "bLengthChange": false,
+    });
+    var dataTable = $(table_name).dataTable();
+    // Search box
+    $('#devices_searchbox').keyup(function () {
+        dataTable.fnFilter(this.value);
+    });
+    $('.dataTables_filter').addClass('d-none');
+
+    // Check all
+    $(document).on('change', '#checkbox_all', function () {
+        if (this.checked) {
+            device_table.$('input[type="checkbox"]').each(function () {
+                this.checked = true;
+            });
+        }
+        else {
+            device_table.$('input[type="checkbox"]').each(function () {
+                this.checked = false;
+            });
+        }
+    });
+
+    // On submit
     $("#add_device").on("submit", function () {
         var devices = [];
-        $.each($("input[name='selectedDevices']:checked"), function () {
+        device_table.$('input[type="checkbox"]').each(function () {
             devices.push($(this).val());
         });
+        // Check if not selected
         if (devices.length == 0) {
             $('.dataTables_scroll').css("border", "1px solid red")
             return false;
         }
+        // Clear search result 
+        device_table.search('').columns().search('').draw();
     })
 
     $("input[type='checkbox']").change(function () {

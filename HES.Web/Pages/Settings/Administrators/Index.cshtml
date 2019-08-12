@@ -32,6 +32,7 @@
 <table id="users" class="display table table-hover border rounded" style="width:100%">
     <thead>
         <tr>
+            <th class="d-none"></th>
             <th data-priority="1">
                 @Html.DisplayNameFor(model => model.ApplicationUsers[0].Email)
             </th>
@@ -51,6 +52,7 @@
         @foreach (var item in Model.ApplicationUsers)
         {
             <tr>
+                <td class="d-none"></td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Email)
                 </td>
@@ -116,10 +118,10 @@
     <script>
         // Init DataTables
         var table_name = '#users';
-        $(table_name).DataTable({
+        var table = $(table_name).DataTable({
             responsive: true,
             "columnDefs": [
-                { "orderable": false, "targets": 4 }
+                { "orderable": false, "targets": [0,5] }
             ]
         });
         var dataTable = $(table_name).dataTable();

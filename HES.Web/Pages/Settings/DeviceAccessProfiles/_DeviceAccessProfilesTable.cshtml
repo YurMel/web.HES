@@ -27,6 +27,7 @@
 <table id="deviceAccessProfiles" class="display table table-hover border rounded w-100 disable-selection">
     <thead>
         <tr>
+            <th class="d-none"></th>
             <th data-priority="1">
                 @Html.DisplayNameFor(model => model.DeviceAccessProfiles[0].Name)
             </th>
@@ -46,6 +47,7 @@
         @foreach (var item in Model.DeviceAccessProfiles)
         {
             <tr data-id="@item.Id" data-action="DetailsProfile" data-title="Device access profile">
+                <td class="d-none"></td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Name)
                 </td>

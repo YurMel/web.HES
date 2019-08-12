@@ -30,5 +30,7 @@ namespace HES.Core.Entities
         [NotMapped]
         [Display(Name = "Access Profile")]
         public string AccessProfile => DeviceAccessProfile?.Name;
+        [Display(Name = "Employee")]
+        public string EmployeeFullName => Employee?.FullName;
     }
 }

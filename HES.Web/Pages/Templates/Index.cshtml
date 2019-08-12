@@ -32,6 +32,7 @@
 <table id="templates" class="display table table-hover border rounded w-100">
     <thead>
         <tr>
+            <th class="d-none"></th>
             <th data-priority="1">
                 @Html.DisplayNameFor(model => model.Templates[0].Name)
             </th>
@@ -48,6 +49,7 @@
         @foreach (var item in Model.Templates)
         {
             <tr>
+                <td class="d-none"></td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Name)
                 </td>
@@ -132,8 +134,9 @@
         var table_name = '#templates';
         $(table_name).DataTable({
             responsive: true,
+            "order": [[1, "asc"]],
             "columnDefs": [
-                { "orderable": false, "targets": 3 }
+                { "orderable": false, "targets": [0, 4] }
             ]
         });
         var dataTable = $(table_name).dataTable();

@@ -28,6 +28,7 @@
 <table id="employees" class="display table table-hover border rounded w-100 disable-selection">
     <thead>
         <tr>
+            <th class="d-none"></th>
             <th data-priority="1">
                 @Html.DisplayNameFor(model => model.Employees[0].FullName)
             </th>
@@ -59,6 +60,7 @@
         @foreach (var item in Model.Employees)
         {
             <tr data-id="@item.Id">
+                <td class="d-none"></td>
                 <td>
                     @Html.DisplayFor(modelItem => item.FullName)
                 </td>
@@ -118,26 +120,4 @@
     <div id="pagination_place" class="col d-flex justify-content-center justify-content-lg-end align-items-center mb-1"></div>
 </div>
 
-<script>
-    // Initialize DataTables
-    var table_name = '#employees';
-    $(table_name).DataTable({
-        responsive: true,
-        "columnDefs": [
-            { "orderable": false, "targets": 8 }
-        ]
-    });
-    var dataTable = $(table_name).dataTable();
-    // Search box
-    $('#searchbox').keyup(function () {
-        dataTable.fnFilter(this.value);
-    });
-    $('.dataTables_filter').addClass('d-none');
-    // Length
-    $('#entries_place').html($('.dataTables_length select').removeClass('custom-select-sm form-control-sm'));
-    $('.dataTables_length').addClass('d-none');
-    // Info
-    $('#showing_place').html($('.dataTables_info'));
-    // Paginate
-    $('#pagination_place').html($('.dataTables_paginate'));
-</script>
+<script src="~/js/dt-init-employees.js"></script>

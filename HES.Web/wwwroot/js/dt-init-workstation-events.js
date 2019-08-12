@@ -1,10 +1,10 @@
-﻿// Initialize DataTables
-var table_name = '#devices';
+﻿// Init DataTables
+var table_name = '#workstationEvents';
 var table = $(table_name).DataTable({
     responsive: true,
-    "order": [[1, "asc"]],
+    "order": [[1, "desc"]],
     "columnDefs": [
-        { "orderable": false, "targets": [0, 12] }
+        { "orderable": false, "targets": [0] }
     ]
 });
 var dataTable = $(table_name).dataTable();
