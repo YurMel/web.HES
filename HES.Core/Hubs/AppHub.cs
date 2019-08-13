@@ -169,6 +169,7 @@ namespace HES.Core.Hubs
             var r = new Random().Next(100) < 50 ? true : false;
             return r;
         }
+
         // Incomming request
         public async Task<UserInfo> GetInfoByRfid(string rfid)
         {

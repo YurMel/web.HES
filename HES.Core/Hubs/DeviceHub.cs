@@ -77,7 +77,6 @@ namespace HES.Core.Hubs
                         }
                         catch (Exception ex)
                         {
-                            Debug.WriteLine(ex.Message);
                             _logger.LogError(ex.Message);
                         }
                     });
@@ -118,7 +117,7 @@ namespace HES.Core.Hubs
             return _connections.TryRemove(id, out RemoteDevice device);
         }
 
-        RemoteDevice GetDevice()
+        private RemoteDevice GetDevice()
         {
             if (Context.Items.TryGetValue("Device", out object device))
                 return (RemoteDevice)device;
@@ -163,7 +162,6 @@ namespace HES.Core.Hubs
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
-                Debug.WriteLine(ex.Message);
                 throw new HubException(ex.Message);
             }
             return Task.CompletedTask;

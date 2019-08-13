@@ -78,6 +78,7 @@ namespace HES.Web
             services.AddScoped<ISettingsService, SettingsService>();
             services.AddScoped<IApplicationUserService, ApplicationUserService>();
             services.AddScoped<IDeviceAccessProfilesService, DeviceAccessProfilesService>();
+            services.AddTransient<IAppVersionService, AppVersionService>();
             services.AddSingleton<IRemoteTaskService, RemoteTaskService>(s =>
             {
                 var scope = s.CreateScope();

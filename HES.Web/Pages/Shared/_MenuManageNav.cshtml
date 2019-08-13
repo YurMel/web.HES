@@ -1,4 +1,7 @@
-﻿<a class="navbar-brand mt-3 mb-3 w-100" asp-area="" asp-page="/Employees/Index">
+﻿@using HES.Core.Interfaces
+@inject IAppVersionService AppVersionService
+
+<a class="navbar-brand mt-3 mb-3 w-100" asp-area="" asp-page="/Employees/Index">
     <img class="icon-hideez" />
 </a>
 
@@ -110,6 +113,8 @@
     </li>
 </ul>
 
-<span class="copyright text-center text-wrap">
-    © 2019 - Hideez.Enterprise All rights reserved.
-</span>
+<div class="copyright text-center">
+    <span class="d-block">© 2019 Hideez Group Inc.</span>
+    <span class="d-block">Hideez Enterprise Server</span>
+    <span class="d-block">Version: @AppVersionService.Version</span>
+</div>

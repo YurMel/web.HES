@@ -31,18 +31,21 @@ namespace HES.Core.Services
         private readonly IAsyncRepository<Device> _deviceRepository;
         private readonly IAsyncRepository<DeviceTask> _deviceTaskRepository;
         private readonly IDeviceAccessProfilesService _deviceAccessProfilesService;
+        private readonly IWorkstationEventService _workstationEventService;
         private readonly IRemoteTaskService _remoteTaskService;
 
         public DeviceService(IAesCryptography aes,
                              IAsyncRepository<Device> deviceRepository,
                              IAsyncRepository<DeviceTask> deviceTaskRepository,                             
                              IDeviceAccessProfilesService deviceAccessProfilesService,
+                             IWorkstationEventService workstationEventService,
                              IRemoteTaskService remoteTaskService)
         {
             _aes = aes;
             _deviceRepository = deviceRepository;
             _deviceTaskRepository = deviceTaskRepository;
             _deviceAccessProfilesService = deviceAccessProfilesService;
+            _workstationEventService = workstationEventService;
             _remoteTaskService = remoteTaskService;
         }
 
@@ -210,6 +213,15 @@ namespace HES.Core.Services
                 Operation = TaskOperation.UnlockPin,
                 CreatedAt = DateTime.UtcNow,
                 DeviceId = device.Id
+            });
+
+            // Add event
+            await _workstationEventService.AddEventAsync(new WorkstationEvent
+            {
+                Date = DateTime.UtcNow,
+                EventId = Hideez.SDK.Communication.WorkstationEventId.DeviceDeleted, // <- DevicePendingUnlock 
+                SeverityId = Hideez.SDK.Communication.WorkstationEventSeverity.Info,
+                DeviceId = deviceId
             });
 
             _remoteTaskService.StartTaskProcessing(deviceId);

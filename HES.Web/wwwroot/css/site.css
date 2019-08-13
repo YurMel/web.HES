@@ -242,12 +242,12 @@ a.navbar-brand {
 
 .copyright {
     position: absolute;
-    left: 34px;
-    bottom: 15px;
     color: #FFFFFF;
     opacity: 0.8;
     font-size: 14px;
-    width: 180px;
+    width: 236px;
+    bottom: 0;
+    padding-bottom: 15px;
 }
 
 @media (max-width: 768px) {
