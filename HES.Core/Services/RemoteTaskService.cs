@@ -269,7 +269,7 @@ namespace HES.Core.Services
                         await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties.ToArray());
                         break;
                     default:
-                        _logger.LogCritical("Unknown deviceTask.Operation");
+                        _logger.LogDebug(deviceTask.Operation.ToString());
                         break;
                 }
             }
@@ -283,7 +283,7 @@ namespace HES.Core.Services
                         await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "MasterPassword" });
                         break;
                     default:
-                        _logger.LogCritical("Unknown deviceTask.Operation");
+                        _logger.LogDebug(deviceTask.Operation.ToString() + " acc null");
                         break;
                 }
             }
@@ -306,9 +306,6 @@ namespace HES.Core.Services
                 case TaskOperation.Update:
                     idFromDevice = await UpdateDeviceAccount(device, task);
                     break;
-                case TaskOperation.Primary:
-                    idFromDevice = await SetDeviceAccountAsPrimary(device, task);
-                    break;
                 case TaskOperation.Delete:
                     idFromDevice = await DeleteDeviceAccount(device, task);
                     break;
@@ -317,6 +314,9 @@ namespace HES.Core.Services
                     break;
                 case TaskOperation.Link:
                     idFromDevice = await LinkDevice(device, task);
+                    break;
+                case TaskOperation.Primary:
+                    idFromDevice = await SetDeviceAccountAsPrimary(device, task);
                     break;
                 case TaskOperation.Profile:
                     idFromDevice = await ProfileDevice(device, task);
@@ -428,7 +428,7 @@ namespace HES.Core.Services
         {
             var dev = await _deviceRepository.GetByIdAsync(task.DeviceId);
 
-             // Update device state
+            // Update device state
             dev.State = DeviceState.Ok;
             await _deviceRepository.UpdateOnlyPropAsync(dev, new string[] { "State" });
 

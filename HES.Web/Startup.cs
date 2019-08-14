@@ -27,12 +27,13 @@ namespace HES.Web
         {
             var server = configuration["MYSQL_SRV"];
             var port = configuration["MYSQL_PORT"];
+            var db = configuration["MYSQL_DB"];
             var uid = configuration["MYSQL_UID"];
             var pwd = configuration["MYSQL_PWD"];
 
-            if (server != null && port != null && uid != null && pwd != null)
+            if (server != null && port != null && db != null && uid != null && pwd != null)
             {
-                configuration["ConnectionStrings:DefaultConnection"] = $"server={server};port={port};database=HES;uid={uid};pwd={pwd}";
+                configuration["ConnectionStrings:DefaultConnection"] = $"server={server};port={port};database={db};uid={uid};pwd={pwd}";
             }
 
             var email_host = configuration["EMAIL_HOST"];
