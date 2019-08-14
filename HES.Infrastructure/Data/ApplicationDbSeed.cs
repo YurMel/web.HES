@@ -68,7 +68,8 @@ namespace HES.Infrastructure
                     PinExpiration = 86400,
                     PinLength = 4,
                     PinTryCount = 10,
-                    ButtonExpirationTimeout = 15
+                    MasterKeyExpiration = 86400,
+                    ButtonExpiration = 15
                 });
 
                 await _context.SaveChangesAsync();

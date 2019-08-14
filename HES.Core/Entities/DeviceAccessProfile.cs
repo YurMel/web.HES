@@ -31,7 +31,8 @@ namespace HES.Core.Entities
         public int PinExpiration { get; set; }
         public int PinLength { get; set; }
         public int PinTryCount { get; set; }
-        public int ButtonExpirationTimeout { get; set; }
+        public int MasterKeyExpiration { get; set; }
+        public int ButtonExpiration { get; set; }
 
         /// <summary>
         /// logic min value: 1, max value: 107
@@ -49,6 +50,24 @@ namespace HES.Core.Entities
             set
             {
                 PinExpiration = value <= 59 ? value * 60 : (value - 59) * 3600;
+            }
+        }
+        /// <summary>
+        /// logic min value: 1, max value: 107
+        /// minutes: 1-59
+        /// hours: 60-107 (value - 59) = hrs
+        /// </summary>
+        [NotMapped]
+        public int MasterKeyExpirationConverted
+        {
+            get
+            {
+                var prop = MasterKeyExpiration / 60;
+                return prop <= 59 ? prop : (prop / 60) + 59;
+            }
+            set
+            {
+                MasterKeyExpiration = value <= 59 ? value * 60 : (value - 59) * 3600;
             }
         }
     }

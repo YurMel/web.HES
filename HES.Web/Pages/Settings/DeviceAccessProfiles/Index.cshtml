@@ -94,9 +94,20 @@
                             return 'Current value: ' + value;
                         }
                     });
-                    $('#button_expiration_timeout').slider({
+                    $('#masterkey_expiration').slider({
                         formatter: function (value) {
-                            $('#button_expiration_timeout_value').html(value + ' sec');
+                            if (value <= 59) {
+                                $('#masterkey_expiration_value').html(value + ' min');
+                            }
+                            else {
+                                $('#masterkey_expiration_value').html((value - 59) + ' hrs');
+                            }
+                            return 'Current value: ' + value;
+                        }
+                    });
+                    $('#button_expiration').slider({
+                        formatter: function (value) {
+                            $('#button_expiration_value').html(value + ' sec');
                             return 'Current value: ' + value;
                         }
                     });

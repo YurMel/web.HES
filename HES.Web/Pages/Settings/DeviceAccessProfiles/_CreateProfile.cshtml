@@ -126,10 +126,10 @@
                 <td>
                     PIN expiration
                 </td>
-                <td class="text-center pr-1">
-                    <input id="pin_expiration" asp-for="DeviceAccessProfile.PinExpirationConverted" type="text" data-slider-min="1" data-slider-max="107" data-slider-step="1" data-slider-value="1" />
+                <td class="text-center pl-1 pr-1">
+                    <input id="pin_expiration" style="width:200px" asp-for="DeviceAccessProfile.PinExpirationConverted" type="text" data-slider-min="1" data-slider-max="107" data-slider-step="1" data-slider-value="1" />
                 </td>
-                <td class="text-center">
+                <td class="text-center pin-settings-value">
                     <h6 id="pin_expiration_value"></h6>
                 </td>
             </tr>
@@ -137,10 +137,10 @@
                 <td>
                     PIN length
                 </td>
-                <td class="text-center pr-1">
-                    <input id="pin_length" asp-for="DeviceAccessProfile.PinLength" type="text" data-slider-min="4" data-slider-max="8" data-slider-step="1" data-slider-value="4" />
+                <td class="text-center pl-1 pr-1">
+                    <input id="pin_length" style="width:200px" asp-for="DeviceAccessProfile.PinLength" type="text" data-slider-min="4" data-slider-max="8" data-slider-step="1" data-slider-value="4" />
                 </td>
-                <td class="text-center">
+                <td class="text-center pin-settings-value">
                     <h6 id="pin_length_value"></h6>
                 </td>
             </tr>
@@ -148,22 +148,33 @@
                 <td>
                     PIN try count
                 </td>
-                <td class="text-center pr-1">
-                    <input id="pin_try_count" asp-for="DeviceAccessProfile.PinTryCount" type="text" data-slider-min="3" data-slider-max="300" data-slider-step="1" data-slider-value="3" />
+                <td class="text-center pl-1 pr-1">
+                    <input id="pin_try_count" style="width:200px" asp-for="DeviceAccessProfile.PinTryCount" type="text" data-slider-min="3" data-slider-max="200" data-slider-step="1" data-slider-value="3" />
                 </td>
-                <td class="text-center">
+                <td class="text-center pin-settings-value">
                     <h6 id="pin_try_count_value"></h6>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Master-key expiration
+                </td>
+                <td class="text-center pl-1 pr-1">
+                    <input id="masterkey_expiration" style="width:200px" asp-for="DeviceAccessProfile.MasterKeyExpirationConverted" type="text" data-slider-min="1" data-slider-max="107" data-slider-step="1" data-slider-value="1" />
+                </td>
+                <td class="text-center pin-settings-value">
+                    <h6 id="masterkey_expiration_value"></h6>
                 </td>
             </tr>
             <tr>
                 <td>
                     Button expiration
                 </td>
-                <td class="text-center pr-1">
-                    <input id="button_expiration_timeout" asp-for="DeviceAccessProfile.ButtonExpirationTimeout" type="text" data-slider-min="1" data-slider-max="15" data-slider-step="1" data-slider-value="1" />
+                <td class="text-center pl-1 pr-1">
+                    <input id="button_expiration" style="width:200px" asp-for="DeviceAccessProfile.ButtonExpiration" type="text" data-slider-min="1" data-slider-max="15" data-slider-step="1" data-slider-value="1" />
                 </td>
-                <td class="text-center">
-                    <h6 id="button_expiration_timeout_value" style="width:68px;"></h6>
+                <td class="text-center pin-settings-value">
+                    <h6 id="button_expiration_value"></h6>
                 </td>
             </tr>
         </tbody>
