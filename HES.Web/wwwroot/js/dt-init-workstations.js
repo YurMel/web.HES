@@ -3,7 +3,8 @@ var table_name = '#workstations';
 var table = $(table_name).DataTable({
     responsive: true,
     "columnDefs": [
-        { "orderable": false, "targets": [0, 10] }
+        { "orderable": false, "targets": [0, 10] },
+        { type: 'ip-address', "targets": 7 }
     ]
 });
 var dataTable = $(table_name).dataTable();

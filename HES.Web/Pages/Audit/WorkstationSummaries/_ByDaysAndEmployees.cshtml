@@ -56,6 +56,7 @@
             <tr>
                 <td class="d-none"></td>
                 <td>
+                    <span class="d-none">@TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.Date, TimeZoneInfo.Local).Ticks</span>
                     @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.Date, TimeZoneInfo.Local).ToShortDateString()
                 </td>
                 <td>

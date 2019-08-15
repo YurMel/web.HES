@@ -68,11 +68,13 @@
             <tr>
                 <td class="d-none"></td>
                 <td>
+                    <span class="d-none">@TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.StartDate, TimeZoneInfo.Local).Ticks</span>
                     @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.StartDate, TimeZoneInfo.Local)
                 </td>
                 <td>
                     @if (item != null && item.EndDate != null)
                     {
+                        <span class="d-none">@TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.EndDate, TimeZoneInfo.Local).Ticks</span>
                         @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.EndDate, TimeZoneInfo.Local)
                     }
                 </td>

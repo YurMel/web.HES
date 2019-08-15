@@ -429,7 +429,7 @@ namespace HES.Core.Services
             var dev = await _deviceRepository.GetByIdAsync(task.DeviceId);
 
             // Update device state
-            dev.State = DeviceState.Ok;
+            dev.State = DeviceState.OK;
             await _deviceRepository.UpdateOnlyPropAsync(dev, new string[] { "State" });
 
             //

@@ -82,6 +82,7 @@
                 <td>
                     @if (item.LastSeen != null)
                     {
+                        <span class="d-none">@TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.LastSeen, TimeZoneInfo.Local).Ticks</span>
                         @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.LastSeen, TimeZoneInfo.Local)
                     }
                 </td>

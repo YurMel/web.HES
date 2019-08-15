@@ -117,7 +117,7 @@
                 <td>
                     @switch (item.State)
                     {
-                        case Core.Entities.DeviceState.Ok:
+                        case Core.Entities.DeviceState.OK:
                             <span class="badge badge-light">@Html.DisplayFor(modelItem => item.State)</span>
                             break;
                         case Core.Entities.DeviceState.Online:
@@ -137,6 +137,7 @@
                 <td>
                     @if (item.LastSynced != null)
                     {
+                        <span class="d-none">@TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.LastSynced, TimeZoneInfo.Local).Ticks</span>
                         @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.LastSynced, TimeZoneInfo.Local)
                     }
                 </td>

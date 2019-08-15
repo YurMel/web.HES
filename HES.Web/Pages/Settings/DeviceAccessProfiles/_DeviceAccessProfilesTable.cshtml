@@ -52,6 +52,7 @@
                     @Html.DisplayFor(modelItem => item.Name)
                 </td>
                 <td>
+                    <span class="d-none">@TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.CreatedAt, TimeZoneInfo.Local).Ticks</span>
                     @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.CreatedAt, TimeZoneInfo.Local)
                 </td>
                 <td>

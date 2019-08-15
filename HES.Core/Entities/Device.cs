@@ -37,7 +37,7 @@ namespace HES.Core.Entities
 
     public enum DeviceState
     {
-        Ok,
+        OK,
         Online,
         Locked,
         PendingUnlock,
