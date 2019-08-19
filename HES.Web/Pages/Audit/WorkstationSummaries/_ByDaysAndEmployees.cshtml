@@ -71,7 +71,7 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.WorkstationsCount)
                 </td>
-                <td>
+                <td data-order="@item.AvgSessionsDuration.Ticks">
                     @if (item.AvgSessionsDuration.Days != 0)
                     {
                         @item.AvgSessionsDuration.ToString("%d") <span>day(s)</span> @item.AvgSessionsDuration.ToString("hh\\:mm\\:ss")
@@ -84,7 +84,7 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.SessionsCount)
                 </td>
-                <td>
+                <td data-order="@item.TotalSessionsDuration.Ticks">
                     @if (item.TotalSessionsDuration.Days != 0)
                     {
                         @item.TotalSessionsDuration.ToString("%d") <span>day(s)</span> @item.TotalSessionsDuration.ToString("hh\\:mm\\:ss")

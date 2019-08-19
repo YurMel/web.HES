@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HES.Core.Entities
 {
@@ -20,5 +21,10 @@ namespace HES.Core.Entities
         [Display(Name = "OTP updated")]
         public DateTime? OtpSecretChangedAt { get; set; }
         public bool Deleted { get; set; }
+
+        [NotMapped]
+        public TimeSpan GetPasswordUpdated => (DateTime.UtcNow).Subtract((DateTime)PasswordChangedAt);
+        [NotMapped]
+        public TimeSpan GetOtpUpdated => (DateTime.UtcNow).Subtract(OtpSecretChangedAt ?? DateTime.UtcNow);
     }
 }

@@ -86,37 +86,13 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.Login)
                 </td>
-                <td>
-                    @{
-                        var pwd = (DateTime.UtcNow.Date - item.PasswordChangedAt?.Date)?.TotalDays;
-                        if (pwd == 1)
-                        {
-                            var text = $"{pwd} day";
-                            @text
-                        }
-                        else
-                        {
-                            var text = $"{pwd} days";
-                            @text
-                        }
-                    }
+                <td data-order="@item.GetPasswordUpdated.Ticks">
+                    <span>@item.GetPasswordUpdated.Days day(s)</span>
                 </td>
-                <td>
-                    @{
-                        if (item.OtpSecretChangedAt != null)
-                        {
-                            var otp = (DateTime.UtcNow.Date - item.OtpSecretChangedAt?.Date)?.TotalDays;
-                            if (otp == 1)
-                            {
-                                var text = $"{otp} day";
-                                @text
-                            }
-                            else
-                            {
-                                var text = $"{otp} days";
-                                @text
-                            }
-                        }
+                <td data-order="@item.GetOtpUpdated.Ticks">
+                    @if (item.OtpSecretChangedAt != null)
+                    {
+                        <span>@item.GetOtpUpdated.Days day(s)</span>
                     }
                 </td>
                 <td>

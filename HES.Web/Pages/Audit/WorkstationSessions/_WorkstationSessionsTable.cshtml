@@ -78,7 +78,7 @@
                         @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.EndDate, TimeZoneInfo.Local)
                     }
                 </td>
-                <td>
+                <td data-order="@item.Duration.Ticks">
                     @if (item.Duration.Days != 0)
                     {
                         @item.Duration.ToString("%d") <span>day(s)</span> @item.Duration.ToString("hh\\:mm\\:ss")

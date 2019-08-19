@@ -344,8 +344,8 @@ namespace HES.Core.Hubs
             // Events that duplicate ID of other events are ignored
             events = events.GroupBy(e => e.Id).Select(s => s.First()).ToArray();
 
-            // Filter out from incomming events all those who share ID with events saved in database
-            var filtered = events.Where(e => !_workstationEventService.WorkstationEventQuery().Any(we => we.Id == e.Id)).ToList();
+            // Filter out from incomming events all those who share ID with events saved in database 
+            var filtered = events.Where(e => !_workstationEventService.WorkstationEventQuery().Any(we => we.Id == e.Id)).ToList(); //TODO move to Async
 
             // Convert from SDK WorkstationEvent to HES WorkstationEvent
             List<WorkstationEvent> converted = new List<WorkstationEvent>();
