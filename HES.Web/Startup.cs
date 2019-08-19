@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +18,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Globalization;
 using System.IO;
 
 namespace HES.Web
@@ -191,6 +193,35 @@ namespace HES.Web
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
+            var supportedCultures = new[]
+            {
+                new CultureInfo("en-US"),
+                new CultureInfo("en-GB"),
+                new CultureInfo("en"),
+
+                new CultureInfo("fr-FR"),
+                new CultureInfo("fr"),
+
+                new CultureInfo("it-IT"),
+                new CultureInfo("it"),
+
+                new CultureInfo("uk-UA"),
+                new CultureInfo("uk"),
+
+                new CultureInfo("ru-RU"),
+                new CultureInfo("ru-UA"),
+                new CultureInfo("ru"),
+
+                new CultureInfo("de-DE"),
+                new CultureInfo("de")
+            };
+            app.UseRequestLocalization(new RequestLocalizationOptions
+            {
+                DefaultRequestCulture = new RequestCulture("en-US"),
+                SupportedCultures = supportedCultures,
+                SupportedUICultures = supportedCultures
+            });
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
