@@ -65,12 +65,6 @@
                 </select>
             </div>
             <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
-                <label asp-for="WorkstationEventFilter.EmployeeId" class="control-label"></label>
-                <select id="employeeId" asp-for="WorkstationEventFilter.EmployeeId" class="form-control" asp-items="ViewBag.Employees">
-                    <option selected></option>
-                </select>
-            </div>
-            <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
                 <label asp-for="WorkstationEventFilter.CompanyId" class="control-label"></label>
                 <select id="companyId" onchange="GetDepartment(this.value)" asp-for="WorkstationEventFilter.CompanyId" class="form-control" asp-items="ViewBag.Companies">
                     <option selected></option>
@@ -78,13 +72,19 @@
             </div>
             <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
                 <label asp-for="WorkstationEventFilter.DepartmentId" class="control-label"></label>
-                <select id="departmentId" asp-for="WorkstationEventFilter.DepartmentId" class="form-control" disabled>
+                <select id="departmentId" asp-for="WorkstationEventFilter.DepartmentId" class="form-control" title="first choose a company" disabled>
+                    <option selected></option>
+                </select>
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
+                <label asp-for="WorkstationEventFilter.EmployeeId" class="control-label"></label>
+                <select id="employeeId" onchange="GetDeviceAccounts(this.value)" asp-for="WorkstationEventFilter.EmployeeId" class="form-control" asp-items="ViewBag.Employees">
                     <option selected></option>
                 </select>
             </div>
             <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
                 <label asp-for="WorkstationEventFilter.DeviceAccountId" class="control-label"></label>
-                <select id="deviceAccountId" asp-for="WorkstationEventFilter.DeviceAccountId" class="form-control" asp-items="ViewBag.DeviceAccounts">
+                <select id="deviceAccountId" asp-for="WorkstationEventFilter.DeviceAccountId" class="form-control" title="select employee first" disabled>
                     <option selected></option>
                 </select>
             </div>
@@ -213,6 +213,33 @@
                     subList.empty();
                     subList.append(dep);
                     subList.removeAttr("disabled");
+                    subList.removeAttr("title");
+                });
+        }
+
+        // Dropdown Device Accounts
+        function GetDeviceAccounts(id) {
+            $.getJSON('/Audit/WorkstationEvents?handler=JsonDeviceAccounts', { id: id },
+                function (data) {
+                    var dep = "<option selected=''></option>";
+                    $(data).each(function () {
+                        if (this.id === 'active') {
+                            dep = dep + '<optgroup label="' + this.name + '">';
+                        }
+                        else if (this.id === 'deleted') {
+                            dep = dep + '</optgroup>';
+                            dep = dep + '<optgroup label="' + this.name + '">';
+                        }
+                        else {
+                            dep = dep + '<option value="' + this.id + '">' + this.name + '</option>';
+                        }
+                    });
+                    dep = dep + '</optgroup>';
+                    var subList = $("#deviceAccountId");
+                    subList.empty();
+                    subList.append(dep);
+                    subList.removeAttr("disabled");
+                    subList.removeAttr("title");
                 });
         }
 

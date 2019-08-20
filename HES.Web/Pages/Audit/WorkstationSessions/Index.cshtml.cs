@@ -41,10 +41,8 @@ namespace HES.Web.Pages.Audit.WorkstationSessions
             ViewData["UnlockId"] = new SelectList(Enum.GetValues(typeof(SessionSwitchSubject)).Cast<SessionSwitchSubject>().ToDictionary(t => (int)t, t => t.ToString()), "Key", "Value");
             ViewData["Workstations"] = new SelectList(await _workstationSessionService.WorkstationQuery().ToListAsync(), "Id", "Name");
             ViewData["Devices"] = new SelectList(await _workstationSessionService.DeviceQuery().ToListAsync(), "Id", "Id");
-            ViewData["Employees"] = new SelectList(await _workstationSessionService.EmployeeQuery().ToListAsync(), "Id", "FullName");
+            ViewData["Employees"] = new SelectList(await _workstationSessionService.EmployeeQuery().OrderBy(e => e.FirstName).ThenBy(e => e.LastName).ToListAsync(), "Id", "FullName");
             ViewData["Companies"] = new SelectList(await _workstationSessionService.CompanyQuery().ToListAsync(), "Id", "Name");
-            //ViewData["Departments"] = new SelectList(await _workstationSessionService.DepartmentQuery().ToListAsync(), "Id", "Name");
-            ViewData["DeviceAccounts"] = new SelectList(await _workstationSessionService.DeviceAccountQuery().ToListAsync(), "Id", "Name");
             ViewData["DeviceAccountTypes"] = new SelectList(Enum.GetValues(typeof(AccountType)).Cast<AccountType>().ToDictionary(t => (int)t, t => t.ToString()), "Key", "Value");
             
             ViewData["DatePattern"] = CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern.ToLower();
@@ -115,6 +113,29 @@ namespace HES.Web.Pages.Audit.WorkstationSessions
         public async Task<JsonResult> OnGetJsonDepartmentAsync(string id)
         {
             return new JsonResult(await _workstationSessionService.DepartmentQuery().Where(d => d.CompanyId == id).ToListAsync());
+        }
+
+        public async Task<JsonResult> OnGetJsonDeviceAccountsAsync(string id)
+        {
+            var currentAccounts = await _workstationSessionService
+                .DeviceAccountQuery()
+                .Where(d => d.EmployeeId == id && d.Deleted == false)
+                .OrderBy(d => d.Name)
+                .ToListAsync();
+
+            currentAccounts.Insert(0, new DeviceAccount() { Id = "active", Name = "Active" });
+
+            var deletedAccounts = await _workstationSessionService
+                          .DeviceAccountQuery()
+                          .Where(d => d.EmployeeId == id && d.Deleted == true)
+                          .OrderBy(d => d.Name)
+                          .ToListAsync();
+
+            deletedAccounts.Insert(0, new DeviceAccount() { Id = "deleted", Name = "Deleted" });
+
+            var accounts = currentAccounts.Concat(deletedAccounts);
+
+            return new JsonResult(accounts);
         }
     }
 }

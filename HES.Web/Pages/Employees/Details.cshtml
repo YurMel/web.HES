@@ -544,8 +544,9 @@
                 else {
                     $('#' + currentId).DataTable({
                         responsive: true,
+                        "order": [[1, "asc"]],
                         "columnDefs": [
-                            { "orderable": false, "targets": 11 }
+                            { "orderable": false, "targets": [0,12] }
                         ]
                     });
                 }

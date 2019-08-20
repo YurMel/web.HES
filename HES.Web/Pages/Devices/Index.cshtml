@@ -63,7 +63,7 @@
             </div>
             <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2 form-group">
                 <label asp-for="DeviceFilter.DepartmentId" class="control-label"></label>
-                <select id="departmentId" asp-for="DeviceFilter.DepartmentId" class="form-control" disabled>
+                <select id="departmentId" asp-for="DeviceFilter.DepartmentId" class="form-control" title="first choose a company" disabled>
                     <option selected></option>
                 </select>
             </div>
@@ -234,6 +234,7 @@
                     subList.empty();
                     subList.append(dep);
                     subList.removeAttr("disabled");
+                    subList.removeAttr("title");
                 });
         }
 
