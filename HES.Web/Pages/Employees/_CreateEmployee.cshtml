@@ -1,46 +1,489 @@
 ﻿@model HES.Web.Pages.Employees.IndexModel
+@*<form method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="form-group">
+            <label asp-for="Employee.FirstName" class="control-label text-gray"></label>
+            <input asp-for="Employee.FirstName" class="form-control text-navyblue" />
+            <span asp-validation-for="Employee.FirstName" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Employee.LastName" class="control-label text-gray"></label>
+            <input asp-for="Employee.LastName" class="form-control text-navyblue" />
+            <span asp-validation-for="Employee.LastName" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Employee.Email" class="control-label text-gray"></label>
+            <input asp-for="Employee.Email" class="form-control text-navyblue" />
+            <span asp-validation-for="Employee.Email" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Employee.PhoneNumber" class="control-label text-gray"></label>
+            <input asp-for="Employee.PhoneNumber" class="form-control text-navyblue" />
+            <span asp-validation-for="Employee.PhoneNumber" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Employee.Department.CompanyId" class="control-label text-gray"></label>
+            <select id="companies" onchange="GetDepartment(this.value)" class="form-control text-navyblue" asp-items="ViewBag.CompanyId"></select>
+        </div>
+        <div class="form-group">
+            <label asp-for="Employee.DepartmentId" class="control-label text-gray"></label>
+            <select id="departments" asp-for="Employee.DepartmentId" class="form-control text-navyblue"></select>
+        </div>
+        <div class="form-group">
+            <label asp-for="Employee.PositionId" class="control-label text-gray"></label>
+            <select asp-for="Employee.PositionId" class="form-control text-navyblue" asp-items="ViewBag.PositionId"></select>
+        </div>
+        <div class="form-group m-0 text-right">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <input type="submit" value="Create" class="btn btn-primary" asp-page-handler="CreateEmployee" />
+        </div>
+    </form>*@
+<link href="~/css/wizard.css" rel="stylesheet" />
 
-<form method="post">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <div class="form-group">
-        <label asp-for="Employee.FirstName" class="control-label text-gray"></label>
-        <input asp-for="Employee.FirstName" class="form-control text-navyblue" />
-        <span asp-validation-for="Employee.FirstName" class="text-danger"></span>
+<form id="employeeForm" method="post">
+    <div class="wizard-header mb-3">
+        <div class="wizard wizard-horizontal wizard-label-vertical wizard-circle">
+            <div id="wizard_profile" class="wizard-item wizard-item-process">
+                <div class="wizard-item-tail"></div>
+                <div class="wizard-item-icon">
+                    <span class="wizard-icon">
+                        <span class="wizard-icon-circle">
+                        </span>
+                    </span>
+                </div>
+                <div class="wizard-item-content">
+                    <div class="wizard-item-title">Profile</div>
+                </div>
+            </div>
+            <div id="wizard_devices" class="wizard-item wizard-item-wait">
+                <div class="wizard-item-tail"></div>
+                <div class="wizard-item-icon">
+                    <span class="wizard-icon">
+                        <span class="wizard-icon-circle">
+                        </span>
+                    </span>
+                </div>
+                <div class="wizard-item-content">
+                    <div class="wizard-item-title">Devices</div>
+                </div>
+            </div>
+            <div id="wizard_workstations" class="wizard-item wizard-item-wait">
+                <div class="wizard-item-tail"></div>
+                <div class="wizard-item-icon">
+                    <span class="wizard-icon">
+                        <span class="wizard-icon-circle">
+                        </span>
+                    </span>
+                </div>
+                <div class="wizard-item-content">
+                    <div class="wizard-item-title">Workstations</div>
+                </div>
+            </div>
+            <div id="wizard_overview" class="wizard-item wizard-item-wait">
+                <div class="wizard-item-tail"></div>
+                <div class="wizard-item-icon">
+                    <span class="wizard-icon">
+                        <span class="wizard-icon-circle">
+                        </span>
+                    </span>
+                </div>
+                <div class="wizard-item-content">
+                    <div class="wizard-item-title">Overview</div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="form-group">
-        <label asp-for="Employee.LastName" class="control-label text-gray"></label>
-        <input asp-for="Employee.LastName" class="form-control text-navyblue" />
-        <span asp-validation-for="Employee.LastName" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="Employee.Email" class="control-label text-gray"></label>
-        <input asp-for="Employee.Email" class="form-control text-navyblue" />
-        <span asp-validation-for="Employee.Email" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="Employee.PhoneNumber" class="control-label text-gray"></label>
-        <input asp-for="Employee.PhoneNumber" class="form-control text-navyblue" />
-        <span asp-validation-for="Employee.PhoneNumber" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="Employee.Department.CompanyId" class="control-label text-gray"></label>
-        <select id="companies" onchange="GetDepartment(this.value)" class="form-control text-navyblue" asp-items="ViewBag.CompanyId"></select>
-    </div>
-    <div class="form-group">
-        <label asp-for="Employee.DepartmentId" class="control-label text-gray"></label>
-        <select id="departments" asp-for="Employee.DepartmentId" class="form-control text-navyblue"></select>
-    </div>
-    <div class="form-group">
-        <label asp-for="Employee.PositionId" class="control-label text-gray"></label>
-        <select asp-for="Employee.PositionId" class="form-control text-navyblue" asp-items="ViewBag.PositionId"></select>
+
+    <ul class="nav nav-pills mb-3 d-none" id="pills-tab" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="true">Profile</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="pills-devices-tab" data-toggle="pill" href="#pills-devices" role="tab" aria-controls="pills-devices" aria-selected="false">Devices</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="pills-workstations-tab" data-toggle="pill" href="#pills-workstations" role="tab" aria-controls="pills-workstations" aria-selected="false">Workstations</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="pills-overview-tab" data-toggle="pill" href="#pills-overview" role="tab" aria-controls="pills-overview" aria-selected="false">Overview</a>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="pills-tabContent" style="height:344px;">
+        <!-- Profile -->
+        <div class="tab-pane fade show active" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="row">
+                <div class="form-group col">
+                    <label asp-for="Employee.FirstName" class="control-label text-gray"></label>
+                    <input id="employee_first_name" asp-for="Employee.FirstName" class="form-control text-navyblue" />
+                    <span asp-validation-for="Employee.FirstName" class="text-danger"></span>
+                </div>
+                <div class="form-group col">
+                    <label asp-for="Employee.LastName" class="control-label text-gray"></label>
+                    <input id="employee_last_name" asp-for="Employee.LastName" class="form-control text-navyblue" />
+                    <span asp-validation-for="Employee.LastName" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col">
+                    <label asp-for="Employee.Email" class="control-label text-gray"></label>
+                    <input asp-for="Employee.Email" class="form-control text-navyblue" />
+                    <span asp-validation-for="Employee.Email" class="text-danger"></span>
+                </div>
+                <div class="form-group col">
+                    <label asp-for="Employee.PhoneNumber" class="control-label text-gray"></label>
+                    <input asp-for="Employee.PhoneNumber" class="form-control text-navyblue" />
+                    <span asp-validation-for="Employee.PhoneNumber" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col">
+                    <label asp-for="Employee.Department.CompanyId" class="control-label text-gray"></label>
+                    <select id="companies" onchange="GetDepartment(this.value)" class="form-control text-navyblue" asp-items="ViewBag.CompanyId"></select>
+                </div>
+                <div class="form-group col">
+                    <label asp-for="Employee.DepartmentId" class="control-label text-gray"></label>
+                    <select id="departments" asp-for="Employee.DepartmentId" class="form-control text-navyblue"></select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col">
+                    <label asp-for="Employee.PositionId" class="control-label text-gray"></label>
+                    <select asp-for="Employee.PositionId" class="form-control text-navyblue" asp-items="ViewBag.PositionId"></select>
+                </div>
+                <div class="col"></div>
+            </div>
+        </div>
+        <!-- Devices -->
+        <div class="tab-pane fade" id="pills-devices" role="tabpanel" aria-labelledby="pills-devices-tab">
+            <div class="row">
+                <div class="col"></div>
+                <div class="col-auto">
+                    <div class="form-group has-search-right m-0">
+                        <div class="form-control-feedback">
+                            <img class="img-size" src="~/svg/action/search.svg" />
+                        </div>
+                        <input id="devices_searchbox" type="text" class="form-control" placeholder="Search">
+                    </div>
+                </div>
+            </div>
+            <table id="devices" class="display table table-hover inside-scrollbar w-100">
+                <thead>
+                    <tr>
+                        <th class="table-col-menu">
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" id="device_checkbox_all">
+                                <label class="custom-control-label" for="device_checkbox_all"></label>
+                            </div>
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => Model.Devices[0].Id)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => Model.Devices[0].MAC)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => Model.Devices[0].RFID)
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var device in Model.Devices)
+                    {
+                        <tr>
+                            <td class="table-col-menu">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" name="devices" id="@device.Id" value="@device.Id">
+                                    <label class="custom-control-label" for="@device.Id"></label>
+                                </div>
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => device.Id)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => device.MAC)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => device.RFID)
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <!-- Workstations -->
+        <div class="tab-pane fade" id="pills-workstations" role="tabpanel" aria-labelledby="pills-workstations-tab">
+            <div class="row">
+                <div class="col"></div>
+                <div class="col-auto">
+                    <div class="form-group has-search-right m-0">
+                        <div class="form-control-feedback">
+                            <img class="img-size" src="~/svg/action/search.svg" />
+                        </div>
+                        <input id="workstation_searchbox" type="text" class="form-control" placeholder="Search">
+                    </div>
+                </div>
+            </div>
+            <table id="workstations" class="display table table-hover inside-scrollbar w-100">
+                <thead>
+                    <tr>
+                        <th class="table-col-menu">
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" id="workstation_checkbox_all">
+                                <label class="custom-control-label" for="workstation_checkbox_all"></label>
+                            </div>
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => Model.Workstations[0].Name)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => Model.Workstations[0].Domain)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => Model.Workstations[0].Approved)
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var workstation in Model.Workstations)
+                    {
+                        <tr>
+                            <td class="table-col-menu">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" name="workstations" id="@workstation.Id" value="@workstation.Id">
+                                    <label class="custom-control-label" for="@workstation.Id"></label>
+                                </div>
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => workstation.Id)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => workstation.Domain)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => workstation.Approved)
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <!-- Overview -->
+        <div class="tab-pane fade" id="pills-overview" role="tabpanel" aria-labelledby="pills-overview-tab">
+            <table id="result" class="display table inside-scrollbar w-100">
+                <thead>
+                    <tr>
+                        <th>
+                            Employee full name
+                        </th>
+                        <th>
+                            Device serial number
+                        </th>
+                        <th>
+                            Workstation name
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td id="result_employee"></td>
+                        <td id="result_devices" style="white-space: normal"></td>
+                        <td id="result_workstations" style="white-space: normal"></td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
     </div>
     <div class="form-group m-0 text-right">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-        <input type="submit" value="Create" class="btn btn-primary" asp-page-handler="CreateEmployee" />
+        <button id="btn_back" type="button" class="btn btn-secondary btn-back d-none">Back</button>
+        <button id="btn_next" type="button" class="btn btn-primary btn-next">Next</button>
+        <input id="btn_create" type="submit" value="Create" class="btn btn-primary d-none" asp-page-handler="CreateEmployee" />
     </div>
 </form>
+<script>
+    $('.btn-next').click(function () {
+        var valid = $("#employeeForm").valid();
+        if (valid) {
+            $('.nav-pills .active').parent().next('li').find('a').trigger('click');
+        }
+    });
 
-@section Scripts {
+    $('.btn-back').click(function () {
+        $('.nav-pills .active').parent().prev('li').find('a').trigger('click');
+    });
 
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
+    $('a[data-toggle="pill"]').on('shown.bs.tab', function (e) {
+        switch (e.target.id) {
+            case "pills-devices-tab":
+                device_table.columns.adjust();
+                break;
+            case "pills-workstations-tab":
+                workstation_table.columns.adjust();
+                break;
+            case "pills-overview-tab":
+                result_table.columns.adjust();
+                break;
+        }
+    });
+
+    $('a[data-toggle="pill"]').on('show.bs.tab', function (e) {
+        switch (e.target.id) {
+            case "pills-profile-tab":
+                $('#btn_back').addClass('d-none');
+
+                SwitchWizardState('wizard_profile', 'procees-back');
+                SwitchWizardState('wizard_devices', 'wait');
+                break;
+            case "pills-devices-tab":
+                $('#btn_back').removeClass('d-none');
+
+                if (e.relatedTarget.id === "pills-profile-tab") {
+                    SwitchWizardState('wizard_profile', 'finish');
+                    SwitchWizardState('wizard_devices', 'procees-next');
+                }
+                else {
+                    SwitchWizardState('wizard_devices', 'procees-back');
+                    SwitchWizardState('wizard_workstations', 'wait');
+                }
+                break;
+            case "pills-workstations-tab":
+                $('#btn_next').removeClass('d-none');
+                $('#btn_create').addClass('d-none');
+
+                if (e.relatedTarget.id === "pills-devices-tab") {
+                    SwitchWizardState('wizard_devices', 'finish');
+                    SwitchWizardState('wizard_workstations', 'procees-next');
+                }
+                else {
+                    SwitchWizardState('wizard_workstations', 'procees-back');
+                    SwitchWizardState('wizard_overview', 'wait');
+                }
+                break;
+            case "pills-overview-tab":
+                $('#btn_next').addClass('d-none');
+                $('#btn_create').removeClass('d-none');
+
+                SwitchWizardState('wizard_workstations', 'finish');
+                SwitchWizardState('wizard_overview', 'procees-next');
+
+                $('#result_employee').html($('#employee_first_name').val() + ' ' + $('#employee_last_name').val());
+
+                devces_collection = [];
+                device_table.$('input[type="checkbox"]').each(function () {
+                    if (this.checked) {
+                        devces_collection.push(this.id);
+                    }
+                });
+                $('#result_devices').html(devces_collection.join("<br/>"));
+
+                workstations_collection = [];
+                workstation_table.$('input[type="checkbox"]').each(function () {
+                    if (this.checked) {
+                        workstations_collection.push(this.id);
+                    }
+                });
+                $('#result_workstations').html(workstations_collection.join("<br/>"));
+
+                break;
+        }
+    });
+
+    function SwitchWizardState(id, state) {
+        switch (state) {
+            case "wait":
+                $("#" + id + "").removeClass('wizard-item-process');
+                $("#" + id + "").addClass('wizard-item-wait');
+                break;
+            case "procees-back":
+                $("#" + id + "").removeClass('wizard-item-finish');
+                $("#" + id + "").addClass('wizard-item-process');
+                break;
+            case "procees-next":
+                $("#" + id + "").removeClass('wizard-item-wait');
+                $("#" + id + "").addClass('wizard-item-process');
+                break;
+            case "finish":
+                $("#" + id + "").removeClass('wizard-item-process');
+                $("#" + id + "").addClass('wizard-item-finish');
+                break;
+        }
+    }
+
+    // Initialize Devices
+    var d_table_name = '#devices';
+    var device_table = $(d_table_name).DataTable({
+        "order": [[1, "asc"]],
+        "columnDefs": [
+            { "orderable": false, "targets": 0 }
+        ],
+        "lengthMenu": [[5], [5]],
+        "scrollY": "216px",
+        "paging": false,
+        "bInfo": false,
+        "bLengthChange": false,
+    });
+    var device_dataTable = $(d_table_name).dataTable();
+    $('#devices_searchbox').keyup(function () {
+        device_dataTable.fnFilter(this.value);
+    });
+    $('.dataTables_filter').addClass('d-none');
+    // Devices check all
+    $(document).on('change', '#device_checkbox_all', function () {
+        if (this.checked) {
+            device_table.$('input[type="checkbox"]').each(function () {
+                this.checked = true;
+            });
+        }
+        else {
+            device_table.$('input[type="checkbox"]').each(function () {
+                this.checked = false;
+            });
+        }
+    });
+
+    // Initialize Workstations
+    var w_table_name = '#workstations';
+    var workstation_table = $(w_table_name).DataTable({
+        "order": [[1, "asc"]],
+        "columnDefs": [
+            { "orderable": false, "targets": 0 }
+        ],
+        "lengthMenu": [[5], [5]],
+        "scrollY": "216px",
+        "paging": false,
+        "bInfo": false,
+        "bLengthChange": false,
+    });
+    var workstation_dataTable = $(w_table_name).dataTable();
+    $('#workstation_searchbox').keyup(function () {
+        workstation_dataTable.fnFilter(this.value);
+    });
+    $('.dataTables_filter').addClass('d-none');
+    // Workstations check all
+    $(document).on('change', '#workstation_checkbox_all', function () {
+        if (this.checked) {
+            workstation_table.$('input[type="checkbox"]').each(function () {
+                this.checked = true;
+            });
+        }
+        else {
+            workstation_table.$('input[type="checkbox"]').each(function () {
+                this.checked = false;
+            });
+        }
+    });
+
+    // Initialize Overview
+    var r_table_name = '#result';
+    var result_table = $(r_table_name).DataTable({
+        "lengthMenu": [[5], [5]],
+        "scrollY": "216px",
+        "paging": false,
+        "bInfo": false,
+        "bLengthChange": false,
+        "ordering": false,
+        "searching": false
+    });
+</script>

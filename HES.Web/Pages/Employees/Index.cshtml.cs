@@ -17,22 +17,25 @@ namespace HES.Web.Pages.Employees
     public class IndexModel : PageModel
     {
         private readonly IEmployeeService _employeeService;
+        private readonly IWorkstationService _workstationService;
         private readonly ILogger<IndexModel> _logger;
 
+        public IList<Device> Devices { get; set; }
+        public IList<Workstation> Workstations { get; set; }
         public IList<Employee> Employees { get; set; }
-        public EmployeeFilter EmployeeFilter { get; set; }
-        public bool HasForeignKey { get; set; }
-
-        [BindProperty]
         public Employee Employee { get; set; }
+        public EmployeeFilter EmployeeFilter { get; set; }
+        public bool HasForeignKey { get; set; }       
+
         [TempData]
         public string SuccessMessage { get; set; }
         [TempData]
         public string ErrorMessage { get; set; }
 
-        public IndexModel(IEmployeeService employeeService, ILogger<IndexModel> logger)
+        public IndexModel(IEmployeeService employeeService, IWorkstationService workstationService, ILogger<IndexModel> logger)
         {
             _employeeService = employeeService;
+            _workstationService = workstationService;
             _logger = logger;
         }
 
@@ -46,7 +49,6 @@ namespace HES.Web.Pages.Employees
                 .ToListAsync();
 
             ViewData["Companies"] = new SelectList(await _employeeService.CompanyQuery().ToListAsync(), "Id", "Name");
-            //ViewData["Departments"] = new SelectList(await _employeeService.DepartmentQuery().ToListAsync(), "Id", "Name");
             ViewData["Positions"] = new SelectList(await _employeeService.PositionQuery().ToListAsync(), "Id", "Name");
             ViewData["DevicesCount"] = new SelectList(Employees.Select(s => s.Devices.Count()).Distinct().OrderBy(f => f).ToDictionary(t => t, t => t), "Key", "Value");
 
@@ -107,10 +109,19 @@ namespace HES.Web.Pages.Employees
             ViewData["CompanyId"] = new SelectList(await _employeeService.CompanyQuery().ToListAsync(), "Id", "Name");
             ViewData["PositionId"] = new SelectList(await _employeeService.PositionQuery().ToListAsync(), "Id", "Name");
 
+            Devices = await _employeeService
+               .DeviceQuery()
+               .Where(d => d.EmployeeId == null)
+               .ToListAsync();
+
+            Workstations = await _workstationService
+                .WorkstationQuery()
+                .ToListAsync();
+
             return Partial("_CreateEmployee", this);
         }
 
-        public async Task<IActionResult> OnPostCreateEmployeeAsync()
+        public async Task<IActionResult> OnPostCreateEmployeeAsync(Employee Employee, List<string> devices, List<string> workstations)
         {
             if (!ModelState.IsValid)
             {
@@ -180,6 +191,54 @@ namespace HES.Web.Pages.Employees
             return RedirectToPage("./Index");
         }
 
+        #endregion
+
+        #region Device
+
+        //public async Task<IActionResult> OnPostAddDeviceAsync(string employeeId, string[] selectedDevices)
+        //{
+        //    if (employeeId == null)
+        //    {
+        //        _logger.LogWarning("employeeId == null");
+        //        return NotFound();
+        //    }
+
+        //    try
+        //    {
+        //        await _employeeService.AddDeviceAsync(employeeId, selectedDevices);
+
+        //        if (selectedDevices.Length > 1)
+        //        {
+        //            var devices = string.Empty;
+        //            foreach (var item in selectedDevices)
+        //            {
+        //                devices += item + Environment.NewLine;
+        //            }
+        //            SuccessMessage = $"Devices: {devices} added.";
+        //        }
+        //        else
+        //        {
+        //            SuccessMessage = $"Device {selectedDevices[0]} added.";
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        if (!await EmployeeExists(employeeId))
+        //        {
+        //            _logger.LogError("Employee dos not exists.");
+        //            return NotFound();
+        //        }
+        //        else
+        //        {
+        //            _logger.LogError(ex.Message);
+        //            ErrorMessage = ex.Message;
+        //        }
+        //    }
+
+        //    var id = employeeId;
+        //    return RedirectToPage("./Details", new { id });
+        //}
+              
         #endregion
     }
 }

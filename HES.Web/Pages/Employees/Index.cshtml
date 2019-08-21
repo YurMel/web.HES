@@ -159,6 +159,13 @@
             var action = btn.data("action");
             var title = btn.data("title");
 
+            if (action == "CreateEmployee") {
+                $('.modal-dialog').addClass('modal-lg');
+            }
+            else {
+                $('.modal-dialog').removeClass('modal-lg');
+            }
+
             $('#modalDialogTitle').html(title);
             $('#modalDialog').modal('toggle');
 
