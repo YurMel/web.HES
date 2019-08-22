@@ -275,13 +275,13 @@
                 <thead>
                     <tr>
                         <th>
-                            Employee full name
+                            Employee
                         </th>
                         <th>
-                            Device serial number
+                            Device
                         </th>
                         <th>
-                            Workstation name
+                            Workstation
                         </th>
                     </tr>
                 </thead>
@@ -372,7 +372,7 @@
 
                 devces_collection = [];
                 device_table.$('input[type="checkbox"]').each(function () {
-                    if (this.checked) {
+                    if (this.checked && this.id != '') {
                         devces_collection.push(this.id);
                     }
                 });
@@ -380,8 +380,8 @@
 
                 workstations_collection = [];
                 workstation_table.$('input[type="checkbox"]').each(function () {
-                    if (this.checked) {
-                        workstations_collection.push(this.id);
+                    if (this.checked && this.id != '') {
+                            workstations_collection.push(this.id);
                     }
                 });
                 $('#result_workstations').html(workstations_collection.join("<br/>"));
