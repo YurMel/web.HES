@@ -1,15 +1,15 @@
-﻿@model HES.Web.Pages.Settings.OrgStructure.IndexModel
+﻿@model HES.Web.Pages.Employees.IndexModel
 
-<form method="post">
+<form id="settingsForm"  method="post">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="form-group mb-4">
         <label asp-for="Company.Name" class="control-label text-gray"></label>
-        <input asp-for="Company.Name" class="form-control text-navyblue" />
+        <input id="companyName" asp-for="Company.Name" class="form-control text-navyblue" />
         <span asp-validation-for="Company.Name" class="text-danger"></span>
     </div>
     <div class="form-group m-0 text-right">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-        <input type="submit" value="Create" class="btn btn-primary" asp-page-handler="CreateCompany" />
+        <input type="submit" value="Create" class="btn btn-primary" />
     </div>
 </form>
 

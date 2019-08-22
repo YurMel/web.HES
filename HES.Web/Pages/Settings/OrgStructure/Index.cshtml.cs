@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace HES.Web.Pages.Settings.OrgStructure
@@ -40,8 +41,8 @@ namespace HES.Web.Pages.Settings.OrgStructure
 
         public async Task OnGetAsync()
         {
-            Companies = await _settingsService.CompanyQuery().ToListAsync();
-            Departments = await _settingsService.DepartmentQuery().Include(d => d.Company).ToListAsync();
+            Companies = await _settingsService.CompanyQuery().OrderBy(c => c.Name).ToListAsync();
+            Departments = await _settingsService.DepartmentQuery().Include(d => d.Company).OrderBy(c => c.Name).ToListAsync();
         }
 
         #region Company

@@ -785,6 +785,13 @@ div.dataTables_scrollHead table.dataTable {
 }
 /*#endregion*/
 
+.btn-add {
+    height: 38px;
+    width: 38px;
+    padding: 0 6px;
+    margin-left: 5px;
+}
+
 .pin-settings-value {
     padding-left: 8px !important;
 }
@@ -792,3 +799,9 @@ div.dataTables_scrollHead table.dataTable {
     .pin-settings-value > h6 {
         width: 58px;
     }
+
+.second-modal {
+    width: 498px;
+    left: 50%;
+    transform: translateX(-50%);
+}

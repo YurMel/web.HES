@@ -18,6 +18,7 @@ namespace HES.Web.Pages.Employees
     {
         private readonly IEmployeeService _employeeService;
         private readonly IWorkstationService _workstationService;
+        private readonly ISettingsService _settingsService;
         private readonly ILogger<IndexModel> _logger;
 
         public IList<Device> Devices { get; set; }
@@ -25,17 +26,22 @@ namespace HES.Web.Pages.Employees
         public IList<Employee> Employees { get; set; }
         public Employee Employee { get; set; }
         public EmployeeFilter EmployeeFilter { get; set; }
-        public bool HasForeignKey { get; set; }       
+        public bool HasForeignKey { get; set; }
+        public Company Company { get; set; }
 
         [TempData]
         public string SuccessMessage { get; set; }
         [TempData]
         public string ErrorMessage { get; set; }
 
-        public IndexModel(IEmployeeService employeeService, IWorkstationService workstationService, ILogger<IndexModel> logger)
+        public IndexModel(IEmployeeService employeeService,
+                          IWorkstationService workstationService,
+                          ISettingsService settingsService,
+                          ILogger<IndexModel> logger)
         {
             _employeeService = employeeService;
             _workstationService = workstationService;
+            _settingsService = settingsService;
             _logger = logger;
         }
 
@@ -48,8 +54,8 @@ namespace HES.Web.Pages.Employees
                 .Include(e => e.Devices)
                 .ToListAsync();
 
-            ViewData["Companies"] = new SelectList(await _employeeService.CompanyQuery().ToListAsync(), "Id", "Name");
-            ViewData["Positions"] = new SelectList(await _employeeService.PositionQuery().ToListAsync(), "Id", "Name");
+            ViewData["Companies"] = new SelectList(await _employeeService.CompanyQuery().OrderBy(c => c.Name).ToListAsync(), "Id", "Name");
+            ViewData["Positions"] = new SelectList(await _employeeService.PositionQuery().OrderBy(c => c.Name).ToListAsync(), "Id", "Name");
             ViewData["DevicesCount"] = new SelectList(Employees.Select(s => s.Devices.Count()).Distinct().OrderBy(f => f).ToDictionary(t => t, t => t), "Key", "Value");
 
             ViewData["DatePattern"] = CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern.ToLower();
@@ -106,8 +112,8 @@ namespace HES.Web.Pages.Employees
 
         public async Task<IActionResult> OnGetCreateEmployee()
         {
-            ViewData["CompanyId"] = new SelectList(await _employeeService.CompanyQuery().ToListAsync(), "Id", "Name");
-            ViewData["PositionId"] = new SelectList(await _employeeService.PositionQuery().ToListAsync(), "Id", "Name");
+            ViewData["CompanyId"] = new SelectList(await _employeeService.CompanyQuery().OrderBy(c => c.Name).ToListAsync(), "Id", "Name");
+            ViewData["PositionId"] = new SelectList(await _employeeService.PositionQuery().OrderBy(c => c.Name).ToListAsync(), "Id", "Name");
 
             Devices = await _employeeService
                .DeviceQuery()
@@ -134,9 +140,15 @@ namespace HES.Web.Pages.Employees
                 // Create employee
                 var user = await _employeeService.CreateEmployeeAsync(Employee);
                 // Add device
-                await _employeeService.AddDeviceAsync(user.Id, devices);
+                if (workstations.Length > 0)
+                {
+                    await _employeeService.AddDeviceAsync(user.Id, devices);
+                }
                 // Add workstation
-                await _workstationService.AddMultipleBindingAsync(workstations, true, true, false, devices);
+                if (devices.Length > 0)
+                {
+                    await _workstationService.AddMultipleBindingAsync(workstations, true, true, false, devices);
+                }
 
                 SuccessMessage = $"Employee created.";
             }
@@ -197,6 +209,42 @@ namespace HES.Web.Pages.Employees
             return RedirectToPage("./Index");
         }
 
-        #endregion        
+        #endregion
+
+        #region Company
+
+        public IActionResult OnGetCreateCompany()
+        {
+            return Partial("_CreateCompany", this);
+        }
+
+        public async Task<IActionResult> OnPostCreateCompanyAsync(Company company)
+        {
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Model is not valid");
+                return new ContentResult();
+            }
+
+            try
+            {
+                await _settingsService.CreateCompanyAsync(company);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                ErrorMessage = ex.Message;
+            }
+
+            return new ContentResult() { Content = "qwe" };
+        }
+
+        public async Task<JsonResult> OnGetJsonCompanyAsync()
+        {
+            return new JsonResult(await _employeeService.CompanyQuery().OrderBy(c => c.Name).ToListAsync());
+        }
+
+        #endregion
+
     }
 }
