@@ -21,6 +21,7 @@ namespace HES.Core.Interfaces
         Task ApproveWorkstationAsync(string id);
         Task UnapproveWorkstationAsync(string id);
         Task AddBindingAsync(string workstationId, bool allowRfid, bool allowBleTap, bool allowProximity, string[] selectedDevices);
+        Task AddMultipleBindingAsync(string[] workstationsId, bool allowRfid, bool allowBleTap, bool allowProximity, string[] devicesId);
         Task EditBindingAsync(WorkstationBinding workstationBinding);
         Task DeleteBindingAsync(string workstationBindingId);
         Task<UnlockerSettingsInfo> GetWorkstationUnlockerSettingsInfoAsync(string workstationId);

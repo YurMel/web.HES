@@ -131,12 +131,12 @@ namespace HES.Core.Services
             return await _templateRepository.GetByIdAsync(id);
         }
 
-        public async Task CreateEmployeeAsync(Employee employee)
+        public async Task<Employee> CreateEmployeeAsync(Employee employee)
         {
             if (employee == null)
                 throw new ArgumentNullException(nameof(employee));
 
-            await _employeeRepository.AddAsync(employee);
+           return await _employeeRepository.AddAsync(employee);
         }
 
         public async Task EditEmployeeAsync(Employee employee)

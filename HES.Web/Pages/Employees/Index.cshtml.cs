@@ -121,7 +121,7 @@ namespace HES.Web.Pages.Employees
             return Partial("_CreateEmployee", this);
         }
 
-        public async Task<IActionResult> OnPostCreateEmployeeAsync(Employee Employee, List<string> devices, List<string> workstations)
+        public async Task<IActionResult> OnPostCreateEmployeeAsync(Employee Employee, string[] workstations, string[] devices)
         {
             if (!ModelState.IsValid)
             {
@@ -131,7 +131,13 @@ namespace HES.Web.Pages.Employees
 
             try
             {
-                await _employeeService.CreateEmployeeAsync(Employee);
+                // Create employee
+                var user = await _employeeService.CreateEmployeeAsync(Employee);
+                // Add device
+                await _employeeService.AddDeviceAsync(user.Id, devices);
+                // Add workstation
+                await _workstationService.AddMultipleBindingAsync(workstations, true, true, false, devices);
+
                 SuccessMessage = $"Employee created.";
             }
             catch (Exception ex)
@@ -191,54 +197,6 @@ namespace HES.Web.Pages.Employees
             return RedirectToPage("./Index");
         }
 
-        #endregion
-
-        #region Device
-
-        //public async Task<IActionResult> OnPostAddDeviceAsync(string employeeId, string[] selectedDevices)
-        //{
-        //    if (employeeId == null)
-        //    {
-        //        _logger.LogWarning("employeeId == null");
-        //        return NotFound();
-        //    }
-
-        //    try
-        //    {
-        //        await _employeeService.AddDeviceAsync(employeeId, selectedDevices);
-
-        //        if (selectedDevices.Length > 1)
-        //        {
-        //            var devices = string.Empty;
-        //            foreach (var item in selectedDevices)
-        //            {
-        //                devices += item + Environment.NewLine;
-        //            }
-        //            SuccessMessage = $"Devices: {devices} added.";
-        //        }
-        //        else
-        //        {
-        //            SuccessMessage = $"Device {selectedDevices[0]} added.";
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        if (!await EmployeeExists(employeeId))
-        //        {
-        //            _logger.LogError("Employee dos not exists.");
-        //            return NotFound();
-        //        }
-        //        else
-        //        {
-        //            _logger.LogError(ex.Message);
-        //            ErrorMessage = ex.Message;
-        //        }
-        //    }
-
-        //    var id = employeeId;
-        //    return RedirectToPage("./Details", new { id });
-        //}
-              
-        #endregion
+        #endregion        
     }
 }

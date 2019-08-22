@@ -23,7 +23,7 @@ namespace HES.Core.Interfaces
         Task<DeviceTask> DeviceTaskGetByIdAsync(dynamic id);
         Task<SharedAccount> SharedAccountGetByIdAsync(dynamic id);
         Task<Template> TemplateGetByIdAsync(dynamic id);
-        Task CreateEmployeeAsync(Employee employee);
+        Task<Employee> CreateEmployeeAsync(Employee employee);
         Task EditEmployeeAsync(Employee employee);
         Task DeleteEmployeeAsync(string id);
         Task<bool> ExistAsync(Expression<Func<Employee, bool>> predicate);
