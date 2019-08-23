@@ -1,11 +1,12 @@
 ﻿@model HES.Web.Pages.Employees.IndexModel
 
-<form id="orgStructureForm" data-action="CreateCompany" method="post">
+<form id="orgStructureForm" data-action="CreateDepartment" method="post">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="Department.CompanyId" value="@ViewBag.CompanyId" />
     <div class="form-group mb-4">
-        <label asp-for="Company.Name" class="control-label text-gray"></label>
-        <input asp-for="Company.Name" class="form-control text-navyblue" />
-        <span asp-validation-for="Company.Name" class="text-danger"></span>
+        <label asp-for="Department.Name" class="control-label text-gray"></label>
+        <input asp-for="Department.Name" class="form-control text-navyblue" />
+        <span asp-validation-for="Department.Name" class="text-danger"></span>
     </div>
     <div class="form-group m-0 text-right">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

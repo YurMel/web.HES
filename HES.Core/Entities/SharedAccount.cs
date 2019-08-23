@@ -23,7 +23,7 @@ namespace HES.Core.Entities
         public bool Deleted { get; set; }
 
         [NotMapped]
-        public TimeSpan GetPasswordUpdated => (DateTime.UtcNow).Subtract((DateTime)PasswordChangedAt);
+        public TimeSpan GetPasswordUpdated => (DateTime.UtcNow).Subtract(PasswordChangedAt ?? DateTime.UtcNow);
         [NotMapped]
         public TimeSpan GetOtpUpdated => (DateTime.UtcNow).Subtract(OtpSecretChangedAt ?? DateTime.UtcNow);
     }

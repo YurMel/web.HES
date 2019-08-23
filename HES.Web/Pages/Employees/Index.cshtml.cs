@@ -21,13 +21,16 @@ namespace HES.Web.Pages.Employees
         private readonly ISettingsService _settingsService;
         private readonly ILogger<IndexModel> _logger;
 
+        public IList<Employee> Employees { get; set; }
         public IList<Device> Devices { get; set; }
         public IList<Workstation> Workstations { get; set; }
-        public IList<Employee> Employees { get; set; }
         public Employee Employee { get; set; }
         public EmployeeFilter EmployeeFilter { get; set; }
-        public bool HasForeignKey { get; set; }
         public Company Company { get; set; }
+        public Department Department { get; set; }
+        public Position Position { get; set; }
+
+        public bool HasForeignKey { get; set; }
 
         [TempData]
         public string SuccessMessage { get; set; }
@@ -104,11 +107,6 @@ namespace HES.Web.Pages.Employees
         }
 
         #region Employee
-
-        public async Task<JsonResult> OnGetJsonDepartmentAsync(string id)
-        {
-            return new JsonResult(await _employeeService.DepartmentQuery().Where(d => d.CompanyId == id).ToListAsync());
-        }
 
         public async Task<IActionResult> OnGetCreateEmployee()
         {
@@ -223,7 +221,7 @@ namespace HES.Web.Pages.Employees
             if (!ModelState.IsValid)
             {
                 _logger.LogWarning("Model is not valid");
-                return new ContentResult();
+                return new ContentResult() { Content = "error" };
             }
 
             try
@@ -236,7 +234,7 @@ namespace HES.Web.Pages.Employees
                 ErrorMessage = ex.Message;
             }
 
-            return new ContentResult() { Content = "qwe" };
+            return new ContentResult() { Content = company.Name };
         }
 
         public async Task<JsonResult> OnGetJsonCompanyAsync()
@@ -246,5 +244,75 @@ namespace HES.Web.Pages.Employees
 
         #endregion
 
+        #region Department
+
+        public IActionResult OnGetCreateDepartment(string id)
+        {
+            ViewData["CompanyId"] = id;
+            return Partial("_CreateDepartment", this);
+        }
+
+        public async Task<IActionResult> OnPostCreateDepartmentAsync(Department department)
+        {
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Model is not valid");
+                return new ContentResult() { Content = "error" };
+            }
+
+            try
+            {
+                await _settingsService.CreateDepartmentAsync(department);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                ErrorMessage = ex.Message;
+            }
+
+            return new JsonResult(new { department = department.Name, company = department.CompanyId });
+        }
+
+        public async Task<JsonResult> OnGetJsonDepartmentAsync(string id)
+        {
+            return new JsonResult(await _employeeService.DepartmentQuery().Where(d => d.CompanyId == id).OrderBy(d => d.Name).ToListAsync());
+        }
+
+        #endregion
+
+        #region Position
+
+        public IActionResult OnGetCreatePosition()
+        {
+            return Partial("_CreatePosition", this);
+        }
+
+        public async Task<IActionResult> OnPostCreatePositionAsync(Position position)
+        {
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Model is not valid");
+                return new ContentResult() { Content = "error" };
+            }
+
+            try
+            {
+                await _settingsService.CreatePositionAsync(position);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                ErrorMessage = ex.Message;
+            }
+
+            return new ContentResult() { Content = position.Name };
+        }
+
+        public async Task<JsonResult> OnGetJsonPositionAsync()
+        {
+            return new JsonResult(await _employeeService.PositionQuery().OrderBy(c => c.Name).ToListAsync());
+        }
+
+        #endregion
     }
 }

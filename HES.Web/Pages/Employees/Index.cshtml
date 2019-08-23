@@ -107,17 +107,17 @@
     </div>
 </div>
 
-@* Modal Settings *@
-<div class="modal" id="modalDialogSettings" tabindex="-1" role="dialog" aria-labelledby="modalDialogSettingsTitle" aria-hidden="true">
+@* Second Modal *@
+<div class="modal" id="secondModalDialog" tabindex="-1" role="dialog" aria-labelledby="secondModalDialogTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content second-modal">
             <div class="modal-header">
-                <h5 class="modal-title text-navyblue" id="modalDialogSettingsTitle">Dialog</h5>
+                <h5 class="modal-title text-navyblue" id="secondModalDialogTitle">Dialog</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div id="modalBodySettings" class="modal-body">
+            <div id="secondModalBody" class="modal-body">
                 <div class="d-flex justify-content-center align-items-center">
                     <div class="spinner-grow text-primary" style="width: 3rem; height: 3rem;" role="status">
                         <span class="sr-only"></span>
@@ -131,7 +131,7 @@
 @section Scripts{
     <script src="~/js/dt-init-employees.js"></script>
     <script>
-         // Initialize DateTimePicker
+        // Initialize DateTimePicker
         $('#startDate').datepicker({
             timepicker: true,
             startDate: GetTime('min'),
@@ -208,20 +208,20 @@
             });
         });
 
-        // Clear content on modal hide
+        // Clear content on modal dialog is hide
         $('#modalDialog').on('hidden.bs.modal', function (e) {
             $("#modalBody").html("<div class='d-flex justify-content-center align-items-center'><div class='spinner-grow text-primary' style='width: 3rem; height: 3rem;' role='status'><span class='sr-only'></span></div></div>");
         })
 
-        // Open settings modal dialog
-        $(document).on('click', '.open-modal-settings-dialog', function () {
+        // Open second modal dialog
+        $(document).on('click', '.open-second-modal-dialog', function () {
             var btn = $(this);
             var id = btn.data("id");
             var action = btn.data("action");
             var title = btn.data("title");
 
-            $('#modalDialogSettingsTitle').html(title);
-            $('#modalDialogSettings').modal('toggle');
+            $('#secondModalDialogTitle').html(title);
+            $('#secondModalDialog').modal('toggle');
 
             $.ajax({
                 url: "/Employees?handler=" + action,
@@ -229,7 +229,7 @@
                 data: { id: id },
                 async: true,
                 success: function (response) {
-                    $("#modalBodySettings").html(response);
+                    $("#secondModalBody").html(response);
 
                     // Validation partial view
                     $('form').removeData('validator');
@@ -239,8 +239,8 @@
             });
         });
 
-        // Clear content on modal settings hide
-        $('#modalDialogSettings').on('hidden.bs.modal', function (e) {
+        // Clear content on second modal dialog is hide
+        $('#secondModalDialog').on('hidden.bs.modal', function (e) {
             $("#modalBodySettings").html("<div class='d-flex justify-content-center align-items-center'><div class='spinner-grow text-primary' style='width: 3rem; height: 3rem;' role='status'><span class='sr-only'></span></div></div>");
         })
 
@@ -253,27 +253,54 @@
             }, 0);
         });
 
-        // Setting dialog POST
-        $(document).on('submit', '#settingsForm', function (e) {
+        // Submit org structure form
+        $(document).on('submit', '#orgStructureForm', function (e) {
             e.preventDefault();
+            var action = $(this).data("action");
             $.ajax({
                 method: "POST",
-                url: "/Employees?handler=CreateCompany",
+                url: "/Employees?handler=" + action,
                 headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
-                data: $('#settingsForm').serialize(),
+                data: $('#orgStructureForm').serialize(),
                 async: true,
                 success: function (response) {
-                    //$("#content").html(response);
-                    //alert(response);
-                    var name = $('#companyName').val();
-                    GetCompany(name);
-                    $('#modalDialogSettings').modal('hide');
+                    //Update dropdown
+                    switch (action) {
+                        case "CreateCompany":
+                            GetCompany(response);
+                            break;
+                        case "CreateDepartment":
+                            GetDepartment(response.company, response.department);
+                            break;
+                        case "CreatePosition":
+                            GetPosition(response);
+                            break;
+                    }
+                    $('#secondModalDialog').modal('hide');
                 }
             });
         });
 
+        // Dropdown Company
+        function GetCompany(current) {
+            $.getJSON('/Employees?handler=JsonCompany',
+                function (data) {
+                    obj = "";
+                    $(data).each(function () {
+                        obj = obj + '<option value="' + this.id + '">' + this.name + '</option>'
+                    });
+                    var subList = $("#companies");
+                    subList.empty();
+                    subList.append(obj);
+                    // Select added company
+                    $("#companies option:contains(" + current + ")").attr('selected', 'selected');
+                    // Update departments
+                    $('#companies').trigger('onchange');
+                });
+        }
+
         // Dropdown Department
-        function GetDepartment(id) {
+        function GetDepartment(id, current) {
             $.getJSON('/Employees?handler=JsonDepartment', { id: id },
                 function (data) {
                     var dep = "";
@@ -283,17 +310,33 @@
                     var subList = $("#departments");
                     subList.empty();
                     subList.append(dep);
-                    subList.removeAttr("title");
+                    $('#addDepartments').attr('data-id', id);
+
+                    if (typeof current != 'undefined') {
+                        $("#departments option:contains(" + current + ")").attr('selected', 'selected');
+                    }
                 });
         }
 
-        // Double click to details of employee
-        $('#employees tbody tr td:not(:first-child, :last-child)').dblclick(function () {
-            var currentRow = $(this).closest("tr");
-            window.location.href = window.location.origin + '/Employees/Details?id=' + currentRow.data("id");
-        });
+        // Dropdown Position
+        function GetPosition(current) {
+            $.getJSON('/Employees?handler=JsonPosition',
+                function (data) {
+                    obj = "";
+                    $(data).each(function () {
+                        obj = obj + '<option value="' + this.id + '">' + this.name + '</option>'
+                    });
+                    var subList = $("#positions");
+                    subList.empty();
+                    subList.append(obj);
+                    // Select added company
+                    $("#positions option:contains(" + current + ")").attr('selected', 'selected');
+                });
+        }
 
-        // Filter
+        //#region Filter
+
+        // Submit filter
         $(document).on('submit', '#filterForm', function (e) {
             e.preventDefault();
             $('#loading').html("<div class='spinner-border text-primary' role='status'></div>");
@@ -309,7 +352,7 @@
             });
         });
 
-        //Clear filter
+        // Clear filter
         $(document).on('click', '#clearFilter', function () {
             $('#startDate').datepicker().data('datepicker').clear();
             $('#endDate').datepicker().data('datepicker').clear();
@@ -320,23 +363,7 @@
             $('#records').val("500");
         });
 
-        // Dropdown Department
-        function GetCompany(current) {
-            $.getJSON('/Employees?handler=JsonCompany',
-                function (data) {
-                    obj = "";
-                    $(data).each(function () {
-                        obj = obj + '<option value="' + this.id + '">' + this.name + '</option>'
-                    });
-                    var subList = $("#companies");
-                    subList.empty();
-                    subList.append(obj);
-                    $("#companies option:contains(" + current + ")").attr('selected', 'selected');
-                    $('#companies').trigger('onchange');
-                });
-        }
-
-        // Dropdown Department
+        // Dropdown Department in filter
         function GetDepartmentFilter(id) {
             $.getJSON('/Employees?handler=JsonDepartment', { id: id },
                 function (data) {
@@ -348,9 +375,19 @@
                     subList.empty();
                     subList.append(dep);
                     subList.removeAttr("disabled");
+                    subList.removeAttr("title");
                 });
         }
 
+        //#endregion
+
+        // Double click to details of employee
+        $('#employees tbody tr td:not(:first-child, :last-child)').dblclick(function () {
+            var currentRow = $(this).closest("tr");
+            window.location.href = window.location.origin + '/Employees/Details?id=' + currentRow.data("id");
+        });
+
+        // Ready
         $(document).ready(function () {
             // Breadcrumbs
             $('#breadcrumb').toggleClass('d-none');
