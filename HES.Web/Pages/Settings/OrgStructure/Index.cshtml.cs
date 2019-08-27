@@ -1,6 +1,5 @@
 ﻿using HES.Core.Entities;
 using HES.Core.Interfaces;
-using HES.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -46,6 +45,11 @@ namespace HES.Web.Pages.Settings.OrgStructure
         }
 
         #region Company
+
+        public async Task<JsonResult> OnGetJsonCompanyAsync()
+        {
+            return new JsonResult(await _settingsService.CompanyQuery().OrderBy(c => c.Name).ToListAsync());
+        }
 
         public IActionResult OnGetCreateCompany()
         {
@@ -277,6 +281,11 @@ namespace HES.Web.Pages.Settings.OrgStructure
             }
 
             return RedirectToPage("./Index");
+        }
+
+        public async Task<JsonResult> OnGetJsonDepartmentAsync(string id)
+        {
+            return new JsonResult(await _settingsService.DepartmentQuery().Where(d => d.CompanyId == id).OrderBy(d => d.Name).ToListAsync());
         }
 
         #endregion
