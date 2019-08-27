@@ -17,22 +17,34 @@ namespace HES.Web.Pages.Employees
     public class IndexModel : PageModel
     {
         private readonly IEmployeeService _employeeService;
+        private readonly IWorkstationService _workstationService;
+        private readonly ISettingsService _settingsService;
         private readonly ILogger<IndexModel> _logger;
 
         public IList<Employee> Employees { get; set; }
+        public IList<Device> Devices { get; set; }
+        public IList<Workstation> Workstations { get; set; }
+        public Employee Employee { get; set; }
         public EmployeeFilter EmployeeFilter { get; set; }
+        public Company Company { get; set; }
+        public Department Department { get; set; }
+        public Position Position { get; set; }
+
         public bool HasForeignKey { get; set; }
 
-        [BindProperty]
-        public Employee Employee { get; set; }
         [TempData]
         public string SuccessMessage { get; set; }
         [TempData]
         public string ErrorMessage { get; set; }
 
-        public IndexModel(IEmployeeService employeeService, ILogger<IndexModel> logger)
+        public IndexModel(IEmployeeService employeeService,
+                          IWorkstationService workstationService,
+                          ISettingsService settingsService,
+                          ILogger<IndexModel> logger)
         {
             _employeeService = employeeService;
+            _workstationService = workstationService;
+            _settingsService = settingsService;
             _logger = logger;
         }
 
@@ -45,9 +57,8 @@ namespace HES.Web.Pages.Employees
                 .Include(e => e.Devices)
                 .ToListAsync();
 
-            ViewData["Companies"] = new SelectList(await _employeeService.CompanyQuery().ToListAsync(), "Id", "Name");
-            //ViewData["Departments"] = new SelectList(await _employeeService.DepartmentQuery().ToListAsync(), "Id", "Name");
-            ViewData["Positions"] = new SelectList(await _employeeService.PositionQuery().ToListAsync(), "Id", "Name");
+            ViewData["Companies"] = new SelectList(await _employeeService.CompanyQuery().OrderBy(c => c.Name).ToListAsync(), "Id", "Name");
+            ViewData["Positions"] = new SelectList(await _employeeService.PositionQuery().OrderBy(c => c.Name).ToListAsync(), "Id", "Name");
             ViewData["DevicesCount"] = new SelectList(Employees.Select(s => s.Devices.Count()).Distinct().OrderBy(f => f).ToDictionary(t => t, t => t), "Key", "Value");
 
             ViewData["DatePattern"] = CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern.ToLower();
@@ -97,20 +108,24 @@ namespace HES.Web.Pages.Employees
 
         #region Employee
 
-        public async Task<JsonResult> OnGetJsonDepartmentAsync(string id)
-        {
-            return new JsonResult(await _employeeService.DepartmentQuery().Where(d => d.CompanyId == id).ToListAsync());
-        }
-
         public async Task<IActionResult> OnGetCreateEmployee()
         {
-            ViewData["CompanyId"] = new SelectList(await _employeeService.CompanyQuery().ToListAsync(), "Id", "Name");
-            ViewData["PositionId"] = new SelectList(await _employeeService.PositionQuery().ToListAsync(), "Id", "Name");
+            ViewData["CompanyId"] = new SelectList(await _employeeService.CompanyQuery().OrderBy(c => c.Name).ToListAsync(), "Id", "Name");
+            ViewData["PositionId"] = new SelectList(await _employeeService.PositionQuery().OrderBy(c => c.Name).ToListAsync(), "Id", "Name");
+
+            Devices = await _employeeService
+               .DeviceQuery()
+               .Where(d => d.EmployeeId == null)
+               .ToListAsync();
+
+            Workstations = await _workstationService
+                .WorkstationQuery()
+                .ToListAsync();
 
             return Partial("_CreateEmployee", this);
         }
 
-        public async Task<IActionResult> OnPostCreateEmployeeAsync()
+        public async Task<IActionResult> OnPostCreateEmployeeAsync(Employee Employee, string[] workstations, string[] devices)
         {
             if (!ModelState.IsValid)
             {
@@ -120,7 +135,19 @@ namespace HES.Web.Pages.Employees
 
             try
             {
-                await _employeeService.CreateEmployeeAsync(Employee);
+                // Create employee
+                var user = await _employeeService.CreateEmployeeAsync(Employee);
+                // Add device
+                if (workstations.Length > 0)
+                {
+                    await _employeeService.AddDeviceAsync(user.Id, devices);
+                }
+                // Add workstation
+                if (devices.Length > 0)
+                {
+                    await _workstationService.AddMultipleBindingAsync(workstations, true, true, false, devices);
+                }
+
                 SuccessMessage = $"Employee created.";
             }
             catch (Exception ex)
@@ -178,6 +205,112 @@ namespace HES.Web.Pages.Employees
             }
 
             return RedirectToPage("./Index");
+        }
+
+        #endregion
+
+        #region Company
+
+        public IActionResult OnGetCreateCompany()
+        {
+            return Partial("_CreateCompany", this);
+        }
+
+        public async Task<IActionResult> OnPostCreateCompanyAsync(Company company)
+        {
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Model is not valid");
+                return new ContentResult() { Content = "error" };
+            }
+
+            try
+            {
+                await _settingsService.CreateCompanyAsync(company);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                ErrorMessage = ex.Message;
+            }
+
+            return new ContentResult() { Content = company.Name };
+        }
+
+        public async Task<JsonResult> OnGetJsonCompanyAsync()
+        {
+            return new JsonResult(await _employeeService.CompanyQuery().OrderBy(c => c.Name).ToListAsync());
+        }
+
+        #endregion
+
+        #region Department
+
+        public IActionResult OnGetCreateDepartment(string id)
+        {
+            ViewData["CompanyId"] = id;
+            return Partial("_CreateDepartment", this);
+        }
+
+        public async Task<IActionResult> OnPostCreateDepartmentAsync(Department department)
+        {
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Model is not valid");
+                return new ContentResult() { Content = "error" };
+            }
+
+            try
+            {
+                await _settingsService.CreateDepartmentAsync(department);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                ErrorMessage = ex.Message;
+            }
+
+            return new JsonResult(new { department = department.Name, company = department.CompanyId });
+        }
+
+        public async Task<JsonResult> OnGetJsonDepartmentAsync(string id)
+        {
+            return new JsonResult(await _employeeService.DepartmentQuery().Where(d => d.CompanyId == id).OrderBy(d => d.Name).ToListAsync());
+        }
+
+        #endregion
+
+        #region Position
+
+        public IActionResult OnGetCreatePosition()
+        {
+            return Partial("_CreatePosition", this);
+        }
+
+        public async Task<IActionResult> OnPostCreatePositionAsync(Position position)
+        {
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Model is not valid");
+                return new ContentResult() { Content = "error" };
+            }
+
+            try
+            {
+                await _settingsService.CreatePositionAsync(position);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                ErrorMessage = ex.Message;
+            }
+
+            return new ContentResult() { Content = position.Name };
+        }
+
+        public async Task<JsonResult> OnGetJsonPositionAsync()
+        {
+            return new JsonResult(await _employeeService.PositionQuery().OrderBy(c => c.Name).ToListAsync());
         }
 
         #endregion

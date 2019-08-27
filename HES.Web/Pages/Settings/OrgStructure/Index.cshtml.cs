@@ -1,6 +1,5 @@
 ﻿using HES.Core.Entities;
 using HES.Core.Interfaces;
-using HES.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -8,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace HES.Web.Pages.Settings.OrgStructure
@@ -40,11 +40,16 @@ namespace HES.Web.Pages.Settings.OrgStructure
 
         public async Task OnGetAsync()
         {
-            Companies = await _settingsService.CompanyQuery().ToListAsync();
-            Departments = await _settingsService.DepartmentQuery().Include(d => d.Company).ToListAsync();
+            Companies = await _settingsService.CompanyQuery().OrderBy(c => c.Name).ToListAsync();
+            Departments = await _settingsService.DepartmentQuery().Include(d => d.Company).OrderBy(c => c.Name).ToListAsync();
         }
 
         #region Company
+
+        public async Task<JsonResult> OnGetJsonCompanyAsync()
+        {
+            return new JsonResult(await _settingsService.CompanyQuery().OrderBy(c => c.Name).ToListAsync());
+        }
 
         public IActionResult OnGetCreateCompany()
         {
@@ -276,6 +281,11 @@ namespace HES.Web.Pages.Settings.OrgStructure
             }
 
             return RedirectToPage("./Index");
+        }
+
+        public async Task<JsonResult> OnGetJsonDepartmentAsync(string id)
+        {
+            return new JsonResult(await _settingsService.DepartmentQuery().Where(d => d.CompanyId == id).OrderBy(d => d.Name).ToListAsync());
         }
 
         #endregion

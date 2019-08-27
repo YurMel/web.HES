@@ -174,6 +174,23 @@ namespace HES.Core.Services
             await UpdateWorkstationUnlockerSettingsAsync(workstationId);
         }
 
+        public async Task AddMultipleBindingAsync(string[] workstationsId, bool allowRfid, bool allowBleTap, bool allowProximity, string[] devicesId)
+        {
+            if (workstationsId == null)
+            {
+                throw new ArgumentNullException(nameof(workstationsId));
+            }
+            if (devicesId == null)
+            {
+                throw new ArgumentNullException(nameof(devicesId));
+            }
+
+            foreach (var workstation in workstationsId)
+            {
+                await AddBindingAsync(workstation, allowRfid, allowBleTap, allowProximity, devicesId);
+            }
+        }
+
         public async Task EditBindingAsync(WorkstationBinding workstationBinding)
         {
             if (workstationBinding == null)

@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace HES.Web.Pages.Settings.Positions
@@ -14,10 +15,10 @@ namespace HES.Web.Pages.Settings.Positions
     {
         private readonly ISettingsService _settingsService;
         private readonly ILogger<IndexModel> _logger;
-        
+
         public IList<Position> Positions { get; set; }
         public bool HasForeignKey { get; set; }
-        
+
         [BindProperty]
         public Position Position { get; set; }
         [TempData]
@@ -33,7 +34,10 @@ namespace HES.Web.Pages.Settings.Positions
 
         public async Task OnGetAsync()
         {
-            Positions = await _settingsService.PositionQuery().ToListAsync();
+            Positions = await _settingsService
+                .PositionQuery()
+                .OrderBy(p => p.Name)
+                .ToListAsync();
         }
 
         #region Position
@@ -147,6 +151,11 @@ namespace HES.Web.Pages.Settings.Positions
             }
 
             return RedirectToPage("./Index");
+        }
+
+        public async Task<JsonResult> OnGetJsonPositionAsync()
+        {
+            return new JsonResult(await _settingsService.PositionQuery().OrderBy(c => c.Name).ToListAsync());
         }
 
         #endregion

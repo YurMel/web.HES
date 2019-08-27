@@ -1,4 +1,4 @@
-﻿@model HES.Web.Pages.Settings.OrgStructure.IndexModel
+﻿@model HES.Web.Pages.Employees.IndexModel
 
 <style>
     .popover-body {
@@ -10,7 +10,7 @@
     }
 </style>
 
-<form id="comapanyForm" method="post">
+<form id="orgStructureForm" data-action="CreateCompany" method="post">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="form-group mb-4">
         <label asp-for="Company.Name" class="control-label text-gray"></label>
@@ -19,8 +19,6 @@
     </div>
     <div class="form-group m-0 text-right">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-        <input type="submit" value="Create" class="btn btn-primary" asp-page-handler="CreateCompany" />
+        <input type="submit" value="Create" class="btn btn-primary" />
     </div>
 </form>
-
-<script src="~/js/orgstructure/company-validation.js"></script>
