@@ -10,36 +10,22 @@
 <partial name="_ErrorMessage" for="ErrorMessage" />
 
 @* Employee items *@
-<div class="row align-items-center mb-2 mr-0">
-    <div class="col-auto pr-0">
-        <h1 class="text-navyblue">@Model.Employee.FullName</h1>
-    </div>
-    <div class="col-auto p-1">
-        <div class="dropdown no-arrow">
-            <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <img src="~/svg/action/more.svg" />
-            </a>
-            <div class="dropdown-menu dropdown-menu-left shadow" aria-labelledby="dropdownMenuLink">
-                <a class="dropdown-item open-modal-dialog" data-id="@Model.Employee.Id" data-action="EditEmployee" data-title="Edit employee">
-                    <img src="~/svg/action/edit.svg" />
-                    Edit
-                </a>
-            </div>
-        </div>
+<div class="row align-items-center details-card">
+    <div class="col-auto">
+        <h1 class="text-navyblue m-0">@Model.Employee.FullName</h1>
     </div>
     <div class="col"></div>
-    <div class="col-auto p-1">
+    <div class="col-auto pl-1 pr-1">
         <button type="button" class="btn btn-primary open-modal-dialog" data-id="@Model.Employee.Id" data-action="AddDevice" data-title="Add device">
             Add device
         </button>
     </div>
-    <div class="col-auto p-1">
+    <div class="col-auto pl-1 pr-1">
         <button id="personal_acc" type="button" class="btn btn-primary open-modal-dialog" data-id="@Model.Employee.Id" data-action="CreatePersonalAccount" data-title="Create personal account" data-type="Account">
             Create personal account
         </button>
     </div>
-
-    <div class="col-auto p-1">
+    <div class="col-auto pl-1">
         <button id="shared_acc" type="button" class="btn btn-primary open-modal-dialog" data-id="@Model.Employee.Id" data-action="AddSharedAccount" data-title="Add shared account">
             Add shared account
         </button>
@@ -47,7 +33,7 @@
 </div>
 
 @* Employee table *@
-<table id="title_employee" class="table display border rounded w-100">
+@*<table id="title_employee" class="table display border rounded w-100">
     <thead>
         <tr>
             <th class="d-none"></th>
@@ -109,95 +95,34 @@
             </td>
         </tr>
     </tbody>
-</table>
+</table>*@
 
 @* Devices tables *@
 @foreach (var device in Model.Employee.Devices)
 {
-    <div class="row align-items-center m-1">
-        <div class="col-auto p-1">
-            <h3 class="text-navyblue m-0">@device.Id</h3>
-        </div>
-        <div class="col-auto p-1">
-            <div class="dropdown no-arrow">
-                <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <img src="~/svg/action/more.svg" />
-                </a>
-                <div class="dropdown-menu dropdown-menu-left shadow" aria-labelledby="dropdownMenuLink">
-                    <a class="dropdown-item open-modal-dialog" data-id="@device.Id" data-action="DeleteDevice" data-title="Delete device">
-                        <img src="~/svg/action/delete.svg" />
-                        Delete
+    <div class="row align-items-center m-0">
+        <div class="row align-items-center sub-details-card">
+            <div class="col-auto pr-1">
+                <h3 class="text-navyblue m-0">Device @device.Id</h3>
+            </div>
+            <div class="col-auto p-1">
+                <div class="dropdown no-arrow">
+                    <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <img src="~/svg/action/more.svg" />
                     </a>
+                    <div class="dropdown-menu dropdown-menu-left shadow" aria-labelledby="dropdownMenuLink">
+                        <a class="dropdown-item open-modal-dialog" data-id="@device.Id" data-action="DeleteDevice" data-title="Delete device">
+                            <img src="~/svg/action/delete.svg" />
+                            Delete
+                        </a>
+                    </div>
                 </div>
             </div>
+            <div class="col p-0"></div>
         </div>
-        <div class="col"></div>
+       
     </div>
-    <table id="title_@device.Id" class="table display border rounded w-100">
-        <thead>
-            <tr>
-                <th class="d-none"></th>
-                <th>
-                    @Html.DisplayNameFor(model => device.Id)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => device.MAC)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => device.Model)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => device.RFID)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => device.Battery)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => device.Firmware)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => device.LastSynced)
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td class="d-none"></td>
-                <td>
-                    @Html.DisplayFor(modelItem => device.Id)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => device.MAC)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => device.Model)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => device.RFID)
-                </td>
-                <td class="pl-4">
-                    @if (device.Battery == 1)
-                    {
-                        <img src="~/svg/device/battery_full.svg" />
-                    }
-                    else
-                    {
-                        <img src="~/svg/device/battery_20.svg" />
-                    }
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => device.Firmware)
-                </td>
-                <td>
-                    @if (device.LastSynced != null)
-                    {
-                        @TimeZoneInfo.ConvertTimeFromUtc((DateTime)device.LastSynced, TimeZoneInfo.Local)
-                    }
-                </td>
-            </tr>
-        </tbody>
-    </table>
-
+ 
     @if (Model.DeviceAccounts.Where(e => e.EmployeeId == Model.Employee.Id).Where(d => d.DeviceId == device.Id).Count() > 0)
     {
         @*DeviceAccounts title*@

@@ -72,68 +72,68 @@ namespace HES.Web.Pages.Employees
 
         #region Employee
 
-        public async Task<JsonResult> OnGetJsonDepartmentAsync(string id)
-        {
-            return new JsonResult(await _employeeService.DepartmentQuery().Where(d => d.CompanyId == id).ToListAsync());
-        }
+        //public async Task<JsonResult> OnGetJsonDepartmentAsync(string id)
+        //{
+        //    return new JsonResult(await _employeeService.DepartmentQuery().Where(d => d.CompanyId == id).ToListAsync());
+        //}
 
-        public async Task<IActionResult> OnGetEditEmployeeAsync(string id)
-        {
-            if (id == null)
-            {
-                _logger.LogWarning("id == null");
-                return NotFound();
-            }
+        //public async Task<IActionResult> OnGetEditEmployeeAsync(string id)
+        //{
+        //    if (id == null)
+        //    {
+        //        _logger.LogWarning("id == null");
+        //        return NotFound();
+        //    }
 
-            Employee = await _employeeService
-                .EmployeeQuery()
-                .Include(e => e.Department)
-                .Include(e => e.Position)
-                .FirstOrDefaultAsync(m => m.Id == id);
+        //    Employee = await _employeeService
+        //        .EmployeeQuery()
+        //        .Include(e => e.Department)
+        //        .Include(e => e.Position)
+        //        .FirstOrDefaultAsync(m => m.Id == id);
 
-            if (Employee == null)
-            {
-                _logger.LogWarning("Employee == null");
-                return NotFound();
-            }
+        //    if (Employee == null)
+        //    {
+        //        _logger.LogWarning("Employee == null");
+        //        return NotFound();
+        //    }
 
-            ViewData["CompanyId"] = new SelectList(await _employeeService.CompanyQuery().ToListAsync(), "Id", "Name");
-            ViewData["DepartmentId"] = new SelectList(await _employeeService.DepartmentQuery().Where(d => d.CompanyId == Employee.Department.CompanyId).ToListAsync(), "Id", "Name");
-            ViewData["PositionId"] = new SelectList(await _employeeService.PositionQuery().ToListAsync(), "Id", "Name");
+        //    ViewData["CompanyId"] = new SelectList(await _employeeService.CompanyQuery().ToListAsync(), "Id", "Name");
+        //    ViewData["DepartmentId"] = new SelectList(await _employeeService.DepartmentQuery().Where(d => d.CompanyId == Employee.Department.CompanyId).ToListAsync(), "Id", "Name");
+        //    ViewData["PositionId"] = new SelectList(await _employeeService.PositionQuery().ToListAsync(), "Id", "Name");
 
-            return Partial("_EditEmployee", this);
-        }
+        //    return Partial("_EditEmployee", this);
+        //}
 
-        public async Task<IActionResult> OnPostEditEmployeeAsync(Employee employee)
-        {
-            var id = employee.Id;
-            if (!ModelState.IsValid)
-            {
-                _logger.LogWarning("Model is not valid");
-                return RedirectToPage("./Details", new { id });
-            }
+        //public async Task<IActionResult> OnPostEditEmployeeAsync(Employee employee)
+        //{
+        //    var id = employee.Id;
+        //    if (!ModelState.IsValid)
+        //    {
+        //        _logger.LogWarning("Model is not valid");
+        //        return RedirectToPage("./Details", new { id });
+        //    }
 
-            try
-            {
-                await _employeeService.EditEmployeeAsync(employee);
-                SuccessMessage = $"Employee updated.";
-            }
-            catch (Exception ex)
-            {
-                if (!await EmployeeExists(employee.Id))
-                {
-                    _logger.LogError("Employee dos not exists.");
-                    return NotFound();
-                }
-                else
-                {
-                    ErrorMessage = ex.Message;
-                }
-                _logger.LogError(ex.Message);
-            }
+        //    try
+        //    {
+        //        await _employeeService.EditEmployeeAsync(employee);
+        //        SuccessMessage = $"Employee updated.";
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        if (!await EmployeeExists(employee.Id))
+        //        {
+        //            _logger.LogError("Employee dos not exists.");
+        //            return NotFound();
+        //        }
+        //        else
+        //        {
+        //            ErrorMessage = ex.Message;
+        //        }
+        //        _logger.LogError(ex.Message);
+        //    }
 
-            return RedirectToPage("./Details", new { id });
-        }
+        //    return RedirectToPage("./Details", new { id });
+        //}
 
         private async Task<bool> EmployeeExists(string id)
         {
