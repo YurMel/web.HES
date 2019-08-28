@@ -364,7 +364,15 @@ a.navbar-brand {
     margin-bottom: 20px;
     border: 1px solid #dee2e6 !important;
 }
-/*#endregion*/
+
+.details-card {
+    background: #fff;
+    border-radius: 0.25rem !important;
+    margin: 0px;
+    padding: 5px 0px;
+    border: 1px solid #dee2e6 !important;
+}
+/*#endregion
 
 /*#region Input group*/
 .custom-group {

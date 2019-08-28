@@ -9,91 +9,17 @@
 <partial name="_ErrorMessage" for="ErrorMessage" />
 
 @* Workstation items *@
-<div class="row align-items-center mb-2 mr-0">
+<div class="row align-items-center details-card">
     <div class="col-auto">
-        <h1 class="text-navyblue">@Model.Workstation.Name</h1>
+        <h1 class="text-navyblue m-0">@Model.Workstation.Name</h1>
     </div>
     <div class="col"></div>
-    <div class="col-auto p-1">
+    <div class="col-auto">
         <button type="button" class="btn btn-primary open-modal-dialog" data-id="@Model.Workstation.Id" data-action="AddDevice" data-title="Add device">
             Add device
         </button>
     </div>
 </div>
-
-@* Workstation table *@
-<table id="workstation" class="table display border rounded w-100">
-    <thead>
-        <tr>
-            <th class="d-none"></th>
-            <th data-priority="1">
-                @Html.DisplayNameFor(model => model.Workstation.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Workstation.Domain)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Workstation.ClientVersion)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Workstation.Department.Company)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Workstation.Department)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Workstation.OS)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Workstation.IP)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Workstation.LastSeen)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Workstation.Approved)
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td class="d-none"></td>
-            <td>
-                @Html.DisplayFor(model => model.Workstation.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(model => model.Workstation.Domain)
-            </td>
-            <td>
-                @Html.DisplayFor(model => model.Workstation.ClientVersion)
-            </td>
-            <td>
-                @Html.DisplayFor(model => model.Workstation.Department.Company.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(model => model.Workstation.Department.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(model => model.Workstation.OS)
-            </td>
-            <td>
-                @Html.DisplayFor(model => model.Workstation.IP)
-            </td>
-            <td>
-                @if (Model.Workstation.LastSeen != null)
-                {
-                    @TimeZoneInfo.ConvertTimeFromUtc((DateTime)Model.Workstation.LastSeen, TimeZoneInfo.Local)
-                }
-            </td>
-            <td>
-                <div class="custom-control custom-checkbox green-checkbox">
-                    <input type="checkbox" class="custom-control-input" id="approved" checked="@Model.Workstation.Approved" disabled>
-                    <label class="custom-control-label" for="approved"></label>
-                </div>
-            </td>
-        </tr>
-    </tbody>
-</table>
 
 @if (Model.WorkstationBindings != null)
 {
@@ -127,10 +53,10 @@
                     @Html.DisplayNameFor(model => model.WorkstationBindings[0].Device.Employee.Department)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.WorkstationBindings[0].AllowRfid)
+                    @Html.DisplayNameFor(model => model.WorkstationBindings[0].AllowBleTap)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.WorkstationBindings[0].AllowBleTap)
+                    @Html.DisplayNameFor(model => model.WorkstationBindings[0].AllowRfid)
                 </th>
                 <th>
                     @Html.DisplayNameFor(model => model.WorkstationBindings[0].AllowProximity)
@@ -153,22 +79,34 @@
                         @Html.DisplayFor(modelItem => item.Device.Employee.Department.Name)
                     </td>
                     <td>
-                        <div class="custom-control custom-checkbox">
-                            <input type="checkbox" class="custom-control-input" id="AllowRfid" checked="@item.AllowRfid" disabled>
-                            <label class="custom-control-label" for="AllowRfid"></label>
-                        </div>
+                        @if (item.AllowBleTap)
+                        {
+                            <span class="badge badge-success">Yes</span>
+                        }
+                        else
+                        {
+                            <span class="badge badge-secondary">No</span>
+                        }
                     </td>
                     <td>
-                        <div class="custom-control custom-checkbox">
-                            <input type="checkbox" class="custom-control-input" id="AllowBleTap" checked="@item.AllowBleTap" disabled>
-                            <label class="custom-control-label" for="AllowBleTap"></label>
-                        </div>
+                        @if (item.AllowRfid)
+                        {
+                            <span class="badge badge-success">Yes</span>
+                        }
+                        else
+                        {
+                            <span class="badge badge-secondary">No</span>
+                        }
                     </td>
                     <td>
-                        <div class="custom-control custom-checkbox">
-                            <input type="checkbox" class="custom-control-input" id="AllowProximity" checked="@item.AllowProximity" disabled>
-                            <label class="custom-control-label" for="AllowProximity"></label>
-                        </div>
+                        @if (item.AllowProximity)
+                        {
+                            <span class="badge badge-success">Yes</span>
+                        }
+                        else
+                        {
+                            <span class="badge badge-secondary">No</span>
+                        }
                     </td>
                     <td>
                         <div class="dropdown no-arrow">

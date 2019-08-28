@@ -91,14 +91,19 @@
                         {
                             <span class="d-none">@TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.LastSeen, TimeZoneInfo.Local).Ticks</span>
                             @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.LastSeen, TimeZoneInfo.Local)
-                        }*@
+                        }
+                    *@
                     @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.LastSeen, TimeZoneInfo.Local)
                 </td>
                 <td data-sort="@item.Approved">
-                    <div class="custom-control custom-checkbox green-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="approved_@item.Id" checked="@item.Approved" disabled>
-                        <label class="custom-control-label" for="approved_@item.Id"></label>
-                    </div>
+                    @if (item.Approved)
+                    {
+                        <span class="badge badge-success">Yes</span>
+                    }
+                    else
+                    {
+                        <span class="badge badge-danger">No</span>
+                    }
                 </td>
                 <td>
                     <div class="dropdown no-arrow">

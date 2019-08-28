@@ -110,7 +110,7 @@ namespace HES.Web.Pages.Workstations
             return Partial("_AddDevice", this);
         }
 
-        public async Task<IActionResult> OnPostAddDeviceAsync(string workstationId, bool allowRfid, bool allowBleTap, bool allowProximity, string[] selectedDevices)
+        public async Task<IActionResult> OnPostAddDeviceAsync(string workstationId, bool allowBleTap, bool allowRfid, bool allowProximity, string[] selectedDevices)
         {
             if (workstationId == null)
             {
