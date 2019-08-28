@@ -145,7 +145,7 @@ namespace HES.Web.Pages.Employees
                 // Add workstation
                 if (devices.Length > 0)
                 {
-                    await _workstationService.AddMultipleBindingAsync(workstations, true, true, false, devices);
+                    await _workstationService.AddMultipleBindingAsync(workstations, false, true, false, devices);
                 }
 
                 SuccessMessage = $"Employee created.";

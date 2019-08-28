@@ -233,13 +233,20 @@
                                 </div>
                             </td>
                             <td>
-                                @Html.DisplayFor(modelItem => workstation.Id)
+                                @Html.DisplayFor(modelItem => workstation.Name)
                             </td>
                             <td>
                                 @Html.DisplayFor(modelItem => workstation.Domain)
                             </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => workstation.Approved)
+                            <td data-sort="@workstation.Approved">
+                                @if (workstation.Approved)
+                                {
+                                    <span class="badge badge-success">Yes</span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-danger">No</span>
+                                }
                             </td>
                         </tr>
                     }
@@ -268,7 +275,6 @@
                         <td id="result_devices" style="white-space: normal"></td>
                         <td id="result_workstations" style="white-space: normal"></td>
                     </tr>
-
                 </tbody>
             </table>
         </div>
@@ -353,6 +359,12 @@
                         devces_collection.push(this.id);
                     }
                 });
+                //var devicesList = $('#result_devices');
+                //devicesList.empty();
+                //devicesList.append("<li class='list-group-item d-flex justify-content-between align-items-center active'>Devices<span class='badge badge-light badge-pill'>" + devces_collection.length + "</span></li >");
+                //$.each(devces_collection, function (index, value) {
+                //    devicesList.append("<li class='list-group-item'>" + value + "</li>");
+                //});
                 $('#result_devices').html(devces_collection.join("<br/>"));
 
                 workstations_collection = [];
@@ -361,8 +373,13 @@
                         workstations_collection.push(this.id);
                     }
                 });
+                //var workstationsList = $('#result_workstations');
+                //workstationsList.empty();
+                //workstationsList.append("<li class='list-group-item d-flex justify-content-between align-items-center active'>Workstations<span class='badge badge-light badge-pill'>" + workstations_collection.length + "</span></li >");
+                //$.each(workstations_collection, function (index, value) {
+                //    workstationsList.append("<li class='list-group-item'>" + value + "</li>");
+                //});
                 $('#result_workstations').html(workstations_collection.join("<br/>"));
-
                 break;
         }
     });
