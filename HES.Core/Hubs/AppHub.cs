@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using HES.Core.Entities;
+﻿using HES.Core.Entities;
 using HES.Core.Interfaces;
-using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.Command;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Remote;
@@ -15,7 +8,12 @@ using Hideez.SDK.Communication.WorkstationEvents;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-//using WorkstationEvent = HES.Core.Entities.WorkstationEvent;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace HES.Core.Hubs
 {
@@ -55,15 +53,23 @@ namespace HES.Core.Hubs
         private readonly IWorkstationService _workstationService;
         private readonly IWorkstationEventService _workstationEventService;
         private readonly IWorkstationSessionService _workstationSessionService;
+        private readonly IDeviceService _deviceService;
         private readonly ILogger<AppHub> _logger;
 
-        public AppHub(IRemoteTaskService remoteTaskService, IEmployeeService employeeService, IWorkstationService workstationService, IWorkstationEventService workstationEventService, IWorkstationSessionService workstationSessionService, ILogger<AppHub> logger)
+        public AppHub(IRemoteTaskService remoteTaskService,
+                      IEmployeeService employeeService,
+                      IWorkstationService workstationService,
+                      IWorkstationEventService workstationEventService,
+                      IWorkstationSessionService workstationSessionService,
+                      IDeviceService deviceService,
+                      ILogger<AppHub> logger)
         {
             _remoteTaskService = remoteTaskService;
             _employeeService = employeeService;
             _workstationService = workstationService;
             _workstationEventService = workstationEventService;
             _workstationSessionService = workstationSessionService;
+            _deviceService = deviceService;
             _logger = logger;
         }
 
@@ -296,38 +302,43 @@ namespace HES.Core.Hubs
                 if (remoteDevice == null)
                     return;
 
+                var device = await _deviceService
+                    .DeviceQuery()
+                    .Include(d => d.DeviceAccessProfile)
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(d => d.Id == deviceId);
 
-                var key = Encoding.UTF8.GetBytes("passphrase"); //todo - read from DB
+                var key = Encoding.UTF8.GetBytes(device.MasterPassword);
 
-                // getting device info
+                // Getting device info
                 await remoteDevice.Initialize();
 
-                // access 
+                // Access 
                 if (remoteDevice.IsMasterKeyRequired)
                 {
                     var accessParams = new AccessParams()
                     {
-                        MasterKey_Bond = true,
-                        MasterKey_Connect = false,
-                        MasterKey_Link = false,
-                        MasterKey_Channel = false,
+                        MasterKey_Bond = device.DeviceAccessProfile.MasterKeyBonding,
+                        MasterKey_Connect = device.DeviceAccessProfile.MasterKeyConnection,
+                        MasterKey_Link = device.DeviceAccessProfile.MasterKeyNewLink,
+                        MasterKey_Channel = device.DeviceAccessProfile.MasterKeyNewChannel,
 
-                        Button_Bond = false,
-                        Button_Connect = false,
-                        Button_Link = true,
-                        Button_Channel = true,
+                        Button_Bond = device.DeviceAccessProfile.ButtonBonding,
+                        Button_Connect = device.DeviceAccessProfile.ButtonConnection,
+                        Button_Link = device.DeviceAccessProfile.ButtonNewLink,
+                        Button_Channel = device.DeviceAccessProfile.ButtonNewChannel,
 
-                        Pin_Bond = false,
-                        Pin_Connect = true,
-                        Pin_Link = false,
-                        Pin_Channel = false,
+                        Pin_Bond = device.DeviceAccessProfile.PinBonding,
+                        Pin_Connect = device.DeviceAccessProfile.ButtonConnection,
+                        Pin_Link = device.DeviceAccessProfile.PinNewLink,
+                        Pin_Channel = device.DeviceAccessProfile.PinNewChannel,
 
-                        PinMinLength = 4,
-                        PinMaxTries = 3,
-                        MasterKeyExpirationPeriod = 24 * 60 * 60,
-                        PinExpirationPeriod = 15 * 60,
-                        ButtonExpirationPeriod = 15,
-                    }; //todo - read AccessParams from the DB
+                        PinMinLength = device.DeviceAccessProfile.PinLength,
+                        PinMaxTries = device.DeviceAccessProfile.PinTryCount,
+                        MasterKeyExpirationPeriod = device.DeviceAccessProfile.MasterKeyExpiration,
+                        PinExpirationPeriod = device.DeviceAccessProfile.PinExpiration,
+                        ButtonExpirationPeriod = device.DeviceAccessProfile.ButtonExpiration,
+                    };
 
                     await remoteDevice.Access(DateTime.UtcNow, key, accessParams);
                 }

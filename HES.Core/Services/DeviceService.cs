@@ -37,7 +37,7 @@ namespace HES.Core.Services
 
         public DeviceService(IAesCryptography aes,
                              IAsyncRepository<Device> deviceRepository,
-                             IAsyncRepository<DeviceTask> deviceTaskRepository,                             
+                             IAsyncRepository<DeviceTask> deviceTaskRepository,
                              IDeviceAccessProfilesService deviceAccessProfilesService,
                              IWorkstationEventService workstationEventService,
                              IRemoteTaskService remoteTaskService)
@@ -177,7 +177,7 @@ namespace HES.Core.Services
                 // Delete all previous tasks for update profile
                 var allProfileTasks = await _deviceTaskRepository
                     .Query()
-                    .Where(t => t.DeviceId == deviceId && t.Operation == TaskOperation.Profile)                    
+                    .Where(t => t.DeviceId == deviceId && t.Operation == TaskOperation.Profile)
                     .ToListAsync();
                 await _deviceTaskRepository.DeleteRangeAsync(allProfileTasks);
 
@@ -211,16 +211,17 @@ namespace HES.Core.Services
             // Create task
             await _remoteTaskService.AddTaskAsync(new DeviceTask
             {
+                DeviceId = device.Id,
+                Password = device.MasterPassword,
                 Operation = TaskOperation.UnlockPin,
-                CreatedAt = DateTime.UtcNow,
-                DeviceId = device.Id
+                CreatedAt = DateTime.UtcNow
             });
 
             // Add event
             await _workstationEventService.AddEventAsync(new WorkstationEvent
             {
                 Date = DateTime.UtcNow,
-                EventId = WorkstationEventType.DeviceDeleted, // <- DevicePendingUnlock 
+                EventId = WorkstationEventType.DevicePendingUnlock,
                 SeverityId = WorkstationEventSeverity.Info,
                 DeviceId = deviceId
             });

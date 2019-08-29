@@ -277,15 +277,22 @@ namespace HES.Core.Services
             }
             else
             {
+                var device = await _deviceRepository.GetByIdAsync(deviceTask.DeviceId);
                 switch (deviceTask.Operation)
                 {
                     case TaskOperation.Wipe:
-                        var device = await _deviceRepository.GetByIdAsync(deviceTask.DeviceId);
                         device.MasterPassword = null;
                         await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "MasterPassword" });
                         break;
+                    case TaskOperation.UnlockPin:
+                        device.State = DeviceState.OK;
+                        await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "State" });
+                        break;
+                    case TaskOperation.Link:
+                        _logger.LogInformation(deviceTask.Operation.ToString());
+                        break;
                     default:
-                        _logger.LogDebug(deviceTask.Operation.ToString() + " acc null");
+                        _logger.LogDebug(deviceTask.Operation.ToString());
                         break;
                 }
             }
@@ -297,49 +304,49 @@ namespace HES.Core.Services
             await _hubContext.Clients.All.SendAsync("ReloadPage", deviceAccount?.EmployeeId);
         }
 
-        private async Task<ushort> ExecuteRemoteTask(RemoteDevice device, DeviceTask task)
+        private async Task<ushort> ExecuteRemoteTask(RemoteDevice remoteDevice, DeviceTask task)
         {
             ushort idFromDevice = 0;
             switch (task.Operation)
             {
                 case TaskOperation.Create:
-                    idFromDevice = await AddDeviceAccount(device, task);
+                    idFromDevice = await AddDeviceAccount(remoteDevice, task);
                     break;
                 case TaskOperation.Update:
-                    idFromDevice = await UpdateDeviceAccount(device, task);
+                    idFromDevice = await UpdateDeviceAccount(remoteDevice, task);
                     break;
                 case TaskOperation.Delete:
-                    idFromDevice = await DeleteDeviceAccount(device, task);
+                    idFromDevice = await DeleteDeviceAccount(remoteDevice, task);
                     break;
                 case TaskOperation.Wipe:
-                    idFromDevice = await WipeDevice(device, task);
+                    idFromDevice = await WipeDevice(remoteDevice, task);
                     break;
                 case TaskOperation.Link:
-                    idFromDevice = await LinkDevice(device, task);
+                    idFromDevice = await LinkDevice(remoteDevice, task);
                     break;
                 case TaskOperation.Primary:
-                    idFromDevice = await SetDeviceAccountAsPrimary(device, task);
+                    idFromDevice = await SetDeviceAccountAsPrimary(remoteDevice, task);
                     break;
                 case TaskOperation.Profile:
-                    idFromDevice = await ProfileDevice(device, task);
+                    idFromDevice = await ProfileDevice(remoteDevice, task);
                     break;
                 case TaskOperation.UnlockPin:
-                    idFromDevice = await UnlockPin(device, task);
+                    idFromDevice = await UnlockPin(remoteDevice, task);
                     break;
             }
             return idFromDevice;
         }
 
-        private async Task<ushort> AddDeviceAccount(RemoteDevice device, DeviceTask task)
+        private async Task<ushort> AddDeviceAccount(RemoteDevice remoteDevice, DeviceTask task)
         {
-            var dev = await _deviceRepository.Query()
-                .Where(d => d.Id == task.DeviceId)
+            var dev = await _deviceRepository
+                .Query()
                 .AsNoTracking()
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(d => d.Id == task.DeviceId);
 
             bool isPrimary = dev.PrimaryAccountId == task.DeviceAccountId;
 
-            var pm = new DevicePasswordManager(device, null);
+            var pm = new DevicePasswordManager(remoteDevice, null);
 
             ushort key = task.DeviceAccount.IdFromDevice;
             key = await pm.SaveOrUpdateAccount(key, task.Name, task.Password, task.Login, task.OtpSecret, task.Apps, task.Urls, isPrimary);
@@ -347,16 +354,16 @@ namespace HES.Core.Services
             return key;
         }
 
-        private async Task<ushort> UpdateDeviceAccount(RemoteDevice device, DeviceTask task)
+        private async Task<ushort> UpdateDeviceAccount(RemoteDevice remoteDevice, DeviceTask task)
         {
-            var dev = await _deviceRepository.Query()
-                .Where(d => d.Id == task.DeviceId)
+            var dev = await _deviceRepository
+                .Query()
                 .AsNoTracking()
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(d => d.Id == task.DeviceId);
 
             bool isPrimary = dev.PrimaryAccountId == task.DeviceAccountId;
 
-            var pm = new DevicePasswordManager(device, null);
+            var pm = new DevicePasswordManager(remoteDevice, null);
 
             ushort key = task.DeviceAccount.IdFromDevice;
             key = await pm.SaveOrUpdateAccount(key, task.Name, task.Password, task.Login, task.OtpSecret, task.Apps, task.Urls, isPrimary);
@@ -364,9 +371,9 @@ namespace HES.Core.Services
             return key;
         }
 
-        private async Task<ushort> SetDeviceAccountAsPrimary(RemoteDevice device, DeviceTask task)
+        private async Task<ushort> SetDeviceAccountAsPrimary(RemoteDevice remoteDevice, DeviceTask task)
         {
-            var pm = new DevicePasswordManager(device, null);
+            var pm = new DevicePasswordManager(remoteDevice, null);
 
             ushort key = task.DeviceAccount.IdFromDevice;
             key = await pm.SaveOrUpdateAccount(key, null, null, null, null, null, null, true);
@@ -374,15 +381,15 @@ namespace HES.Core.Services
             return key;
         }
 
-        private async Task<ushort> DeleteDeviceAccount(RemoteDevice device, DeviceTask task)
+        private async Task<ushort> DeleteDeviceAccount(RemoteDevice remoteDevice, DeviceTask task)
         {
-            var dev = await _deviceRepository.Query()
-                .Where(d => d.Id == task.DeviceId)
+            var device = await _deviceRepository
+                .Query()
                 .AsNoTracking()
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(d => d.Id == task.DeviceId);
 
-            bool isPrimary = dev.PrimaryAccountId == task.DeviceAccountId;
-            var pm = new DevicePasswordManager(device, null);
+            bool isPrimary = device.PrimaryAccountId == task.DeviceAccountId;
+            var pm = new DevicePasswordManager(remoteDevice, null);
             ushort key = task.DeviceAccount.IdFromDevice;
             await pm.DeleteAccount(key, isPrimary);
             return 0;
@@ -395,81 +402,94 @@ namespace HES.Core.Services
             return 0;
         }
 
-        private async Task<ushort> LinkDevice(RemoteDevice device, DeviceTask task)
+        private async Task<ushort> LinkDevice(RemoteDevice remoteDevice, DeviceTask task)
         {
-            var dev = await _deviceRepository.GetByIdAsync(task.DeviceId);
+            var device = await _deviceRepository
+                .Query()
+                .Include(d => d.DeviceAccessProfile)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(d => d.Id == task.DeviceId);
 
-            //
-            // Set LINK
-            //
-
+            // Set Link   
             var key = ConvertUtils.HexStringToBytes(task.Password);
-
-            if (device.IsLinkRequired)
+            if (remoteDevice.IsLinkRequired)
             {
-                await device.Link(key);
+                await remoteDevice.Link(key);
             }
 
-            //
-            // SET default Profile
-            //
+            // Set default profile
             var accessParams = new AccessParams()
             {
-                MasterKey_Bond = dev.DeviceAccessProfile.MasterKeyBonding,
-                MasterKey_Connect = false,
-                MasterKey_Link = false,
-                MasterKey_Channel = false,
+                MasterKey_Bond = device.DeviceAccessProfile.MasterKeyBonding,
+                MasterKey_Connect = device.DeviceAccessProfile.MasterKeyConnection,
+                MasterKey_Link = device.DeviceAccessProfile.MasterKeyNewLink,
+                MasterKey_Channel = device.DeviceAccessProfile.MasterKeyNewChannel,
 
-                Button_Bond = false,
-                Button_Connect = false,
-                Button_Link = true,
-                Button_Channel = true,
+                Button_Bond = device.DeviceAccessProfile.ButtonBonding,
+                Button_Connect = device.DeviceAccessProfile.ButtonConnection,
+                Button_Link = device.DeviceAccessProfile.ButtonNewLink,
+                Button_Channel = device.DeviceAccessProfile.ButtonNewChannel,
 
-                Pin_Bond = false,
-                Pin_Connect = true,
-                Pin_Link = false,
-                Pin_Channel = false,
+                Pin_Bond = device.DeviceAccessProfile.PinBonding,
+                Pin_Connect = device.DeviceAccessProfile.ButtonConnection,
+                Pin_Link = device.DeviceAccessProfile.PinNewLink,
+                Pin_Channel = device.DeviceAccessProfile.PinNewChannel,
 
-                PinMinLength = 4,
-                PinMaxTries = 3,
-                MasterKeyExpirationPeriod = 24 * 60 * 60,
-                PinExpirationPeriod = 15 * 60,
-                ButtonExpirationPeriod = 15,
+                PinMinLength = device.DeviceAccessProfile.PinLength,
+                PinMaxTries = device.DeviceAccessProfile.PinTryCount,
+                MasterKeyExpirationPeriod = device.DeviceAccessProfile.MasterKeyExpiration,
+                PinExpirationPeriod = device.DeviceAccessProfile.PinExpiration,
+                ButtonExpirationPeriod = device.DeviceAccessProfile.ButtonExpiration,
             };
 
-            await device.Access(DateTime.UtcNow, key, accessParams);
+            await remoteDevice.Access(DateTime.UtcNow, key, accessParams);
 
             return 0;
         }
 
-        private async Task<ushort> ProfileDevice(RemoteDevice device, DeviceTask task)
+        private async Task<ushort> ProfileDevice(RemoteDevice remoteDevice, DeviceTask task)
         {
-            var dev = await _deviceRepository.GetByIdAsync(task.DeviceId);
-            var profile = await _deviceAccessProfilesService.GetByIdAsync(dev.AcceessProfileId);
+            var device = await _deviceRepository
+                .Query()
+                .Include(d => d.DeviceAccessProfile)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(d => d.Id == task.DeviceId);
 
-            //
-            // SET Profile
-            //
+            var accessParams = new AccessParams()
+            {
+                MasterKey_Bond = device.DeviceAccessProfile.MasterKeyBonding,
+                MasterKey_Connect = device.DeviceAccessProfile.MasterKeyConnection,
+                MasterKey_Link = device.DeviceAccessProfile.MasterKeyNewLink,
+                MasterKey_Channel = device.DeviceAccessProfile.MasterKeyNewChannel,
 
-            return 0;
-        }
+                Button_Bond = device.DeviceAccessProfile.ButtonBonding,
+                Button_Connect = device.DeviceAccessProfile.ButtonConnection,
+                Button_Link = device.DeviceAccessProfile.ButtonNewLink,
+                Button_Channel = device.DeviceAccessProfile.ButtonNewChannel,
 
-        private async Task<ushort> UnlockPin(RemoteDevice device, DeviceTask task)
-        {
-            var dev = await _deviceRepository.GetByIdAsync(task.DeviceId);
+                Pin_Bond = device.DeviceAccessProfile.PinBonding,
+                Pin_Connect = device.DeviceAccessProfile.ButtonConnection,
+                Pin_Link = device.DeviceAccessProfile.PinNewLink,
+                Pin_Channel = device.DeviceAccessProfile.PinNewChannel,
 
-            //
-            // Unlock pin
-            //todo - read key from DB
+                PinMinLength = device.DeviceAccessProfile.PinLength,
+                PinMaxTries = device.DeviceAccessProfile.PinTryCount,
+                MasterKeyExpirationPeriod = device.DeviceAccessProfile.MasterKeyExpiration,
+                PinExpirationPeriod = device.DeviceAccessProfile.PinExpiration,
+                ButtonExpirationPeriod = device.DeviceAccessProfile.ButtonExpiration,
+            };
+
             var key = ConvertUtils.HexStringToBytes(task.Password);
-            await device.Unlock(key);
 
+            await remoteDevice.Access(DateTime.UtcNow, key, accessParams);
 
-            //todo - move to TaskComleated ( Update device state )
-            dev.State = DeviceState.OK;
-            await _deviceRepository.UpdateOnlyPropAsync(dev, new string[] { "State" });
+            return 0;
+        }
 
-
+        private async Task<ushort> UnlockPin(RemoteDevice remoteDevice, DeviceTask task)
+        {
+            var key = ConvertUtils.HexStringToBytes(task.Password);
+            await remoteDevice.Unlock(key);
 
             return 0;
         }
