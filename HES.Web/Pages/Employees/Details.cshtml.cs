@@ -51,7 +51,7 @@ namespace HES.Web.Pages.Employees
                 .Include(e => e.Department.Company)
                 .Include(e => e.Department)
                 .Include(e => e.Position)
-                .Include(e => e.Devices)
+                .Include(e => e.Devices).ThenInclude(e => e.DeviceAccessProfile)
                 .FirstOrDefaultAsync(e => e.Id == id);
 
             if (Employee == null)
@@ -67,7 +67,7 @@ namespace HES.Web.Pages.Employees
                 .Where(d => d.Deleted == false)
                 .ToListAsync();
 
-            return Page();            
+            return Page();
         }
 
         #region Employee
