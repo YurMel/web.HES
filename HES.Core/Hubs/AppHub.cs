@@ -2,17 +2,20 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using HES.Core.Entities;
 using HES.Core.Interfaces;
 using Hideez.SDK.Communication;
+using Hideez.SDK.Communication.Command;
 using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.Remote;
 using Hideez.SDK.Communication.Workstation;
+using Hideez.SDK.Communication.WorkstationEvents;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using WorkstationEvent = HES.Core.Entities.WorkstationEvent;
+//using WorkstationEvent = HES.Core.Entities.WorkstationEvent;
 
 namespace HES.Core.Hubs
 {
@@ -96,6 +99,13 @@ namespace HES.Core.Hubs
             Context.Items.Add("DeviceList", list);
 
             return list;
+        }
+
+        public Task OnDeviceConnected_v2(string deviceId, byte battery, string firmwareVersion, bool isLocked)
+        {
+            //todo - save battery, isLocked and firmwareVersion to the DB
+
+            return OnDeviceConnected(deviceId);
         }
 
         public Task OnDeviceConnected(string deviceId)
@@ -277,6 +287,78 @@ namespace HES.Core.Hubs
             await OnWorkstationConnected(workstationInfo.Id);
         }
 
+        // Incomming request
+        public async Task FixDevice(string deviceId)
+        {
+            try
+            {
+                var remoteDevice = await EstablishRemoteConnection(deviceId, 4);
+                if (remoteDevice == null)
+                    return;
+
+                var key = Encoding.UTF8.GetBytes("passphrase"); //todo - read from DB
+
+                // getting device info
+                await remoteDevice.Initialize();
+
+                // uinlocking the device
+                if (remoteDevice.IsLocked) 
+                {
+                    if (true/*UnlockedByAdmin*/) //todo - & UnlockedByAdmin 
+                    {
+                        await remoteDevice.Unlock(key);
+                        //todo - clear UnlockedByAdmin flag
+                    }
+                    else
+                    {
+                        throw new HideezException(HideezErrorCode.DeviceIsLocked);
+                    }
+                }
+
+
+
+                // linking the device
+                if (remoteDevice.IsLinkRequired)
+                {
+                    await remoteDevice.Link(key); //todo - generate new key and save it into the DB
+                }
+
+                // access 
+                if (remoteDevice.IsMasterKeyRequired)
+                {
+                    var accessParams = new AccessParams()
+                    {
+                        MasterKey_Bond = true,
+                        MasterKey_Connect = false,
+                        MasterKey_Link = false,
+                        MasterKey_Channel = false,
+
+                        Button_Bond = false,
+                        Button_Connect = false,
+                        Button_Link = true,
+                        Button_Channel = true,
+
+                        Pin_Bond = false,
+                        Pin_Connect = true,
+                        Pin_Link = false,
+                        Pin_Channel = false,
+
+                        PinMinLength = 4,
+                        PinMaxTries = 3,
+                        MasterKeyExpirationPeriod = 24 * 60 * 60,
+                        PinExpirationPeriod = 15 * 60,
+                        ButtonExpirationPeriod = 15,
+                    }; //todo - read AccessParams from the DB
+
+                    await remoteDevice.Access(DateTime.UtcNow, key, accessParams);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+            }
+        }
+
         private async Task OnWorkstationConnected(string workstationId)
         {
             try
@@ -334,7 +416,7 @@ namespace HES.Core.Hubs
             }
         }
 
-        public async Task<bool> SaveClientEvents(Hideez.SDK.Communication.WorkstationEvent[] events)
+        public async Task<bool> SaveClientEvents(SdkWorkstationEvent[] events)
         {
             if (events == null)
                 throw new ArgumentNullException(nameof(events));
@@ -380,10 +462,10 @@ namespace HES.Core.Hubs
             {
                 var addedEvents = await _workstationEventService.AddEventsRangeAsync(converted);
 
-                var authEventsOnly = converted.Where(e => e.EventId == WorkstationEventId.ComputerLock
-                || e.EventId == WorkstationEventId.ComputerLogoff
-                || e.EventId == WorkstationEventId.ComputerLogon
-                || e.EventId == WorkstationEventId.ComputerUnlock).ToArray();
+                var authEventsOnly = converted.Where(e => e.EventId == WorkstationEventType.ComputerLock
+                || e.EventId == WorkstationEventType.ComputerLogoff
+                || e.EventId == WorkstationEventType.ComputerLogon
+                || e.EventId == WorkstationEventType.ComputerUnlock).ToArray();
 
                 if (authEventsOnly.Length > 0)
                     await _workstationSessionService.UpdateWorkstationSessionsAsync(authEventsOnly);

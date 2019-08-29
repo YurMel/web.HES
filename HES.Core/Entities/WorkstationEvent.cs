@@ -1,7 +1,7 @@
-﻿using Hideez.SDK.Communication;
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Hideez.SDK.Communication.WorkstationEvents;
 
 namespace HES.Core.Entities
 {
@@ -11,7 +11,7 @@ namespace HES.Core.Entities
         public string Id { get; set; }
         public DateTime Date { get; set; }
         [Display(Name = "Event")]
-        public WorkstationEventId EventId { get; set; }
+        public WorkstationEventType EventId { get; set; }
         [Display(Name = "Severity")]
         public WorkstationEventSeverity SeverityId { get; set; }
         public string Note { get; set; }

@@ -39,15 +39,9 @@
 
 
   <ItemGroup>
+    <ProjectReference Include="..\..\win.SDK\Communication\Communication.csproj" />
     <ProjectReference Include="..\HES.Core\HES.Core.csproj" />
     <ProjectReference Include="..\HES.Infrastructure\HES.Infrastructure.csproj" />
-  </ItemGroup>
-
-
-  <ItemGroup>
-    <Reference Include="Communication">
-      <HintPath>..\Communication.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
 
