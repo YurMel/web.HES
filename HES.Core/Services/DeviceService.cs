@@ -1,5 +1,6 @@
 ﻿using HES.Core.Entities;
 using HES.Core.Interfaces;
+using Hideez.SDK.Communication.WorkstationEvents;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -219,8 +220,8 @@ namespace HES.Core.Services
             await _workstationEventService.AddEventAsync(new WorkstationEvent
             {
                 Date = DateTime.UtcNow,
-                EventId = Hideez.SDK.Communication.WorkstationEventId.DeviceDeleted, // <- DevicePendingUnlock 
-                SeverityId = Hideez.SDK.Communication.WorkstationEventSeverity.Info,
+                EventId = WorkstationEventType.DeviceDeleted, // <- DevicePendingUnlock 
+                SeverityId = WorkstationEventSeverity.Info,
                 DeviceId = deviceId
             });
 
