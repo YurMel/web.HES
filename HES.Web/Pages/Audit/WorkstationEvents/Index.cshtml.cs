@@ -2,6 +2,7 @@
 using HES.Core.Entities.Models;
 using HES.Core.Interfaces;
 using Hideez.SDK.Communication;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -11,7 +12,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using WorkstationEvent = HES.Core.Entities.WorkstationEvent;
+
 
 namespace HES.Web.Pages.Audit.WorkstationEvents
 {
@@ -39,8 +40,8 @@ namespace HES.Web.Pages.Audit.WorkstationEvents
                 .Take(500)
                 .ToListAsync();
 
-            ViewData["Events"] = new SelectList(Enum.GetValues(typeof(WorkstationEventId)).Cast<WorkstationEventId>().ToDictionary(t => (int)t, t => t.ToString()), "Key", "Value");
-            ViewData["Severity"] = new SelectList(Enum.GetValues(typeof(WorkstationEventSeverity)).Cast<WorkstationEventSeverity>().ToDictionary(t => (int)t, t => t.ToString()), "Key", "Value");
+            ViewData["Events"] = new SelectList(Enum.GetValues(typeof(Hideez.SDK.Communication.WorkstationEvents.WorkstationEventType)).Cast<Hideez.SDK.Communication.WorkstationEvents.WorkstationEventType>().ToDictionary(t => (int)t, t => t.ToString()), "Key", "Value");
+            ViewData["Severity"] = new SelectList(Enum.GetValues(typeof(Hideez.SDK.Communication.WorkstationEvents.WorkstationEventSeverity)).Cast<Hideez.SDK.Communication.WorkstationEvents.WorkstationEventSeverity>().ToDictionary(t => (int)t, t => t.ToString()), "Key", "Value");
             ViewData["Workstations"] = new SelectList(await _workstationEventService.WorkstationQuery().ToListAsync(), "Id", "Name");
             ViewData["Devices"] = new SelectList(await _workstationEventService.DeviceQuery().ToListAsync(), "Id", "Id");
             ViewData["Employees"] = new SelectList(await _workstationEventService.EmployeeQuery().ToListAsync(), "Id", "FullName");
@@ -71,11 +72,11 @@ namespace HES.Web.Pages.Audit.WorkstationEvents
             }
             if (WorkstationEventFilter.EventId != null)
             {
-                filter = filter.Where(w => w.EventId == (WorkstationEventId)WorkstationEventFilter.EventId);
+                filter = filter.Where(w => w.EventId == (Hideez.SDK.Communication.WorkstationEvents.WorkstationEventType)WorkstationEventFilter.EventId);
             }
             if (WorkstationEventFilter.SeverityId != null)
             {
-                filter = filter.Where(w => w.SeverityId == (WorkstationEventSeverity)WorkstationEventFilter.SeverityId);
+                filter = filter.Where(w => w.SeverityId == (Hideez.SDK.Communication.WorkstationEvents.WorkstationEventSeverity)WorkstationEventFilter.SeverityId);
             }
             if (WorkstationEventFilter.Note != null)
             {

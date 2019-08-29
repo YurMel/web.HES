@@ -2,6 +2,7 @@
 using HES.Core.Entities.Models;
 using HES.Core.Interfaces;
 using Hideez.SDK.Communication;
+using Hideez.SDK.Communication.WorkstationEvents;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -133,7 +134,7 @@ namespace HES.Core.Services
                     .AsNoTracking()
                     .LastOrDefaultAsync(s => s.EndDate == null && s.WorkstationId == e.WorkstationId);
 
-                if (e.EventId == WorkstationEventId.ComputerLock || e.EventId == WorkstationEventId.ComputerLogoff)
+                if (e.EventId == WorkstationEventType.ComputerLock || e.EventId == WorkstationEventType.ComputerLogoff)
                 {
                     if (lastSession == null)
                     {
@@ -155,7 +156,7 @@ namespace HES.Core.Services
                     }
                 }
 
-                if (e.EventId == WorkstationEventId.ComputerLogon || e.EventId == WorkstationEventId.ComputerUnlock)
+                if (e.EventId == WorkstationEventType.ComputerLogon || e.EventId == WorkstationEventType.ComputerUnlock)
                 {
                     if (lastSession != null)
                     {
