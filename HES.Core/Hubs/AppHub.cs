@@ -296,32 +296,11 @@ namespace HES.Core.Hubs
                 if (remoteDevice == null)
                     return;
 
+
                 var key = Encoding.UTF8.GetBytes("passphrase"); //todo - read from DB
 
                 // getting device info
                 await remoteDevice.Initialize();
-
-                // uinlocking the device
-                if (remoteDevice.IsLocked) 
-                {
-                    if (true/*UnlockedByAdmin*/) //todo - & UnlockedByAdmin 
-                    {
-                        await remoteDevice.Unlock(key);
-                        //todo - clear UnlockedByAdmin flag
-                    }
-                    else
-                    {
-                        throw new HideezException(HideezErrorCode.DeviceIsLocked);
-                    }
-                }
-
-
-
-                // linking the device
-                if (remoteDevice.IsLinkRequired)
-                {
-                    await remoteDevice.Link(key); //todo - generate new key and save it into the DB
-                }
 
                 // access 
                 if (remoteDevice.IsMasterKeyRequired)

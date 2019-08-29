@@ -1,8 +1,10 @@
 ﻿using HES.Core.Entities;
 using HES.Core.Hubs;
 using HES.Core.Interfaces;
+using Hideez.SDK.Communication.Command;
 using Hideez.SDK.Communication.PasswordManager;
 using Hideez.SDK.Communication.Remote;
+using Hideez.SDK.Communication.Utils;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -388,9 +390,8 @@ namespace HES.Core.Services
 
         private async Task<ushort> WipeDevice(RemoteDevice device, DeviceTask task)
         {
-            //var key = ConvertUtils.HexStringToBytes(task.Password);
-            //var respData = await device.Wipe(key);
-            await Task.Delay(1);
+            var key = ConvertUtils.HexStringToBytes(task.Password);
+            var respData = await device.Wipe(key);
             return 0;
         }
 
@@ -402,12 +403,41 @@ namespace HES.Core.Services
             // Set LINK
             //
 
-            //var key = ConvertUtils.HexStringToBytes(task.Password);
-            //var respData = await device.Link(key);
+            var key = ConvertUtils.HexStringToBytes(task.Password);
+
+            if (device.IsLinkRequired)
+            {
+                await device.Link(key);
+            }
 
             //
             // SET default Profile
             //
+            var accessParams = new AccessParams()
+            {
+                MasterKey_Bond = dev.DeviceAccessProfile.MasterKeyBonding,
+                MasterKey_Connect = false,
+                MasterKey_Link = false,
+                MasterKey_Channel = false,
+
+                Button_Bond = false,
+                Button_Connect = false,
+                Button_Link = true,
+                Button_Channel = true,
+
+                Pin_Bond = false,
+                Pin_Connect = true,
+                Pin_Link = false,
+                Pin_Channel = false,
+
+                PinMinLength = 4,
+                PinMaxTries = 3,
+                MasterKeyExpirationPeriod = 24 * 60 * 60,
+                PinExpirationPeriod = 15 * 60,
+                ButtonExpirationPeriod = 15,
+            };
+
+            await device.Access(DateTime.UtcNow, key, accessParams);
 
             return 0;
         }
@@ -428,13 +458,18 @@ namespace HES.Core.Services
         {
             var dev = await _deviceRepository.GetByIdAsync(task.DeviceId);
 
-            // Update device state
+            //
+            // Unlock pin
+            //todo - read key from DB
+            var key = ConvertUtils.HexStringToBytes(task.Password);
+            await device.Unlock(key);
+
+
+            //todo - move to TaskComleated ( Update device state )
             dev.State = DeviceState.OK;
             await _deviceRepository.UpdateOnlyPropAsync(dev, new string[] { "State" });
 
-            //
-            // Unlock pin
-            //
+
 
             return 0;
         }
