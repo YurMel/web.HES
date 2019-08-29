@@ -198,7 +198,9 @@
                 success: function (response) {
                     $("#modalBody").html(response);
 
-                    $('#companies').trigger('onchange');
+                    if (action == "CreateEmployee") {
+                        $('#companies').trigger('onchange');
+                    }
 
                     // Validation partial view
                     $('form').removeData('validator');

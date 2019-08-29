@@ -159,6 +159,63 @@ namespace HES.Web.Pages.Employees
             return RedirectToPage("./Index");
         }
 
+        public async Task<IActionResult> OnGetEditEmployeeAsync(string id)
+        {
+            if (id == null)
+            {
+                _logger.LogWarning("id == null");
+                return NotFound();
+            }
+
+            Employee = await _employeeService
+                .EmployeeQuery()
+                .Include(e => e.Department)
+                .Include(e => e.Position)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (Employee == null)
+            {
+                _logger.LogWarning("Employee == null");
+                return NotFound();
+            }
+
+            ViewData["CompanyId"] = new SelectList(await _employeeService.CompanyQuery().ToListAsync(), "Id", "Name");
+            ViewData["DepartmentId"] = new SelectList(await _employeeService.DepartmentQuery().Where(d => d.CompanyId == Employee.Department.CompanyId).ToListAsync(), "Id", "Name");
+            ViewData["PositionId"] = new SelectList(await _employeeService.PositionQuery().ToListAsync(), "Id", "Name");
+
+            return Partial("_EditEmployee", this);
+        }
+
+        public async Task<IActionResult> OnPostEditEmployeeAsync(Employee employee)
+        {
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Model is not valid");
+                return RedirectToPage("./Index");
+            }
+
+            try
+            {
+                await _employeeService.EditEmployeeAsync(employee);
+                SuccessMessage = $"Employee updated.";
+            }
+            catch (Exception ex)
+            {
+                if (!await EmployeeExistsAsync(employee.Id))
+                {
+                    _logger.LogError("Employee dos not exists.");
+                    return NotFound();
+                }
+                else
+                {
+                    ErrorMessage = ex.Message;
+                }
+                _logger.LogError(ex.Message);
+            }
+
+            return RedirectToPage("./Index");
+        }
+
         public async Task<IActionResult> OnGetDeleteEmployeeAsync(string id)
         {
             if (id == null)
@@ -205,6 +262,11 @@ namespace HES.Web.Pages.Employees
             }
 
             return RedirectToPage("./Index");
+        }
+
+        private async Task<bool> EmployeeExistsAsync(string id)
+        {
+            return await _employeeService.ExistAsync(e => e.Id == id);
         }
 
         #endregion

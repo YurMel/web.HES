@@ -10,195 +10,130 @@
 <partial name="_ErrorMessage" for="ErrorMessage" />
 
 @* Employee items *@
-<div class="row align-items-center mb-2 mr-0">
-    <div class="col-auto pr-0">
-        <h1 class="text-navyblue">@Model.Employee.FullName</h1>
-    </div>
-    <div class="col-auto p-1">
-        <div class="dropdown no-arrow">
-            <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <img src="~/svg/action/more.svg" />
-            </a>
-            <div class="dropdown-menu dropdown-menu-left shadow" aria-labelledby="dropdownMenuLink">
-                <a class="dropdown-item open-modal-dialog" data-id="@Model.Employee.Id" data-action="EditEmployee" data-title="Edit employee">
-                    <img src="~/svg/action/edit.svg" />
-                    Edit
-                </a>
-            </div>
-        </div>
+<div class="row align-items-center details-card">
+    <div class="col-auto">
+        <h1 class="text-navyblue m-0">@Model.Employee.FullName</h1>
     </div>
     <div class="col"></div>
-    <div class="col-auto p-1">
+    <div class="col-auto pl-1 pr-1">
         <button type="button" class="btn btn-primary open-modal-dialog" data-id="@Model.Employee.Id" data-action="AddDevice" data-title="Add device">
             Add device
         </button>
     </div>
-    <div class="col-auto p-1">
+    <div class="col-auto pl-1 pr-1">
         <button id="personal_acc" type="button" class="btn btn-primary open-modal-dialog" data-id="@Model.Employee.Id" data-action="CreatePersonalAccount" data-title="Create personal account" data-type="Account">
             Create personal account
         </button>
     </div>
-
-    <div class="col-auto p-1">
+    <div class="col-auto pl-1">
         <button id="shared_acc" type="button" class="btn btn-primary open-modal-dialog" data-id="@Model.Employee.Id" data-action="AddSharedAccount" data-title="Add shared account">
             Add shared account
         </button>
     </div>
 </div>
 
-@* Employee table *@
-<table id="title_employee" class="table display border rounded w-100">
-    <thead>
-        <tr>
-            <th class="d-none"></th>
-            <th>
-                @Html.DisplayNameFor(model => model.Employee.FullName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Employee.Email)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Employee.PhoneNumber)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Employee.Department.Company)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Employee.Department)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Employee.Position)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Employee.LastSeen)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Employee.Devices)
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td class="d-none"></td>
-            <td>
-                @Html.DisplayFor(model => model.Employee.FullName)
-            </td>
-            <td>
-                @Html.DisplayFor(model => model.Employee.Email)
-            </td>
-            <td>
-                @Html.DisplayFor(model => model.Employee.PhoneNumber)
-            </td>
-            <td>
-                @Html.DisplayFor(model => model.Employee.Department.Company.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(model => model.Employee.Department.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(model => model.Employee.Position.Name)
-            </td>
-            <td>
-                @if (Model.Employee.LastSeen != null)
-                {
-                    @TimeZoneInfo.ConvertTimeFromUtc((DateTime)Model.Employee.LastSeen, TimeZoneInfo.Local)
-                }
-            </td>
-            <td>
-                @Html.DisplayFor(model => model.Employee.Devices.Count)
-            </td>
-        </tr>
-    </tbody>
-</table>
-
 @* Devices tables *@
 @foreach (var device in Model.Employee.Devices)
 {
-    <div class="row align-items-center m-1">
-        <div class="col-auto p-1">
-            <h3 class="text-navyblue m-0">@device.Id</h3>
-        </div>
-        <div class="col-auto p-1">
-            <div class="dropdown no-arrow">
-                <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <img src="~/svg/action/more.svg" />
-                </a>
-                <div class="dropdown-menu dropdown-menu-left shadow" aria-labelledby="dropdownMenuLink">
-                    <a class="dropdown-item open-modal-dialog" data-id="@device.Id" data-action="DeleteDevice" data-title="Delete device">
-                        <img src="~/svg/action/delete.svg" />
-                        Delete
+    <div class="row align-items-center m-0">
+        <div class="row align-items-center sub-details-card">
+            <div class="col-auto pr-1">
+                <h3 class="text-navyblue m-0">Device @device.Id</h3>
+            </div>
+            <div class="col-auto p-1">
+                <div class="dropdown no-arrow">
+                    <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <img src="~/svg/action/more.svg" />
                     </a>
+                    <div class="dropdown-menu dropdown-menu-left shadow" aria-labelledby="dropdownMenuLink">
+                        <a class="dropdown-item open-modal-dialog" data-id="@device.Id" data-action="DeleteDevice" data-title="Delete device">
+                            <img src="~/svg/action/delete.svg" />
+                            Delete
+                        </a>
+                    </div>
                 </div>
             </div>
+            <div class="col-auto pl-0 pr-2">
+                <button id="show_popover_@device.Id" class="btn popover-btn p-0">
+                    <img src="~/svg/action/info.svg" />
+                </button>
+                <div id="popover_@device.Id" class="popover-panel-top-right shadow-sm custom-popover">
+                    <div class="m-0 d-flex flex-row">
+                        <div class="col flex-fill font-weight-bold">@Html.DisplayNameFor(model => device.Id)</div>
+                        <div class="col">@Html.DisplayFor(model => device.Id)</div>
+                    </div>
+                    <div class="m-0 d-flex flex-row">
+                        <div class="col flex-fill font-weight-bold">@Html.DisplayNameFor(model => device.MAC)</div>
+                        <div class="col">@Html.DisplayFor(model => device.MAC)</div>
+                    </div>
+                    <div class="m-0 d-flex flex-row">
+                        <div class="col flex-fill font-weight-bold">@Html.DisplayNameFor(model => device.Model)</div>
+                        <div class="col">@Html.DisplayFor(model => device.Model)</div>
+                    </div>
+                    <div class="m-0 d-flex flex-row">
+                        <div class="col flex-fill font-weight-bold">@Html.DisplayNameFor(model => device.RFID)</div>
+                        <div class="col">@Html.DisplayFor(model => device.RFID)</div>
+                    </div>
+                    <div class="m-0 d-flex flex-row">
+                        <div class="col flex-fill font-weight-bold">@Html.DisplayNameFor(model => device.Battery)</div>
+                        <div class="col">
+                            @if (device.Battery == 1)
+                            {
+                                <img src="~/svg/device/battery_full.svg" />
+                            }
+                            else
+                            {
+                                <img src="~/svg/device/battery_20.svg" />
+                            }
+                        </div>
+                    </div>
+                    <div class="m-0 d-flex flex-row">
+                        <div class="col flex-fill font-weight-bold">@Html.DisplayNameFor(model => device.Firmware)</div>
+                        <div class="col">@Html.DisplayFor(model => device.Firmware)</div>
+                    </div>
+                    <div class="m-0 d-flex flex-row">
+                        <div class="col flex-fill text-nowrap font-weight-bold">@Html.DisplayNameFor(model => device.AccessProfile)</div>
+                        <div class="col">@Html.DisplayFor(model => device.DeviceAccessProfile.Name)</div>
+                    </div>
+                    <div class="m-0 d-flex flex-row">
+                        <div class="col flex-fill font-weight-bold">@Html.DisplayNameFor(model => device.State)</div>
+                        <div class="col">
+                            @switch (device.State)
+                            {
+                                case Core.Entities.DeviceState.OK:
+                                    <span class="badge badge-light">@Html.DisplayFor(model => device.State)</span>
+                                    break;
+                                case Core.Entities.DeviceState.Online:
+                                    <span class="badge badge-success">@Html.DisplayFor(model => device.State)</span>
+                                    break;
+                                case Core.Entities.DeviceState.Locked:
+                                    <span class="badge badge-danger">@Html.DisplayFor(model => device.State)</span>
+                                    break;
+                                case Core.Entities.DeviceState.PendingUnlock:
+                                    <span class="badge badge-warning">@Html.DisplayFor(model => device.State)</span>
+                                    break;
+                                case Core.Entities.DeviceState.Disabled:
+                                    <span class="badge badge-dark">@Html.DisplayFor(model => device.State)</span>
+                                    break;
+                            }
+                        </div>
+                    </div>
+                    <div class="m-0 d-flex flex-row">
+                        <div class="col flex-fill font-weight-bold">@Html.DisplayNameFor(model => device.LastSynced)</div>
+                        <div class="col text-nowrap">
+                            @if (device.LastSynced != null)
+                            {
+                                @TimeZoneInfo.ConvertTimeFromUtc((DateTime)device.LastSynced, TimeZoneInfo.Local)
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col p-0"></div>
         </div>
-        <div class="col"></div>
     </div>
-    <table id="title_@device.Id" class="table display border rounded w-100">
-        <thead>
-            <tr>
-                <th class="d-none"></th>
-                <th>
-                    @Html.DisplayNameFor(model => device.Id)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => device.MAC)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => device.Model)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => device.RFID)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => device.Battery)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => device.Firmware)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => device.LastSynced)
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td class="d-none"></td>
-                <td>
-                    @Html.DisplayFor(modelItem => device.Id)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => device.MAC)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => device.Model)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => device.RFID)
-                </td>
-                <td class="pl-4">
-                    @if (device.Battery == 1)
-                    {
-                        <img src="~/svg/device/battery_full.svg" />
-                    }
-                    else
-                    {
-                        <img src="~/svg/device/battery_20.svg" />
-                    }
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => device.Firmware)
-                </td>
-                <td>
-                    @if (device.LastSynced != null)
-                    {
-                        @TimeZoneInfo.ConvertTimeFromUtc((DateTime)device.LastSynced, TimeZoneInfo.Local)
-                    }
-                </td>
-            </tr>
-        </tbody>
-    </table>
 
-    @if (Model.DeviceAccounts.Where(e => e.EmployeeId == Model.Employee.Id).Where(d => d.DeviceId == device.Id).Count() > 0)
+    @*@if (Model.DeviceAccounts.Where(e => e.EmployeeId == Model.Employee.Id).Where(d => d.DeviceId == device.Id).Count() > 0)*@
     {
         @*DeviceAccounts title*@
         <div class="row align-items-center m-1">
@@ -438,6 +373,7 @@
 </div>
 
 @section Scripts{
+    <script src="~/js/custom-popover.js"></script>
     <script>
         // Open modal dialog
         $(document).on('click', '.open-modal-dialog', function () {
@@ -579,8 +515,7 @@
             $('#breadcrumb').toggleClass('d-none');
             $('.breadcrumb').append('<li class="breadcrumb-item"><a href="/Employees">Employees</a></li>');
             $('.breadcrumb').append('<li class="breadcrumb-item active">@Model.Employee.FullName</li>');
-        });
-
+        });   
     </script>
     <script src="~/lib/signalr/signalr.js"></script>
     <script src="~/lib/signalr/employee.details.js"></script>
