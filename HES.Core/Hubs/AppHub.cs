@@ -1,10 +1,12 @@
 ﻿using HES.Core.Entities;
 using HES.Core.Interfaces;
+using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.Command;
 using Hideez.SDK.Communication.HES.Client;
+using Hideez.SDK.Communication.HES.DTO;
 using Hideez.SDK.Communication.Remote;
+using Hideez.SDK.Communication.Utils;
 using Hideez.SDK.Communication.Workstation;
-using Hideez.SDK.Communication.WorkstationEvents;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -63,6 +65,7 @@ namespace HES.Core.Hubs
                       IWorkstationEventService workstationEventService,
                       IWorkstationSessionService workstationSessionService,
                       IDeviceService deviceService,
+                      IDeviceAccountService deviceAccountService,
                       ILogger<AppHub> logger)
         {
             _remoteTaskService = remoteTaskService;
@@ -71,6 +74,7 @@ namespace HES.Core.Hubs
             _workstationEventService = workstationEventService;
             _workstationSessionService = workstationSessionService;
             _deviceService = deviceService;
+            _deviceAccountService = deviceAccountService;
             _logger = logger;
         }
 
@@ -108,24 +112,20 @@ namespace HES.Core.Hubs
             return list;
         }
 
-        public Task OnDeviceConnected_v2(string deviceId, byte battery, string firmwareVersion, bool isLocked)
+        public Task OnDeviceConnected(BleDeviceDto dto) //string deviceId
         {
             //todo - save battery, isLocked and firmwareVersion to the DB
 
-            return OnDeviceConnected(deviceId);
-        }
 
-        public Task OnDeviceConnected(string deviceId)
-        {
-            _deviceConnections.AddOrUpdate(deviceId, new DeviceDescription(Clients.Caller), (deviceMac, oldDescr) =>
+            _deviceConnections.AddOrUpdate(dto.SerialNo, new DeviceDescription(Clients.Caller), (deviceMac, oldDescr) =>
             {
                 return new DeviceDescription(Clients.Caller);
             });
 
             var deviceList = GetDeviceList();
-            deviceList.TryAdd(deviceId, deviceId);
+            deviceList.TryAdd(dto.SerialNo, dto.SerialNo);
 
-            _remoteTaskService.StartTaskProcessing(deviceId);
+            _remoteTaskService.StartTaskProcessing(dto.SerialNo);
 
             return Task.CompletedTask;
         }
@@ -312,7 +312,7 @@ namespace HES.Core.Hubs
                     .AsNoTracking()
                     .FirstOrDefaultAsync(d => d.Id == deviceId);
 
-                var key = Encoding.UTF8.GetBytes(device.MasterPassword);
+                var key = ConvertUtils.HexStringToBytes(device.MasterPassword);
 
                 // Getting device info
                 await remoteDevice.Initialize();
@@ -410,7 +410,7 @@ namespace HES.Core.Hubs
             }
         }
 
-        public async Task<bool> SaveClientEvents(SdkWorkstationEvent[] events)
+        public async Task<bool> SaveClientEvents(WorkstationEventDto[] events)
         {
             if (events == null)
                 throw new ArgumentNullException(nameof(events));
@@ -425,28 +425,28 @@ namespace HES.Core.Hubs
 
             // Convert from SDK WorkstationEvent to HES WorkstationEvent
             List<WorkstationEvent> converted = new List<WorkstationEvent>();
-            foreach (var other in filtered)
+            foreach (var dto in filtered)
             {
                 var convertedEvent =
                     new WorkstationEvent()
                     {
-                        Id = other.Id,
-                        Date = other.Date,
-                        EventId = other.EventId,
-                        SeverityId = other.Severity,
-                        Note = other.Note,
-                        WorkstationId = other.WorkstationId,
-                        UserSession = other.UserSession,
-                        DeviceId = other.DeviceId,
+                        Id = dto.Id,
+                        Date = dto.Date,
+                        EventId = dto.EventId,
+                        SeverityId = dto.SeverityId,
+                        Note = dto.Note,
+                        WorkstationId = dto.WorkstationId,
+                        UserSession = dto.UserSession,
+                        DeviceId = dto.DeviceId,
                     };
 
-                if (!string.IsNullOrWhiteSpace(other.AccountName) && !string.IsNullOrWhiteSpace(other.AccountLogin))
+                if (!string.IsNullOrWhiteSpace(dto.AccountName) && !string.IsNullOrWhiteSpace(dto.AccountLogin))
                 {
                     convertedEvent.DeviceAccount = await _deviceAccountService
                         .Query()
-                        .Where(d => d.Name == other.AccountName
-                                 && d.Login == other.AccountLogin
-                                 && d.DeviceId == other.DeviceId)
+                        .Where(d => d.Name == dto.AccountName
+                                 && d.Login == dto.AccountLogin
+                                 && d.DeviceId == dto.DeviceId)
                         .AsNoTracking()
                         .FirstOrDefaultAsync();
                 }

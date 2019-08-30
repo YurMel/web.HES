@@ -1,7 +1,7 @@
 ﻿using HES.Core.Entities;
 using HES.Core.Entities.Models;
 using HES.Core.Interfaces;
-using Hideez.SDK.Communication.WorkstationEvents;
+using Hideez.SDK.Communication;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;

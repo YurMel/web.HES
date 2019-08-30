@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Hideez.SDK.Communication.WorkstationEvents;
+using Hideez.SDK.Communication;
 
 namespace HES.Core.Entities
 {

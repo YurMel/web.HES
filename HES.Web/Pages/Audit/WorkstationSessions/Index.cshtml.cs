@@ -1,6 +1,7 @@
 ﻿using HES.Core.Entities;
 using HES.Core.Entities.Models;
 using HES.Core.Interfaces;
+using Hideez.SDK.Communication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -37,7 +38,7 @@ namespace HES.Web.Pages.Audit.WorkstationSessions
                 .Take(500)
                 .ToListAsync();
 
-            ViewData["UnlockId"] = new SelectList(Enum.GetValues(typeof(Hideez.SDK.Communication.WorkstationEvents.SessionSwitchSubject)).Cast<Hideez.SDK.Communication.WorkstationEvents.SessionSwitchSubject>().ToDictionary(t => (int)t, t => t.ToString()), "Key", "Value");
+            ViewData["UnlockId"] = new SelectList(Enum.GetValues(typeof(SessionSwitchSubject)).Cast<SessionSwitchSubject>().ToDictionary(t => (int)t, t => t.ToString()), "Key", "Value");
             ViewData["Workstations"] = new SelectList(await _workstationSessionService.WorkstationQuery().ToListAsync(), "Id", "Name");
             ViewData["Devices"] = new SelectList(await _workstationSessionService.DeviceQuery().ToListAsync(), "Id", "Id");
             ViewData["Employees"] = new SelectList(await _workstationSessionService.EmployeeQuery().OrderBy(e => e.FirstName).ThenBy(e => e.LastName).ToListAsync(), "Id", "FullName");
@@ -66,7 +67,7 @@ namespace HES.Web.Pages.Audit.WorkstationSessions
             }
             if (WorkstationSessionFilter.UnlockId != null)
             {
-                filter = filter.Where(w => w.UnlockedBy == (Hideez.SDK.Communication.WorkstationEvents.SessionSwitchSubject)WorkstationSessionFilter.UnlockId);
+                filter = filter.Where(w => w.UnlockedBy == (SessionSwitchSubject)WorkstationSessionFilter.UnlockId);
             }
             if (WorkstationSessionFilter.WorkstationId != null)
             {
