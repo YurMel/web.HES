@@ -26,7 +26,7 @@
                     @Html.DisplayNameFor(model => Model.Devices.FirstOrDefault().Id)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => Model.Devices.FirstOrDefault().EmployeeFullName)
+                    @Html.DisplayNameFor(model => Model.Devices.FirstOrDefault().Employee)
                 </th>
             </tr>
         </thead>
@@ -44,7 +44,7 @@
                         @Html.DisplayFor(modelItem => device.Id)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => device.EmployeeFullName)
+                        @Html.DisplayFor(modelItem => device.Employee.FullName)
                     </td>
                 </tr>
             }

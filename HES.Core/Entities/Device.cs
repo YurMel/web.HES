@@ -25,14 +25,9 @@ namespace HES.Core.Entities
 
         [ForeignKey("EmployeeId")]
         public Employee Employee { get; set; }
+        [Display(Name = "Access Profile")]
         [ForeignKey("AcceessProfileId")]
         public DeviceAccessProfile DeviceAccessProfile { get; set; }
-
-        [NotMapped]
-        [Display(Name = "Access Profile")]
-        public string AccessProfile => DeviceAccessProfile?.Name;
-        [Display(Name = "Employee")]
-        public string EmployeeFullName => Employee?.FullName;
     }
 
     public enum DeviceState

@@ -1,14 +1,12 @@
 ﻿using HES.Core.Entities;
 using HES.Core.Entities.Models;
 using HES.Core.Interfaces;
-using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.WorkstationEvents;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using WorkstationEvent = HES.Core.Entities.WorkstationEvent;
 
 namespace HES.Core.Services
 {
