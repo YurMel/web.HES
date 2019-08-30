@@ -166,6 +166,8 @@ namespace HES.Core.Hubs
                 if (remoteDevice != null)
                     await remoteDevice.WaitAuthentication(timeout: 10000);
 
+                await remoteDevice.Initialize();
+
                 return remoteDevice;
             }
             catch (Exception ex)
@@ -182,6 +184,7 @@ namespace HES.Core.Hubs
 
         public static bool IsWorkstationOnline(string workstationId)
         {
+            //todo
             var r = new Random().Next(100) < 50 ? true : false;
             return r;
         }

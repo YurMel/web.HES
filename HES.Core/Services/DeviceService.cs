@@ -185,7 +185,8 @@ namespace HES.Core.Services
                 {
                     Operation = TaskOperation.Profile,
                     CreatedAt = DateTime.UtcNow,
-                    DeviceId = device.Id
+                    DeviceId = device.Id,
+                    Password = device.MasterPassword
                 });
             }
             _remoteTaskService.StartTaskProcessing(devices);
