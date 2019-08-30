@@ -54,6 +54,7 @@ namespace HES.Core.Hubs
         private readonly IWorkstationEventService _workstationEventService;
         private readonly IWorkstationSessionService _workstationSessionService;
         private readonly IDeviceService _deviceService;
+        private readonly IDeviceAccountService _deviceAccountService;
         private readonly ILogger<AppHub> _logger;
 
         public AppHub(IRemoteTaskService remoteTaskService,
@@ -436,14 +437,15 @@ namespace HES.Core.Hubs
                         DeviceId = other.DeviceId,
                     };
 
-                if (!string.IsNullOrWhiteSpace(other.AccountName)
-                    && !string.IsNullOrWhiteSpace(other.AccountLogin))
+                if (!string.IsNullOrWhiteSpace(other.AccountName) && !string.IsNullOrWhiteSpace(other.AccountLogin))
                 {
-                    convertedEvent.DeviceAccount = new DeviceAccount() // todo: querry DB for the account
-                    {
-                        Name = other.AccountName,
-                        Login = other.AccountLogin,
-                    };
+                    convertedEvent.DeviceAccount = await _deviceAccountService
+                        .Query()
+                        .Where(d => d.Name == other.AccountName
+                                 && d.Login == other.AccountLogin
+                                 && d.DeviceId == other.DeviceId)
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync();
                 }
                 converted.Add(convertedEvent);
             }
@@ -463,6 +465,7 @@ namespace HES.Core.Hubs
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
+                return false;
             }
 
             return true;
