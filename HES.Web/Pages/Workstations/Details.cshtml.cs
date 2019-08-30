@@ -96,7 +96,7 @@ namespace HES.Web.Pages.Workstations
                 .Where(d => d.WorkstationId == id)
                 .ToListAsync();
 
-            var deviceQuery = _deviceService.DeviceQuery().AsQueryable();
+            var deviceQuery = _deviceService.Query().AsQueryable();
 
             foreach (var binding in WorkstationBindings)
             {

@@ -129,7 +129,7 @@ namespace HES.Core.Services
                 var lastSession = await _workstationSessionRepository
                     .Query()
                     .OrderBy(o => o.EndDate)
-                    .AsNoTracking()
+                    //.AsNoTracking()
                     .LastOrDefaultAsync(s => s.EndDate == null && s.WorkstationId == e.WorkstationId);
 
                 if (e.EventId == WorkstationEventType.ComputerLock || e.EventId == WorkstationEventType.ComputerLogoff)

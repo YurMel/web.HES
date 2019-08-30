@@ -112,10 +112,10 @@ namespace HES.Core.Hubs
             return list;
         }
 
-        public Task OnDeviceConnected(BleDeviceDto dto)
+        public async Task OnDeviceConnected(BleDeviceDto dto)
         {
-            //todo - save battery, isLocked and firmwareVersion to the DB
-
+            // Update Battery, Firmware, State, LastSynced         
+            await _deviceService.UpdateDevicePropAsync(dto.DeviceSerialNo, dto.Battery, dto.FirmwareVersion, dto.IsLocked);
 
             _deviceConnections.AddOrUpdate(dto.DeviceSerialNo, new DeviceDescription(Clients.Caller), (deviceMac, oldDescr) =>
             {
@@ -126,8 +126,6 @@ namespace HES.Core.Hubs
             deviceList.TryAdd(dto.DeviceSerialNo, dto.DeviceSerialNo);
 
             _remoteTaskService.StartTaskProcessing(dto.DeviceSerialNo);
-
-            return Task.CompletedTask;
         }
 
         public Task OnDeviceDisconnected(string deviceId)
@@ -272,7 +270,7 @@ namespace HES.Core.Hubs
                     return;
 
                 var device = await _deviceService
-                    .DeviceQuery()
+                    .Query()
                     .Include(d => d.DeviceAccessProfile)
                     .AsNoTracking()
                     .FirstOrDefaultAsync(d => d.Id == deviceId);

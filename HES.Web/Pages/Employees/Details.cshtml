@@ -77,7 +77,7 @@
                     <div class="m-0 d-flex flex-row">
                         <div class="col flex-fill font-weight-bold">@Html.DisplayNameFor(model => device.Battery)</div>
                         <div class="col">
-                            @if (device.Battery == 1)
+                            @if (device.Battery >= 1)
                             {
                                 <img src="~/svg/device/battery_full.svg" />
                             }
