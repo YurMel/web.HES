@@ -9,12 +9,12 @@ namespace HES.Core.Interfaces
 {
     public interface IDeviceService
     {
-        IQueryable<Device> DeviceQuery();
-        Task<Device> DeviceGetByIdAsync(dynamic id);
+        IQueryable<Device> Query();
+        Task<Device> GetByIdAsync(dynamic id);
         Task<(IList<Device> devicesExists, IList<Device> devicesImported, string message)> ImportDevices(string key, byte[] fileContent);
-        Task EditDeviceRfidAsync(Device device);
-        Task UpdateDevicePropAsync(string deviceId, int batteryCharge, string version);
-        Task UpdateProfileAsync(string[] devices, string profileId);
+        Task EditRfidAsync(Device device);
+        Task UpdateDevicePropAsync(string deviceId, int battery, string firmware, bool locked);
+        Task UpdateProfileAsync(string[] devicesId, string profileId);
         Task UnlockPinAsync(string deviceId);
         Task<bool> ExistAsync(Expression<Func<Device, bool>> predicate);
     }

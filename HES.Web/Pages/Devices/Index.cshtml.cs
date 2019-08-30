@@ -45,7 +45,7 @@ namespace HES.Web.Pages.Devices
         public async Task OnGetAsync()
         {
             Devices = await _deviceService
-                .DeviceQuery()
+                .Query()
                 .Include(d => d.DeviceAccessProfile)
                 .Include(d => d.Employee.Department.Company)
                 .ToListAsync();
@@ -61,7 +61,7 @@ namespace HES.Web.Pages.Devices
         public async Task<IActionResult> OnPostFilterDevicesAsync(DeviceFilter DeviceFilter)
         {
             var filter = _deviceService
-                .DeviceQuery()
+                .Query()
                 .Include(d => d.DeviceAccessProfile)
                 .Include(c => c.Employee.Department.Company)
                 .AsQueryable();
@@ -116,7 +116,7 @@ namespace HES.Web.Pages.Devices
                 return NotFound();
             }
 
-            Device = await _deviceService.DeviceQuery()
+            Device = await _deviceService.Query()
                 .Include(d => d.Employee)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
@@ -139,7 +139,7 @@ namespace HES.Web.Pages.Devices
 
             try
             {
-                await _deviceService.EditDeviceRfidAsync(device);
+                await _deviceService.EditRfidAsync(device);
                 SuccessMessage = $"RFID updated.";
             }
             catch (Exception ex)
@@ -192,7 +192,7 @@ namespace HES.Web.Pages.Devices
                 return NotFound();
             }
 
-            Device = await _deviceService.DeviceQuery()
+            Device = await _deviceService.Query()
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (Device == null)
