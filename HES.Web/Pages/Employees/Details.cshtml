@@ -101,10 +101,14 @@
                             @switch (device.State)
                             {
                                 case Core.Entities.DeviceState.OK:
-                                    <span class="badge badge-light">@Html.DisplayFor(model => device.State)</span>
-                                    break;
-                                case Core.Entities.DeviceState.Online:
-                                    <span class="badge badge-success">@Html.DisplayFor(model => device.State)</span>
+                                    @if (device.IsOnline)
+                                    {
+                                        <span class="badge badge-success">Connected</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-light">@Html.DisplayFor(model => device.State)</span>
+                                    }
                                     break;
                                 case Core.Entities.DeviceState.Locked:
                                     <span class="badge badge-danger">@Html.DisplayFor(model => device.State)</span>
@@ -132,223 +136,220 @@
             <div class="col p-0"></div>
         </div>
     </div>
-
-    @*@if (Model.DeviceAccounts.Where(e => e.EmployeeId == Model.Employee.Id).Where(d => d.DeviceId == device.Id).Count() > 0)*@
-    {
-        @*DeviceAccounts title*@
-        <div class="row align-items-center m-1">
-            <div class="col-auto p-1">
-                <h4 class="text-navyblue m-0">Accounts</h4>
-            </div>
-            <div class="col"></div>
-            <div class="col-auto p-1">
-                <div class="form-group has-search-right m-0">
-                    <div class="form-control-feedback">
-                        <img class="img-size" src="~/svg/action/search.svg" />
-                    </div>
-                    <input id="searchbox_@device.Id" type="text" class="form-control" placeholder="Search">
+    
+    @*DeviceAccounts title*@
+    <div class="row align-items-center m-1">
+        <div class="col-auto p-1">
+            <h4 class="text-navyblue m-0">Accounts</h4>
+        </div>
+        <div class="col"></div>
+        <div class="col-auto p-1">
+            <div class="form-group has-search-right m-0">
+                <div class="form-control-feedback">
+                    <img class="img-size" src="~/svg/action/search.svg" />
                 </div>
+                <input id="searchbox_@device.Id" type="text" class="form-control" placeholder="Search">
             </div>
         </div>
-        @*DeviceAccounts table*@
-        <table id="@device.Id" class="table display table table-hover border rounded w-100">
-            <thead>
+    </div>
+    @*DeviceAccounts table*@
+    <table id="@device.Id" class="table display table table-hover border rounded w-100">
+        <thead>
+            <tr>
+                <th class="d-none"></th>
+                <th data-priority="1">
+                    @Html.DisplayNameFor(model => model.DeviceAccounts[0].Name)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.DeviceAccounts[0].Urls)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.DeviceAccounts[0].Apps)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.DeviceAccounts[0].Login)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.DeviceAccounts[0].Type)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.DeviceAccounts[0].Status)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.DeviceAccounts[0].LastSyncedAt)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.DeviceAccounts[0].CreatedAt)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.DeviceAccounts[0].UpdatedAt)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.DeviceAccounts[0].PasswordUpdatedAt)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.DeviceAccounts[0].OtpUpdatedAt)
+                </th>
+                <th class="table-col-menu" data-priority="2"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.DeviceAccounts.Where(e => e.EmployeeId == Model.Employee.Id).Where(d => d.DeviceId == device.Id))
+            {
                 <tr>
-                    <th class="d-none"></th>
-                    <th data-priority="1">
-                        @Html.DisplayNameFor(model => model.DeviceAccounts[0].Name)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.DeviceAccounts[0].Urls)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.DeviceAccounts[0].Apps)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.DeviceAccounts[0].Login)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.DeviceAccounts[0].Type)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.DeviceAccounts[0].Status)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.DeviceAccounts[0].LastSyncedAt)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.DeviceAccounts[0].CreatedAt)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.DeviceAccounts[0].UpdatedAt)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.DeviceAccounts[0].PasswordUpdatedAt)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.DeviceAccounts[0].OtpUpdatedAt)
-                    </th>
-                    <th class="table-col-menu" data-priority="2"></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model.DeviceAccounts.Where(e => e.EmployeeId == Model.Employee.Id).Where(d => d.DeviceId == device.Id))
-                {
-                    <tr>
-                        <td class="d-none"></td>
-                        <td style="vertical-align:middle">
-                            @if (device.PrimaryAccountId == item.Id)
+                    <td class="d-none"></td>
+                    <td style="vertical-align:middle">
+                        @if (device.PrimaryAccountId == item.Id)
+                        {
+                            <span class="badge badge-success custom-badge" data-toggle="tooltip" data-placement="bottom" title="Primary account">
+                                @Html.DisplayFor(modelItem => item.Name)
+                            </span>
+                        }
+                        else
+                        {
+                            @Html.DisplayFor(modelItem => item.Name)
+                        }
+                    </td>
+                    <td style="white-space: normal">
+                        @{
+                            if (item.Urls != null)
                             {
-                                <span class="badge badge-success custom-badge" data-toggle="tooltip" data-placement="bottom" title="Primary account">
-                                    @Html.DisplayFor(modelItem => item.Name)
-                                </span>
+                                foreach (var urls in item.Urls.Split(';'))
+                                {
+                                    <span style="white-space: pre-line">@urls</span>
+                                }
+                            }
+                        }
+                    </td>
+                    <td style="white-space: normal">
+                        @{
+                            if (item.Apps != null)
+                            {
+                                foreach (var apps in item.Apps.Split(';'))
+                                {
+                                    <span style="white-space: pre-line">@apps</span>
+
+                                }
+                            }
+                        }
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Login)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Type)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Status)
+                    </td>
+                    <td>
+                        @if (item.LastSyncedAt != null)
+                        {
+                            @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.LastSyncedAt, TimeZoneInfo.Local)
+                        }
+                    </td>
+                    <td>
+                        @if (item.CreatedAt != null)
+                        {
+                            @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.CreatedAt, TimeZoneInfo.Local)
+                        }
+                    </td>
+                    <td>
+                        @if (item.UpdatedAt != null)
+                        {
+                            @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.UpdatedAt, TimeZoneInfo.Local)
+                        }
+                    </td>
+                    <td>
+                        @{
+                            var pwd = (DateTime.UtcNow.Date - item.PasswordUpdatedAt.Date).TotalDays;
+                            if (pwd == 1)
+                            {
+                                var text = $"{pwd} day";
+                                @text
                             }
                             else
                             {
-                                @Html.DisplayFor(modelItem => item.Name)
+                                var text = $"{pwd} days";
+                                @text
                             }
-                        </td>
-                        <td style="white-space: normal">
-                            @{
-                                if (item.Urls != null)
-                                {
-                                    foreach (var urls in item.Urls.Split(';'))
-                                    {
-                                        <span style="white-space: pre-line">@urls</span>
-                                    }
-                                }
-                            }
-                        </td>
-                        <td style="white-space: normal">
-                            @{
-                                if (item.Apps != null)
-                                {
-                                    foreach (var apps in item.Apps.Split(';'))
-                                    {
-                                        <span style="white-space: pre-line">@apps</span>
-
-                                    }
-                                }
-                            }
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Login)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Type)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Status)
-                        </td>
-                        <td>
-                            @if (item.LastSyncedAt != null)
+                        }
+                    </td>
+                    <td>
+                        @{
+                            if (item.OtpUpdatedAt != null)
                             {
-                                @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.LastSyncedAt, TimeZoneInfo.Local)
-                            }
-                        </td>
-                        <td>
-                            @if (item.CreatedAt != null)
-                            {
-                                @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.CreatedAt, TimeZoneInfo.Local)
-                            }
-                        </td>
-                        <td>
-                            @if (item.UpdatedAt != null)
-                            {
-                                @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.UpdatedAt, TimeZoneInfo.Local)
-                            }
-                        </td>
-                        <td>
-                            @{
-                                var pwd = (DateTime.UtcNow.Date - item.PasswordUpdatedAt.Date).TotalDays;
-                                if (pwd == 1)
+                                var otp = (DateTime.UtcNow.Date - item.OtpUpdatedAt?.Date)?.TotalDays;
+                                if (otp == 1)
                                 {
-                                    var text = $"{pwd} day";
+                                    var text = $"{otp} day";
                                     @text
                                 }
                                 else
                                 {
-                                    var text = $"{pwd} days";
+                                    var text = $"{otp} days";
                                     @text
                                 }
                             }
-                        </td>
-                        <td>
-                            @{
-                                if (item.OtpUpdatedAt != null)
+                        }
+                    </td>
+                    <td>
+                        <div class="dropdown no-arrow">
+                            <a class="dropdown-toggle" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <img src="~/svg/action/more.svg" />
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right shadow" aria-labelledby="dropdownMenuLink">
+                                @if (item.Type == Core.Entities.AccountType.Personal && item.Status != Core.Entities.AccountStatus.Removing)
                                 {
-                                    var otp = (DateTime.UtcNow.Date - item.OtpUpdatedAt?.Date)?.TotalDays;
-                                    if (otp == 1)
-                                    {
-                                        var text = $"{otp} day";
-                                        @text
-                                    }
-                                    else
-                                    {
-                                        var text = $"{otp} days";
-                                        @text
-                                    }
+                                    <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="EditPersonalAccount" data-title="Edit personal account">
+                                        <img src="~/svg/action/edit.svg" />
+                                        Edit
+                                    </a>
+                                    <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="EditPersonalAccountPwd" data-title="Edit personal account password">
+                                        <img src="~/svg/action/password.svg" />
+                                        Edit password
+                                    </a>
+                                    <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="EditPersonalAccountOtp" data-title="Edit personal account OTP">
+                                        <img src="~/svg/action/otp.svg" />
+                                        Edit OTP
+                                    </a>
                                 }
-                            }
-                        </td>
-                        <td>
-                            <div class="dropdown no-arrow">
-                                <a class="dropdown-toggle" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <img src="~/svg/action/more.svg" />
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-right shadow" aria-labelledby="dropdownMenuLink">
-                                    @if (item.Type == Core.Entities.AccountType.Personal && item.Status != Core.Entities.AccountStatus.Removing)
+                                @if (item.Type == Core.Entities.AccountType.Personal && (item.Status == Core.Entities.AccountStatus.Updating || item.Status == Core.Entities.AccountStatus.Removing))
+                                {
+                                    <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="UndoChanges" data-title="Undo changes">
+                                        <img src="~/svg/action/undo.svg" />
+                                        Undo changes
+                                    </a>
+                                }
+                                else
+                                {
+                                    if (device.PrimaryAccountId != item.Id)
                                     {
-                                        <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="EditPersonalAccount" data-title="Edit personal account">
-                                            <img src="~/svg/action/edit.svg" />
-                                            Edit
-                                        </a>
-                                        <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="EditPersonalAccountPwd" data-title="Edit personal account password">
-                                            <img src="~/svg/action/password.svg" />
-                                            Edit password
-                                        </a>
-                                        <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="EditPersonalAccountOtp" data-title="Edit personal account OTP">
-                                            <img src="~/svg/action/otp.svg" />
-                                            Edit OTP
+                                        <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="SetPrimaryAccount" data-title="Primary account">
+                                            <img src="~/svg/action/star.svg" />
+                                            Set as primary account
                                         </a>
                                     }
-                                    @if (item.Type == Core.Entities.AccountType.Personal && (item.Status == Core.Entities.AccountStatus.Updating || item.Status == Core.Entities.AccountStatus.Removing))
-                                    {
-                                        <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="UndoChanges" data-title="Undo changes">
-                                            <img src="~/svg/action/undo.svg" />
-                                            Undo changes
-                                        </a>
-                                    }
-                                    else
-                                    {
-                                        if (device.PrimaryAccountId != item.Id)
-                                        {
-                                            <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="SetPrimaryAccount" data-title="Primary account">
-                                                <img src="~/svg/action/star.svg" />
-                                                Set as primary account
-                                            </a>
-                                        }
-                                        <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="DeleteAccount" data-title="Delete account">
-                                            <img src="~/svg/action/delete.svg" />
-                                            Delete
-                                        </a>
-                                    }
-                                </div>
+                                    <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="DeleteAccount" data-title="Delete account">
+                                        <img src="~/svg/action/delete.svg" />
+                                        Delete
+                                    </a>
+                                }
                             </div>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-        <div class="row mt-2">
-            <div class="col d-flex justify-content-center justify-content-lg-start align-items-center mb-1 text-nowrap">
-                <span class="d-flex align-items-center mr-1 text-navyblue">Show entries</span>
-                <div id="entries_place_@device.Id"></div>
-            </div>
-            <div id="showing_place_@device.Id" class="col d-flex justify-content-center align-items-center mb-1 text-navyblue text-nowrap"></div>
-            <div id="pagination_place_@device.Id" class="col d-flex justify-content-center justify-content-lg-end align-items-center mb-1"></div>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <div class="row mt-2">
+        <div class="col d-flex justify-content-center justify-content-lg-start align-items-center mb-1 text-nowrap">
+            <span class="d-flex align-items-center mr-1 text-navyblue">Show entries</span>
+            <div id="entries_place_@device.Id"></div>
         </div>
-    }
+        <div id="showing_place_@device.Id" class="col d-flex justify-content-center align-items-center mb-1 text-navyblue text-nowrap"></div>
+        <div id="pagination_place_@device.Id" class="col d-flex justify-content-center justify-content-lg-end align-items-center mb-1"></div>
+    </div>
 }
 
 @* Modal *@
@@ -515,7 +516,7 @@
             $('#breadcrumb').toggleClass('d-none');
             $('.breadcrumb').append('<li class="breadcrumb-item"><a href="/Employees">Employees</a></li>');
             $('.breadcrumb').append('<li class="breadcrumb-item active">@Model.Employee.FullName</li>');
-        });   
+        });
     </script>
     <script src="~/lib/signalr/signalr.js"></script>
     <script src="~/lib/signalr/employee.details.js"></script>

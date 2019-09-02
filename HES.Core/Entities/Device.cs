@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HES.Core.Hubs;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -28,12 +29,14 @@ namespace HES.Core.Entities
         [Display(Name = "Access Profile")]
         [ForeignKey("AcceessProfileId")]
         public DeviceAccessProfile DeviceAccessProfile { get; set; }
+
+        [NotMapped]
+        public bool IsOnline => AppHub.IsDeviceConnectedToHost(Id);
     }
 
     public enum DeviceState
     {
         OK,
-        Online,
         Locked,
         PendingUnlock,
         Disabled

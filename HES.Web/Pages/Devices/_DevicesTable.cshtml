@@ -118,10 +118,14 @@
                     @switch (item.State)
                     {
                         case Core.Entities.DeviceState.OK:
-                            <span class="badge badge-light">@Html.DisplayFor(modelItem => item.State)</span>
-                            break;
-                        case Core.Entities.DeviceState.Online:
-                            <span class="badge badge-success">@Html.DisplayFor(modelItem => item.State)</span>
+                            @if (item.IsOnline)
+                            {
+                                <span class="badge badge-success" title="Device is connected">Connected</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-light">@Html.DisplayFor(modelItem => item.State)</span>
+                            }
                             break;
                         case Core.Entities.DeviceState.Locked:
                             <span class="badge badge-danger">@Html.DisplayFor(modelItem => item.State)</span>

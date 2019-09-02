@@ -2,6 +2,7 @@
 var table_name = '#workstations';
 var table = $(table_name).DataTable({
     responsive: true,
+    "order": [[8, "asc"]],
     "columnDefs": [
         { "orderable": false, "targets": [0, 10] },
         { type: 'ip-address', "targets": 7 }
