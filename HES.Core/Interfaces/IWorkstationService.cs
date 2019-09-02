@@ -16,7 +16,7 @@ namespace HES.Core.Interfaces
         IQueryable<Department> DepartmentQuery();
         Task<bool> ExistAsync(Expression<Func<Workstation, bool>> predicate);
         Task AddWorkstationAsync(WorkstationInfo workstationInfo);
-        Task UpdateWorkstationAsync(WorkstationInfo workstationInfo);
+        Task UpdateWorkstationInfoAsync(WorkstationInfo workstationInfo);
         Task EditDepartmentAsync(Workstation workstation);
         Task ApproveWorkstationAsync(string id);
         Task UnapproveWorkstationAsync(string id);

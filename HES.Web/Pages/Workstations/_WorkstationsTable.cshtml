@@ -81,19 +81,17 @@
                     @Html.DisplayFor(modelItem => item.IP)
                 </td>
                 <td>
-                    @*@if (item.IsOnline)
-                        {
-                            <span class="badge badge-success custom-badge" title="Workstation is online">
-                                Online
-                            </span>
-                        }
-                        else
-                        {
-                            <span class="d-none">@TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.LastSeen, TimeZoneInfo.Local).Ticks</span>
-                            @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.LastSeen, TimeZoneInfo.Local)
-                        }
-                    *@
-                    @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.LastSeen, TimeZoneInfo.Local)
+                    @if (item.IsOnline)
+                    {
+                        <span class="badge badge-success" title="Workstation is online">
+                            Online
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="d-none">@TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.LastSeen, TimeZoneInfo.Local).Ticks</span>
+                        @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.LastSeen, TimeZoneInfo.Local)
+                    }
                 </td>
                 <td data-sort="@item.Approved">
                     @if (item.Approved)

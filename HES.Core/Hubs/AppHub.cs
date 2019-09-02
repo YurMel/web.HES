@@ -14,7 +14,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace HES.Core.Hubs
@@ -77,6 +76,8 @@ namespace HES.Core.Hubs
             _deviceAccountService = deviceAccountService;
             _logger = logger;
         }
+
+        #region Device
 
         public override Task OnConnectedAsync()
         {
@@ -181,13 +182,6 @@ namespace HES.Core.Hubs
             return device != null;
         }
 
-        public static bool IsWorkstationOnline(string workstationId)
-        {
-            //todo
-            var r = new Random().Next(100) < 50 ? true : false;
-            return r;
-        }
-
         // Incomming request
         public async Task<DeviceInfoDto> GetInfoByRfid(string rfid)
         {
@@ -233,31 +227,6 @@ namespace HES.Core.Hubs
             };
 
             return info;
-        }
-
-        // Incomming request
-        public async Task RegisterWorkstationInfo(WorkstationInfo workstationInfo)
-        {
-            var workstationDesc = _workstationConnections.AddOrUpdate(workstationInfo.Id, new WorkstationDescription(Clients.Caller, workstationInfo.Id), (workstationId, oldDescr) =>
-            {
-                return new WorkstationDescription(Clients.Caller, workstationId);
-            });
-
-            Context.Items.Add("WorkstationDesc", workstationDesc);
-
-            if (await _workstationService.ExistAsync(w => w.Id == workstationInfo.Id))
-            {
-                // Workstation exists, update its information
-                await _workstationService.UpdateWorkstationAsync(workstationInfo);
-            }
-            else
-            {
-                // Workstation does not exist in DB or its name + domain was changed
-                // Create new unapproved workstation      
-                await _workstationService.AddWorkstationAsync(workstationInfo);
-            }
-
-            await OnWorkstationConnected(workstationInfo.Id);
         }
 
         // Incomming request
@@ -316,6 +285,35 @@ namespace HES.Core.Hubs
             }
         }
 
+        #endregion
+
+        #region Workstation
+
+        // Incomming request
+        public async Task RegisterWorkstationInfo(WorkstationInfo workstationInfo)
+        {
+            var workstationDesc = _workstationConnections.AddOrUpdate(workstationInfo.Id, new WorkstationDescription(Clients.Caller, workstationInfo.Id), (workstationId, oldDescr) =>
+            {
+                return new WorkstationDescription(Clients.Caller, workstationId);
+            });
+
+            Context.Items.Add("WorkstationDesc", workstationDesc);
+
+            if (await _workstationService.ExistAsync(w => w.Id == workstationInfo.Id))
+            {
+                // Workstation exists, update its information
+                await _workstationService.UpdateWorkstationInfoAsync(workstationInfo);
+            }
+            else
+            {
+                // Workstation does not exist in DB or its name + domain was changed
+                // Create new unapproved workstation      
+                await _workstationService.AddWorkstationAsync(workstationInfo);
+            }
+
+            await OnWorkstationConnected(workstationInfo.Id);
+        }
+
         private async Task OnWorkstationConnected(string workstationId)
         {
             try
@@ -372,6 +370,10 @@ namespace HES.Core.Hubs
                 throw new HubException(ex.Message);
             }
         }
+
+        #endregion
+
+        #region Audit
 
         public async Task<bool> SaveClientEvents(WorkstationEventDto[] events)
         {
@@ -436,5 +438,7 @@ namespace HES.Core.Hubs
 
             return true;
         }
+
+        #endregion
     }
 }

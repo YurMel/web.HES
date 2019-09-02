@@ -75,7 +75,7 @@ namespace HES.Core.Services
             await _workstationRepository.AddAsync(workstation);
         }
 
-        public async Task UpdateWorkstationAsync(WorkstationInfo workstationInfo)
+        public async Task UpdateWorkstationInfoAsync(WorkstationInfo workstationInfo)
         {
             if (workstationInfo == null)
                 throw new ArgumentNullException(nameof(workstationInfo));
