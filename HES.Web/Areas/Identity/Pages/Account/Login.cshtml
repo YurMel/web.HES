@@ -20,11 +20,9 @@
                 <span asp-validation-for="Input.Password" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <div class="checkbox">
-                    <label class="text-navyblue" asp-for="Input.RememberMe">
-                        <input asp-for="Input.RememberMe" />
-                        @Html.DisplayNameFor(m => m.Input.RememberMe)
-                    </label>
+                <div class="custom-control custom-checkbox">
+                    <input id="rememberMe" type="checkbox" class="custom-control-input" asp-for="Input.RememberMe" >
+                    <label class="custom-control-label" for="rememberMe">@Html.DisplayNameFor(m => m.Input.RememberMe)</label>
                 </div>
             </div>
             <div class="form-group d-flex justify-content-between align-items-center m-0">
