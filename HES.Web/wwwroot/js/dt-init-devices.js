@@ -4,7 +4,7 @@ var table = $(table_name).DataTable({
     responsive: true,
     "order": [[1, "asc"]],
     "columnDefs": [
-        { "orderable": false, "targets": [0, 12] }
+        { "orderable": false, "targets": [0, 13] }
     ]
 });
 var dataTable = $(table_name).dataTable();
