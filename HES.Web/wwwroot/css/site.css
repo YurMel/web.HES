@@ -264,8 +264,6 @@ a.navbar-brand {
     padding: 10px;
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
-    margin-left: 2px;
-    margin-right: 2px;
 }
 
     .custom-horizontal-pills .nav-link.active, .nav-pills .show > .nav-link {
@@ -324,12 +322,29 @@ a.navbar-brand {
 /* #endregion */
 
 /*#region Cards */
-.custom-card {
+.profile-card {
     background: #FFF;
     border-radius: 0.25rem !important;
     width: 388px;
     max-width: 388px;
-    padding: 30px;
+    padding: 20px;
+    border: 1px solid #dee2e6 !important;
+}
+
+.profile-wide-card {
+    background: #FFF;
+    border-radius: 0.25rem !important;
+    width: 540px;
+    max-width: 540px;
+    padding: 20px;
+    border: 1px solid #dee2e6 !important;
+}
+
+.profile-fill-card {
+    background: #FFF;
+    border-radius: 0.25rem !important;
+    width: 100%;
+    padding: 20px;
     border: 1px solid #dee2e6 !important;
 }
 
