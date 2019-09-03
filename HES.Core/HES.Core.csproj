@@ -14,7 +14,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\win.SDK\Communication\Communication.csproj" />
+    <Reference Include="Communication">
+      <HintPath>..\HES.Web\Communication.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>
