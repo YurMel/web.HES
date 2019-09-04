@@ -164,7 +164,7 @@ namespace HES.Core.Hubs
                 var remoteDevice = await DeviceHub.WaitDeviceConnection(deviceId, timeout: 10000);
 
                 if (remoteDevice != null)
-                    await remoteDevice.WaitAuthentication(timeout: 10000);
+                    await remoteDevice.WaitVerification(timeout: 10000);
 
                 await remoteDevice.Initialize();
 
@@ -183,7 +183,7 @@ namespace HES.Core.Hubs
         }
 
         // Incomming request
-        public async Task<DeviceInfoDto> GetInfoByRfid(string rfid)
+        private async Task<DeviceInfoDto> GetInfoByRfid(string rfid)
         {
             var device = await _employeeService
                 .DeviceQuery()
@@ -195,13 +195,25 @@ namespace HES.Core.Hubs
         }
 
         // Incomming request
-        public async Task<DeviceInfoDto> GetInfoByMac(string mac)
+        private async Task<DeviceInfoDto> GetInfoByMac(string mac)
         {
             var device = await _employeeService
                 .DeviceQuery()
                 .Include(d => d.Employee)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(d => d.MAC == mac);
+
+            return await GetDeviceInfo(device);
+        }
+
+        // Incomming request
+        private async Task<DeviceInfoDto> GetInfoBySerialNo(string serialNo)
+        {
+            var device = await _employeeService
+                .DeviceQuery()
+                .Include(d => d.Employee)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(d => d.Id == serialNo);
 
             return await GetDeviceInfo(device);
         }
@@ -230,13 +242,17 @@ namespace HES.Core.Hubs
         }
 
         // Incomming request
-        public async Task FixDevice(string deviceId)
+        private async Task<HideezErrorCode> FixDevice(string deviceId)
         {
             try
             {
+                //todo
+                //if (true) //conection not approved
+                //throw new HideezException(HideezErrorCode.HesWorkstationNotApproved);
+
                 var remoteDevice = await EstablishRemoteConnection(deviceId, 4);
                 if (remoteDevice == null)
-                    return;
+                    return HideezErrorCode.HesFailedEstablishRemoteDeviceConnection;
 
                 var device = await _deviceService
                     .Query()
@@ -278,10 +294,18 @@ namespace HES.Core.Hubs
 
                     await remoteDevice.Access(DateTime.UtcNow, key, accessParams);
                 }
+
+                return HideezErrorCode.Ok;
+            }
+            catch (HideezException ex)
+            {
+                _logger.LogError(ex.Message);
+                return ex.ErrorCode;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
+                return HideezErrorCode.HesUnknownError;
             }
         }
 
@@ -290,28 +314,43 @@ namespace HES.Core.Hubs
         #region Workstation
 
         // Incomming request
-        public async Task RegisterWorkstationInfo(WorkstationInfo workstationInfo)
+        private async Task<HideezErrorCode> RegisterWorkstationInfo(WorkstationInfo workstationInfo)
         {
-            var workstationDesc = _workstationConnections.AddOrUpdate(workstationInfo.Id, new WorkstationDescription(Clients.Caller, workstationInfo.Id), (workstationId, oldDescr) =>
+            try
             {
-                return new WorkstationDescription(Clients.Caller, workstationId);
-            });
+                var workstationDesc = _workstationConnections.AddOrUpdate(workstationInfo.Id, new WorkstationDescription(Clients.Caller, workstationInfo.Id), (workstationId, oldDescr) =>
+                {
+                    return new WorkstationDescription(Clients.Caller, workstationId);
+                });
 
-            Context.Items.Add("WorkstationDesc", workstationDesc);
+                Context.Items.Add("WorkstationDesc", workstationDesc);
 
-            if (await _workstationService.ExistAsync(w => w.Id == workstationInfo.Id))
-            {
-                // Workstation exists, update its information
-                await _workstationService.UpdateWorkstationInfoAsync(workstationInfo);
+                if (await _workstationService.ExistAsync(w => w.Id == workstationInfo.Id))
+                {
+                    // Workstation exists, update its information
+                    await _workstationService.UpdateWorkstationInfoAsync(workstationInfo);
+                }
+                else
+                {
+                    // Workstation does not exist in DB or its name + domain was changed
+                    // Create new unapproved workstation      
+                    await _workstationService.AddWorkstationAsync(workstationInfo);
+                }
+
+                await OnWorkstationConnected(workstationInfo.Id);
+
+                return HideezErrorCode.Ok;
             }
-            else
+            catch (HideezException ex)
             {
-                // Workstation does not exist in DB or its name + domain was changed
-                // Create new unapproved workstation      
-                await _workstationService.AddWorkstationAsync(workstationInfo);
+                _logger.LogError(ex.Message);
+                return ex.ErrorCode;
             }
-
-            await OnWorkstationConnected(workstationInfo.Id);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return HideezErrorCode.HesUnknownError;
+            }
         }
 
         private async Task OnWorkstationConnected(string workstationId)
@@ -375,68 +414,75 @@ namespace HES.Core.Hubs
 
         #region Audit
 
-        public async Task<bool> SaveClientEvents(WorkstationEventDto[] events)
+        // Incomming request
+        private async Task<HideezErrorCode> SaveClientEvents(WorkstationEventDto[] events)
         {
-            if (events == null)
-                throw new ArgumentNullException(nameof(events));
-
-            // todo: ignore not approved workstation
-
-            // Events that duplicate ID of other events are ignored
-            events = events.GroupBy(e => e.Id).Select(s => s.First()).ToArray();
-
-            // Filter out from incomming events all those who share ID with events saved in database 
-            var filtered = events.Where(e => !_workstationEventService.WorkstationEventQuery().Any(we => we.Id == e.Id)).ToList(); //TODO move to Async
-
-            // Convert from SDK WorkstationEvent to HES WorkstationEvent
-            List<WorkstationEvent> converted = new List<WorkstationEvent>();
-            foreach (var dto in filtered)
-            {
-                var convertedEvent =
-                    new WorkstationEvent()
-                    {
-                        Id = dto.Id,
-                        Date = dto.Date,
-                        EventId = dto.EventId,
-                        SeverityId = dto.SeverityId,
-                        Note = dto.Note,
-                        WorkstationId = dto.WorkstationId,
-                        UserSession = dto.UserSession,
-                        DeviceId = dto.DeviceId,
-                    };
-
-                if (!string.IsNullOrWhiteSpace(dto.AccountName) && !string.IsNullOrWhiteSpace(dto.AccountLogin))
-                {
-                    convertedEvent.DeviceAccount = await _deviceAccountService
-                        .Query()
-                        .Where(d => d.Name == dto.AccountName
-                                 && d.Login == dto.AccountLogin
-                                 && d.DeviceId == dto.DeviceId)
-                        .AsNoTracking()
-                        .FirstOrDefaultAsync();
-                }
-                converted.Add(convertedEvent);
-            }
-
             try
             {
+                if (events == null)
+                    throw new ArgumentNullException(nameof(events));
+
+                // todo: ignore not approved workstation
+
+                // Events that duplicate ID of other events are ignored
+                events = events.GroupBy(e => e.Id).Select(s => s.First()).ToArray();
+
+                // Filter out from incomming events all those who share ID with events saved in database 
+                var filtered = events.Where(e => !_workstationEventService.WorkstationEventQuery().Any(we => we.Id == e.Id)).ToList(); //TODO move to Async
+
+                // Convert from SDK WorkstationEvent to HES WorkstationEvent
+                List<WorkstationEvent> converted = new List<WorkstationEvent>();
+                foreach (var dto in filtered)
+                {
+                    var convertedEvent =
+                        new WorkstationEvent()
+                        {
+                            Id = dto.Id,
+                            Date = dto.Date,
+                            EventId = dto.EventId,
+                            SeverityId = dto.SeverityId,
+                            Note = dto.Note,
+                            WorkstationId = dto.WorkstationId,
+                            UserSession = dto.UserSession,
+                            DeviceId = dto.DeviceId,
+                        };
+
+                    if (!string.IsNullOrWhiteSpace(dto.AccountName) && !string.IsNullOrWhiteSpace(dto.AccountLogin))
+                    {
+                        convertedEvent.DeviceAccount = await _deviceAccountService
+                            .Query()
+                            .Where(d => d.Name == dto.AccountName
+                                     && d.Login == dto.AccountLogin
+                                     && d.DeviceId == dto.DeviceId)
+                            .AsNoTracking()
+                            .FirstOrDefaultAsync();
+                    }
+                    converted.Add(convertedEvent);
+                }
+
+
                 var addedEvents = await _workstationEventService.AddEventsRangeAsync(converted);
 
                 var authEventsOnly = converted.Where(e => e.EventId == WorkstationEventType.ComputerLock
-                || e.EventId == WorkstationEventType.ComputerLogoff
-                || e.EventId == WorkstationEventType.ComputerLogon
-                || e.EventId == WorkstationEventType.ComputerUnlock).ToArray();
+                    || e.EventId == WorkstationEventType.ComputerLogoff
+                    || e.EventId == WorkstationEventType.ComputerLogon
+                    || e.EventId == WorkstationEventType.ComputerUnlock).ToArray();
 
                 if (authEventsOnly.Length > 0)
                     await _workstationSessionService.UpdateWorkstationSessionsAsync(authEventsOnly);
+
+                return HideezErrorCode.Ok;
+            }
+            catch (HideezException ex)
+            {
+                _logger.LogError(ex.Message);
+                return ex.ErrorCode;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
-                return false;
+                return HideezErrorCode.HesUnknownError;
             }
-
-            return true;
         }
 
         #endregion

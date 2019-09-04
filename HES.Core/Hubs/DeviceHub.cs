@@ -63,7 +63,7 @@ namespace HES.Core.Hubs
                     {
                         try
                         {
-                            await device.Authenticate(channelNo);
+                            await device.Verify(channelNo);
                             if (_pendingConnections.TryGetValue(deviceId, out PendingConnectionDescription pendingConnection))
                             {
                                 pendingConnection.Tcs.TrySetResult(device);
@@ -154,7 +154,7 @@ namespace HES.Core.Hubs
             try
             {
                 RemoteDevice device = GetDevice();
-                device.OnAuthResponse(data);
+                device.OnVerifyResponse(data);
             }
             catch (Exception ex)
             {
