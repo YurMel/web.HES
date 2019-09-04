@@ -2,7 +2,6 @@
 using HES.Core.Interfaces;
 using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.Command;
-using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.HES.DTO;
 using Hideez.SDK.Communication.Remote;
 using Hideez.SDK.Communication.Utils;
@@ -52,6 +51,7 @@ namespace HES.Core.Hubs
         private readonly IRemoteTaskService _remoteTaskService;
         private readonly IEmployeeService _employeeService;
         private readonly IWorkstationService _workstationService;
+        private readonly IWorkstationProximityDeviceService _workstationProximityDeviceService;
         private readonly IWorkstationEventService _workstationEventService;
         private readonly IWorkstationSessionService _workstationSessionService;
         private readonly IDeviceService _deviceService;
@@ -61,6 +61,7 @@ namespace HES.Core.Hubs
         public AppHub(IRemoteTaskService remoteTaskService,
                       IEmployeeService employeeService,
                       IWorkstationService workstationService,
+                      IWorkstationProximityDeviceService workstationProximityDeviceService,
                       IWorkstationEventService workstationEventService,
                       IWorkstationSessionService workstationSessionService,
                       IDeviceService deviceService,
@@ -70,6 +71,7 @@ namespace HES.Core.Hubs
             _remoteTaskService = remoteTaskService;
             _employeeService = employeeService;
             _workstationService = workstationService;
+            _workstationProximityDeviceService = workstationProximityDeviceService;
             _workstationEventService = workstationEventService;
             _workstationSessionService = workstationSessionService;
             _deviceService = deviceService;
@@ -318,9 +320,9 @@ namespace HES.Core.Hubs
         {
             try
             {
-                var unlockerSettingsInfo = await _workstationService.GetWorkstationUnlockerSettingsInfoAsync(workstationId);
+                await _workstationProximityDeviceService.UpdateProximitySettingsAsync(workstationId);
 
-                await UpdateUnlockerSettings(workstationId, unlockerSettingsInfo);
+                await _workstationService.UpdateRfidStateAsync(workstationId);
             }
             catch (Exception ex)
             {
@@ -355,14 +357,30 @@ namespace HES.Core.Hubs
             return workstation != null;
         }
 
-        public static async Task UpdateUnlockerSettings(string workstationId, UnlockerSettingsInfo unlockerSettingsInfo)
+        public static async Task UpdateProximitySettings(string workstationId, IReadOnlyList<DeviceProximitySettingsDto> deviceProximitySettings)
         {
             try
             {
                 var workstation = FindWorkstationDescription(workstationId);
                 if (workstation != null)
                 {
-                    await workstation.Connection.UpdateUnlockerSettings(unlockerSettingsInfo);
+                    await workstation.Connection.UpdateProximitySettings(deviceProximitySettings);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new HubException(ex.Message);
+            }
+        }
+
+        public static async Task UpdateRfidIndicatorState(string workstationId, bool isEnabled)
+        {
+            try
+            {
+                var workstation = FindWorkstationDescription(workstationId);
+                if (workstation != null)
+                {
+                    await workstation.Connection.UpdateRFIDIndicatorState(isEnabled);
                 }
             }
             catch (Exception ex)

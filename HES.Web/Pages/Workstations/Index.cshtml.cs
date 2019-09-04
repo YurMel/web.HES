@@ -38,11 +38,12 @@ namespace HES.Web.Pages.Workstations
         {
             Workstations = await _workstationService
                 .WorkstationQuery()
+                .Include(w => w.ProximityDevices)
                 .Include(c => c.Department.Company)
                 .ToListAsync();
 
             ViewData["Companies"] = new SelectList(await _workstationService.CompanyQuery().ToListAsync(), "Id", "Name");
-            //ViewData["Departments"] = new SelectList(await _workstationService.DepartmentQuery().ToListAsync(), "Id", "Name");
+            ViewData["ProximityDevicesCount"] = new SelectList(Workstations.Select(s => s.ProximityDevices.Count()).Distinct().OrderBy(f => f).ToDictionary(t => t, t => t), "Key", "Value");
 
             ViewData["DatePattern"] = CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern.ToLower();
             ViewData["TimePattern"] = CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern.ToUpper() == "H:MM" ? "hh:ii" : "hh:ii aa";
@@ -52,6 +53,7 @@ namespace HES.Web.Pages.Workstations
         {
             var filter = _workstationService
                 .WorkstationQuery()
+                .Include(w => w.ProximityDevices)
                 .Include(c => c.Department.Company)
                 .AsQueryable();
 
@@ -88,6 +90,14 @@ namespace HES.Web.Pages.Workstations
                 filter = filter.Where(w => w.LastSeen >= WorkstationFilter.StartDate.Value.AddSeconds(0).AddMilliseconds(0).ToUniversalTime()
                                         && w.LastSeen <= WorkstationFilter.EndDate.Value.AddSeconds(59).AddMilliseconds(999).ToUniversalTime());
             }
+            if (WorkstationFilter.RFID != null)
+            {
+                filter = filter.Where(w => w.RFID == WorkstationFilter.RFID);
+            }
+            if (WorkstationFilter.ProximityDevicesCount != null)
+            {
+                filter = filter.Where(w => w.ProximityDevices.Count() == WorkstationFilter.ProximityDevicesCount);
+            }
             if (WorkstationFilter.Approved != null)
             {
                 filter = filter.Where(w => w.Approved == WorkstationFilter.Approved);
@@ -106,7 +116,7 @@ namespace HES.Web.Pages.Workstations
             return new JsonResult(await _workstationService.DepartmentQuery().Where(d => d.CompanyId == id).ToListAsync());
         }
 
-        public async Task<IActionResult> OnGetEditDepartmentAsync(string id)
+        public async Task<IActionResult> OnGetEditWorkstationAsync(string id)
         {
             if (id == null)
             {
@@ -139,10 +149,10 @@ namespace HES.Web.Pages.Workstations
             ViewData["CompanyId"] = new SelectList(companies, "Id", "Name");
             ViewData["DepartmentId"] = new SelectList(departments, "Id", "Name");
 
-            return Partial("_EditDepartment", this);
+            return Partial("_EditWorkstation", this);
         }
 
-        public async Task<IActionResult> OnPostEditDepartmentAsync(Workstation Workstation)
+        public async Task<IActionResult> OnPostEditWorkstationAsync(Workstation Workstation)
         {
             if (Workstation == null)
             {
@@ -152,7 +162,8 @@ namespace HES.Web.Pages.Workstations
 
             try
             {
-                await _workstationService.EditDepartmentAsync(Workstation);
+                await _workstationService.EditWorkstationAsync(Workstation);
+                await _workstationService.UpdateRfidStateAsync(Workstation.Id);
                 SuccessMessage = $"Workstation updated.";
             }
             catch (Exception ex)
@@ -179,16 +190,17 @@ namespace HES.Web.Pages.Workstations
             return Partial("_ApproveWorkstation", this);
         }
 
-        public async Task<IActionResult> OnPostApproveWorkstationAsync(string workstationId)
+        public async Task<IActionResult> OnPostApproveWorkstationAsync(Workstation Workstation)
         {
-            if (workstationId == null)
+            if (Workstation == null)
             {
-                _logger.LogWarning("workstationId == null");
+                _logger.LogWarning("Workstation == null");
                 return RedirectToPage("./Index");
             }
             try
             {
-                await _workstationService.ApproveWorkstationAsync(workstationId);
+                await _workstationService.ApproveWorkstationAsync(Workstation);
+                await _workstationService.UpdateRfidStateAsync(Workstation.Id);
                 SuccessMessage = $"Workstation approved.";
             }
             catch (Exception ex)

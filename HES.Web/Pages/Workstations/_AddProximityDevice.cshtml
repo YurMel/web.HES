@@ -36,7 +36,7 @@
                 <tr>
                     <td class="table-col-menu">
                         <div class="custom-control custom-checkbox">
-                            <input type="checkbox" class="custom-control-input" name="selectedDevices" id="@device.Id" value="@device.Id">
+                            <input type="checkbox" class="custom-control-input" name="devicesId" id="@device.Id" value="@device.Id">
                             <label class="custom-control-label" for="@device.Id"></label>
                         </div>
                     </td>
@@ -50,32 +50,9 @@
             }
         </tbody>
     </table>
-    <ul class="list-group mb-3">
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-            Allow BLE
-            <div class="custom-control custom-switch">
-                <input asp-for="WorkstationBinding.AllowBleTap" type="checkbox" class="custom-control-input" id="allowBle" name="allowBleTap" value="true" checked>
-                <label class="custom-control-label" for="allowBle"></label>
-            </div>
-        </li>
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-            Allow RFID
-            <div class="custom-control custom-switch">
-                <input asp-for="WorkstationBinding.AllowRfid" type="checkbox" class="custom-control-input" id="allowRfid" name="allowRfid" value="true">
-                <label class="custom-control-label" for="allowRfid"></label>
-            </div>
-        </li>
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-            Allow proximity
-            <div class="custom-control custom-switch">
-                <input asp-for="WorkstationBinding.AllowProximity" type="checkbox" class="custom-control-input" id="allowProximity" name="allowProximity" value="true">
-                <label class="custom-control-label" for="allowProximity"></label>
-            </div>
-        </li>
-    </ul>
     <div class="form-group m-0 text-right">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-        <input type="submit" value="Add" class="btn btn-primary" asp-page-handler="AddDevice" />
+        <input type="submit" value="Add" class="btn btn-primary" asp-page-handler="AddProximityDevice" />
     </div>
 </form>
 <script>
