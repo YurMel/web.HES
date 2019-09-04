@@ -149,7 +149,7 @@ namespace HES.Core.Hubs
             return null;
         }
 
-        public Task OnAuthResponse(byte[] data)
+        public Task OnVerifyResponse(byte[] data)
         {
             try
             {

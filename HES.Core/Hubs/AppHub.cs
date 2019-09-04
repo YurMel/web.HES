@@ -161,12 +161,13 @@ namespace HES.Core.Hubs
 
                 await deviceDescr.Connection.EstablishRemoteDeviceConnection(deviceId, channelNo);
 
-                var remoteDevice = await DeviceHub.WaitDeviceConnection(deviceId, timeout: 10000);
+                var remoteDevice = await DeviceHub.WaitDeviceConnection(deviceId, timeout: 10_000);
 
                 if (remoteDevice != null)
-                    await remoteDevice.WaitVerification(timeout: 10000);
-
-                await remoteDevice.Initialize();
+                {
+                    await remoteDevice.WaitVerification(timeout: 10_000);
+                    await remoteDevice.Initialize();
+                }
 
                 return remoteDevice;
             }
@@ -183,7 +184,7 @@ namespace HES.Core.Hubs
         }
 
         // Incomming request
-        private async Task<DeviceInfoDto> GetInfoByRfid(string rfid)
+        public async Task<DeviceInfoDto> GetInfoByRfid(string rfid)
         {
             var device = await _employeeService
                 .DeviceQuery()
@@ -195,7 +196,7 @@ namespace HES.Core.Hubs
         }
 
         // Incomming request
-        private async Task<DeviceInfoDto> GetInfoByMac(string mac)
+        public async Task<DeviceInfoDto> GetInfoByMac(string mac)
         {
             var device = await _employeeService
                 .DeviceQuery()
@@ -207,7 +208,7 @@ namespace HES.Core.Hubs
         }
 
         // Incomming request
-        private async Task<DeviceInfoDto> GetInfoBySerialNo(string serialNo)
+        public async Task<DeviceInfoDto> GetInfoBySerialNo(string serialNo)
         {
             var device = await _employeeService
                 .DeviceQuery()
@@ -242,7 +243,7 @@ namespace HES.Core.Hubs
         }
 
         // Incomming request
-        private async Task<HideezErrorCode> FixDevice(string deviceId)
+        public async Task<HideezErrorCode> FixDevice(string deviceId)
         {
             try
             {
@@ -259,6 +260,12 @@ namespace HES.Core.Hubs
                     .Include(d => d.DeviceAccessProfile)
                     .AsNoTracking()
                     .FirstOrDefaultAsync(d => d.Id == deviceId);
+
+                if (device == null)
+                    return HideezErrorCode.HesDeviceNotFound;
+
+                if (device.DeviceAccessProfile == null)
+                    return HideezErrorCode.HesEmptyDeviceAccessProfile;
 
                 var key = ConvertUtils.HexStringToBytes(device.MasterPassword);
 
@@ -314,7 +321,7 @@ namespace HES.Core.Hubs
         #region Workstation
 
         // Incomming request
-        private async Task<HideezErrorCode> RegisterWorkstationInfo(WorkstationInfo workstationInfo)
+        public async Task<HideezErrorCode> RegisterWorkstationInfo(WorkstationInfo workstationInfo)
         {
             try
             {
@@ -415,7 +422,7 @@ namespace HES.Core.Hubs
         #region Audit
 
         // Incomming request
-        private async Task<HideezErrorCode> SaveClientEvents(WorkstationEventDto[] events)
+        public async Task<HideezErrorCode> SaveClientEvents(WorkstationEventDto[] events)
         {
             try
             {
