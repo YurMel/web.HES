@@ -410,6 +410,12 @@ namespace HES.Core.Services
                 .AsNoTracking()
                 .FirstOrDefaultAsync(d => d.Id == task.DeviceId);
 
+            if (device == null)
+                throw new Exception($"Device not found");
+
+            if (device.DeviceAccessProfile == null)
+                throw new Exception($"DeviceAccessProfile is not set for {device.Id}");
+
             // Set Link   
             var key = ConvertUtils.HexStringToBytes(task.Password);
             if (remoteDevice.IsLinkRequired)
