@@ -9,21 +9,22 @@ namespace HES.Core.Entities
     {
         [Key]
         public string Id { get; set; }
+        [Required]
         [Display(Name = "First Name")]
-        [Required]
         public string FirstName { get; set; }
-        [Display(Name = "Last Name")]
         [Required]
+        [Display(Name = "Last Name")]
         public string LastName { get; set; }
         [Required]
+        [EmailAddress]
         public string Email { get; set; }
         [Display(Name = "Phone Number")]
         public string PhoneNumber { get; set; }
+        [Required]
         [Display(Name = "Department")]
-        [Required]
         public string DepartmentId { get; set; }
-        [Display(Name = "Position")]
         [Required]
+        [Display(Name = "Position")]
         public string PositionId { get; set; }
         [Display(Name = "Last Seen")]
         public DateTime? LastSeen { get; set; }

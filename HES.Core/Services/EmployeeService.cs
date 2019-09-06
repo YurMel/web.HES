@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using HES.Core.Entities;
+using HES.Core.Entities.Models;
 using HES.Core.Interfaces;
 using Hideez.SDK.Communication.Security;
 using Hideez.SDK.Communication.Utils;
@@ -136,7 +137,7 @@ namespace HES.Core.Services
             if (employee == null)
                 throw new ArgumentNullException(nameof(employee));
 
-           return await _employeeRepository.AddAsync(employee);
+            return await _employeeRepository.AddAsync(employee);
         }
 
         public async Task EditEmployeeAsync(Employee employee)
@@ -274,6 +275,44 @@ namespace HES.Core.Services
             await _remoteTaskService.RemoveDeviceAsync(device);
 
             _remoteTaskService.StartTaskProcessing(deviceId);
+        }
+
+        public async Task CreateWorkstationAccountAsync(WorkstationAccountModel workstationAccount, string employeeId, string deviceId)
+        {
+            if (workstationAccount == null)
+            {
+                throw new ArgumentNullException(nameof(workstationAccount));
+            }
+            if (deviceId == null)
+            {
+                throw new ArgumentNullException(nameof(deviceId));
+            }
+
+            var deviceAccount = new DeviceAccount()
+            {
+                Name = "Workstation Account",
+                EmployeeId = employeeId                
+            };
+
+            switch (workstationAccount.AccountType)
+            {
+                case WorkstationAccountType.Local:
+                    deviceAccount.Login = $".\\{workstationAccount.Login}";
+                    break;
+                case WorkstationAccountType.Domain:
+                    deviceAccount.Login = $"{workstationAccount.Domain}\\{workstationAccount.Login}";
+                    break;
+                case WorkstationAccountType.Microsoft:
+                    deviceAccount.Login = $"@\\{workstationAccount.Login}";
+                    break;
+            }
+
+            var input = new InputModel()
+            {
+                Password = workstationAccount.Password
+            };
+
+            await CreatePersonalAccountAsync(deviceAccount, input, new string[] { deviceId });
         }
 
         public async Task CreatePersonalAccountAsync(DeviceAccount deviceAccount, InputModel input, string[] selectedDevices)

@@ -27,6 +27,7 @@ namespace HES.Web.Pages.Employees
         public IList<Workstation> Workstations { get; set; }
         public Employee Employee { get; set; }
         public EmployeeFilter EmployeeFilter { get; set; }
+        public EmployeeWizard EmployeeWizard { get; set; }
         public Company Company { get; set; }
         public Department Department { get; set; }
         public Position Position { get; set; }
@@ -115,6 +116,10 @@ namespace HES.Web.Pages.Employees
         {
             ViewData["CompanyId"] = new SelectList(await _employeeService.CompanyQuery().OrderBy(c => c.Name).ToListAsync(), "Id", "Name");
             ViewData["PositionId"] = new SelectList(await _employeeService.PositionQuery().OrderBy(c => c.Name).ToListAsync(), "Id", "Name");
+            ViewData["DeviceId"] = new SelectList(await _employeeService.DeviceQuery().Where(d => d.EmployeeId == null).ToListAsync(), "Id", "Id");
+            ViewData["WorkstationId"] = new SelectList(await _workstationService.WorkstationQuery().ToListAsync(), "Id", "Name");
+            ViewData["WorkstationAccountType"] = new SelectList(Enum.GetValues(typeof(WorkstationAccountType)).Cast<WorkstationAccountType>().ToDictionary(t => (int)t, t => t.ToString()), "Key", "Value");
+
 
             Devices = await _employeeService
                .DeviceQuery()
@@ -128,7 +133,7 @@ namespace HES.Web.Pages.Employees
             return Partial("_CreateEmployee", this);
         }
 
-        public async Task<IActionResult> OnPostCreateEmployeeAsync(Employee Employee, string[] workstations, string[] devices)
+        public async Task<IActionResult> OnPostCreateEmployeeAsync(EmployeeWizard EmployeeWizard)
         {
             if (!ModelState.IsValid)
             {
@@ -139,17 +144,19 @@ namespace HES.Web.Pages.Employees
             try
             {
                 // Create employee
-                var user = await _employeeService.CreateEmployeeAsync(Employee);
+                var user = await _employeeService.CreateEmployeeAsync(EmployeeWizard.Employee);
+
                 // Add device
-                if (workstations.Length > 0)
+                await _employeeService.AddDeviceAsync(user.Id, new string[] { EmployeeWizard.DeviceId });
+
+                // Proximity
+                if (EmployeeWizard.ProximityUnlock == true)
                 {
-                    await _employeeService.AddDeviceAsync(user.Id, devices);
+                    await _workstationProximityDeviceService.AddProximityDeviceAsync(EmployeeWizard.WorkstationId, new string[] { EmployeeWizard.DeviceId });
                 }
-                // Add workstation
-                if (devices.Length > 0)
-                {
-                    await _workstationProximityDeviceService.AddMultipleProximityDevicesAsync(workstations, devices);
-                }
+
+                // Add account
+                await _employeeService.CreateWorkstationAccountAsync(EmployeeWizard.WorkstationAccount, user.Id, EmployeeWizard.DeviceId);
 
                 SuccessMessage = $"Employee created.";
             }

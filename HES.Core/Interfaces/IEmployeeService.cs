@@ -1,4 +1,5 @@
 ﻿using HES.Core.Entities;
+using HES.Core.Entities.Models;
 using System;
 using System.Linq;
 using System.Linq.Expressions;
@@ -30,6 +31,7 @@ namespace HES.Core.Interfaces
         Task SetPrimaryAccount(string deviceId, string deviceAccountId);
         Task AddDeviceAsync(string employeeId, string[] selectedDevices);
         Task RemoveDeviceAsync(string employeeId, string deviceId);
+        Task CreateWorkstationAccountAsync(WorkstationAccountModel workstationAccount, string employeeId, string deviceId);
         Task CreatePersonalAccountAsync(DeviceAccount deviceAccount, InputModel input, string[] selectedDevices);
         Task EditPersonalAccountAsync(DeviceAccount deviceAccount);
         Task EditPersonalAccountPwdAsync(DeviceAccount deviceAccount, InputModel input);
