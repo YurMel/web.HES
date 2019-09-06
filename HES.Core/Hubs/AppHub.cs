@@ -163,7 +163,7 @@ namespace HES.Core.Hubs
 
                 await deviceDescr.Connection.EstablishRemoteDeviceConnection(deviceId, channelNo);
 
-                var remoteDevice = await DeviceHub.WaitDeviceConnection(deviceId, timeout: 10_000);
+                var remoteDevice = await DeviceHub.WaitDeviceConnection(deviceId, timeout: 20_000);
 
                 if (remoteDevice != null)
                 {
@@ -275,7 +275,7 @@ namespace HES.Core.Hubs
                 await remoteDevice.Initialize();
 
                 // Access 
-                if (remoteDevice.IsMasterKeyRequired)
+                if (remoteDevice.AccessLevel.IsMasterKeyRequired)
                 {
                     var accessParams = new AccessParams()
                     {

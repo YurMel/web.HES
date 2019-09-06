@@ -175,20 +175,23 @@ namespace HES.Core.Services
                 device.AcceessProfileId = profileId;
                 await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "AcceessProfileId" });
 
-                // Delete all previous tasks for update profile
-                var allProfileTasks = await _deviceTaskRepository
-                    .Query()
-                    .Where(t => t.DeviceId == deviceId && t.Operation == TaskOperation.Profile)
-                    .ToListAsync();
-                await _deviceTaskRepository.DeleteRangeAsync(allProfileTasks);
-
-                await _remoteTaskService.AddTaskAsync(new DeviceTask
+                if (device.EmployeeId != null)
                 {
-                    Operation = TaskOperation.Profile,
-                    CreatedAt = DateTime.UtcNow,
-                    DeviceId = device.Id,
-                    Password = device.MasterPassword
-                });
+                    // Delete all previous tasks for update profile
+                    var allProfileTasks = await _deviceTaskRepository
+                        .Query()
+                        .Where(t => t.DeviceId == deviceId && t.Operation == TaskOperation.Profile)
+                        .ToListAsync();
+                    await _deviceTaskRepository.DeleteRangeAsync(allProfileTasks);
+                    // Add task for update profile
+                    await _remoteTaskService.AddTaskAsync(new DeviceTask
+                    {
+                        Operation = TaskOperation.Profile,
+                        CreatedAt = DateTime.UtcNow,
+                        DeviceId = device.Id,
+                        Password = device.MasterPassword
+                    });
+                }
             }
             _remoteTaskService.StartTaskProcessing(devicesId);
         }

@@ -52,7 +52,11 @@ namespace HES.Core.Hubs
 
             if (!string.IsNullOrWhiteSpace(deviceId))
             {
+<<<<<<< HEAD
                 var device = new RemoteDevice(deviceId, Clients.Caller, null, null);
+=======
+                var device = new RemoteDevice(deviceId, Clients.Caller, null, null); // todo - implement ILog
+>>>>>>> release/2.1
 
                 Context.Items.Add("DeviceId", deviceId);
                 Context.Items.Add("Device", device);
