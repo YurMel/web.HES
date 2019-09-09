@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using HES.Core.Entities;
+using HES.Core.Entities.Models;
 using HES.Core.Interfaces;
 using Hideez.SDK.Communication.Security;
 using Hideez.SDK.Communication.Utils;
@@ -25,6 +26,7 @@ namespace HES.Core.Services
         private readonly IAsyncRepository<WorkstationEvent> _workstationEventRepository;
         private readonly IAsyncRepository<WorkstationSession> _workstationSessionRepository;
         private readonly IRemoteTaskService _remoteTaskService;
+        private readonly IWorkstationProximityDeviceService _workstationProximityDeviceService;
         private readonly IDataProtectionService _dataProtectionService;
 
         public EmployeeService(IAsyncRepository<Employee> employeeRepository,
@@ -39,6 +41,7 @@ namespace HES.Core.Services
                                IAsyncRepository<WorkstationEvent> workstationEventRepository,
                                IAsyncRepository<WorkstationSession> workstationSessionRepository,
                                IRemoteTaskService remoteTaskService,
+                               IWorkstationProximityDeviceService workstationProximityDeviceService,
                                IDataProtectionService dataProtectionService)
         {
             _employeeRepository = employeeRepository;
@@ -53,6 +56,7 @@ namespace HES.Core.Services
             _workstationEventRepository = workstationEventRepository;
             _workstationSessionRepository = workstationSessionRepository;
             _remoteTaskService = remoteTaskService;
+            _workstationProximityDeviceService = workstationProximityDeviceService;
             _dataProtectionService = dataProtectionService;
         }
 
@@ -136,7 +140,7 @@ namespace HES.Core.Services
             if (employee == null)
                 throw new ArgumentNullException(nameof(employee));
 
-           return await _employeeRepository.AddAsync(employee);
+            return await _employeeRepository.AddAsync(employee);
         }
 
         public async Task EditEmployeeAsync(Employee employee)
@@ -255,16 +259,29 @@ namespace HES.Core.Services
                 throw new Exception($"Device {deviceId} not linked to employee");
 
             // Remove all tasks
-            var allTasks = await _deviceTaskRepository.Query().Where(t => t.DeviceId == deviceId).ToListAsync();
+            var allTasks = await _deviceTaskRepository
+                .Query()
+                .Where(t => t.DeviceId == deviceId)
+                .ToListAsync();
             await _deviceTaskRepository.DeleteRangeAsync(allTasks);
 
             // Remove all accounts
-            var allAccounts = await _deviceAccountRepository.Query().Where(d => d.DeviceId == deviceId).ToListAsync();
+            var allAccounts = await _deviceAccountRepository
+                .Query()
+                .Where(d => d.DeviceId == deviceId)
+                .ToListAsync();
             foreach (var account in allAccounts)
             {
                 account.Deleted = true;
             }
             await _deviceAccountRepository.UpdateOnlyPropAsync(allAccounts, new string[] { "Deleted" });
+
+            // Remove proximity device
+            var allProximityDevices = await _workstationProximityDeviceService
+                .Query()
+                .Where(w => w.DeviceId == deviceId)
+                .ToListAsync();
+            await _workstationProximityDeviceService.DeleteRangeProximityDevicesAsync(allProximityDevices);
 
             // Remove employee from device
             device.EmployeeId = null;
@@ -274,6 +291,44 @@ namespace HES.Core.Services
             await _remoteTaskService.RemoveDeviceAsync(device);
 
             _remoteTaskService.StartTaskProcessing(deviceId);
+        }
+
+        public async Task CreateWorkstationAccountAsync(WorkstationAccountModel workstationAccount, string employeeId, string deviceId)
+        {
+            if (workstationAccount == null)
+            {
+                throw new ArgumentNullException(nameof(workstationAccount));
+            }
+            if (deviceId == null)
+            {
+                throw new ArgumentNullException(nameof(deviceId));
+            }
+
+            var deviceAccount = new DeviceAccount()
+            {
+                Name = "Workstation Account",
+                EmployeeId = employeeId                
+            };
+
+            switch (workstationAccount.AccountType)
+            {
+                case WorkstationAccountType.Local:
+                    deviceAccount.Login = $".\\{workstationAccount.Login}";
+                    break;
+                case WorkstationAccountType.Domain:
+                    deviceAccount.Login = $"{workstationAccount.Domain}\\{workstationAccount.Login}";
+                    break;
+                case WorkstationAccountType.Microsoft:
+                    deviceAccount.Login = $"@\\{workstationAccount.Login}";
+                    break;
+            }
+
+            var input = new InputModel()
+            {
+                Password = workstationAccount.Password
+            };
+
+            await CreatePersonalAccountAsync(deviceAccount, input, new string[] { deviceId });
         }
 
         public async Task CreatePersonalAccountAsync(DeviceAccount deviceAccount, InputModel input, string[] selectedDevices)

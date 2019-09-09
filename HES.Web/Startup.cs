@@ -75,6 +75,7 @@ namespace HES.Web
             services.AddScoped<IWorkstationService, WorkstationService>();
             services.AddScoped<IWorkstationEventService, WorkstationEventService>();
             services.AddScoped<IWorkstationSessionService, WorkstationSessionService>();
+            services.AddScoped<IWorkstationProximityDeviceService, WorkstationProximityDeviceService>();
             services.AddScoped<IDeviceService, DeviceService>();
             services.AddScoped<IDeviceAccountService, DeviceAccountService>();
             services.AddScoped<ISharedAccountService, SharedAccountService>();

@@ -26,10 +26,10 @@
                     </span>
                 </div>
                 <div class="wizard-item-content">
-                    <div class="wizard-item-title">Devices</div>
+                    <div class="wizard-item-title">Device</div>
                 </div>
             </div>
-            <div id="wizard_workstations" class="wizard-item wizard-item-wait">
+            <div id="wizard_workstation_account" class="wizard-item wizard-item-wait">
                 <div class="wizard-item-tail"></div>
                 <div class="wizard-item-icon">
                     <span class="wizard-icon">
@@ -38,7 +38,7 @@
                     </span>
                 </div>
                 <div class="wizard-item-content">
-                    <div class="wizard-item-title">Workstations</div>
+                    <div class="wizard-item-title">Windows Account</div>
                 </div>
             </div>
             <div id="wizard_overview" class="wizard-item wizard-item-wait">
@@ -56,227 +56,206 @@
         </div>
     </div>
 
-    <ul class="nav nav-pills mb-3 d-none" id="pills-tab" role="tablist">
+    <ul class="nav nav-pills mb-3 d-none" id="employee-tabs" role="tablist">
         <li class="nav-item">
-            <a class="nav-link active" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="true">Profile</a>
+            <a class="nav-link active" id="pills-profile-tab" data_id="1" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="true">Profile</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" id="pills-devices-tab" data-toggle="pill" href="#pills-devices" role="tab" aria-controls="pills-devices" aria-selected="false">Devices</a>
+            <a class="nav-link" id="pills-devices-tab" data_id="2" data-toggle="pill" href="#pills-devices" role="tab" aria-controls="pills-devices" aria-selected="false">Devices</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" id="pills-workstations-tab" data-toggle="pill" href="#pills-workstations" role="tab" aria-controls="pills-workstations" aria-selected="false">Workstations</a>
+            <a class="nav-link" id="pills-workstation_account-tab" data_id="3" data-toggle="pill" href="#pills-workstation_account" role="tab" aria-controls="pills-workstation_account" aria-selected="false">Workstation Account</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" id="pills-overview-tab" data-toggle="pill" href="#pills-overview" role="tab" aria-controls="pills-overview" aria-selected="false">Overview</a>
+            <a class="nav-link" id="pills-overview-tab" data_id="4" data-toggle="pill" href="#pills-overview" role="tab" aria-controls="pills-overview" aria-selected="false">Overview</a>
         </li>
     </ul>
 
-    <div class="tab-content" id="pills-tabContent" style="height:344px;">
+    <div class="tab-content" id="pills-tabContent" style="height:384px;">
         <!-- Profile -->
-        <div class="tab-pane fade show active" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+        <div class="tab-pane  show active" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="row">
                 <div class="form-group col">
-                    <label asp-for="Employee.FirstName" class="control-label text-gray"></label>
-                    <input id="employee_first_name" asp-for="Employee.FirstName" class="form-control text-navyblue" />
-                    <span asp-validation-for="Employee.FirstName" class="text-danger"></span>
+                    <label asp-for="EmployeeWizard.Employee.FirstName" class="control-label text-gray"></label>
+                    <input id="employee_first_name" asp-for="EmployeeWizard.Employee.FirstName" class="form-control text-navyblue" />
+                    <span asp-validation-for="EmployeeWizard.Employee.FirstName" class="text-danger"></span>
                 </div>
                 <div class="form-group col">
-                    <label asp-for="Employee.LastName" class="control-label text-gray"></label>
-                    <input id="employee_last_name" asp-for="Employee.LastName" class="form-control text-navyblue" />
-                    <span asp-validation-for="Employee.LastName" class="text-danger"></span>
-                </div>
-            </div>
-            <div class="row">
-                <div class="form-group col">
-                    <label asp-for="Employee.Email" class="control-label text-gray"></label>
-                    <input asp-for="Employee.Email" class="form-control text-navyblue" />
-                    <span asp-validation-for="Employee.Email" class="text-danger"></span>
-                </div>
-                <div class="form-group col">
-                    <label asp-for="Employee.PhoneNumber" class="control-label text-gray"></label>
-                    <input asp-for="Employee.PhoneNumber" class="form-control text-navyblue" />
-                    <span asp-validation-for="Employee.PhoneNumber" class="text-danger"></span>
+                    <label asp-for="EmployeeWizard.Employee.LastName" class="control-label text-gray"></label>
+                    <input id="employee_last_name" asp-for="EmployeeWizard.Employee.LastName" class="form-control text-navyblue" />
+                    <span asp-validation-for="EmployeeWizard.Employee.LastName" class="text-danger"></span>
                 </div>
             </div>
             <div class="row">
                 <div class="form-group col">
-                    <label asp-for="Employee.Department.CompanyId" class="control-label text-gray"></label>
+                    <label asp-for="EmployeeWizard.Employee.Email" class="control-label text-gray"></label>
+                    <input asp-for="EmployeeWizard.Employee.Email" class="form-control text-navyblue" />
+                    <span asp-validation-for="EmployeeWizard.Employee.Email" class="text-danger"></span>
+                </div>
+                <div class="form-group col">
+                    <label asp-for="EmployeeWizard.Employee.PhoneNumber" class="control-label text-gray"></label>
+                    <input asp-for="EmployeeWizard.Employee.PhoneNumber" class="form-control text-navyblue" />
+                    <span asp-validation-for="EmployeeWizard.Employee.PhoneNumber" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col">
+                    <label asp-for="EmployeeWizard.Employee.Department.CompanyId" class="control-label text-gray"></label>
                     <div class="d-flex">
                         <select id="companies" onchange="GetDepartment(this.value)" class="form-control text-navyblue" asp-items="ViewBag.CompanyId"></select>
                         <button type="button" class="btn btn-success btn-add open-second-modal-dialog" data-id="" data-action="CreateCompany" data-title="Create company">
                             <img src="~/svg/action/add.svg" />
                         </button>
                     </div>
+                    <span asp-validation-for="EmployeeWizard.Employee.DepartmentId" class="text-danger"></span>
                 </div>
                 <div class="form-group col">
-                    <label asp-for="Employee.DepartmentId" class="control-label text-gray"></label>
+                    <label asp-for="EmployeeWizard.Employee.DepartmentId" class="control-label text-gray"></label>
                     <div class="d-flex">
-                        <select id="departments" asp-for="Employee.DepartmentId" class="form-control text-navyblue"></select>
-                        <button id="addDepartments" type="button" class="btn btn-success btn-add open-second-modal-dialog" data-id="" data-action="CreateDepartment" data-title="Create department">
+                        <select id="departments" asp-for="EmployeeWizard.Employee.DepartmentId" class="form-control text-navyblue"></select>
+                        <button id="add_position_btn" type="button" class="btn btn-success btn-add open-second-modal-dialog" data-id="" data-action="CreateDepartment" data-title="Create department">
                             <img src="~/svg/action/add.svg" />
                         </button>
                     </div>
+                    <span asp-validation-for="EmployeeWizard.Employee.DepartmentId" class="text-danger"></span>
                 </div>
             </div>
             <div class="row">
                 <div class="form-group col">
-                    <label asp-for="Employee.PositionId" class="control-label text-gray"></label>
+                    <label asp-for="EmployeeWizard.Employee.PositionId" class="control-label text-gray"></label>
                     <div class="d-flex">
-                        <select id="positions" asp-for="Employee.PositionId" class="form-control text-navyblue" asp-items="ViewBag.PositionId"></select>
-                        <button type="button" class="btn btn-success btn-add open-second-modal-dialog" data-id="" data-action="CreatePosition" data-title="Create position">
+                        <select id="positions" asp-for="EmployeeWizard.Employee.PositionId" class="form-control text-navyblue" asp-items="ViewBag.PositionId"></select>
+                        <button  type="button" class="btn btn-success btn-add open-second-modal-dialog" data-id="" data-action="CreatePosition" data-title="Create position">
                             <img src="~/svg/action/add.svg" />
                         </button>
                     </div>
+                    <span asp-validation-for="EmployeeWizard.Employee.PositionId" class="text-danger"></span>
                 </div>
                 <div class="col"></div>
             </div>
         </div>
-        <!-- Devices -->
-        <div class="tab-pane fade" id="pills-devices" role="tabpanel" aria-labelledby="pills-devices-tab">
-            <div class="row">
-                <div class="col"></div>
-                <div class="col-auto">
-                    <div class="form-group has-search-right m-0">
-                        <div class="form-control-feedback">
-                            <img class="img-size" src="~/svg/action/search.svg" />
-                        </div>
-                        <input id="devices_searchbox" type="text" class="form-control" placeholder="Search">
+        <!-- Device -->
+        <div class="tab-pane " id="pills-devices" role="tabpanel" aria-labelledby="pills-devices-tab">
+            <div class="row justify-content-center">
+                <div class="form-group col-4">
+                    <label class="control-label">Device</label>
+                    <select id="deviceId" class="form-control" asp-for="EmployeeWizard.DeviceId" asp-items="ViewBag.DeviceId"></select>
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="form-group col-3">
+                    <label class="control-label">Proximity unlock</label>
+                </div>
+                <div class="form-group col-1">
+                    <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" id="proximity" asp-for="EmployeeWizard.ProximityUnlock">
+                        <label class="custom-control-label" for="proximity"></label>
                     </div>
                 </div>
             </div>
-            <table id="devices" class="display table table-hover inside-scrollbar w-100">
-                <thead>
-                    <tr>
-                        <th class="table-col-menu">
-                            <div class="custom-control custom-checkbox">
-                                <input type="checkbox" class="custom-control-input" id="device_checkbox_all">
-                                <label class="custom-control-label" for="device_checkbox_all"></label>
-                            </div>
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => Model.Devices[0].Id)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => Model.Devices[0].MAC)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => Model.Devices[0].RFID)
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var device in Model.Devices)
-                    {
-                        <tr>
-                            <td class="table-col-menu">
-                                <div class="custom-control custom-checkbox">
-                                    <input type="checkbox" class="custom-control-input" name="devices" id="@device.Id" value="@device.Id">
-                                    <label class="custom-control-label" for="@device.Id"></label>
-                                </div>
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => device.Id)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => device.MAC)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => device.RFID)
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+            <div class="row justify-content-center d-none" id="workstation_group">
+                <div class="form-group col-4">
+                    <label class="control-label">Select the workstation for proximity unlock</label>
+                    <select id="workstationId" class="form-control" asp-for="EmployeeWizard.WorkstationId" asp-items="ViewBag.WorkstationId"></select>
+                </div>
+            </div>
         </div>
-        <!-- Workstations -->
-        <div class="tab-pane fade" id="pills-workstations" role="tabpanel" aria-labelledby="pills-workstations-tab">
+        <!-- Workstation Account -->
+        <div class="tab-pane " id="pills-workstation_account" role="tabpanel" aria-labelledby="pills-workstation_account-tab">
             <div class="row">
+                <div class="form-group col">
+                    <label asp-for="EmployeeWizard.WorkstationAccount.AccountType" class="text-gray"></label>
+                    <select id="workstation_account_type" asp-for="EmployeeWizard.WorkstationAccount.AccountType" class="form-control" asp-items="ViewBag.WorkstationAccountType"></select>
+                </div>
+                <div id="domain_group" class="form-group col invisible">
+                    <label asp-for="EmployeeWizard.WorkstationAccount.Domain" class="text-gray"></label>
+                    <input id="domain" asp-for="EmployeeWizard.WorkstationAccount.Domain" class="form-control text-navyblue" value="local" autocomplete="new-password" />
+                    <span asp-validation-for="EmployeeWizard.WorkstationAccount.Domain" class="text-danger"></span>
+                </div>
                 <div class="col"></div>
-                <div class="col-auto">
-                    <div class="form-group has-search-right m-0">
-                        <div class="form-control-feedback">
-                            <img class="img-size" src="~/svg/action/search.svg" />
-                        </div>
-                        <input id="workstation_searchbox" type="text" class="form-control" placeholder="Search">
-                    </div>
+            </div>
+            <div class="row">
+                <div class="form-group col">
+                    <label asp-for="EmployeeWizard.WorkstationAccount.Login" class="text-gray"></label>
+                    <input id="login" asp-for="EmployeeWizard.WorkstationAccount.Login" class="form-control text-navyblue" autocomplete="new-password" />
+                    <span asp-validation-for="EmployeeWizard.WorkstationAccount.Login" class="text-danger"></span>
+                </div>
+                <div class="form-group col">
+                    <label asp-for="EmployeeWizard.WorkstationAccount.Password" class="text-gray"></label>
+                    <input asp-for="EmployeeWizard.WorkstationAccount.Password" class="form-control text-navyblue" autocomplete="new-password" />
+                    <span asp-validation-for="EmployeeWizard.WorkstationAccount.Password" class="text-danger"></span>
+                </div>
+                <div class="form-group col">
+                    <label asp-for="EmployeeWizard.WorkstationAccount.ConfirmPassword" class="text-gray"></label>
+                    <input asp-for="EmployeeWizard.WorkstationAccount.ConfirmPassword" class="form-control text-navyblue" autocomplete="new-password" />
+                    <span asp-validation-for="EmployeeWizard.WorkstationAccount.ConfirmPassword" class="text-danger"></span>
                 </div>
             </div>
-            <table id="workstations" class="display table table-hover inside-scrollbar w-100">
-                <thead>
-                    <tr>
-                        <th class="table-col-menu">
-                            <div class="custom-control custom-checkbox">
-                                <input type="checkbox" class="custom-control-input" id="workstation_checkbox_all">
-                                <label class="custom-control-label" for="workstation_checkbox_all"></label>
-                            </div>
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => Model.Workstations[0].Name)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => Model.Workstations[0].Domain)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => Model.Workstations[0].Approved)
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var workstation in Model.Workstations)
-                    {
-                        <tr>
-                            <td class="table-col-menu">
-                                <div class="custom-control custom-checkbox">
-                                    <input type="checkbox" class="custom-control-input" name="workstations" id="@workstation.Id" value="@workstation.Id">
-                                    <label class="custom-control-label" for="@workstation.Id"></label>
-                                </div>
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => workstation.Name)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => workstation.Domain)
-                            </td>
-                            <td data-sort="@workstation.Approved">
-                                @if (workstation.Approved)
-                                {
-                                    <span class="badge badge-success">Yes</span>
-                                }
-                                else
-                                {
-                                    <span class="badge badge-danger">No</span>
-                                }
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+
         </div>
         <!-- Overview -->
-        <div class="tab-pane fade" id="pills-overview" role="tabpanel" aria-labelledby="pills-overview-tab">
-            <table id="result" class="display table inside-scrollbar w-100">
-                <thead>
-                    <tr>
-                        <th>
-                            Employee
-                        </th>
-                        <th>
-                            Device
-                        </th>
-                        <th>
-                            Workstation
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td id="result_employee"></td>
-                        <td id="result_devices" style="white-space: normal"></td>
-                        <td id="result_workstations" style="white-space: normal"></td>
-                    </tr>
-                </tbody>
-            </table>
+        <div class="tab-pane " id="pills-overview" role="tabpanel" aria-labelledby="pills-overview-tab">
+            <!-- Employee -->
+            <div class="mb-3">
+                <div class="row">
+                    <div class="col-auto">
+                        <h4 class="text-navyblue">Employee Details</h4>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col font-weight-bold">Full name</div>
+                    <div class="col font-weight-bold">Company</div>
+                    <div class="col font-weight-bold">Department</div>
+                    <div class="col font-weight-bold">Position</div>
+                </div>
+                <div class="row">
+                    <div id="overview_emp_fullname" class="col"></div>
+                    <div id="overview_emp_company" class="col"></div>
+                    <div id="overview_emp_department" class="col"></div>
+                    <div id="overview_emp_position" class="col"></div>
+                </div>
+            </div>
+            <!-- Device -->
+            <div class="mb-3">
+                <div class="row">
+                    <div class="col-auto">
+                        <h4 class="text-navyblue">Device Details</h4>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col font-weight-bold">Serial number</div>
+                    <div id="overview_workstation_title" class="col font-weight-bold invisible">Proximity unlock</div>
+                    <div class="col"></div>
+                    <div class="col"></div>
+                </div>
+                <div class="row">
+                    <div id="overview_device" class="col"></div>
+                    <div id="overview_workstation" class="col invisible"></div>
+                    <div class="col"></div>
+                    <div class="col"></div>
+                </div>
+            </div>
+            <!-- Account -->
+            <div class="mb-3">
+                <div class="row">
+                    <div class="col-auto">
+                        <h4 id="account_title" class="text-navyblue">Windows Local Account</h4>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col font-weight-bold">User name</div>
+                    <div id="overview_domain_title" class="col font-weight-bold invisible">Domain</div>
+                    <div class="col"></div>
+                    <div class="col"></div>
+                </div>
+                <div class="row">
+                    <div id="overview_login" class="col"></div>
+                    <div id="overview_domain" class="col invisible"></div>
+                    <div class="col"></div>
+                    <div class="col"></div>
+                </div>
+            </div>
         </div>
     </div>
     <div class="form-group m-0 text-right">
@@ -297,20 +276,6 @@
         $('.nav-pills .active').parent().prev('li').find('a').trigger('click');
     });
 
-    $('a[data-toggle="pill"]').on('shown.bs.tab', function (e) {
-        switch (e.target.id) {
-            case "pills-devices-tab":
-                device_table.columns.adjust();
-                break;
-            case "pills-workstations-tab":
-                workstation_table.columns.adjust();
-                break;
-            case "pills-overview-tab":
-                result_table.columns.adjust();
-                break;
-        }
-    });
-
     $('a[data-toggle="pill"]').on('show.bs.tab', function (e) {
         switch (e.target.id) {
             case "pills-profile-tab":
@@ -328,19 +293,19 @@
                 }
                 else {
                     SwitchWizardState('wizard_devices', 'procees-back');
-                    SwitchWizardState('wizard_workstations', 'wait');
+                    SwitchWizardState('wizard_workstation_account', 'wait');
                 }
                 break;
-            case "pills-workstations-tab":
+            case "pills-workstation_account-tab":
                 $('#btn_next').removeClass('d-none');
                 $('#btn_create').addClass('d-none');
 
                 if (e.relatedTarget.id === "pills-devices-tab") {
                     SwitchWizardState('wizard_devices', 'finish');
-                    SwitchWizardState('wizard_workstations', 'procees-next');
+                    SwitchWizardState('wizard_workstation_account', 'procees-next');
                 }
                 else {
-                    SwitchWizardState('wizard_workstations', 'procees-back');
+                    SwitchWizardState('wizard_workstation_account', 'procees-back');
                     SwitchWizardState('wizard_overview', 'wait');
                 }
                 break;
@@ -348,38 +313,42 @@
                 $('#btn_next').addClass('d-none');
                 $('#btn_create').removeClass('d-none');
 
-                SwitchWizardState('wizard_workstations', 'finish');
+                SwitchWizardState('wizard_workstation_account', 'finish');
                 SwitchWizardState('wizard_overview', 'procees-next');
 
-                $('#result_employee').html($('#employee_first_name').val() + ' ' + $('#employee_last_name').val());
+                //Employee
+                $('#overview_emp_fullname').html($('#employee_first_name').val() + ' ' + $('#employee_last_name').val());
+                $('#overview_emp_company').html($("#companies option:selected").text());
+                $('#overview_emp_department').html($("#departments option:selected").text());
+                $('#overview_emp_position').html($("#positions option:selected").text());
 
-                devces_collection = [];
-                device_table.$('input[type="checkbox"]').each(function () {
-                    if (this.checked && this.id != '') {
-                        devces_collection.push(this.id);
-                    }
-                });
-                //var devicesList = $('#result_devices');
-                //devicesList.empty();
-                //devicesList.append("<li class='list-group-item d-flex justify-content-between align-items-center active'>Devices<span class='badge badge-light badge-pill'>" + devces_collection.length + "</span></li >");
-                //$.each(devces_collection, function (index, value) {
-                //    devicesList.append("<li class='list-group-item'>" + value + "</li>");
-                //});
-                $('#result_devices').html(devces_collection.join("<br/>"));
+                // Device
+                $('#overview_device').html($("#deviceId option:selected").text());
+                var workstation = $("#workstationId option:selected").text();
+                if (workstation != '') {
+                    $('#overview_workstation').html(workstation);
+                    $('#overview_workstation_title').removeClass('invisible');
+                    $('#overview_workstation').removeClass('invisible');
+                }
+                else {
+                    $('#overview_workstation_title').addClass('invisible');
+                    $('#overview_workstation').addClass('invisible');
+                }
 
-                workstations_collection = [];
-                workstation_table.$('input[type="checkbox"]').each(function () {
-                    if (this.checked && this.id != '') {
-                        workstations_collection.push(this.id);
-                    }
-                });
-                //var workstationsList = $('#result_workstations');
-                //workstationsList.empty();
-                //workstationsList.append("<li class='list-group-item d-flex justify-content-between align-items-center active'>Workstations<span class='badge badge-light badge-pill'>" + workstations_collection.length + "</span></li >");
-                //$.each(workstations_collection, function (index, value) {
-                //    workstationsList.append("<li class='list-group-item'>" + value + "</li>");
-                //});
-                $('#result_workstations').html(workstations_collection.join("<br/>"));
+                // Account
+                $('#overview_login').html($("#login").val());
+                var type = $("#workstation_account_type option:selected").text();
+                var domain = $("#domain").val();
+                if (type === 'Domain') {
+                    $('#overview_domain').html(domain);
+                    $('#overview_domain_title').removeClass('invisible');
+                    $('#overview_domain').removeClass('invisible');
+                }
+                else {
+                    $('#overview_domain_title').addClass('invisible');
+                    $('#overview_domain').addClass('invisible');
+                }
+
                 break;
         }
     });
@@ -405,79 +374,32 @@
         }
     }
 
-    // Initialize Devices
-    var d_table_name = '#devices';
-    var device_table = $(d_table_name).DataTable({
-        "order": [[1, "asc"]],
-        "columnDefs": [
-            { "orderable": false, "targets": 0 }
-        ],
-        "lengthMenu": [[5], [5]],
-        "scrollY": "216px",
-        "paging": false,
-        "bInfo": false,
-        "bLengthChange": false,
-    });
-    var device_dataTable = $(d_table_name).dataTable();
-    $('#devices_searchbox').keyup(function () {
-        device_dataTable.fnFilter(this.value);
-    });
-    $('.dataTables_filter').addClass('d-none');
-    // Devices check all
-    $(document).on('change', '#device_checkbox_all', function () {
+    $(document).on('click', '#proximity', function () {
         if (this.checked) {
-            device_table.$('input[type="checkbox"]').each(function () {
-                this.checked = true;
-            });
+            $('#workstation_group').removeClass('d-none');
         }
         else {
-            device_table.$('input[type="checkbox"]').each(function () {
-                this.checked = false;
-            });
+            $('#workstation_group').addClass('d-none');
         }
     });
 
-    // Initialize Workstations
-    var w_table_name = '#workstations';
-    var workstation_table = $(w_table_name).DataTable({
-        "order": [[1, "asc"]],
-        "columnDefs": [
-            { "orderable": false, "targets": 0 }
-        ],
-        "lengthMenu": [[5], [5]],
-        "scrollY": "216px",
-        "paging": false,
-        "bInfo": false,
-        "bLengthChange": false,
-    });
-    var workstation_dataTable = $(w_table_name).dataTable();
-    $('#workstation_searchbox').keyup(function () {
-        workstation_dataTable.fnFilter(this.value);
-    });
-    $('.dataTables_filter').addClass('d-none');
-    // Workstations check all
-    $(document).on('change', '#workstation_checkbox_all', function () {
-        if (this.checked) {
-            workstation_table.$('input[type="checkbox"]').each(function () {
-                this.checked = true;
-            });
+    $(document).on('change', '#workstation_account_type', function () {
+        switch (this.value) {
+            case '0':
+                $('#domain_group').addClass('invisible');
+                $('#domain').val('local');
+                $('#account_title').html('Windows Local Account');
+                break;
+            case '1':
+                $('#domain_group').removeClass('invisible');
+                $('#domain').val('');
+                $('#account_title').html('Windows Domain Account');
+                break;
+            case '2':
+                $('#domain_group').addClass('invisible');
+                $('#domain').val('ms');
+                $('#account_title').html('Microsoft Account');
+                break;
         }
-        else {
-            workstation_table.$('input[type="checkbox"]').each(function () {
-                this.checked = false;
-            });
-        }
-    });
-
-    // Initialize Overview
-    var r_table_name = '#result';
-    var result_table = $(r_table_name).DataTable({
-        "lengthMenu": [[5], [5]],
-        "scrollY": "216px",
-        "paging": false,
-        "bInfo": false,
-        "bLengthChange": false,
-        "ordering": false,
-        "searching": false
-    });
+    });  
 </script>
