@@ -14,16 +14,16 @@ namespace HES.Core.Entities
         public string FirstName { get; set; }
         [Required]
         [Display(Name = "Last Name")]
-        public string LastName { get; set; }
+        public string LastName { get; set; }    
         [Required]
         [EmailAddress]
         public string Email { get; set; }
         [Display(Name = "Phone Number")]
         public string PhoneNumber { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Field is required.")]
         [Display(Name = "Department")]
         public string DepartmentId { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Field is required.")]
         [Display(Name = "Position")]
         public string PositionId { get; set; }
         [Display(Name = "Last Seen")]

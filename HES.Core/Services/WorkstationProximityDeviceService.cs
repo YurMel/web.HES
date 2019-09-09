@@ -112,6 +112,21 @@ namespace HES.Core.Services
             await UpdateProximitySettingsAsync(proximityDevice.WorkstationId);
         }
 
+        public async Task DeleteRangeProximityDevicesAsync(List<WorkstationProximityDevice> proximityDevices)
+        {
+            if (proximityDevices == null)
+            {
+                throw new ArgumentNullException(nameof(proximityDevices));
+            }
+            
+            await _workstationProximityDeviceRepository.DeleteRangeAsync(proximityDevices);
+
+            foreach (var item in proximityDevices)
+            {
+                await UpdateProximitySettingsAsync(item.WorkstationId);
+            }
+        }
+
         public async Task<IReadOnlyList<DeviceProximitySettingsDto>> GetProximitySettingsAsync(string workstationId)
         {
             var workstation = await _workstationRepository

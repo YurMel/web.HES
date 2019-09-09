@@ -64,14 +64,14 @@
             <a class="nav-link" id="pills-devices-tab" data_id="2" data-toggle="pill" href="#pills-devices" role="tab" aria-controls="pills-devices" aria-selected="false">Devices</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" id="pills-workstation_account-tab"  data_id="3" data-toggle="pill" href="#pills-workstation_account" role="tab" aria-controls="pills-workstation_account" aria-selected="false">Workstation Account</a>
+            <a class="nav-link" id="pills-workstation_account-tab" data_id="3" data-toggle="pill" href="#pills-workstation_account" role="tab" aria-controls="pills-workstation_account" aria-selected="false">Workstation Account</a>
         </li>
         <li class="nav-item">
             <a class="nav-link" id="pills-overview-tab" data_id="4" data-toggle="pill" href="#pills-overview" role="tab" aria-controls="pills-overview" aria-selected="false">Overview</a>
         </li>
     </ul>
 
-    <div class="tab-content" id="pills-tabContent" style="height:344px;">
+    <div class="tab-content" id="pills-tabContent" style="height:384px;">
         <!-- Profile -->
         <div class="tab-pane  show active" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -108,15 +108,17 @@
                             <img src="~/svg/action/add.svg" />
                         </button>
                     </div>
+                    <span asp-validation-for="EmployeeWizard.Employee.DepartmentId" class="text-danger"></span>
                 </div>
                 <div class="form-group col">
                     <label asp-for="EmployeeWizard.Employee.DepartmentId" class="control-label text-gray"></label>
                     <div class="d-flex">
                         <select id="departments" asp-for="EmployeeWizard.Employee.DepartmentId" class="form-control text-navyblue"></select>
-                        <button id="addDepartments" type="button" class="btn btn-success btn-add open-second-modal-dialog" data-id="" data-action="CreateDepartment" data-title="Create department">
+                        <button id="add_position_btn" type="button" class="btn btn-success btn-add open-second-modal-dialog" data-id="" data-action="CreateDepartment" data-title="Create department">
                             <img src="~/svg/action/add.svg" />
                         </button>
                     </div>
+                    <span asp-validation-for="EmployeeWizard.Employee.DepartmentId" class="text-danger"></span>
                 </div>
             </div>
             <div class="row">
@@ -124,10 +126,11 @@
                     <label asp-for="EmployeeWizard.Employee.PositionId" class="control-label text-gray"></label>
                     <div class="d-flex">
                         <select id="positions" asp-for="EmployeeWizard.Employee.PositionId" class="form-control text-navyblue" asp-items="ViewBag.PositionId"></select>
-                        <button type="button" class="btn btn-success btn-add open-second-modal-dialog" data-id="" data-action="CreatePosition" data-title="Create position">
+                        <button  type="button" class="btn btn-success btn-add open-second-modal-dialog" data-id="" data-action="CreatePosition" data-title="Create position">
                             <img src="~/svg/action/add.svg" />
                         </button>
                     </div>
+                    <span asp-validation-for="EmployeeWizard.Employee.PositionId" class="text-danger"></span>
                 </div>
                 <div class="col"></div>
             </div>
@@ -398,5 +401,5 @@
                 $('#account_title').html('Microsoft Account');
                 break;
         }
-    });
+    });  
 </script>

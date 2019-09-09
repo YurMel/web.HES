@@ -13,6 +13,7 @@ namespace HES.Core.Interfaces
         Task AddMultipleProximityDevicesAsync(string[] workstationsId, string[] devicesId);
         Task EditProximityDeviceAsync(WorkstationProximityDevice proximityDevice);
         Task DeleteProximityDeviceAsync(string proximityDeviceId);
+        Task DeleteRangeProximityDevicesAsync(List<WorkstationProximityDevice> proximityDevices);
         Task<IReadOnlyList<DeviceProximitySettingsDto>> GetProximitySettingsAsync(string workstationId);
         Task UpdateProximitySettingsAsync(string workstationId);
     }

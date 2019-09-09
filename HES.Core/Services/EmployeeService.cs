@@ -26,6 +26,7 @@ namespace HES.Core.Services
         private readonly IAsyncRepository<WorkstationEvent> _workstationEventRepository;
         private readonly IAsyncRepository<WorkstationSession> _workstationSessionRepository;
         private readonly IRemoteTaskService _remoteTaskService;
+        private readonly IWorkstationProximityDeviceService _workstationProximityDeviceService;
         private readonly IDataProtectionService _dataProtectionService;
 
         public EmployeeService(IAsyncRepository<Employee> employeeRepository,
@@ -40,6 +41,7 @@ namespace HES.Core.Services
                                IAsyncRepository<WorkstationEvent> workstationEventRepository,
                                IAsyncRepository<WorkstationSession> workstationSessionRepository,
                                IRemoteTaskService remoteTaskService,
+                               IWorkstationProximityDeviceService workstationProximityDeviceService,
                                IDataProtectionService dataProtectionService)
         {
             _employeeRepository = employeeRepository;
@@ -54,6 +56,7 @@ namespace HES.Core.Services
             _workstationEventRepository = workstationEventRepository;
             _workstationSessionRepository = workstationSessionRepository;
             _remoteTaskService = remoteTaskService;
+            _workstationProximityDeviceService = workstationProximityDeviceService;
             _dataProtectionService = dataProtectionService;
         }
 
@@ -256,16 +259,29 @@ namespace HES.Core.Services
                 throw new Exception($"Device {deviceId} not linked to employee");
 
             // Remove all tasks
-            var allTasks = await _deviceTaskRepository.Query().Where(t => t.DeviceId == deviceId).ToListAsync();
+            var allTasks = await _deviceTaskRepository
+                .Query()
+                .Where(t => t.DeviceId == deviceId)
+                .ToListAsync();
             await _deviceTaskRepository.DeleteRangeAsync(allTasks);
 
             // Remove all accounts
-            var allAccounts = await _deviceAccountRepository.Query().Where(d => d.DeviceId == deviceId).ToListAsync();
+            var allAccounts = await _deviceAccountRepository
+                .Query()
+                .Where(d => d.DeviceId == deviceId)
+                .ToListAsync();
             foreach (var account in allAccounts)
             {
                 account.Deleted = true;
             }
             await _deviceAccountRepository.UpdateOnlyPropAsync(allAccounts, new string[] { "Deleted" });
+
+            // Remove proximity device
+            var allProximityDevices = await _workstationProximityDeviceService
+                .Query()
+                .Where(w => w.DeviceId == deviceId)
+                .ToListAsync();
+            await _workstationProximityDeviceService.DeleteRangeProximityDevicesAsync(allProximityDevices);
 
             // Remove employee from device
             device.EmployeeId = null;

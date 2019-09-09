@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Diagnostics;
-using System.Text;
-using System.Threading.Tasks;
-using HES.Core.Interfaces;
+﻿using HES.Core.Interfaces;
 using Hideez.SDK.Communication;
-using Hideez.SDK.Communication.Command;
 using Hideez.SDK.Communication.Remote;
 using Hideez.SDK.Communication.Utils;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace HES.Core.Hubs
 {
@@ -34,7 +32,7 @@ namespace HES.Core.Hubs
 
         private readonly IRemoteTaskService _remoteTaskService;
         private readonly ILogger<DeviceHub> _logger;
-        
+
         public DeviceHub(IRemoteTaskService remoteTaskService, ILogger<DeviceHub> logger)
         {
             _remoteTaskService = remoteTaskService;
@@ -52,11 +50,7 @@ namespace HES.Core.Hubs
 
             if (!string.IsNullOrWhiteSpace(deviceId))
             {
-<<<<<<< HEAD
-                var device = new RemoteDevice(deviceId, Clients.Caller, null, null);
-=======
                 var device = new RemoteDevice(deviceId, Clients.Caller, null, null); // todo - implement ILog
->>>>>>> release/2.1
 
                 Context.Items.Add("DeviceId", deviceId);
                 Context.Items.Add("Device", device);
