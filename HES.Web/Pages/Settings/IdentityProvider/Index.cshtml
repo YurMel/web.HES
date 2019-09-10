@@ -1,0 +1,18 @@
+﻿@page
+@model HES.Web.Pages.Settings.IdentityProvider.IndexModel
+@{
+    ViewData["Title"] = "Identity Provider";
+    ViewData["ActivePage"] = MenuNavPages.Settings;
+    ViewData["SettingsPage"] = SettingsNavPages.IdentityProvider;
+}
+
+<div class="row align-items-center mr-0">
+    <div class="col-auto">
+        <h1 class="text-navyblue">SAML IdP Settings</h1>
+    </div>
+    <div class="col"></div>
+</div>
+<div>
+    <h2>@Model.SamlIdentityProvider.Enabled</h2>
+    <h2>@Model.SamlIdentityProvider.Url</h2>
+</div>

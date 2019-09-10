@@ -20,11 +20,12 @@ namespace HES.Infrastructure
 
         public void Initialize()
         {
-            CreateAdministrator().Wait();
-            CreateDefaultDeviceAccessProfile().Wait();
+            InitRoleAndUser().Wait();
+            InitDefaultDeviceAccessProfile().Wait();
+            InitIdentityProviderSettings().Wait();
         }
 
-        private async Task CreateAdministrator()
+        private async Task InitRoleAndUser()
         {
             var roleResult = await _roleManager.RoleExistsAsync(ApplicationRoles.AdminRole);
             if (!roleResult)
@@ -34,6 +35,7 @@ namespace HES.Infrastructure
 
                 // Create role
                 await _roleManager.CreateAsync(new IdentityRole(ApplicationRoles.AdminRole));
+                await _roleManager.CreateAsync(new IdentityRole(ApplicationRoles.UserRole));
                 // Create user
                 var user = new ApplicationUser { UserName = adminName, Email = adminName, EmailConfirmed = true };
                 var createResult = await _userManager.CreateAsync(user, adminPassword);
@@ -42,7 +44,7 @@ namespace HES.Infrastructure
             }
         }
 
-        private async Task CreateDefaultDeviceAccessProfile()
+        private async Task InitDefaultDeviceAccessProfile()
         {
             var profile = await _context.DeviceAccessProfiles.FindAsync("default");
 
@@ -72,6 +74,21 @@ namespace HES.Infrastructure
                     ButtonExpiration = 15
                 });
 
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        private async Task InitIdentityProviderSettings()
+        {
+            var samlIdPEnabled = await _context.SamlIdentityProvider.FindAsync(SamlIdentityProvider.Key);
+            if (samlIdPEnabled == null)
+            {
+                await _context.SamlIdentityProvider.AddAsync(new SamlIdentityProvider
+                {
+                    Id = SamlIdentityProvider.Key,
+                    Enabled = false,
+                    Url = null
+                });
                 await _context.SaveChangesAsync();
             }
         }

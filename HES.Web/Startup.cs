@@ -84,6 +84,7 @@ namespace HES.Web
             services.AddScoped<IApplicationUserService, ApplicationUserService>();
             services.AddScoped<IDeviceAccessProfilesService, DeviceAccessProfilesService>();
             services.AddTransient<IAppVersionService, AppVersionService>();
+            services.AddTransient<ISamlIdentityProviderService, SamlIdentityProviderService>();
             services.AddSingleton<IRemoteTaskService, RemoteTaskService>(s =>
             {
                 var scope = s.CreateScope();
@@ -150,7 +151,6 @@ namespace HES.Web
                 options.Password.RequireUppercase = false;
                 options.Password.RequiredUniqueChars = 0;
                 options.Password.RequireNonAlphanumeric = false;
-
             });
 
             // Database
@@ -163,20 +163,32 @@ namespace HES.Web
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
+            // Auth policy
+            services.AddAuthorization(config =>
+            {
+                config.AddPolicy("RequireAdministratorRole",
+                    policy => policy.RequireRole("Administrator"));
+                config.AddPolicy("RequireUserRole",
+                    policy => policy.RequireRole("User"));
+            });
+
             // Mvc
             services.AddMvc()
                 .AddRazorPagesOptions(options =>
-                {
+                {                  
+                    options.Conventions.AuthorizeAreaFolder("Identity", "/Account/Manage", "RequireAdministratorRole");               
+                    options.Conventions.AuthorizeAreaFolder("Identity", "/Account/External");               
+
                     options.Conventions.AddPageRoute("/Employees/Index", "");
-                    options.Conventions.AuthorizeFolder("/Employees");
-                    options.Conventions.AuthorizeFolder("/Workstations");
-                    options.Conventions.AuthorizeFolder("/SharedAccounts");
-                    options.Conventions.AuthorizeFolder("/Templates");
-                    options.Conventions.AuthorizeFolder("/Devices");
-                    options.Conventions.AuthorizeFolder("/Audit");
-                    options.Conventions.AuthorizeFolder("/Settings");
-                    options.Conventions.AuthorizeFolder("/Logs");
-                    options.Conventions.AuthorizeFolder("/Notifications");
+                    options.Conventions.AuthorizeFolder("/Employees", "RequireAdministratorRole");
+                    options.Conventions.AuthorizeFolder("/Workstations", "RequireAdministratorRole");
+                    options.Conventions.AuthorizeFolder("/SharedAccounts", "RequireAdministratorRole");
+                    options.Conventions.AuthorizeFolder("/Templates", "RequireAdministratorRole");
+                    options.Conventions.AuthorizeFolder("/Devices", "RequireAdministratorRole");
+                    options.Conventions.AuthorizeFolder("/Audit", "RequireAdministratorRole");
+                    options.Conventions.AuthorizeFolder("/Settings", "RequireAdministratorRole");
+                    options.Conventions.AuthorizeFolder("/Logs", "RequireAdministratorRole");
+                    options.Conventions.AuthorizeFolder("/Notifications", "RequireAdministratorRole");
                 })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }

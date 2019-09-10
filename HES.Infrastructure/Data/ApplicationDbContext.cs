@@ -28,6 +28,7 @@ namespace HES.Infrastructure
         public DbSet<AppSettings> AppSettings { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<DeviceAccessProfile> DeviceAccessProfiles { get; set; }
+        public DbSet<SamlIdentityProvider> SamlIdentityProvider { get; set; }
 
         public DbQuery<SummaryByDayAndEmployee> SummaryByDayAndEmployee { get; set; }
         public DbQuery<SummaryByEmployees> SummaryByEmployees { get; set; }
