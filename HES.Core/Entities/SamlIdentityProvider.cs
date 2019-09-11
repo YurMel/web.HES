@@ -7,7 +7,9 @@ namespace HES.Core.Entities
     {
         [Key]
         public string Id { get; set; }
+        [Display(Name = "SAML IdP Authentication")]
         public bool Enabled { get; set; }
+        [Display(Name = "SAML IdP Server URL")]
         public string Url { get; set; }
 
         [NotMapped]
