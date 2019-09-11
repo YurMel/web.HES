@@ -7,6 +7,6 @@ namespace HES.Infrastructure.Identity
     {
         Task<IList<ApplicationUser>> GetAllAsync();
         Task<ApplicationUser> GetFirstOrDefaultAsync(string id);
-        Task DelateAdminAsync(string id);
+        Task DeleteUserAsync(string id);
     }
 }

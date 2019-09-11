@@ -32,6 +32,51 @@
     </div>
 </div>
 
+@*SAML IdP*@
+<div class="@(Model.SamlIdentityProvider.Enabled == true ? "" : "d-none")">
+    <h4 class="text-navyblue mb-2 mt-3">SAML IdP Account</h4>
+    <form method="post" class="custom-card">
+        <input type="hidden" asp-for="Employee.Id" />
+        <input type="hidden" asp-for="Employee.Email" />
+        <input type="hidden" asp-for="Employee.FirstName" />
+        <input type="hidden" asp-for="Employee.LastName" />
+        <div class="row">
+            <div class="col-auto">
+                <label class="control-label mb-0">Enable</label>
+            </div>
+            <div class="col-auto">
+                <div class="custom-control custom-switch">
+                    <input id="idpEnabled" type="checkbox" class="custom-control-input" checked="@Model.Employee.SamlIdpEnabled">
+                    <label class="custom-control-label" for="idpEnabled"></label>
+                </div>
+            </div>
+        </div>
+        @if (!Model.Employee.SamlIdpEnabled)
+        {
+            <div id="device_group" class="mt-3 d-none">
+                <label class="control-label">Device</label>
+                <select class="form-control" asp-for="Employee.SamlIdp" asp-items="ViewBag.DeviceId"></select>
+            </div>
+        }
+        else
+        {
+            <div>
+                <input type="submit" value="Reset password" class="btn btn-primary mt-3" asp-page-handler="SetSamlIdentityProvider" />
+            </div>
+        }
+        <div>
+            @if (!@Model.Employee.SamlIdpEnabled)
+            {
+                <input id="idpSaveBtn" type="submit" value="Save" class="btn btn-primary mt-3 d-none" asp-page-handler="EnableSamlIdentityProvider" />
+            }
+            else
+            {
+                <input id="idpSaveBtn" type="submit" value="Save" class="btn btn-primary mt-3 d-none" asp-page-handler="DisableSamlIdentityProvider" />
+            }
+        </div>
+    </form>
+</div>
+
 @* Devices tables *@
 @foreach (var device in Model.Employee.Devices)
 {
@@ -136,7 +181,7 @@
             <div class="col p-0"></div>
         </div>
     </div>
-    
+
     @*DeviceAccounts title*@
     <div class="row align-items-center m-1">
         <div class="col-auto p-1">
@@ -503,6 +548,32 @@
                 $('#pagination_place_' + currentId).html($('#' + currentId + '_paginate'));
             }
         });
+
+        // SAML IdP
+        $(document).on("change", "#idpEnabled", function () {
+
+            var enabled = '@Model.Employee.SamlIdpEnabled';
+
+            if (enabled === 'False') {
+                if (this.checked) {
+                    $('#device_group').removeClass('d-none');
+                    $('#idpSaveBtn').removeClass('d-none');
+                }
+                else {
+                    $('#device_group').addClass('d-none');
+                    $('#idpSaveBtn').addClass('d-none');
+                }
+            }
+            else {
+                if (this.checked) {
+                    $('#idpSaveBtn').addClass('d-none');
+                }
+                else {
+                    $('#idpSaveBtn').removeClass('d-none');
+                }
+            }
+        });
+
 
         $(document).ready(function () {
             // Set btn disable if device count 0

@@ -28,6 +28,7 @@ namespace HES.Core.Services
         private readonly IRemoteTaskService _remoteTaskService;
         private readonly IWorkstationProximityDeviceService _workstationProximityDeviceService;
         private readonly IDataProtectionService _dataProtectionService;
+        private readonly ISamlIdentityProviderService _samlIdentityProviderService;
 
         public EmployeeService(IAsyncRepository<Employee> employeeRepository,
                                IAsyncRepository<Device> deviceRepository,
@@ -42,7 +43,8 @@ namespace HES.Core.Services
                                IAsyncRepository<WorkstationSession> workstationSessionRepository,
                                IRemoteTaskService remoteTaskService,
                                IWorkstationProximityDeviceService workstationProximityDeviceService,
-                               IDataProtectionService dataProtectionService)
+                               IDataProtectionService dataProtectionService,
+                               ISamlIdentityProviderService samlIdentityProviderService)
         {
             _employeeRepository = employeeRepository;
             _deviceRepository = deviceRepository;
@@ -58,6 +60,7 @@ namespace HES.Core.Services
             _remoteTaskService = remoteTaskService;
             _workstationProximityDeviceService = workstationProximityDeviceService;
             _dataProtectionService = dataProtectionService;
+            _samlIdentityProviderService = samlIdentityProviderService;
         }
 
         public IQueryable<Employee> EmployeeQuery()
@@ -176,6 +179,130 @@ namespace HES.Core.Services
         public async Task<bool> ExistAsync(Expression<Func<Employee, bool>> predicate)
         {
             return await _employeeRepository.ExistAsync(predicate);
+        }
+
+        public async Task EnableSamlIdpAsync(Employee employee)
+        {
+            if (employee == null)
+            {
+                throw new ArgumentNullException(nameof(employee));
+            }
+
+            await _employeeRepository.UpdateOnlyPropAsync(employee, new string[] { "SamlIdp" });
+        }
+
+        public async Task DisableSamlIdpAsync(Employee employee)
+        {
+            if (employee == null)
+            {
+                throw new ArgumentNullException(nameof(employee));
+            }
+
+            await _employeeRepository.UpdateOnlyPropAsync(employee, new string[] { "SamlIdp" });
+        }
+
+        public async Task CreateSamlIdpAccountAsync(string email, string password, string hesUrl)
+        {
+            var employee = await _employeeRepository.Query().FirstOrDefaultAsync(e => e.Email == email);
+            if (employee == null)
+            {
+                throw new ArgumentNullException(nameof(employee));
+            }
+
+            var device = await _deviceRepository.GetByIdAsync(employee.SamlIdp);
+            if (device == null)
+            {
+                throw new ArgumentNullException(nameof(device));
+            }
+
+            var samlIdP = await _samlIdentityProviderService.GetByIdAsync(SamlIdentityProvider.Key);
+
+            // Create account
+            var deviceAccountId = Guid.NewGuid().ToString();
+            var deviceAccount = new DeviceAccount
+            {
+                Id = deviceAccountId,
+                Name = SamlIdentityProvider.DeviceAccountName,
+                Urls = $"{samlIdP.Url};{hesUrl}",
+                Apps = null,
+                Login = email,
+                Type = AccountType.Personal,
+                Status = AccountStatus.Creating,
+                CreatedAt = DateTime.UtcNow,
+                PasswordUpdatedAt = DateTime.UtcNow,
+                OtpUpdatedAt = null,
+                EmployeeId = employee.Id,
+                DeviceId = device.Id,
+                SharedAccountId = null
+            };
+
+            // Validate url
+            List<string> verifiedUrls = new List<string>();
+            foreach (var url in deviceAccount.Urls.Split(";"))
+            {
+                string uriString = url;
+                string domain = string.Empty;
+
+                if (string.IsNullOrWhiteSpace(uriString))
+                {
+                    throw new Exception("Not correct url");
+                }
+
+                if (!uriString.Contains(Uri.SchemeDelimiter))
+                {
+                    uriString = string.Concat(Uri.UriSchemeHttp, Uri.SchemeDelimiter, uriString);
+                }
+
+                domain = new Uri(uriString).Host;
+
+                if (domain.StartsWith("www."))
+                    domain = domain.Remove(0, 4);
+
+                verifiedUrls.Add(domain);
+            }
+            deviceAccount.Urls = string.Join(";", verifiedUrls.ToArray());
+
+            // Create task
+            var deviceTask = new DeviceTask
+            {
+                DeviceAccountId = deviceAccountId,
+                Name = deviceAccount.Name,
+                Urls = deviceAccount.Urls,
+                Apps = deviceAccount.Apps,
+                Login = deviceAccount.Login,
+                Password = _dataProtectionService.Protect(password),
+                OtpSecret = null,
+                CreatedAt = DateTime.UtcNow,
+                Operation = TaskOperation.Create,
+                DeviceId = device.Id
+            };
+
+            // Add account
+            await _deviceAccountRepository.AddAsync(deviceAccount);
+
+            try
+            {
+                // Add task
+                await _remoteTaskService.AddTaskAsync(deviceTask);
+            }
+            catch (Exception)
+            {
+                // Remove account
+                await _deviceAccountRepository.DeleteAsync(deviceAccount);
+                throw;
+            }
+
+            _remoteTaskService.StartTaskProcessing(device.Id);
+        }
+
+        public async Task DeleteSamlIdpAccountAsync(string employeeId)
+        {
+            var account = await _deviceAccountRepository
+                .Query()
+                .Where(d => d.EmployeeId == employeeId && d.Name == SamlIdentityProvider.DeviceAccountName)
+                .FirstOrDefaultAsync();
+
+            await DeleteAccount(account.Id);
         }
 
         public async Task SetPrimaryAccount(string deviceId, string deviceAccountId)
@@ -307,7 +434,7 @@ namespace HES.Core.Services
             var deviceAccount = new DeviceAccount()
             {
                 Name = "Workstation Account",
-                EmployeeId = employeeId                
+                EmployeeId = employeeId
             };
 
             switch (workstationAccount.AccountType)

@@ -147,7 +147,7 @@ namespace HES.Web.Pages.Settings.Administrators
             {
                 var user = await _userManager.GetUserAsync(User);
 
-                await _applicationUserService.DelateAdminAsync(id);
+                await _applicationUserService.DeleteUserAsync(id);
 
                 if (user.Id == id)
                 {

@@ -1,5 +1,8 @@
 ﻿using HES.Core.Entities;
 using HES.Core.Interfaces;
+using HES.Infrastructure;
+using HES.Infrastructure.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -8,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 
 namespace HES.Web.Pages.Employees
@@ -15,7 +19,12 @@ namespace HES.Web.Pages.Employees
     public class DetailsModel : PageModel
     {
         private readonly IEmployeeService _employeeService;
+        private readonly ISamlIdentityProviderService _samlIdentityProviderService;
         private readonly ILogger<DetailsModel> _logger;
+
+        private readonly IApplicationUserService _applicationUserService;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IEmailSender _emailSender;
 
         public IList<Device> Devices { get; set; }
         public IList<DeviceAccount> DeviceAccounts { get; set; }
@@ -26,16 +35,26 @@ namespace HES.Web.Pages.Employees
         public DeviceAccount DeviceAccount { get; set; }
         public SharedAccount SharedAccount { get; set; }
         public InputModel Input { get; set; }
+        public SamlIdentityProvider SamlIdentityProvider { get; set; }
 
         [TempData]
         public string SuccessMessage { get; set; }
         [TempData]
         public string ErrorMessage { get; set; }
 
-        public DetailsModel(IEmployeeService employeeService, ILogger<DetailsModel> logger)
+        public DetailsModel(IEmployeeService employeeService,
+                            ISamlIdentityProviderService samlIdentityProviderService,
+                            ILogger<DetailsModel> logger,
+                            IApplicationUserService applicationUserService,
+                            UserManager<ApplicationUser> userManager,
+                            IEmailSender emailSender)
         {
             _employeeService = employeeService;
+            _samlIdentityProviderService = samlIdentityProviderService;
             _logger = logger;
+            _applicationUserService = applicationUserService;
+            _userManager = userManager;
+            _emailSender = emailSender;
         }
 
         public async Task<IActionResult> OnGetAsync(string id)
@@ -64,76 +83,86 @@ namespace HES.Web.Pages.Employees
                 .Include(d => d.Device)
                 .Include(d => d.Employee)
                 .Include(d => d.SharedAccount)
-                .Where(d => d.Deleted == false)
+                .Where(d => d.Deleted == false && d.Name != SamlIdentityProvider.DeviceAccountName)
                 .ToListAsync();
+
+            ViewData["DeviceId"] = new SelectList(Employee.Devices.OrderBy(d => d.Id), "Id", "Id");
+
+            SamlIdentityProvider = await _samlIdentityProviderService.GetByIdAsync(SamlIdentityProvider.Key);
 
             return Page();
         }
 
         #region Employee
 
-        //public async Task<JsonResult> OnGetJsonDepartmentAsync(string id)
-        //{
-        //    return new JsonResult(await _employeeService.DepartmentQuery().Where(d => d.CompanyId == id).ToListAsync());
-        //}
+        public async Task<IActionResult> OnPostEnableSamlIdentityProviderAsync(Employee employee)
+        {
+            try
+            {
+                // User
+                var user = new ApplicationUser { UserName = employee.Email, Email = employee.Email };
+                var password = Guid.NewGuid().ToString();
+                var result = await _userManager.CreateAsync(user, password);
+                if (!result.Succeeded)
+                {
+                    throw new Exception("Error creating idp user");
+                }
 
-        //public async Task<IActionResult> OnGetEditEmployeeAsync(string id)
-        //{
-        //    if (id == null)
-        //    {
-        //        _logger.LogWarning("id == null");
-        //        return NotFound();
-        //    }
+                // Role
+                await _userManager.AddToRoleAsync(user, ApplicationRoles.UserRole);
 
-        //    Employee = await _employeeService
-        //        .EmployeeQuery()
-        //        .Include(e => e.Department)
-        //        .Include(e => e.Position)
-        //        .FirstOrDefaultAsync(m => m.Id == id);
+                // Create link
+                var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+                var email = employee.Email;
+                var callbackUrl = Url.Page(
+                   "/Account/External/ActivationAccount",
+                    pageHandler: null,
+                    values: new { area = "Identity", code, email },
+                    protocol: Request.Scheme);
 
-        //    if (Employee == null)
-        //    {
-        //        _logger.LogWarning("Employee == null");
-        //        return NotFound();
-        //    }
+                await _emailSender.SendEmailAsync(email, "Hideez Enterpise Server - Activation of SAML IdP account",
+                    $"Dear {employee.FullName}, please click the link below to activate your SAML IdP account: <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
-        //    ViewData["CompanyId"] = new SelectList(await _employeeService.CompanyQuery().ToListAsync(), "Id", "Name");
-        //    ViewData["DepartmentId"] = new SelectList(await _employeeService.DepartmentQuery().Where(d => d.CompanyId == Employee.Department.CompanyId).ToListAsync(), "Id", "Name");
-        //    ViewData["PositionId"] = new SelectList(await _employeeService.PositionQuery().ToListAsync(), "Id", "Name");
+                // Save device id for idp account
+                await _employeeService.EnableSamlIdpAsync(employee);
 
-        //    return Partial("_EditEmployee", this);
-        //}
+                SuccessMessage = "SAML IdP account enabled.";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                ErrorMessage = ex.Message;
+            }
 
-        //public async Task<IActionResult> OnPostEditEmployeeAsync(Employee employee)
-        //{
-        //    var id = employee.Id;
-        //    if (!ModelState.IsValid)
-        //    {
-        //        _logger.LogWarning("Model is not valid");
-        //        return RedirectToPage("./Details", new { id });
-        //    }
+            var id = employee.Id;
+            return RedirectToPage("./Details", new { id });
+        }
 
-        //    try
-        //    {
-        //        await _employeeService.EditEmployeeAsync(employee);
-        //        SuccessMessage = $"Employee updated.";
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        if (!await EmployeeExists(employee.Id))
-        //        {
-        //            _logger.LogError("Employee dos not exists.");
-        //            return NotFound();
-        //        }
-        //        else
-        //        {
-        //            ErrorMessage = ex.Message;
-        //        }
-        //        _logger.LogError(ex.Message);
-        //    }
+        public async Task<IActionResult> OnPostDisableSamlIdentityProviderAsync(Employee employee)
+        {
+            try
+            {
+                var user = await _userManager.FindByEmailAsync(employee.Email);
+                if (user == null)
+                {
+                    return BadRequest("Email address does not exist.");
+                }
 
-        //    return RedirectToPage("./Details", new { id });
-        //}
+                await _userManager.DeleteAsync(user);
+                await _employeeService.DeleteSamlIdpAccountAsync(employee.Id);
+                await _employeeService.DisableSamlIdpAsync(employee);
+
+                SuccessMessage = "SAML IdP account disabled.";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                ErrorMessage = ex.Message;
+            }
+
+            var id = employee.Id;
+            return RedirectToPage("./Details", new { id });
+        }
 
         private async Task<bool> EmployeeExists(string id)
         {

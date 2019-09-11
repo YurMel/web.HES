@@ -37,9 +37,6 @@
                 @Html.DisplayNameFor(model => model.ApplicationUsers[0].Email)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ApplicationUsers[0].EmailConfirmed)
-            </th>
-            <th>
                 @Html.DisplayNameFor(model => model.ApplicationUsers[0].PhoneNumber)
             </th>
             <th>
@@ -55,9 +52,6 @@
                 <td class="d-none"></td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Email)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.EmailConfirmed)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.PhoneNumber)
@@ -121,7 +115,7 @@
         var table = $(table_name).DataTable({
             responsive: true,
             "columnDefs": [
-                { "orderable": false, "targets": [0,5] }
+                { "orderable": false, "targets": [0,4] }
             ]
         });
         var dataTable = $(table_name).dataTable();

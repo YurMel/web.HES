@@ -32,11 +32,11 @@ namespace HES.Infrastructure.Identity
             return await _context.Users.FirstOrDefaultAsync(m => m.Id == id);
         }
 
-        public async Task DelateAdminAsync(string id)
+        public async Task DeleteUserAsync(string id)
         {
             if (id == null)
             {
-                throw new Exception("The parameter must not be null.");
+                throw new ArgumentNullException(nameof(id));
             }
 
             var applicationUser = await _context.Users.FindAsync(id);
