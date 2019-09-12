@@ -115,7 +115,7 @@ namespace HES.Web.Pages.Employees
                 var code = await _userManager.GeneratePasswordResetTokenAsync(user);
                 var email = employee.Email;
                 var callbackUrl = Url.Page(
-                   "/Account/External/ActivationAccount",
+                   "/Account/External/ActivateAccount",
                     pageHandler: null,
                     values: new { area = "Identity", code, email },
                     protocol: Request.Scheme);
@@ -153,6 +153,41 @@ namespace HES.Web.Pages.Employees
                 await _employeeService.DisableSamlIdpAsync(employee);
 
                 SuccessMessage = "SAML IdP account disabled.";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                ErrorMessage = ex.Message;
+            }
+
+            var id = employee.Id;
+            return RedirectToPage("./Details", new { id });
+        }
+        
+        public async Task<IActionResult> OnPostResetSamlIdentityProviderAsync(Employee employee)
+        {
+            try
+            {
+                var user = await _userManager.FindByEmailAsync(employee.Email);
+                if (user == null)
+                {
+                    return BadRequest("Email address does not exist.");
+                }
+
+                var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+                var email = employee.Email;
+                var callbackUrl = Url.Page(
+                    "/Account/External/ResetAccountPassword",
+                    pageHandler: null,
+                    values: new { code, email },
+                    protocol: Request.Scheme);
+
+                await _emailSender.SendEmailAsync(
+                    email,
+                    "Hideez Enterpise Server - Reset Password of SAML IdP account",
+                    $"Dear {employee.FullName}, please reset your password by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+
+                SuccessMessage = "SAML IdP account password reseted.";
             }
             catch (Exception ex)
             {

@@ -203,6 +203,8 @@ namespace HES.Core.Services
 
         public async Task CreateSamlIdpAccountAsync(string email, string password, string hesUrl)
         {
+            _dataProtectionService.Validate();
+
             var employee = await _employeeRepository.Query().FirstOrDefaultAsync(e => e.Email == email);
             if (employee == null)
             {
@@ -293,6 +295,90 @@ namespace HES.Core.Services
             }
 
             _remoteTaskService.StartTaskProcessing(device.Id);
+        }
+
+        public async Task UpdatePasswordSamlIdpAccountAsync(string email, string password)
+        {
+            _dataProtectionService.Validate();
+
+            var employee = await _employeeRepository.Query().FirstOrDefaultAsync(e => e.Email == email);
+            if (employee == null)
+            {
+                throw new ArgumentNullException(nameof(employee));
+            }
+            var deviceAccount = await _deviceAccountRepository
+             .Query()
+             .Where(d => d.EmployeeId == employee.Id && d.Name == SamlIdentityProvider.DeviceAccountName)
+             .FirstOrDefaultAsync();
+            
+            // Update Device Account
+            deviceAccount.Status = AccountStatus.Updating;
+            deviceAccount.UpdatedAt = DateTime.UtcNow;
+            string[] properties = { "Status", "UpdatedAt" };
+            await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties);
+
+            // Create Device Task
+            try
+            {
+                await _remoteTaskService.AddTaskAsync(new DeviceTask
+                {
+                    DeviceAccountId = deviceAccount.Id,
+                    Password = _dataProtectionService.Protect(password),
+                    CreatedAt = DateTime.UtcNow,
+                    Operation = TaskOperation.Update,
+                    DeviceId = deviceAccount.DeviceId
+                });
+            }
+            catch (Exception)
+            {
+                deviceAccount.Status = AccountStatus.Error;
+                await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties);
+                throw;
+            }
+
+            _remoteTaskService.StartTaskProcessing(deviceAccount.DeviceId);
+        }
+
+        public async Task UpdateUrlSamlIdpAccountAsync()
+        {
+            //_dataProtectionService.Validate();
+
+            //var employee = await _employeeRepository.Query().FirstOrDefaultAsync(e => e.Email == email);
+            //if (employee == null)
+            //{
+            //    throw new ArgumentNullException(nameof(employee));
+            //}
+            //var deviceAccount = await _deviceAccountRepository
+            // .Query()
+            // .Where(d => d.EmployeeId == employee.Id && d.Name == SamlIdentityProvider.DeviceAccountName)
+            // .FirstOrDefaultAsync();
+
+            //// Update Device Account
+            //deviceAccount.Status = AccountStatus.Updating;
+            //deviceAccount.UpdatedAt = DateTime.UtcNow;
+            //string[] properties = { "Status", "UpdatedAt" };
+            //await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties);
+
+            //// Create Device Task
+            //try
+            //{
+            //    await _remoteTaskService.AddTaskAsync(new DeviceTask
+            //    {
+            //        DeviceAccountId = deviceAccount.Id,
+            //        Password = _dataProtectionService.Protect(password),
+            //        CreatedAt = DateTime.UtcNow,
+            //        Operation = TaskOperation.Update,
+            //        DeviceId = deviceAccount.DeviceId
+            //    });
+            //}
+            //catch (Exception)
+            //{
+            //    deviceAccount.Status = AccountStatus.Error;
+            //    await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties);
+            //    throw;
+            //}
+
+            //_remoteTaskService.StartTaskProcessing(deviceAccount.DeviceId);
         }
 
         public async Task DeleteSamlIdpAccountAsync(string employeeId)

@@ -1,4 +1,4 @@
-using HES.Core.Interfaces;
+﻿using HES.Core.Interfaces;
 using HES.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -11,20 +11,18 @@ using System.Threading.Tasks;
 namespace HES.Web.Areas.Identity.Pages.Account.External
 {
     [AllowAnonymous]
-    public class InviteModel : PageModel
+    public class ResetAccountPasswordModel : PageModel
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IEmployeeService _employeeService;
-        private readonly ILogger<LoginModel> _logger;
+        private readonly ILogger<ResetAccountPasswordModel> _logger;
 
-        public InviteModel(UserManager<ApplicationUser> userManager,
-                            SignInManager<ApplicationUser> signInManager,
-                            IEmployeeService employeeService,
-                            ILogger<LoginModel> logger)
+
+        public ResetAccountPasswordModel(UserManager<ApplicationUser> userManager,
+                                         IEmployeeService employeeService,
+                                         ILogger<ResetAccountPasswordModel> logger)
         {
             _userManager = userManager;
-            _signInManager = signInManager;
             _employeeService = employeeService;
             _logger = logger;
         }
@@ -78,19 +76,15 @@ namespace HES.Web.Areas.Identity.Pages.Account.External
             var user = await _userManager.FindByEmailAsync(Input.Email);
             if (user == null)
             {
-                return BadRequest("Email address does not exist.");
+                return BadRequest("Email not found");
             }
 
             var result = await _userManager.ResetPasswordAsync(user, Input.Code, Input.Password);
             if (result.Succeeded)
             {
-                var login_result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, false, lockoutOnFailure: true);
-                if (login_result.Succeeded)
-                {
-                    await _employeeService.CreateSamlIdpAccountAsync(Input.Email, Input.Password, Request.Host.Value);
-                    _logger.LogInformation($"SAML IdP User {user.Email} logged in.");
-                    return LocalRedirect("~/Identity/Account/External");
-                }
+                _logger.LogInformation($"SAML IdP User {user.Email} password reseted and logged in.");
+                await _employeeService.UpdatePasswordSamlIdpAccountAsync(Input.Email, Input.Password);
+                return LocalRedirect("~/Identity/Account/External");
             }
 
             foreach (var error in result.Errors)

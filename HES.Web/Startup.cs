@@ -158,9 +158,9 @@ namespace HES.Web
                 options.UseMySql(Configuration.GetConnectionString("DefaultConnection")));
 
             // Identity
-            services.AddIdentity<ApplicationUser, IdentityRole>()
+            services.AddIdentity<ApplicationUser, IdentityRole>()                
                 .AddDefaultUI(UIFramework.Bootstrap4)
-                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddEntityFrameworkStores<ApplicationDbContext>()                
                 .AddDefaultTokenProviders();
 
             // Auth policy

@@ -28,8 +28,7 @@ namespace HES.Web.Areas.Identity.Pages.Account
         public InputModel Input { get; set; }
         [TempData]
         public string ErrorMessage { get; set; }
-
-
+        
         public LoginModel(SignInManager<ApplicationUser> signInManager,
                           ILogger<LoginModel> logger,
                           UserManager<ApplicationUser> userManager,

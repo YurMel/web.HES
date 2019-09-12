@@ -1,21 +1,32 @@
-﻿using HES.Infrastructure;
+using HES.Core.Interfaces;
+using HES.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Logging;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 
-namespace HES.Web.Areas.Identity.Pages.Account
+namespace HES.Web.Areas.Identity.Pages.Account.External
 {
     [AllowAnonymous]
-    public class ResetPasswordModel : PageModel
+    public class ActivateAccountModel : PageModel
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly IEmployeeService _employeeService;
+        private readonly ILogger<ActivateAccountModel> _logger;
 
-        public ResetPasswordModel(UserManager<ApplicationUser> userManager)
+        public ActivateAccountModel(UserManager<ApplicationUser> userManager,
+                            SignInManager<ApplicationUser> signInManager,
+                            IEmployeeService employeeService,
+                            ILogger<ActivateAccountModel> logger)
         {
             _userManager = userManager;
+            _signInManager = signInManager;
+            _employeeService = employeeService;
+            _logger = logger;
         }
 
         [BindProperty]
@@ -51,7 +62,7 @@ namespace HES.Web.Areas.Identity.Pages.Account
                 Input = new InputModel
                 {
                     Code = code,
-                    Email = email                    
+                    Email = email
                 };
                 return Page();
             }
@@ -67,14 +78,19 @@ namespace HES.Web.Areas.Identity.Pages.Account
             var user = await _userManager.FindByEmailAsync(Input.Email);
             if (user == null)
             {
-                // Don't reveal that the user does not exist
-                return RedirectToPage("./ResetPasswordConfirmation");
+                return BadRequest("Email address does not exist.");
             }
 
             var result = await _userManager.ResetPasswordAsync(user, Input.Code, Input.Password);
             if (result.Succeeded)
             {
-                return LocalRedirect("~/Identity/Account/Login");
+                var login_result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, false, lockoutOnFailure: true);
+                if (login_result.Succeeded)
+                {
+                    _logger.LogInformation($"SAML IdP User {user.Email} logged in.");
+                    await _employeeService.CreateSamlIdpAccountAsync(Input.Email, Input.Password, Request.Host.Value);
+                    return LocalRedirect("~/Identity/Account/External");
+                }
             }
 
             foreach (var error in result.Errors)
