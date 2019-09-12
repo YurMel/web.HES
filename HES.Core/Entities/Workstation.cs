@@ -1,5 +1,6 @@
 ﻿using HES.Core.Hubs;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -19,14 +20,14 @@ namespace HES.Core.Entities
         [Display(Name = "Last Seen")]
         public DateTime LastSeen { get; set; }
         public bool Approved { get; set; }
-        public int LockProximity { get; set; } 
-        public int UnlockProximity { get; set; }
-        public int LockTimeout { get; set; }
+        public bool RFID { get; set; }
+        [Display(Name = "Proximity Devices")]
+        public List<WorkstationProximityDevice> ProximityDevices { get; set; }
 
         [ForeignKey("DepartmentId")]
         public Department Department { get; set; }
 
         [NotMapped]
-        public bool IsOnline => AppHub.IsWorkstationConnectedToHost(Id);
+        public bool IsOnline => Id != null ? AppHub.IsWorkstationConnectedToHost(Id) : false;
     }
 }

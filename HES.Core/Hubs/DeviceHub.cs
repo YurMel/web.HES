@@ -52,7 +52,7 @@ namespace HES.Core.Hubs
 
             if (!string.IsNullOrWhiteSpace(deviceId))
             {
-                var device = new RemoteDevice(deviceId, Clients.Caller, null);
+                var device = new RemoteDevice(deviceId, Clients.Caller, null, null); // todo - implement ILog
 
                 Context.Items.Add("DeviceId", deviceId);
                 Context.Items.Add("Device", device);
@@ -63,7 +63,7 @@ namespace HES.Core.Hubs
                     {
                         try
                         {
-                            await device.Authenticate(channelNo);
+                            await device.Verify(channelNo);
                             if (_pendingConnections.TryGetValue(deviceId, out PendingConnectionDescription pendingConnection))
                             {
                                 pendingConnection.Tcs.TrySetResult(device);
@@ -149,12 +149,12 @@ namespace HES.Core.Hubs
             return null;
         }
 
-        public Task OnAuthResponse(byte[] data)
+        public Task OnVerifyResponse(byte[] data)
         {
             try
             {
                 RemoteDevice device = GetDevice();
-                device.OnAuthResponse(data);
+                device.OnVerifyResponse(data);
             }
             catch (Exception ex)
             {

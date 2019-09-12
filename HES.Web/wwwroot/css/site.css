@@ -264,8 +264,6 @@ a.navbar-brand {
     padding: 10px;
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
-    margin-left: 2px;
-    margin-right: 2px;
 }
 
     .custom-horizontal-pills .nav-link.active, .nav-pills .show > .nav-link {
@@ -329,7 +327,15 @@ a.navbar-brand {
     border-radius: 0.25rem !important;
     width: 388px;
     max-width: 388px;
-    padding: 30px;
+    padding: 20px;
+    border: 1px solid #dee2e6 !important;
+}
+
+.profile-fill-card {
+    background: #FFF;
+    border-radius: 0.25rem !important;
+    width: 100%;
+    padding: 20px;
     border: 1px solid #dee2e6 !important;
 }
 
@@ -384,6 +390,7 @@ a.navbar-brand {
 /*#endregion
 
 /*#region Input group*/
+
 .custom-group {
     padding: 0.375rem 0.375rem;
     background-color: #ffffff;
@@ -411,6 +418,10 @@ a.navbar-brand {
         border-top: 0;
         border-bottom: 0;
     }
+
+th {
+    white-space: nowrap;
+}
 
 td {
     white-space: nowrap;

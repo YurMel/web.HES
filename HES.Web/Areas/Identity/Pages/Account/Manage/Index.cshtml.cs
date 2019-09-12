@@ -31,7 +31,7 @@ namespace HES.Web.Areas.Identity.Pages.Account.Manage
         public bool IsEmailConfirmed { get; set; }
 
         [TempData]
-        public string StatusMessage { get; set; }
+        public string SuccessMessage { get; set; }
 
         [BindProperty]
         public InputModel Input { get; set; }
@@ -124,7 +124,7 @@ namespace HES.Web.Areas.Identity.Pages.Account.Manage
             }
 
             await _signInManager.RefreshSignInAsync(user);
-            StatusMessage = "Your profile has been updated";
+            SuccessMessage = "Your profile has been updated";
             return RedirectToPage();
         }
 
@@ -155,7 +155,7 @@ namespace HES.Web.Areas.Identity.Pages.Account.Manage
                 "Confirm your email",
                 $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
-            StatusMessage = "Verification email sent. Please check your email.";
+            SuccessMessage = "Verification email sent. Please check your email.";
             return RedirectToPage();
         }
     }

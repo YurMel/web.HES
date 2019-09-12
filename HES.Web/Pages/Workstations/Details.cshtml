@@ -15,18 +15,18 @@
     </div>
     <div class="col"></div>
     <div class="col-auto">
-        <button type="button" class="btn btn-primary open-modal-dialog" data-id="@Model.Workstation.Id" data-action="AddDevice" data-title="Add device">
-            Add device
+        <button type="button" class="btn btn-primary open-modal-dialog" data-id="@Model.Workstation.Id" data-action="AddProximityDevice" data-title="Add proximity device">
+            Add proximity device
         </button>
     </div>
 </div>
 
-@if (Model.WorkstationBindings != null)
+@if (Model.WorkstationProximityDevices != null)
 {
-    @*Bonded Devices title*@
+    @*Proximity Devices title*@
     <div class="row align-items-center m-1">
         <div class="col-auto p-1">
-            <h4 class="text-navyblue m-0">Bonded Devices</h4>
+            <h4 class="text-navyblue m-0">Proximity unlock devices</h4>
         </div>
         <div class="col"></div>
         <div class="col-auto p-1">
@@ -38,34 +38,28 @@
             </div>
         </div>
     </div>
-    @*Bonded Devices table*@
-    <table id="bondedDevices" class="table display table table-hover border rounded w-100">
+    @*Proximity Devices table*@
+    <table id="proximityDevices" class="table display table table-hover border rounded w-100">
         <thead>
             <tr>
                 <th class="d-none"></th>
                 <th data-priority="1">
-                    @Html.DisplayNameFor(model => model.WorkstationBindings[0].DeviceId)
+                    @Html.DisplayNameFor(model => model.WorkstationProximityDevices[0].DeviceId)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.WorkstationBindings[0].Device.Employee)
+                    @Html.DisplayNameFor(model => model.WorkstationProximityDevices[0].Device.Employee)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.WorkstationBindings[0].Device.Employee.Department)
+                    @Html.DisplayNameFor(model => model.WorkstationProximityDevices[0].Device.Employee.EmpCompany)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.WorkstationBindings[0].AllowBleTap)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.WorkstationBindings[0].AllowRfid)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.WorkstationBindings[0].AllowProximity)
+                    @Html.DisplayNameFor(model => model.WorkstationProximityDevices[0].Device.Employee.EmpDepartment)
                 </th>
                 <th class="table-col-menu" data-priority="2"></th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var item in Model.WorkstationBindings)
+            @foreach (var item in Model.WorkstationProximityDevices)
             {
                 <tr>
                     <td class="d-none"></td>
@@ -76,37 +70,10 @@
                         @Html.DisplayFor(modelItem => item.Device.Employee.FullName)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.Device.Employee.Department.Name)
+                        @Html.DisplayFor(modelItem => item.Device.Employee.EmpCompany)
                     </td>
                     <td>
-                        @if (item.AllowBleTap)
-                        {
-                            <span class="badge badge-success">Yes</span>
-                        }
-                        else
-                        {
-                            <span class="badge badge-secondary">No</span>
-                        }
-                    </td>
-                    <td>
-                        @if (item.AllowRfid)
-                        {
-                            <span class="badge badge-success">Yes</span>
-                        }
-                        else
-                        {
-                            <span class="badge badge-secondary">No</span>
-                        }
-                    </td>
-                    <td>
-                        @if (item.AllowProximity)
-                        {
-                            <span class="badge badge-success">Yes</span>
-                        }
-                        else
-                        {
-                            <span class="badge badge-secondary">No</span>
-                        }
+                        @Html.DisplayFor(modelItem => item.Device.Employee.EmpDepartment)
                     </td>
                     <td>
                         <div class="dropdown no-arrow">
@@ -114,11 +81,13 @@
                                 <img src="~/svg/action/more.svg" />
                             </a>
                             <div class="dropdown-menu dropdown-menu-right shadow" aria-labelledby="dropdownMenuLink">
-                                <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="EditWorkstationBinding" data-title="Edit Binding">
-                                    <img src="~/svg/action/edit.svg" />
-                                    Edit
-                                </a>
-                                <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="DeleteWorkstationBinding" data-title="Delete Binding">
+                                @*
+                                     <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="EditProximitySettings" data-title="Edit proximity settings">
+                                        <img src="~/svg/action/edit.svg" />
+                                        Edit
+                                    </a>
+                                *@
+                                <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="DeleteProximityDevice" data-title="Delete proximity device">
                                     <img src="~/svg/action/delete.svg" />
                                     Delete
                                 </a>
@@ -162,22 +131,13 @@
 
 @section Scripts{
     <script>
-        // Initialize workstation table
-         $('#workstation').DataTable({
-             responsive: true,
-             "paging": false,
-             "ordering": false,
-             "info": false,
-             "searching": false
-         });
-
-        // Initialize bounded devices table
-        var table_name = '#bondedDevices';
+        // Initialize proximity devices table
+        var table_name = '#proximityDevices';
         $(table_name).DataTable({
             responsive: true,
             "order": [[1, "asc"]],
             "columnDefs": [
-                { "orderable": false, "targets": [0,7]}
+                { "orderable": false, "targets": [0,5]}
             ]
         });
         var dataTable = $(table_name).dataTable();

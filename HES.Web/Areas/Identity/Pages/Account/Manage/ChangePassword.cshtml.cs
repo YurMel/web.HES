@@ -28,7 +28,7 @@ namespace HES.Web.Areas.Identity.Pages.Account.Manage
         public InputModel Input { get; set; }
 
         [TempData]
-        public string StatusMessage { get; set; }
+        public string SuccessMessage { get; set; }
 
         public class InputModel
         {
@@ -91,7 +91,7 @@ namespace HES.Web.Areas.Identity.Pages.Account.Manage
 
             await _signInManager.RefreshSignInAsync(user);
             _logger.LogInformation("User changed their password successfully.");
-            StatusMessage = "Your password has been changed.";
+            SuccessMessage = "Your password has been changed.";
 
             return RedirectToPage();
         }

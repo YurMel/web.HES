@@ -19,6 +19,8 @@ namespace HES.Core.Entities.Models
         public DateTime? StartDate { get; set; }
         [Display(Name = "End Date")]
         public DateTime? EndDate { get; set; }
+        public bool? RFID { get; set; }
+        public int? ProximityDevicesCount { get; set; }
         public bool? Approved { get; set; }
         public int Records { get; set; }
     }

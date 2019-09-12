@@ -12,7 +12,7 @@ namespace HES.Core.Services
     {
         private readonly IAsyncRepository<WorkstationEvent> _workstationEventRepository;
         private readonly IAsyncRepository<Workstation> _workstationRepository;
-        private readonly IAsyncRepository<WorkstationBinding> _workstationBindingRepository;
+        private readonly IAsyncRepository<WorkstationProximityDevice> _workstationBindingRepository;
         private readonly IAsyncRepository<Device> _deviceRepository;
         private readonly IAsyncRepository<Employee> _employeeRepository;
         private readonly IAsyncRepository<Company> _companyRepository;
@@ -21,7 +21,7 @@ namespace HES.Core.Services
 
         public WorkstationEventService(IAsyncRepository<WorkstationEvent> workstationEventRepository,
                                        IAsyncRepository<Workstation> workstationRepository,
-                                       IAsyncRepository<WorkstationBinding> workstationBindingRepository,
+                                       IAsyncRepository<WorkstationProximityDevice> workstationBindingRepository,
                                        IAsyncRepository<Device> deviceRepository,
                                        IAsyncRepository<Employee> employeeRepository,
                                        IAsyncRepository<Company> companyRepository,

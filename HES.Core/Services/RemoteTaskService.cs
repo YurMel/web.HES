@@ -1,6 +1,7 @@
 ﻿using HES.Core.Entities;
 using HES.Core.Hubs;
 using HES.Core.Interfaces;
+using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.Command;
 using Hideez.SDK.Communication.PasswordManager;
 using Hideez.SDK.Communication.Remote;
@@ -134,7 +135,13 @@ namespace HES.Core.Services
                 {
                     try
                     {
-                        await ExecuteRemoteTasks(deviceId);
+                        Debug.WriteLine($"!!!!!!!!!!!!! ExecuteRemoteTasks start {deviceId}");
+                        await ExecuteRemoteTasks(deviceId).TimeoutAfter(300_000);
+                    }
+                    catch (TimeoutException ex)
+                    {
+                        Debug.Assert(false);
+                        _logger.LogCritical(ex.Message, deviceId);
                     }
                     catch (Exception ex)
                     {
@@ -142,6 +149,7 @@ namespace HES.Core.Services
                     }
                     finally
                     {
+                        Debug.WriteLine($"!!!!!!!!!!!!! ExecuteRemoteTasks end {deviceId}");
                         _devicesInProgress.TryRemove(deviceId, out string removed);
                     }
                 });
@@ -152,7 +160,7 @@ namespace HES.Core.Services
             }
         }
 
-        private async Task ExecuteRemoteTasks(string deviceId)
+        private async Task<bool> ExecuteRemoteTasks(string deviceId)
         {
             try
             {
@@ -167,7 +175,7 @@ namespace HES.Core.Services
                 {
                     var remoteDevice = await AppHub.EstablishRemoteConnection(deviceId, 4);
                     if (remoteDevice == null)
-                        break;
+                        throw new HideezException( HideezErrorCode.HesFailedEstablishRemoteDeviceConnection);
 
                     foreach (var task in tasks.OrderBy(x => x.CreatedAt))
                     {
@@ -182,11 +190,14 @@ namespace HES.Core.Services
                         .Where(t => t.DeviceId == deviceId)
                         .ToListAsync();
                 }
+
+                return true;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
             }
+            return false;
         }
 
         private async Task TaskCompleted(string taskId, ushort idFromDevice)
@@ -410,9 +421,15 @@ namespace HES.Core.Services
                 .AsNoTracking()
                 .FirstOrDefaultAsync(d => d.Id == task.DeviceId);
 
+            if (device == null)
+                throw new Exception($"Device not found");
+
+            if (device.DeviceAccessProfile == null)
+                throw new Exception($"DeviceAccessProfile is not set for {device.Id}");
+
             // Set Link   
             var key = ConvertUtils.HexStringToBytes(task.Password);
-            if (remoteDevice.IsLinkRequired)
+            if (remoteDevice.AccessLevel.IsLinkRequired)
             {
                 await remoteDevice.Link(key);
             }

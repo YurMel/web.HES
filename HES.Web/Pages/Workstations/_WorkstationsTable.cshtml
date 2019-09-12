@@ -49,6 +49,12 @@
                 @Html.DisplayNameFor(model => model.Workstations[0].LastSeen)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.Workstations[0].RFID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Workstations[0].ProximityDevices)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.Workstations[0].Approved)
             </th>
             <th class="table-col-menu" data-priority="2"></th>
@@ -93,6 +99,19 @@
                         @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.LastSeen, TimeZoneInfo.Local)
                     }
                 </td>
+                <td data-sort="@item.RFID">
+                    @if (item.RFID)
+                    {
+                        <span class="badge badge-success">Yes</span>
+                    }
+                    else
+                    {
+                        <span class="badge badge-secondary">No</span>
+                    }
+                </td>
+                <td>
+                    <span class="badge badge-primary">@Html.DisplayFor(modelItem => item.ProximityDevices.Count)</span>
+                </td>
                 <td data-sort="@item.Approved">
                     @if (item.Approved)
                     {
@@ -110,10 +129,10 @@
                         </a>
                         <div class="dropdown-menu dropdown-menu-right shadow" aria-labelledby="dropdownMenuLink">
                             <a class="dropdown-item" asp-page="./Details" asp-route-id="@item.Id">
-                                <img src="~/svg/action/details.svg" />
-                                Details
+                                <img class="icon-devices" style="background:#4E88CE" />
+                                Proximity Devices
                             </a>
-                            <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="EditDepartment" data-title="Edit">
+                            <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="EditWorkstation" data-title="Edit workstation">
                                 <img src="~/svg/action/edit.svg" />
                                 Edit
                             </a>

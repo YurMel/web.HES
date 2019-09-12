@@ -18,6 +18,7 @@ namespace HES.Web.Pages.Employees
     {
         private readonly IEmployeeService _employeeService;
         private readonly IWorkstationService _workstationService;
+        private readonly IWorkstationProximityDeviceService _workstationProximityDeviceService;
         private readonly ISettingsService _settingsService;
         private readonly ILogger<IndexModel> _logger;
 
@@ -39,11 +40,13 @@ namespace HES.Web.Pages.Employees
 
         public IndexModel(IEmployeeService employeeService,
                           IWorkstationService workstationService,
+                          IWorkstationProximityDeviceService workstationProximityDeviceService,
                           ISettingsService settingsService,
                           ILogger<IndexModel> logger)
         {
             _employeeService = employeeService;
             _workstationService = workstationService;
+            _workstationProximityDeviceService = workstationProximityDeviceService;
             _settingsService = settingsService;
             _logger = logger;
         }
@@ -145,7 +148,7 @@ namespace HES.Web.Pages.Employees
                 // Add workstation
                 if (devices.Length > 0)
                 {
-                    await _workstationService.AddMultipleBindingAsync(workstations, false, true, false, devices);
+                    await _workstationProximityDeviceService.AddMultipleProximityDevicesAsync(workstations, devices);
                 }
 
                 SuccessMessage = $"Employee created.";

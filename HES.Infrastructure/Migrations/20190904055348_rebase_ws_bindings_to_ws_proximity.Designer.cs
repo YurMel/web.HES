@@ -3,14 +3,16 @@ using System;
 using HES.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace HES.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190904055348_rebase_ws_bindings_to_ws_proximity")]
+    partial class rebase_ws_bindings_to_ws_proximity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -362,11 +364,15 @@ namespace HES.Infrastructure.Migrations
 
                     b.Property<DateTime>("LastSeen");
 
+                    b.Property<int>("LockProximity");
+
+                    b.Property<int>("LockTimeout");
+
                     b.Property<string>("Name");
 
                     b.Property<string>("OS");
 
-                    b.Property<bool>("RFID");
+                    b.Property<int>("UnlockProximity");
 
                     b.HasKey("Id");
 
@@ -724,7 +730,7 @@ namespace HES.Infrastructure.Migrations
                         .HasForeignKey("DeviceId");
 
                     b.HasOne("HES.Core.Entities.Workstation", "Workstation")
-                        .WithMany("ProximityDevices")
+                        .WithMany()
                         .HasForeignKey("WorkstationId");
                 });
 
