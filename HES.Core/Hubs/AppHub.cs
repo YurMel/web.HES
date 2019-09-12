@@ -269,6 +269,9 @@ namespace HES.Core.Hubs
                 if (device.DeviceAccessProfile == null)
                     return HideezErrorCode.HesEmptyDeviceAccessProfile;
 
+                if (string.IsNullOrWhiteSpace(device.MasterPassword))
+                    return HideezErrorCode.HesEmptyMasterKey;
+
                 var key = ConvertUtils.HexStringToBytes(device.MasterPassword);
 
                 // Getting device info
