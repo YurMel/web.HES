@@ -8,6 +8,7 @@ namespace HES.Core.Interfaces
     {
         IQueryable<SamlIdentityProvider> Query();
         Task<SamlIdentityProvider> GetByIdAsync(dynamic id);
-        Task EditSamlIdentityProviderAsync(SamlIdentityProvider identityProvider);
+        Task<bool> GetStatusAsync();
+        Task UpdateSamlIdentityProviderAsync(SamlIdentityProvider identityProvider);
     }
 }

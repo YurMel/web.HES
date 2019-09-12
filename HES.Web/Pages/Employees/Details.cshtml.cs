@@ -86,9 +86,8 @@ namespace HES.Web.Pages.Employees
                 .Where(d => d.Deleted == false && d.Name != SamlIdentityProvider.DeviceAccountName)
                 .ToListAsync();
 
-            ViewData["DeviceId"] = new SelectList(Employee.Devices.OrderBy(d => d.Id), "Id", "Id");
-
-            SamlIdentityProvider = await _samlIdentityProviderService.GetByIdAsync(SamlIdentityProvider.Key);
+            ViewData["Devices"] = new SelectList(Employee.Devices.OrderBy(d => d.Id), "Id", "Id");
+            ViewData["SamlIdentityProviderEnabled"] = await _samlIdentityProviderService.GetStatusAsync();
 
             return Page();
         }
@@ -145,12 +144,11 @@ namespace HES.Web.Pages.Employees
                 var user = await _userManager.FindByEmailAsync(employee.Email);
                 if (user == null)
                 {
-                    return BadRequest("Email address does not exist.");
+                   throw new Exception("Email address does not exist.");
                 }
 
                 await _userManager.DeleteAsync(user);
                 await _employeeService.DeleteSamlIdpAccountAsync(employee.Id);
-                await _employeeService.DisableSamlIdpAsync(employee);
 
                 SuccessMessage = "SAML IdP account disabled.";
             }
@@ -163,7 +161,7 @@ namespace HES.Web.Pages.Employees
             var id = employee.Id;
             return RedirectToPage("./Details", new { id });
         }
-        
+
         public async Task<IActionResult> OnPostResetSamlIdentityProviderAsync(Employee employee)
         {
             try
@@ -171,7 +169,7 @@ namespace HES.Web.Pages.Employees
                 var user = await _userManager.FindByEmailAsync(employee.Email);
                 if (user == null)
                 {
-                    return BadRequest("Email address does not exist.");
+                    throw new Exception("Email address does not exist.");
                 }
 
                 var code = await _userManager.GeneratePasswordResetTokenAsync(user);
@@ -179,7 +177,7 @@ namespace HES.Web.Pages.Employees
                 var callbackUrl = Url.Page(
                     "/Account/External/ResetAccountPassword",
                     pageHandler: null,
-                    values: new { code, email },
+                    values: new { area = "Identity", code, email },
                     protocol: Request.Scheme);
 
                 await _emailSender.SendEmailAsync(

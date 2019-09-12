@@ -143,6 +143,16 @@ namespace HES.Core.Services
             if (employee == null)
                 throw new ArgumentNullException(nameof(employee));
 
+            var emailExist = await _employeeRepository
+                .Query()
+                .Where(e => e.Email == employee.Email)
+                .AnyAsync();
+
+            if (emailExist)
+            {
+                throw new Exception($"Email {employee.Email} already used.");
+            }
+
             return await _employeeRepository.AddAsync(employee);
         }
 
@@ -188,17 +198,7 @@ namespace HES.Core.Services
                 throw new ArgumentNullException(nameof(employee));
             }
 
-            await _employeeRepository.UpdateOnlyPropAsync(employee, new string[] { "SamlIdp" });
-        }
-
-        public async Task DisableSamlIdpAsync(Employee employee)
-        {
-            if (employee == null)
-            {
-                throw new ArgumentNullException(nameof(employee));
-            }
-
-            await _employeeRepository.UpdateOnlyPropAsync(employee, new string[] { "SamlIdp" });
+            await _employeeRepository.UpdateOnlyPropAsync(employee, new string[] { "SamlIdpDevice" });
         }
 
         public async Task CreateSamlIdpAccountAsync(string email, string password, string hesUrl)
@@ -211,7 +211,7 @@ namespace HES.Core.Services
                 throw new ArgumentNullException(nameof(employee));
             }
 
-            var device = await _deviceRepository.GetByIdAsync(employee.SamlIdp);
+            var device = await _deviceRepository.GetByIdAsync(employee.SamlIdpDevice);
             if (device == null)
             {
                 throw new ArgumentNullException(nameof(device));
@@ -310,7 +310,7 @@ namespace HES.Core.Services
              .Query()
              .Where(d => d.EmployeeId == employee.Id && d.Name == SamlIdentityProvider.DeviceAccountName)
              .FirstOrDefaultAsync();
-            
+
             // Update Device Account
             deviceAccount.Status = AccountStatus.Updating;
             deviceAccount.UpdatedAt = DateTime.UtcNow;
@@ -339,56 +339,71 @@ namespace HES.Core.Services
             _remoteTaskService.StartTaskProcessing(deviceAccount.DeviceId);
         }
 
-        public async Task UpdateUrlSamlIdpAccountAsync()
+        public async Task UpdateUrlSamlIdpAccountAsync(string hesUrl)
         {
-            //_dataProtectionService.Validate();
+            _dataProtectionService.Validate();
 
-            //var employee = await _employeeRepository.Query().FirstOrDefaultAsync(e => e.Email == email);
-            //if (employee == null)
-            //{
-            //    throw new ArgumentNullException(nameof(employee));
-            //}
-            //var deviceAccount = await _deviceAccountRepository
-            // .Query()
-            // .Where(d => d.EmployeeId == employee.Id && d.Name == SamlIdentityProvider.DeviceAccountName)
-            // .FirstOrDefaultAsync();
+            var deviceAccounts = await _deviceAccountRepository
+             .Query()
+             .Where(d => d.Name == SamlIdentityProvider.DeviceAccountName && d.Deleted == false)
+             .ToListAsync();
 
-            //// Update Device Account
-            //deviceAccount.Status = AccountStatus.Updating;
-            //deviceAccount.UpdatedAt = DateTime.UtcNow;
-            //string[] properties = { "Status", "UpdatedAt" };
-            //await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties);
+            var samlIdP = await _samlIdentityProviderService.GetByIdAsync(SamlIdentityProvider.Key);
+            var validUrls = VerifiedUrls($"{samlIdP.Url};{hesUrl}");
 
-            //// Create Device Task
-            //try
-            //{
-            //    await _remoteTaskService.AddTaskAsync(new DeviceTask
-            //    {
-            //        DeviceAccountId = deviceAccount.Id,
-            //        Password = _dataProtectionService.Protect(password),
-            //        CreatedAt = DateTime.UtcNow,
-            //        Operation = TaskOperation.Update,
-            //        DeviceId = deviceAccount.DeviceId
-            //    });
-            //}
-            //catch (Exception)
-            //{
-            //    deviceAccount.Status = AccountStatus.Error;
-            //    await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties);
-            //    throw;
-            //}
+            foreach (var account in deviceAccounts)
+            {
+                // Update Device Account
+                account.Status = AccountStatus.Updating;
+                account.UpdatedAt = DateTime.UtcNow;
+                string[] properties = { "Status", "UpdatedAt" };
+                await _deviceAccountRepository.UpdateOnlyPropAsync(account, properties);
 
-            //_remoteTaskService.StartTaskProcessing(deviceAccount.DeviceId);
+                // Create Device Task
+                try
+                {
+                    await _remoteTaskService.AddTaskAsync(new DeviceTask
+                    {
+                        DeviceAccountId = account.Id,
+                        Urls = validUrls,
+                        CreatedAt = DateTime.UtcNow,
+                        Operation = TaskOperation.Update,
+                        DeviceId = account.DeviceId
+                    });
+                }
+                catch (Exception)
+                {
+                    account.Status = AccountStatus.Error;
+                    await _deviceAccountRepository.UpdateOnlyPropAsync(account, properties);
+                    throw;
+                }
+            }
+
+            _remoteTaskService.StartTaskProcessing(deviceAccounts.Select(s => s.Id).ToList());
         }
 
         public async Task DeleteSamlIdpAccountAsync(string employeeId)
         {
+            if (employeeId == null)
+            {
+                throw new ArgumentNullException(nameof(employeeId));
+            }
+
+            var employee = await _employeeRepository.GetByIdAsync(employeeId);
+            if (employee == null)
+            {
+                throw new Exception("Employee not found.");
+            }
+
             var account = await _deviceAccountRepository
                 .Query()
                 .Where(d => d.EmployeeId == employeeId && d.Name == SamlIdentityProvider.DeviceAccountName)
                 .FirstOrDefaultAsync();
 
             await DeleteAccount(account.Id);
+
+            employee.SamlIdpDevice = null;
+            await _employeeRepository.UpdateOnlyPropAsync(employee, new string[] { "SamlIdpDevice" });
         }
 
         public async Task SetPrimaryAccount(string deviceId, string deviceAccountId)
@@ -962,6 +977,36 @@ namespace HES.Core.Services
             var buf = AesCryptoHelper.CreateRandomBuf(32);
             var pass = ConvertUtils.ByteArrayToHexString(buf);
             return pass;
+        }
+
+        private string VerifiedUrls(string urls)
+        {
+            List<string> verifiedUrls = new List<string>();
+            foreach (var url in urls.Split(";"))
+            {
+                string uriString = url;
+                string domain = string.Empty;
+
+                if (string.IsNullOrWhiteSpace(uriString))
+                {
+                    throw new Exception("Not correct url");
+                }
+
+                if (!uriString.Contains(Uri.SchemeDelimiter))
+                {
+                    uriString = string.Concat(Uri.UriSchemeHttp, Uri.SchemeDelimiter, uriString);
+                }
+
+                domain = new Uri(uriString).Host;
+
+                if (domain.StartsWith("www."))
+                    domain = domain.Remove(0, 4);
+
+                verifiedUrls.Add(domain);
+            }
+
+            var result = string.Join(";", verifiedUrls.ToArray());
+            return result;
         }
     }
 }

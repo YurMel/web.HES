@@ -25,7 +25,13 @@ namespace HES.Core.Services
             return await _samlIdentityProviderRepository.GetByIdAsync(id);
         }
 
-        public  async Task EditSamlIdentityProviderAsync(SamlIdentityProvider identityProvider)
+        public async Task<bool> GetStatusAsync()
+        {
+            var idp = await _samlIdentityProviderRepository.GetByIdAsync(SamlIdentityProvider.Key);
+            return idp.Enabled;
+        }
+
+        public async Task UpdateSamlIdentityProviderAsync(SamlIdentityProvider identityProvider)
         {
             if (identityProvider == null)
             {

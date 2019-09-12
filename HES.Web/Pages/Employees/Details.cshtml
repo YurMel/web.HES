@@ -33,7 +33,7 @@
 </div>
 
 @*SAML IdP*@
-<div class="@(Model.SamlIdentityProvider.Enabled == true ? "" : "d-none")">
+<div class="@(ViewBag.SamlIdentityProviderEnabled == true ? "" : "d-none")">
     <h4 class="text-navyblue mb-2 mt-3">SAML IdP Account</h4>
     <form method="post" class="custom-card">
         <input type="hidden" asp-for="Employee.Id" />
@@ -55,7 +55,7 @@
         {
             <div id="device_group" class="mt-3 d-none">
                 <label class="control-label">Device</label>
-                <select class="form-control" asp-for="Employee.SamlIdp" asp-items="ViewBag.DeviceId"></select>
+                <select class="form-control" asp-for="Employee.SamlIdpDevice" asp-items="ViewBag.Devices"></select>
             </div>
         }
         else

@@ -13,6 +13,7 @@ namespace HES.Web.Pages.Settings.IdentityProvider
     {
         private readonly ISamlIdentityProviderService _samlIdentityProviderService;
         private readonly ILogger<IndexModel> _logger;
+        private readonly IEmployeeService _employeeService;
 
         public SamlIdentityProvider SamlIdentityProvider { get; set; }
 
@@ -21,10 +22,13 @@ namespace HES.Web.Pages.Settings.IdentityProvider
         [TempData]
         public string ErrorMessage { get; set; }
 
-        public IndexModel(ISamlIdentityProviderService samlIdentityProviderService, ILogger<IndexModel> logger)
+        public IndexModel(ISamlIdentityProviderService samlIdentityProviderService,
+                          ILogger<IndexModel> logger,
+                          IEmployeeService employeeService)
         {
             _samlIdentityProviderService = samlIdentityProviderService;
             _logger = logger;
+            _employeeService = employeeService;
         }
 
         public async Task OnGet()
@@ -38,7 +42,18 @@ namespace HES.Web.Pages.Settings.IdentityProvider
         {
             try
             {
-                await _samlIdentityProviderService.EditSamlIdentityProviderAsync(samlIdentityProvider);
+                var currentIdentityProvider = await _samlIdentityProviderService
+                    .Query()
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(d => d.Id == SamlIdentityProvider.Key);
+
+                await _samlIdentityProviderService.UpdateSamlIdentityProviderAsync(samlIdentityProvider);
+
+                if (currentIdentityProvider.Url != samlIdentityProvider.Url)
+                {
+                    await _employeeService.UpdateUrlSamlIdpAccountAsync(Request.Host.Value);
+                }
+
                 SuccessMessage = $"SAML IdP settings updated.";
             }
             catch (Exception ex)
