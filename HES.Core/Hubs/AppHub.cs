@@ -369,6 +369,7 @@ namespace HES.Core.Hubs
         {
             try
             {
+                _logger.LogDebug($"Workstaton {workstationId} connected");
                 await _workstationProximityDeviceService.UpdateProximitySettingsAsync(workstationId);
 
                 await _workstationService.UpdateRfidStateAsync(workstationId);
@@ -381,6 +382,8 @@ namespace HES.Core.Hubs
 
         private Task OnWorkstationDisconnected(string workstationId)
         {
+            _logger.LogDebug($"Workstaton {workstationId} disconnected");
+
             _workstationConnections.TryRemove(workstationId, out WorkstationDescription workstation);
 
             return Task.CompletedTask;
@@ -450,6 +453,7 @@ namespace HES.Core.Hubs
                 if (events == null)
                     throw new ArgumentNullException(nameof(events));
 
+                _logger.LogDebug($"HCW sended events. Workstation: {events[0].WorkstationId}");
                 // todo: ignore not approved workstation
 
                 // Events that duplicate ID of other events are ignored
