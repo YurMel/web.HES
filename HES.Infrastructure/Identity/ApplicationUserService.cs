@@ -32,6 +32,23 @@ namespace HES.Infrastructure.Identity
             return await _context.Users.FirstOrDefaultAsync(m => m.Id == id);
         }
 
+        public async Task<IList<ApplicationUser>> GetOnlyAdministrators()
+        {
+            var administrators = new List<ApplicationUser>();
+
+            var users = await _context.Users.ToListAsync();
+
+            foreach (var user in users)
+            {
+                var isAdmin = await _userManager.IsInRoleAsync(user, ApplicationRoles.AdminRole);
+                if (isAdmin)
+                {
+                    administrators.Add(user);
+                }
+            }
+            return administrators;
+        }
+
         public async Task DeleteUserAsync(string id)
         {
             if (id == null)

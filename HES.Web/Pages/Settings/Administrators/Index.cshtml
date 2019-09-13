@@ -57,7 +57,14 @@
                     @Html.DisplayFor(modelItem => item.PhoneNumber)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.TwoFactorEnabled)
+                    @if (item.TwoFactorEnabled)
+                    {
+                        <span class="badge badge-success">Yes</span>
+                    }
+                    else
+                    {
+                        <span class="badge badge-secondary">No</span>
+                    }
                 </td>
                 <td>
                     <div class="dropdown no-arrow">
