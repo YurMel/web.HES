@@ -149,7 +149,7 @@ namespace HES.Core.Hubs
             return device;
         }
 
-        public static async Task<RemoteDevice> EstablishRemoteConnection(string deviceId, byte channelNo)
+        internal static async Task<RemoteDevice> EstablishRemoteConnection(string deviceId, byte channelNo)
         {
             try
             {
@@ -167,7 +167,7 @@ namespace HES.Core.Hubs
 
                 if (remoteDevice != null)
                 {
-                    await remoteDevice.WaitVerification(timeout: 10_000);
+                    await remoteDevice.Verify(channelNo);
                     await remoteDevice.Initialize();
                 }
 

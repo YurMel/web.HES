@@ -57,24 +57,18 @@ namespace HES.Core.Hubs
 
                 if (_connections.TryAdd(deviceId, device))
                 {
-                    var t = Task.Run(async () =>
+                    try
                     {
-                        try
+                        if (_pendingConnections.TryGetValue(deviceId, out PendingConnectionDescription pendingConnection))
                         {
-                            await device.Verify(channelNo);
-                            if (_pendingConnections.TryGetValue(deviceId, out PendingConnectionDescription pendingConnection))
-                            {
-                                pendingConnection.Tcs.TrySetResult(device);
-                                _pendingConnections.TryRemove(deviceId, out PendingConnectionDescription removedPendingConnection);
-                            }
-
-                            _remoteTaskService.StartTaskProcessing(deviceId);
+                            pendingConnection.Tcs.TrySetResult(device);
+                            _pendingConnections.TryRemove(deviceId, out PendingConnectionDescription removedPendingConnection);
                         }
-                        catch (Exception ex)
-                        {
-                            _logger.LogError(ex.Message);
-                        }
-                    });
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex.Message);
+                    }
                 }
             }
 
