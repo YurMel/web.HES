@@ -1,4 +1,5 @@
-﻿using HES.Infrastructure;
+﻿using HES.Core.Interfaces;
+using HES.Infrastructure;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -16,17 +17,19 @@ namespace HES.Web.Areas.Identity.Pages.Account.External
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<EnableAuthenticatorModel> _logger;
         private readonly UrlEncoder _urlEncoder;
+        private readonly IEmployeeService _employeeService;
 
         private const string AuthenticatorUriFormat = "otpauth://totp/{0}:{1}?secret={2}&issuer={0}&digits=6";
 
-        public EnableAuthenticatorModel(
-            UserManager<ApplicationUser> userManager,
-            ILogger<EnableAuthenticatorModel> logger,
-            UrlEncoder urlEncoder)
+        public EnableAuthenticatorModel(UserManager<ApplicationUser> userManager,
+                                        ILogger<EnableAuthenticatorModel> logger,
+                                        UrlEncoder urlEncoder,
+                                        IEmployeeService employeeService)
         {
             _userManager = userManager;
             _logger = logger;
             _urlEncoder = urlEncoder;
+            _employeeService = employeeService;
         }
 
         public string SharedKey { get; set; }
@@ -61,6 +64,8 @@ namespace HES.Web.Areas.Identity.Pages.Account.External
             }
 
             await LoadSharedKeyAndQrCodeUriAsync(user);
+
+            await _employeeService.UpdateOtpSamlIdpAccountAsync(user.Email, SharedKey);
 
             return Page();
         }

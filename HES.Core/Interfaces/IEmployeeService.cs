@@ -31,6 +31,7 @@ namespace HES.Core.Interfaces
         Task EnableSamlIdpAsync(Employee employee);
         Task CreateSamlIdpAccountAsync(string email, string password, string hesUrl);
         Task UpdatePasswordSamlIdpAccountAsync(string email, string password);
+        Task UpdateOtpSamlIdpAccountAsync(string email, string otp);
         Task UpdateUrlSamlIdpAccountAsync(string hesUrl);
         Task DeleteSamlIdpAccountAsync(string employeeId);
         Task SetPrimaryAccount(string deviceId, string deviceAccountId);

@@ -339,6 +339,59 @@ namespace HES.Core.Services
             _remoteTaskService.StartTaskProcessing(deviceAccount.DeviceId);
         }
 
+        public async Task UpdateOtpSamlIdpAccountAsync(string email, string otp)
+        {
+            _dataProtectionService.Validate();
+
+            var employee = await _employeeRepository.Query().FirstOrDefaultAsync(e => e.Email == email);
+            if (employee == null)
+            {
+                throw new ArgumentNullException(nameof(employee));
+            }
+            var deviceAccount = await _deviceAccountRepository
+             .Query()
+             .Where(d => d.EmployeeId == employee.Id && d.Name == SamlIdentityProvider.DeviceAccountName)
+             .FirstOrDefaultAsync();
+
+            var task = await _deviceTaskRepository
+                .Query()
+                .AsNoTracking()
+                .Where(d => d.DeviceAccountId == deviceAccount.Id && _dataProtectionService.Unprotect(d.OtpSecret) == otp)
+                .FirstOrDefaultAsync();
+
+            if (task != null)
+            {
+                return;
+            }
+
+            // Update Device Account
+            deviceAccount.Status = AccountStatus.Updating;
+            deviceAccount.UpdatedAt = DateTime.UtcNow;
+            string[] properties = { "Status", "UpdatedAt" };
+            await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties);
+
+            // Create Device Task
+            try
+            {
+                await _remoteTaskService.AddTaskAsync(new DeviceTask
+                {
+                    DeviceAccountId = deviceAccount.Id,
+                    OtpSecret = _dataProtectionService.Protect(otp),
+                    CreatedAt = DateTime.UtcNow,
+                    Operation = TaskOperation.Update,
+                    DeviceId = deviceAccount.DeviceId
+                });
+            }
+            catch (Exception)
+            {
+                deviceAccount.Status = AccountStatus.Error;
+                await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties);
+                throw;
+            }
+
+            _remoteTaskService.StartTaskProcessing(deviceAccount.DeviceId);
+        }
+
         public async Task UpdateUrlSamlIdpAccountAsync(string hesUrl)
         {
             _dataProtectionService.Validate();
