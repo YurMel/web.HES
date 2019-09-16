@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html>
+<html style="overflow:auto">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,20 +7,20 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
     <!-- Main CSS -->
-    <link href="~/css/site.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body>
     <header>
         <nav class="navbar navbar-expand navbar-light bg-white box-shadow">
             <h4 class="text-navyblue m-0">SAML IdP Account Settings</h4>
             <form class="form-inline ml-auto" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/", new { area = "" })" method="post">
-                <button type="submit" class="btn btn-danger p-1" data-toggle="tooltip" data-placement="left" title="Sign out">
+                <button type="submit" class="btn btn-danger p-1">
                     <img src="~/svg/account/exit.svg" style="width:28px" />
                 </button>
             </form>
         </nav>
     </header>
-    <div class="container">
+    <div class="container mb-3">
         <partial name="_ManageNav" />
         @RenderBody()
     </div>
@@ -29,11 +29,6 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
     <!-- Main JS -->
     <script src="~/js/site.js" asp-append-version="true"></script>
-    <script>
-        $(function () {
-            $('[data-toggle="tooltip"]').tooltip()
-        })
-    </script>
     @RenderSection("Scripts", required: false)
 </body>
 </html>
