@@ -99,7 +99,13 @@ namespace HES.Web.Pages.Employees
             try
             {
                 // User
-                var user = new ApplicationUser { UserName = employee.Email, Email = employee.Email };
+                var user = new ApplicationUser
+                {
+                    UserName = employee.Email,
+                    Email = employee.Email,
+                    FirstName = employee.FirstName,
+                    LastName = employee.LastName
+                };
                 var password = Guid.NewGuid().ToString();
                 var result = await _userManager.CreateAsync(user, password);
                 if (!result.Succeeded)
@@ -144,7 +150,7 @@ namespace HES.Web.Pages.Employees
                 var user = await _userManager.FindByEmailAsync(employee.Email);
                 if (user == null)
                 {
-                   throw new Exception("Email address does not exist.");
+                    throw new Exception("Email address does not exist.");
                 }
 
                 await _userManager.DeleteAsync(user);
