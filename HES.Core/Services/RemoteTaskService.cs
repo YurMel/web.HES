@@ -406,10 +406,13 @@ namespace HES.Core.Services
             return 0;
         }
 
-        private async Task<ushort> WipeDevice(RemoteDevice device, DeviceTask task)
+        private async Task<ushort> WipeDevice(RemoteDevice remoteDevice, DeviceTask task)
         {
+            if (remoteDevice.AccessLevel.IsLinkRequired == true)
+                return 0; // wipe is not required in this case
+
             var key = ConvertUtils.HexStringToBytes(task.Password);
-            var respData = await device.Wipe(key);
+            var respData = await remoteDevice.Wipe(key);
             return 0;
         }
 
