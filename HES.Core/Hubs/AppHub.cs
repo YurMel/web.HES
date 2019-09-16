@@ -245,7 +245,7 @@ namespace HES.Core.Hubs
         }
 
         // Incomming request
-        public async Task<HideezErrorCode> FixDevice(string deviceId)
+        public async Task<HideezErrorInfo> FixDevice(string deviceId)
         {
             try
             {
@@ -255,7 +255,7 @@ namespace HES.Core.Hubs
 
                 var remoteDevice = await EstablishRemoteConnection(deviceId, 4);
                 if (remoteDevice == null)
-                    return HideezErrorCode.HesFailedEstablishRemoteDeviceConnection;
+                    throw new HideezException(HideezErrorCode.HesFailedEstablishRemoteDeviceConnection);
 
                 var device = await _deviceService
                     .Query()
@@ -264,13 +264,13 @@ namespace HES.Core.Hubs
                     .FirstOrDefaultAsync(d => d.Id == deviceId);
 
                 if (device == null)
-                    return HideezErrorCode.HesDeviceNotFound;
+                    throw new HideezException(HideezErrorCode.HesDeviceNotFound);
 
                 if (device.DeviceAccessProfile == null)
-                    return HideezErrorCode.HesEmptyDeviceAccessProfile;
+                    throw new HideezException(HideezErrorCode.HesEmptyDeviceAccessProfile);
 
                 if (string.IsNullOrWhiteSpace(device.MasterPassword))
-                    return HideezErrorCode.HesEmptyMasterKey;
+                    throw new HideezException(HideezErrorCode.HesEmptyMasterKey);
 
                 var key = ConvertUtils.HexStringToBytes(device.MasterPassword);
 
@@ -307,17 +307,12 @@ namespace HES.Core.Hubs
                     await remoteDevice.Access(DateTime.UtcNow, key, accessParams);
                 }
 
-                return HideezErrorCode.Ok;
-            }
-            catch (HideezException ex)
-            {
-                _logger.LogError(ex.Message);
-                return ex.ErrorCode;
+                return HideezErrorInfo.Ok;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
-                return HideezErrorCode.HesUnknownError;
+                return new HideezErrorInfo(ex);
             }
         }
 
@@ -326,7 +321,7 @@ namespace HES.Core.Hubs
         #region Workstation
 
         // Incomming request
-        public async Task<HideezErrorCode> RegisterWorkstationInfo(WorkstationInfo workstationInfo)
+        public async Task<HideezErrorInfo> RegisterWorkstationInfo(WorkstationInfo workstationInfo)
         {
             try
             {
@@ -351,17 +346,12 @@ namespace HES.Core.Hubs
 
                 await OnWorkstationConnected(workstationInfo.Id);
 
-                return HideezErrorCode.Ok;
-            }
-            catch (HideezException ex)
-            {
-                _logger.LogError(ex.Message);
-                return ex.ErrorCode;
+                return HideezErrorInfo.Ok;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
-                return HideezErrorCode.HesUnknownError;
+                return new HideezErrorInfo(ex);
             }
         }
 
@@ -446,7 +436,7 @@ namespace HES.Core.Hubs
         #region Audit
 
         // Incomming request
-        public async Task<HideezErrorCode> SaveClientEvents(WorkstationEventDto[] events)
+        public async Task<HideezErrorInfo> SaveClientEvents(WorkstationEventDto[] events)
         {
             try
             {
@@ -503,17 +493,12 @@ namespace HES.Core.Hubs
                 if (authEventsOnly.Length > 0)
                     await _workstationSessionService.UpdateWorkstationSessionsAsync(authEventsOnly);
 
-                return HideezErrorCode.Ok;
-            }
-            catch (HideezException ex)
-            {
-                _logger.LogError(ex.Message);
-                return ex.ErrorCode;
+                return HideezErrorInfo.Ok;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
-                return HideezErrorCode.HesUnknownError;
+                return new HideezErrorInfo(ex);
             }
         }
 

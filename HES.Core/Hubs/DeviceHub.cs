@@ -147,12 +147,12 @@ namespace HES.Core.Hubs
             return null;
         }
 
-        public Task OnVerifyResponse(byte[] data)
+        public Task OnVerifyResponse(byte[] data, string error)
         {
             try
             {
                 RemoteDevice device = GetDevice();
-                device.OnVerifyResponse(data);
+                device.OnVerifyResponse(data, error);
             }
             catch (Exception ex)
             {
@@ -162,12 +162,12 @@ namespace HES.Core.Hubs
             return Task.CompletedTask;
         }
 
-        public Task OnCommandResponse(byte[] data)
+        public Task OnCommandResponse(byte[] data, string error)
         {
             try
             {
                 RemoteDevice device = GetDevice();
-                device.OnCommandResponse(data);
+                device.OnCommandResponse(data, error);
             }
             catch (Exception ex)
             {
