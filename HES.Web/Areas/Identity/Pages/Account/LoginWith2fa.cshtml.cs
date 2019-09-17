@@ -76,9 +76,16 @@ namespace HES.Web.Areas.Identity.Pages.Account
 
             var result = await _signInManager.TwoFactorAuthenticatorSignInAsync(authenticatorCode, rememberMe, Input.RememberMachine);
 
+            var userRole = await _signInManager.UserManager.IsInRoleAsync(user, ApplicationRoles.UserRole);
+
             if (result.Succeeded)
             {
                 _logger.LogInformation($"User {user.Email} logged in with 2fa.");
+
+                if (userRole)
+                {
+                    return LocalRedirect("~/Identity/Account/External");
+                }
                 return LocalRedirect(returnUrl);
             }
             else if (result.IsLockedOut)

@@ -74,7 +74,7 @@ namespace HES.Web.Areas.Identity.Pages.Account
             var result = await _userManager.ResetPasswordAsync(user, Input.Code, Input.Password);
             if (result.Succeeded)
             {
-                return RedirectToPage("./ResetPasswordConfirmation");
+                return LocalRedirect("~/Identity/Account/Login");
             }
 
             foreach (var error in result.Errors)

@@ -47,7 +47,8 @@ namespace HES.Infrastructure.Migrations
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("CompanyId");
+                    b.Property<string>("CompanyId")
+                        .IsRequired();
 
                     b.Property<string>("Name")
                         .IsRequired();
@@ -256,6 +257,8 @@ namespace HES.Infrastructure.Migrations
                     b.Property<string>("PositionId")
                         .IsRequired();
 
+                    b.Property<string>("SamlIdpDevice");
+
                     b.HasKey("Id");
 
                     b.HasIndex("DepartmentId");
@@ -294,6 +297,20 @@ namespace HES.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Positions");
+                });
+
+            modelBuilder.Entity("HES.Core.Entities.SamlIdentityProvider", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<bool>("Enabled");
+
+                    b.Property<string>("Url");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SamlIdentityProvider");
                 });
 
             modelBuilder.Entity("HES.Core.Entities.SharedAccount", b =>
@@ -492,6 +509,10 @@ namespace HES.Infrastructure.Migrations
 
                     b.Property<bool>("EmailConfirmed");
 
+                    b.Property<string>("FirstName");
+
+                    b.Property<string>("LastName");
+
                     b.Property<bool>("LockoutEnabled");
 
                     b.Property<DateTimeOffset?>("LockoutEnd");
@@ -638,7 +659,8 @@ namespace HES.Infrastructure.Migrations
                 {
                     b.HasOne("HES.Core.Entities.Company", "Company")
                         .WithMany()
-                        .HasForeignKey("CompanyId");
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("HES.Core.Entities.Device", b =>

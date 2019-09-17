@@ -387,6 +387,13 @@ a.navbar-brand {
     padding: 7px 0px;
     border: 1px solid #dee2e6 !important;
 }
+
+.samlidp-card {
+    background: #FFF;
+    border-radius: 0.25rem !important;
+    padding: 20px;
+    border: 1px solid #dee2e6 !important;
+}
 /*#endregion
 
 /*#region Input group*/
@@ -865,3 +872,18 @@ div.dataTables_scrollHead table.dataTable {
         border-bottom: 1px solid #dee2e6 !important;
     }
 /*#endregion*/
+
+.link-optional:hover {
+    text-decoration: none;
+}
+
+.link-optional:after {
+    content: "";
+    display: inline-block;
+    margin-left: .255em;
+    vertical-align: central;
+    border-top: .3em solid;
+    border-right: .3em solid transparent;
+    border-bottom: 0;
+    border-left: .3em solid transparent;
+}

@@ -67,9 +67,16 @@ namespace HES.Web.Areas.Identity.Pages.Account
 
             var result = await _signInManager.TwoFactorRecoveryCodeSignInAsync(recoveryCode);
 
+            var userRole = await _signInManager.UserManager.IsInRoleAsync(user, ApplicationRoles.UserRole);
+
             if (result.Succeeded)
             {
                 _logger.LogInformation($"User {user.Email} logged in with a recovery code.");
+
+                if (userRole)
+                {
+                    return LocalRedirect("~/Identity/Account/External");
+                }
                 return LocalRedirect(returnUrl ?? Url.Content("~/"));
             }
             if (result.IsLockedOut)

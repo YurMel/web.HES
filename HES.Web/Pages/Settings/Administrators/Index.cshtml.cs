@@ -54,7 +54,7 @@ namespace HES.Web.Pages.Settings.Administrators
 
         public async Task OnGetAsync()
         {
-            ApplicationUsers = await _applicationUserService.GetAllAsync();
+            ApplicationUsers = await _applicationUserService.GetOnlyAdministrators();
         }
 
         #region Invite
@@ -147,7 +147,7 @@ namespace HES.Web.Pages.Settings.Administrators
             {
                 var user = await _userManager.GetUserAsync(User);
 
-                await _applicationUserService.DelateAdminAsync(id);
+                await _applicationUserService.DeleteUserAsync(id);
 
                 if (user.Id == id)
                 {
