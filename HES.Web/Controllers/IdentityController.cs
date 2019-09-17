@@ -1,4 +1,5 @@
 ﻿using HES.Infrastructure;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -6,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace HES.Web.Controllers
 {
+    [AllowAnonymous]
     [Route("api/[controller]")]
     [ApiController]
     public class IdentityController : ControllerBase
@@ -36,13 +38,13 @@ namespace HES.Web.Controllers
             var user = await _userManager.FindByEmailAsync(email);
             if (user == null)
             {
-                return BadRequest(new { error = "UserNotFoundException" });
+                return Unauthorized(new { error = "UserNotFoundException" });
             }
 
             // Two factor requires
             if (user.TwoFactorEnabled && otp == null)
             {
-                return Ok(new { message = "UserRequiresTwoFactor" });
+                return Unauthorized(new { error = "UserRequiresTwoFactor" });
             }
 
             // Sing In
@@ -84,7 +86,7 @@ namespace HES.Web.Controllers
                 else if (twoFactorResult.IsLockedOut)
                 {
                     _logger.LogWarning($"User {user.Email} account locked out.");
-                    return BadRequest(new { error = "UserIsLockedoutException" });
+                    return Unauthorized(new { error = "UserIsLockedoutException" });
                 }
                 else
                 {
@@ -96,12 +98,12 @@ namespace HES.Web.Controllers
             if (result.IsLockedOut)
             {
                 _logger.LogWarning($"User {user.Email} account locked out.");
-                return BadRequest(new { error = "UserIsLockedoutException" });
+                return Unauthorized(new { error = "UserIsLockedoutException" });
             }
             else
             {
                 _logger.LogError($"User {user.Email} unauthorized.");
-                return Unauthorized();
+                return Unauthorized(new { error = "UnauthorizedException" });
             }
         }
     }
