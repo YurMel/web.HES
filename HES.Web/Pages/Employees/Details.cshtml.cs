@@ -104,7 +104,8 @@ namespace HES.Web.Pages.Employees
                     UserName = employee.Email,
                     Email = employee.Email,
                     FirstName = employee.FirstName,
-                    LastName = employee.LastName
+                    LastName = employee.LastName,
+                    PhoneNumber = employee.PhoneNumber
                 };
                 var password = Guid.NewGuid().ToString();
                 var result = await _userManager.CreateAsync(user, password);

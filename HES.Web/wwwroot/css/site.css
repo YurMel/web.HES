@@ -387,6 +387,13 @@ a.navbar-brand {
     padding: 7px 0px;
     border: 1px solid #dee2e6 !important;
 }
+
+.samlidp-card {
+    background: #FFF;
+    border-radius: 0.25rem !important;
+    padding: 20px;
+    border: 1px solid #dee2e6 !important;
+}
 /*#endregion
 
 /*#region Input group*/
