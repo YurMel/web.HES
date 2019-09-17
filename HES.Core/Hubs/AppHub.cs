@@ -154,24 +154,24 @@ namespace HES.Core.Hubs
             try
             {
                 var device = DeviceHub.FindDevice(deviceId);
+
                 if (device != null)
-                    return device;
-
-                var deviceDescr = FindDeviceDescription(deviceId);
-                if (deviceDescr == null)
-                    return null;
-
-                await deviceDescr.Connection.EstablishRemoteDeviceConnection(deviceId, channelNo);
-
-                var remoteDevice = await DeviceHub.WaitDeviceConnection(deviceId, timeout: 20_000);
-
-                if (remoteDevice != null)
                 {
-                    await remoteDevice.Verify(channelNo);
-                    await remoteDevice.Initialize();
+                    await device.Initialize();
+                }
+                else
+                {
+                    var deviceDescr = FindDeviceDescription(deviceId);
+                    if (deviceDescr == null)
+                        return null;
+
+                    // call Hideez Client to make remote channel
+                    await deviceDescr.Connection.EstablishRemoteDeviceConnection(deviceId, channelNo);
+
+                    device = await DeviceHub.WaitDeviceConnection(deviceId, channelNo, timeout: 20_000);
                 }
 
-                return remoteDevice;
+                return device;
             }
             catch (Exception ex)
             {

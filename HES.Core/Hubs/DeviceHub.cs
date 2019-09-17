@@ -1,9 +1,11 @@
 ﻿using HES.Core.Interfaces;
 using HES.Core.Services;
 using Hideez.SDK.Communication;
+using Hideez.SDK.Communication.Command;
 using Hideez.SDK.Communication.Remote;
 using Hideez.SDK.Communication.Utils;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
@@ -32,50 +34,128 @@ namespace HES.Core.Hubs
             = new ConcurrentDictionary<string, RemoteDevice>();
 
         private readonly IRemoteTaskService _remoteTaskService;
+        private readonly IDeviceService _deviceService;
         private readonly ILogger<DeviceHub> _logger;
 
-        public DeviceHub(IRemoteTaskService remoteTaskService, ILogger<DeviceHub> logger)
+        public DeviceHub(IRemoteTaskService remoteTaskService, 
+                         IDeviceService deviceService,
+                         ILogger<DeviceHub> logger)
         {
             _remoteTaskService = remoteTaskService;
+            _deviceService = deviceService;
             _logger = logger;
         }
 
+        // HUB connection is connected
         public override async Task OnConnectedAsync()
         {
             var httpContext = Context.GetHttpContext();
             string deviceId = httpContext.Request.Headers["DeviceId"].ToString();
             string channel = httpContext.Request.Headers["DeviceChannel"].ToString();
             byte channelNo = Convert.ToByte(channel);
-            Debug.WriteLine($"!!!!!!!!!!!!!!!!!!!!! OnConnectedAsync {deviceId}");
+            Debug.WriteLine($"!!!!!!!!!!!!!!!!!!!!! OnConnectedAsync {deviceId}:{channelNo}");
 
-
-            if (!string.IsNullOrWhiteSpace(deviceId))
+            if (string.IsNullOrWhiteSpace(deviceId))
             {
-                var device = new RemoteDevice(deviceId, Clients.Caller, null, new SdkLogger(_logger));
+                _logger.LogCritical($"DeviceId cannot be empty");
+                await base.OnConnectedAsync();
+            }
 
-                Context.Items.Add("DeviceId", deviceId);
-                Context.Items.Add("Device", device);
+            var remoteDevice = new RemoteDevice(deviceId, Clients.Caller, null, new SdkLogger(_logger));
 
-                if (_connections.TryAdd(deviceId, device))
+            Context.Items.Add("DeviceId", deviceId);
+            Context.Items.Add("Device", remoteDevice);
+
+            var access = await GetDeviceAccessParams(deviceId);
+
+            var t = Task.Run(async () => 
+            {
+                try
                 {
-                    try
+                    // initialize RemoteDevice before adding to the _connections
+                    await remoteDevice.Verify(channelNo);
+                    await remoteDevice.Initialize();
+
+                    if (remoteDevice.AccessLevel.IsMasterKeyRequired)
+                        await remoteDevice.Access(DateTime.UtcNow, access.Item2, access.Item1);
+
+                    if (!_connections.TryAdd(deviceId, remoteDevice))
+                        throw new Exception($"RemoteDevice already in the list of the connected devices");
+
+                    if (_pendingConnections.TryGetValue(deviceId, out PendingConnectionDescription pendingConnection))
                     {
-                        if (_pendingConnections.TryGetValue(deviceId, out PendingConnectionDescription pendingConnection))
-                        {
-                            pendingConnection.Tcs.TrySetResult(device);
-                            _pendingConnections.TryRemove(deviceId, out PendingConnectionDescription removedPendingConnection);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex.Message);
+                        // inform clients about connection ready
+                        pendingConnection.Tcs.TrySetResult(remoteDevice);
+                        _pendingConnections.TryRemove(deviceId, out PendingConnectionDescription _);
                     }
                 }
-            }
+                catch (Exception ex)
+                {
+                    _logger.LogCritical(ex.Message);
+
+                    if (_pendingConnections.TryGetValue(deviceId, out PendingConnectionDescription pendingConnection))
+                    {
+                        // inform clients about connection fail
+                        pendingConnection.Tcs.TrySetException(ex);
+                        _pendingConnections.TryRemove(deviceId, out PendingConnectionDescription _);
+                    }
+
+                    //todo - disconnect client
+                    //Clients.Caller.
+                }
+            });
+            
 
             await base.OnConnectedAsync();
         }
 
+        async Task<Tuple<AccessParams, byte[]>> GetDeviceAccessParams(string deviceId)
+        {
+            var device = await _deviceService
+                    .Query()
+                    .Include(d => d.DeviceAccessProfile)
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(d => d.Id == deviceId);
+
+            if (device == null)
+                throw new HideezException(HideezErrorCode.HesDeviceNotFound);
+
+            if (device.DeviceAccessProfile == null)
+                throw new HideezException(HideezErrorCode.HesEmptyDeviceAccessProfile);
+
+            if (string.IsNullOrWhiteSpace(device.MasterPassword))
+                throw new HideezException(HideezErrorCode.HesEmptyMasterKey);
+
+            var key = ConvertUtils.HexStringToBytes(device.MasterPassword);
+
+            var accessParams = new AccessParams()
+            {
+                MasterKey_Bond = device.DeviceAccessProfile.MasterKeyBonding,
+                MasterKey_Connect = device.DeviceAccessProfile.MasterKeyConnection,
+                MasterKey_Link = device.DeviceAccessProfile.MasterKeyNewLink,
+                MasterKey_Channel = device.DeviceAccessProfile.MasterKeyNewChannel,
+
+                Button_Bond = device.DeviceAccessProfile.ButtonBonding,
+                Button_Connect = device.DeviceAccessProfile.ButtonConnection,
+                Button_Link = device.DeviceAccessProfile.ButtonNewLink,
+                Button_Channel = device.DeviceAccessProfile.ButtonNewChannel,
+
+                Pin_Bond = device.DeviceAccessProfile.PinBonding,
+                Pin_Connect = device.DeviceAccessProfile.ButtonConnection,
+                Pin_Link = device.DeviceAccessProfile.PinNewLink,
+                Pin_Channel = device.DeviceAccessProfile.PinNewChannel,
+
+                PinMinLength = device.DeviceAccessProfile.PinLength,
+                PinMaxTries = device.DeviceAccessProfile.PinTryCount,
+                MasterKeyExpirationPeriod = device.DeviceAccessProfile.MasterKeyExpiration,
+                PinExpirationPeriod = device.DeviceAccessProfile.PinExpiration,
+                ButtonExpirationPeriod = device.DeviceAccessProfile.ButtonExpiration,
+            };
+
+            return new Tuple<AccessParams, byte[]>(accessParams, key);
+        }
+
+        // HUB connection is disconnected (OnDeviceDisconnected received in AppHub)
         public override Task OnDisconnectedAsync(Exception exception)
         {
             Debug.WriteLine($"!!!!!!!!!!!!!!!!!!!!! OnDisconnectedAsync");
@@ -93,7 +173,7 @@ namespace HES.Core.Hubs
             return base.OnDisconnectedAsync(exception);
         }
 
-        public static RemoteDevice FindDevice(string id)
+        internal static RemoteDevice FindDevice(string id)
         {
             if (_connections.TryGetValue(id, out RemoteDevice device))
                 return device;
@@ -101,20 +181,22 @@ namespace HES.Core.Hubs
             return null;
         }
 
-        public static bool RemoveDevice(string id)
+        internal static bool RemoveDevice(string id)
         {
-            _pendingConnections.TryRemove(id, out PendingConnectionDescription removedPendingConnection);
-            return _connections.TryRemove(id, out RemoteDevice device);
+            _pendingConnections.TryRemove(id, out PendingConnectionDescription _);
+            return _connections.TryRemove(id, out RemoteDevice _);
         }
 
-        private RemoteDevice GetDevice()
+        // gets a device from the context. The device may not be present in the _connections at the moment
+        // required for OnVerifyResponse and OnCommandResponse
+        RemoteDevice GetDevice()
         {
             if (Context.Items.TryGetValue("Device", out object device))
                 return (RemoteDevice)device;
             throw new Exception($"Cannot find device in the DeviceHub");
         }
 
-        internal static async Task<RemoteDevice> WaitDeviceConnection(string id, int timeout)
+        internal static async Task<RemoteDevice> WaitDeviceConnection(string id, byte channelNo, int timeout)
         {
             var descr = _pendingConnections.AddOrUpdate(id, new PendingConnectionDescription(id), (deviceId, oldDescr) =>
             {
@@ -123,8 +205,7 @@ namespace HES.Core.Hubs
 
             try
             {
-                var remoteDevice = await descr.Tcs.Task.TimeoutAfter(timeout);
-                return remoteDevice;
+                return await descr.Tcs.Task.TimeoutAfter(timeout);
             }
             catch (TimeoutException)
             {
@@ -146,12 +227,13 @@ namespace HES.Core.Hubs
         {
             try
             {
-                RemoteDevice device = GetDevice();
+                var device = GetDevice();
                 device.OnVerifyResponse(data, error);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
+                Debug.WriteLine(ex.Message);
                 throw new HubException(ex.Message);
             }
             return Task.CompletedTask;
@@ -161,7 +243,7 @@ namespace HES.Core.Hubs
         {
             try
             {
-                RemoteDevice device = GetDevice();
+                var device = GetDevice();
                 device.OnCommandResponse(data, error);
             }
             catch (Exception ex)
