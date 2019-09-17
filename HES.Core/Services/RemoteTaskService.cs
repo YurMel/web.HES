@@ -193,6 +193,11 @@ namespace HES.Core.Services
 
                 return true;
             }
+            catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.ERR_KEY_WRONG)
+            {
+                _logger.LogCritical(ex.Message);
+                //todo - mark this device as in error state, remove from employee, delete all remoteTasks
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
