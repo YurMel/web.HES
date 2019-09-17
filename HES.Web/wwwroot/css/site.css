@@ -137,6 +137,21 @@ a.navbar-brand {
 /*#endregion */
 
 /*#region Sidebar */
+
+.navigation-menu {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.navigation-menu__body {
+    flex: 1 0 auto;
+}
+
+.navigation-menu__footer {
+    flex-shrink: 0;
+}
+
 @media screen and (max-width: 768px) {
     .custom-sidebar {
         min-width: 68px;
@@ -241,13 +256,12 @@ a.navbar-brand {
 }
 
 .copyright {
-    position: absolute;
     color: #FFFFFF;
     opacity: 0.8;
     font-size: 14px;
-    width: 236px;
-    bottom: 0;
     padding-bottom: 15px;
+    margin-top: 15px;
+    text-align: center !important;
 }
 
 @media (max-width: 768px) {
