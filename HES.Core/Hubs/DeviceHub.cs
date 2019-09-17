@@ -1,4 +1,5 @@
 ﻿using HES.Core.Interfaces;
+using HES.Core.Services;
 using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.Remote;
 using Hideez.SDK.Communication.Utils;
@@ -50,7 +51,7 @@ namespace HES.Core.Hubs
 
             if (!string.IsNullOrWhiteSpace(deviceId))
             {
-                var device = new RemoteDevice(deviceId, Clients.Caller, null, null); // todo - implement ILog
+                var device = new RemoteDevice(deviceId, Clients.Caller, null, new SdkLogger(_logger));
 
                 Context.Items.Add("DeviceId", deviceId);
                 Context.Items.Add("Device", device);
