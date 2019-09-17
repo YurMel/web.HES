@@ -443,7 +443,7 @@ namespace HES.Core.Hubs
                 if (events == null)
                     throw new ArgumentNullException(nameof(events));
 
-                _logger.LogDebug($"HCW sended events. Workstation: {events[0].WorkstationId}");
+                _logger.LogDebug($"({events[0].WorkstationId}) HCW sent events. {string.Join("; ", events.Select(s => s.EventId))}");
                 // todo: ignore not approved workstation
 
                 // Events that duplicate ID of other events are ignored
