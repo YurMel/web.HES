@@ -342,6 +342,7 @@ namespace HES.Core.Hubs
                     // Workstation does not exist in DB or its name + domain was changed
                     // Create new unapproved workstation      
                     await _workstationService.AddWorkstationAsync(workstationInfo);
+                    _logger.LogInformation($"New workstation {workstationInfo.MachineName} was added");
                 }
 
                 await OnWorkstationConnected(workstationInfo.Id);

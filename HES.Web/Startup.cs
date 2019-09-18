@@ -91,6 +91,7 @@ namespace HES.Web
                 var deviceAccountRepository = scope.ServiceProvider.GetService<IAsyncRepository<DeviceAccount>>();
                 var deviceTaskRepository = scope.ServiceProvider.GetService<IAsyncRepository<DeviceTask>>();
                 var deviceRepository = scope.ServiceProvider.GetService<IAsyncRepository<Device>>();
+                var workstationProximityDeviceService = scope.ServiceProvider.GetService<IWorkstationProximityDeviceService>();
                 var logger = scope.ServiceProvider.GetService<ILogger<RemoteTaskService>>();
                 var dataProtectionRepository = scope.ServiceProvider.GetService<IDataProtectionService>();
                 var deviceAccessProfilesService = scope.ServiceProvider.GetService<IDeviceAccessProfilesService>();
@@ -98,6 +99,7 @@ namespace HES.Web
                 return new RemoteTaskService(deviceAccountRepository,
                                             deviceTaskRepository,
                                             deviceRepository,
+                                            workstationProximityDeviceService,
                                             logger,
                                             dataProtectionRepository,
                                             deviceAccessProfilesService,
@@ -158,9 +160,9 @@ namespace HES.Web
                 options.UseMySql(Configuration.GetConnectionString("DefaultConnection")));
 
             // Identity
-            services.AddIdentity<ApplicationUser, IdentityRole>()                
+            services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddDefaultUI(UIFramework.Bootstrap4)
-                .AddEntityFrameworkStores<ApplicationDbContext>()                
+                .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
             // Auth policy
@@ -175,9 +177,9 @@ namespace HES.Web
             // Mvc
             services.AddMvc()
                 .AddRazorPagesOptions(options =>
-                {                  
-                    options.Conventions.AuthorizeAreaFolder("Identity", "/Account/Manage", "RequireAdministratorRole");               
-                    options.Conventions.AuthorizeAreaFolder("Identity", "/Account/External");               
+                {
+                    options.Conventions.AuthorizeAreaFolder("Identity", "/Account/Manage", "RequireAdministratorRole");
+                    options.Conventions.AuthorizeAreaFolder("Identity", "/Account/External");
 
                     options.Conventions.AddPageRoute("/Employees/Index", "");
                     options.Conventions.AuthorizeFolder("/Employees", "RequireAdministratorRole");

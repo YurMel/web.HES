@@ -39,6 +39,7 @@ namespace HES.Core.Entities
         OK,
         Locked,
         PendingUnlock,
-        Disabled
+        Disabled,
+        Error
     }
 }

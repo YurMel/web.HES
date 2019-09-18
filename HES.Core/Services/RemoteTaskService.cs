@@ -25,6 +25,7 @@ namespace HES.Core.Services
         readonly IAsyncRepository<DeviceAccount> _deviceAccountRepository;
         readonly IAsyncRepository<DeviceTask> _deviceTaskRepository;
         readonly IAsyncRepository<Device> _deviceRepository;
+        readonly IWorkstationProximityDeviceService _workstationProximityDeviceService;
         readonly ILogger<RemoteTaskService> _logger;
         readonly IDataProtectionService _dataProtectionService;
         readonly IDeviceAccessProfilesService _deviceAccessProfilesService;
@@ -33,6 +34,7 @@ namespace HES.Core.Services
         public RemoteTaskService(IAsyncRepository<DeviceAccount> deviceAccountRepository,
                                  IAsyncRepository<DeviceTask> deviceTaskRepository,
                                  IAsyncRepository<Device> deviceRepository,
+                                 IWorkstationProximityDeviceService workstationProximityDeviceService,
                                  ILogger<RemoteTaskService> logger,
                                  IDataProtectionService dataProtectionService,
                                  IDeviceAccessProfilesService deviceAccessProfilesService,
@@ -41,6 +43,7 @@ namespace HES.Core.Services
             _deviceAccountRepository = deviceAccountRepository;
             _deviceTaskRepository = deviceTaskRepository;
             _deviceRepository = deviceRepository;
+            _workstationProximityDeviceService = workstationProximityDeviceService;
             _logger = logger;
             _dataProtectionService = dataProtectionService;
             _deviceAccessProfilesService = deviceAccessProfilesService;
@@ -197,123 +200,124 @@ namespace HES.Core.Services
             }
             catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.ERR_KEY_WRONG)
             {
-                _logger.LogCritical(ex.Message);
-                
-                //todo - mark this device as in error state, remove from employee, delete all remoteTasks
+                _logger.LogCritical($"[{deviceId}] {ex.Message}");
+                await ErrorMasterPassword(deviceId);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError($"[{deviceId}] {ex.Message}");
             }
             return false;
         }
 
         private async Task TaskCompleted(string taskId, ushort idFromDevice)
         {
-            // Get task
+            // Task
             var deviceTask = await _deviceTaskRepository
                 .Query()
                 .Include(d => d.DeviceAccount)
                 .FirstOrDefaultAsync(t => t.Id == taskId);
 
             if (deviceTask == null)
+            {
                 throw new Exception($"DeviceTask {taskId} not found");
+            }
 
-            // Account for update
+            // Device
+            var device = await _deviceRepository.GetByIdAsync(deviceTask.DeviceId);
+
+            // Device Account
             var deviceAccount = deviceTask.DeviceAccount;
 
-            if (deviceAccount != null)
-            {
-                var properties = new List<string>() { "Status", "LastSyncedAt" };
-                deviceAccount.Status = AccountStatus.Done;
-                deviceAccount.LastSyncedAt = DateTime.UtcNow;
+            var properties = new List<string>() { "Status", "LastSyncedAt" };
 
-                // Set value depending on the operation
-                switch (deviceTask.Operation)
-                {
-                    case TaskOperation.Create:
-                        deviceAccount.IdFromDevice = idFromDevice;
-                        properties.Add("IdFromDevice");
-                        await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties.ToArray());
-                        break;
-                    case TaskOperation.Update:
-                        if (deviceTask.Name != null)
-                        {
-                            deviceAccount.Name = deviceTask.Name;
-                            properties.Add("Name");
-                        }
-                        if (deviceTask.Urls != null)
-                        {
-                            deviceAccount.Urls = deviceTask.Urls;
-                            properties.Add("Urls");
-                        }
-                        if (deviceTask.Apps != null)
-                        {
-                            deviceAccount.Apps = deviceTask.Apps;
-                            properties.Add("Apps");
-                        }
-                        if (deviceTask.Login != null)
-                        {
-                            deviceAccount.Login = deviceTask.Login;
-                            properties.Add("Login");
-                        }
-                        if (deviceTask.Password != null)
-                        {
-                            deviceAccount.PasswordUpdatedAt = DateTime.UtcNow;
-                            properties.Add("PasswordUpdatedAt");
-                        }
-                        if (deviceTask.OtpSecret != null)
-                        {
-                            deviceAccount.OtpUpdatedAt = deviceTask.OtpSecret != string.Empty ? new DateTime?(DateTime.UtcNow) : null;
-                            properties.Add("OtpUpdatedAt");
-                        }
-                        await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties.ToArray());
-                        break;
-                    case TaskOperation.Delete:
-                        var dev = await _deviceRepository.Query()
-                            .Where(d => d.Id == deviceTask.DeviceId)
-                            .AsNoTracking()
-                            .FirstOrDefaultAsync();
-                        if (dev.PrimaryAccountId == deviceAccount.Id)
-                        {
-                            dev.PrimaryAccountId = null;
-                            await _deviceRepository.UpdateOnlyPropAsync(dev, new string[] { "PrimaryAccountId" });
-                        }
-                        deviceAccount.Deleted = true;
-                        properties.Add("Deleted");
-                        await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties.ToArray());
-                        break;
-                    case TaskOperation.Primary:
-                        var device = await _deviceRepository.GetByIdAsync(deviceTask.DeviceId);
-                        device.PrimaryAccountId = deviceTask.DeviceAccountId;
-                        await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "PrimaryAccountId" });
-                        await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties.ToArray());
-                        break;
-                    default:
-                        _logger.LogDebug(deviceTask.Operation.ToString());
-                        break;
-                }
-            }
-            else
+            // Set value depending on the operation
+            switch (deviceTask.Operation)
             {
-                var device = await _deviceRepository.GetByIdAsync(deviceTask.DeviceId);
-                switch (deviceTask.Operation)
-                {
-                    case TaskOperation.Wipe:
-                        device.MasterPassword = null;
-                        await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "MasterPassword" });
-                        break;
-                    case TaskOperation.UnlockPin:
-                        device.State = DeviceState.OK;
-                        await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "State" });
-                        break;
-                    case TaskOperation.Link:
-                        _logger.LogInformation(deviceTask.Operation.ToString());
-                        break;
-                    default:
-                        _logger.LogDebug(deviceTask.Operation.ToString());
-                        break;
-                }
+                case TaskOperation.Create:
+                    deviceAccount.Status = AccountStatus.Done;
+                    deviceAccount.LastSyncedAt = DateTime.UtcNow;
+                    deviceAccount.IdFromDevice = idFromDevice;
+                    properties.Add("IdFromDevice");
+                    await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties.ToArray());
+                    _logger.LogInformation($"[{device.Id}] Task operation {deviceTask.Operation.ToString()}");
+                    break;
+                case TaskOperation.Update:
+                    deviceAccount.Status = AccountStatus.Done;
+                    deviceAccount.LastSyncedAt = DateTime.UtcNow;
+                    if (deviceTask.Name != null)
+                    {
+                        deviceAccount.Name = deviceTask.Name;
+                        properties.Add("Name");
+                    }
+                    if (deviceTask.Urls != null)
+                    {
+                        deviceAccount.Urls = deviceTask.Urls;
+                        properties.Add("Urls");
+                    }
+                    if (deviceTask.Apps != null)
+                    {
+                        deviceAccount.Apps = deviceTask.Apps;
+                        properties.Add("Apps");
+                    }
+                    if (deviceTask.Login != null)
+                    {
+                        deviceAccount.Login = deviceTask.Login;
+                        properties.Add("Login");
+                    }
+                    if (deviceTask.Password != null)
+                    {
+                        deviceAccount.PasswordUpdatedAt = DateTime.UtcNow;
+                        properties.Add("PasswordUpdatedAt");
+                    }
+                    if (deviceTask.OtpSecret != null)
+                    {
+                        deviceAccount.OtpUpdatedAt = deviceTask.OtpSecret != string.Empty ? new DateTime?(DateTime.UtcNow) : null;
+                        properties.Add("OtpUpdatedAt");
+                    }
+                    await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties.ToArray());
+                    _logger.LogInformation($"[{device.Id}] Task operation {deviceTask.Operation.ToString()}");
+                    break;
+                case TaskOperation.Delete:
+                    deviceAccount.Status = AccountStatus.Done;
+                    deviceAccount.LastSyncedAt = DateTime.UtcNow;
+                    if (device.PrimaryAccountId == deviceAccount.Id)
+                    {
+                        device.PrimaryAccountId = null;
+                        await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "PrimaryAccountId" });
+                    }
+                    deviceAccount.Deleted = true;
+                    properties.Add("Deleted");
+                    await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties.ToArray());
+                    _logger.LogInformation($"[{device.Id}] Task operation {deviceTask.Operation.ToString()}");
+                    break;
+                case TaskOperation.Primary:
+                    deviceAccount.Status = AccountStatus.Done;
+                    deviceAccount.LastSyncedAt = DateTime.UtcNow;
+                    device.PrimaryAccountId = deviceTask.DeviceAccountId;
+                    await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "PrimaryAccountId" });
+                    await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties.ToArray());
+                    _logger.LogInformation($"[{device.Id}] Task operation {deviceTask.Operation.ToString()}");
+                    break;
+                case TaskOperation.Wipe:
+                    device.MasterPassword = null;
+                    await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "MasterPassword" });
+                    _logger.LogInformation($"[{device.Id}] Task operation {deviceTask.Operation.ToString()}");
+                    break;
+                case TaskOperation.UnlockPin:
+                    device.State = DeviceState.OK;
+                    await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "State" });
+                    _logger.LogInformation($"[{device.Id}] Task operation {deviceTask.Operation.ToString()}");
+                    break;
+                case TaskOperation.Link:
+                    _logger.LogInformation($"[{device.Id}] Task operation {deviceTask.Operation.ToString()}");
+                    break;
+                case TaskOperation.Profile:
+                    _logger.LogInformation($"[{device.Id}] Task operation {deviceTask.Operation.ToString()}");
+                    break;
+                default:
+                    _logger.LogWarning($"[{device.Id}] unhandled case {deviceTask.Operation.ToString()}");
+                    break;
             }
 
             // Delete task
@@ -520,6 +524,47 @@ namespace HES.Core.Services
             await remoteDevice.Unlock(key);
 
             return 0;
+        }
+
+        private async Task ErrorMasterPassword(string deviceId)
+        {
+            _logger.LogDebug("Remove device (ErrorMasterPassword)");
+            // Get device
+            var device = await _deviceRepository
+                .Query()
+                .FirstOrDefaultAsync(d => d.Id == deviceId);
+
+            // Remove all tasks
+            var allTasks = await _deviceTaskRepository
+                .Query()
+                .Where(t => t.DeviceId == deviceId)
+                .ToListAsync();
+            await _deviceTaskRepository.DeleteRangeAsync(allTasks);
+
+            // Remove all accounts
+            var allAccounts = await _deviceAccountRepository
+                .Query()
+                .Where(d => d.DeviceId == deviceId)
+                .ToListAsync();
+            foreach (var account in allAccounts)
+            {
+                account.Deleted = true;
+            }
+            await _deviceAccountRepository.UpdateOnlyPropAsync(allAccounts, new string[] { "Deleted" });
+
+            // Remove proximity device
+            var allProximityDevices = await _workstationProximityDeviceService
+                .Query()
+                .Where(w => w.DeviceId == deviceId)
+                .ToListAsync();
+            await _workstationProximityDeviceService.DeleteRangeProximityDevicesAsync(allProximityDevices);
+
+            device.EmployeeId = null;
+            device.PrimaryAccountId = null;
+            device.MasterPassword = null;
+            device.State = DeviceState.Error;
+            var properties = new List<string>() { "EmployeeId", "PrimaryAccountId", "MasterPassword", "State" };
+            await _deviceRepository.UpdateOnlyPropAsync(device, properties.ToArray());
         }
     }
 }
