@@ -179,7 +179,7 @@ namespace HES.Core.Services
                 {
                     var remoteDevice = await AppHub.EstablishRemoteConnection(deviceId, 4);
                     if (remoteDevice == null)
-                        throw new HideezException(HideezErrorCode.HesFailedEstablishRemoteDeviceConnection);
+                        break;
 
                     foreach (var task in tasks)
                     {

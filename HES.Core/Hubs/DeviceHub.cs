@@ -76,8 +76,15 @@ namespace HES.Core.Hubs
                     await remoteDevice.Verify(channelNo);
                     await remoteDevice.Initialize();
 
-                    if (remoteDevice.AccessLevel.IsMasterKeyRequired)
+                    if (!remoteDevice.AccessLevel.IsLinkRequired)
+                    {
                         await remoteDevice.Access(DateTime.UtcNow, access.Item2, access.Item1);
+
+                        await remoteDevice.Initialize();
+
+                        if (remoteDevice.AccessLevel.IsMasterKeyRequired)
+                            throw new HideezException(HideezErrorCode.HesDeviceAuthorizationFailed);
+                    }
 
                     if (!_connections.TryAdd(deviceId, remoteDevice))
                         throw new Exception($"RemoteDevice already in the list of the connected devices");
