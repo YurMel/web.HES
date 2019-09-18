@@ -208,6 +208,9 @@ namespace HES.Web
                 app.UseHsts();
             }
 
+            app.UseStatusCodePages();
+            app.UseStatusCodePagesWithReExecute("/StatusCode", "?code={0}");
+
             var supportedCultures = new[]
             {
                 new CultureInfo("en-US"),
@@ -248,7 +251,6 @@ namespace HES.Web
             });
             app.UseMvc();
             app.UseCookiePolicy();
-            app.UseStatusCodePages("text/html", "<h1>HTTP status code {0}</h1>");
 
             using (var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
