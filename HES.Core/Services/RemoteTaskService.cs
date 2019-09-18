@@ -169,15 +169,16 @@ namespace HES.Core.Services
                 var tasks = await _deviceTaskRepository.Query()
                     .Include(t => t.DeviceAccount)
                     .Where(t => t.DeviceId == deviceId)
+                    .OrderBy(x => x.CreatedAt)
                     .ToListAsync();
 
                 while (tasks.Any())
                 {
                     var remoteDevice = await AppHub.EstablishRemoteConnection(deviceId, 4);
                     if (remoteDevice == null)
-                        throw new HideezException( HideezErrorCode.HesFailedEstablishRemoteDeviceConnection);
+                        throw new HideezException(HideezErrorCode.HesFailedEstablishRemoteDeviceConnection);
 
-                    foreach (var task in tasks.OrderBy(x => x.CreatedAt))
+                    foreach (var task in tasks)
                     {
                         task.Password = _dataProtectionService.Unprotect(task.Password);
                         task.OtpSecret = _dataProtectionService.Unprotect(task.OtpSecret);
@@ -188,6 +189,7 @@ namespace HES.Core.Services
                     tasks = await _deviceTaskRepository.Query()
                         .Include(t => t.DeviceAccount)
                         .Where(t => t.DeviceId == deviceId)
+                        .OrderBy(x => x.CreatedAt)
                         .ToListAsync();
                 }
 
@@ -196,6 +198,7 @@ namespace HES.Core.Services
             catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.ERR_KEY_WRONG)
             {
                 _logger.LogCritical(ex.Message);
+                
                 //todo - mark this device as in error state, remove from employee, delete all remoteTasks
             }
             catch (Exception ex)

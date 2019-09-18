@@ -1,4 +1,5 @@
 ﻿using HES.Infrastructure;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -47,6 +48,9 @@ namespace HES.Web.Controllers
                 return Unauthorized(new { error = "UserRequiresTwoFactor" });
             }
 
+            // Clear the existing cookie to ensure a clean login process
+            await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
+
             // Sing In
             var result = await _signInManager.PasswordSignInAsync(email, password, false, lockoutOnFailure: true);
             if (result.Succeeded)
@@ -65,6 +69,9 @@ namespace HES.Web.Controllers
             }
             if (result.RequiresTwoFactor)
             {
+                // Clear the existing cookie to ensure a clean login process
+                await HttpContext.SignOutAsync(IdentityConstants.TwoFactorRememberMeScheme);
+
                 var authenticatorCode = otp.Replace(" ", string.Empty).Replace("-", string.Empty);
 
                 var twoFactorResult = await _signInManager.TwoFactorAuthenticatorSignInAsync(authenticatorCode, false, false);

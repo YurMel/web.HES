@@ -27,6 +27,7 @@
     <div class="form-group">
         <label asp-for="SamlIdentityProvider.Url" class="control-label"></label>
         <input id="idpUrl" asp-for="SamlIdentityProvider.Url" class="form-control text-navyblue" />
+        <span asp-validation-for="SamlIdentityProvider.Url" class="text-danger"></span>
     </div>
     <div class="form-group mb-0">
         <input id="idpSaveBtn" type="submit" value="Save" class="btn btn-primary d-none" asp-page-handler="EditSamlIdentityProvider" />
@@ -45,4 +46,5 @@
             saveBtn.removeClass('d-none');
         });
     </script>
+    <partial name="_ValidationScriptsPartial" />
 }

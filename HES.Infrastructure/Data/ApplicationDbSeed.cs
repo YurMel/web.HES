@@ -87,7 +87,7 @@ namespace HES.Infrastructure
                 {
                     Id = SamlIdentityProvider.Key,
                     Enabled = false,
-                    Url = null
+                    Url = "url"
                 });
                 await _context.SaveChangesAsync();
             }

@@ -1,5 +1,6 @@
 ﻿using HES.Core.Entities;
 using HES.Core.Interfaces;
+using HES.Core.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -40,8 +41,14 @@ namespace HES.Web.Pages.Settings.IdentityProvider
 
         public async Task<IActionResult> OnPostEditSamlIdentityProviderAsync(SamlIdentityProvider samlIdentityProvider)
         {
+            if (!ModelState.IsValid)
+            {
+                return RedirectToPage("./Index");
+            }
             try
             {
+                Utils.VerifyUrls(samlIdentityProvider.Url);
+
                 var currentIdentityProvider = await _samlIdentityProviderService
                     .Query()
                     .AsNoTracking()
