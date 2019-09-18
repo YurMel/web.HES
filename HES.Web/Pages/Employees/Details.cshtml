@@ -120,14 +120,21 @@
                     </div>
                     <div class="m-0 d-flex flex-row">
                         <div class="col flex-fill font-weight-bold">@Html.DisplayNameFor(model => device.Battery)</div>
-                        <div class="col">
-                            @if (device.Battery >= 1)
+                        <div class="col d-flex flex-row">
+                            @if (device.Battery >= 30)
                             {
-                                <img src="~/svg/device/battery_full.svg" />
+                                <img src="~/svg/device/battery_full.svg" alt="@device.Battery" />
+                                <span>@device.Battery%</span>
+                            }
+                            else if (device.Battery >= 15 && device.Battery <= 30)
+                            {
+                                <img src="~/svg/device/battery_30.svg" alt="@device.Battery" />
+                                <span>@device.Battery%</span>
                             }
                             else
                             {
-                                <img src="~/svg/device/battery_20.svg" />
+                                <img src="~/svg/device/battery_15.svg" alt="@device.Battery" />
+                                <span>@device.Battery%</span>
                             }
                         </div>
                     </div>
