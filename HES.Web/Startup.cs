@@ -76,14 +76,15 @@ namespace HES.Web
             services.AddScoped<IWorkstationSessionService, WorkstationSessionService>();
             services.AddScoped<IWorkstationProximityDeviceService, WorkstationProximityDeviceService>();
             services.AddScoped<IDeviceService, DeviceService>();
+            services.AddScoped<IDeviceTaskService, DeviceTaskService>();
             services.AddScoped<IDeviceAccountService, DeviceAccountService>();
             services.AddScoped<ISharedAccountService, SharedAccountService>();
             services.AddScoped<ITemplateService, TemplateService>();
             services.AddScoped<ISettingsService, SettingsService>();
             services.AddScoped<IApplicationUserService, ApplicationUserService>();
             services.AddScoped<IDeviceAccessProfilesService, DeviceAccessProfilesService>();
-            services.AddTransient<IAppVersionService, AppVersionService>();
-            services.AddTransient<ISamlIdentityProviderService, SamlIdentityProviderService>();
+            services.AddScoped<IAppVersionService, AppVersionService>();
+            services.AddScoped<ISamlIdentityProviderService, SamlIdentityProviderService>();
             services.AddSingleton<IRemoteTaskService, RemoteTaskService>(s =>
             {
                 var scope = s.CreateScope();
