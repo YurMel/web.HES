@@ -27,23 +27,23 @@ namespace HES.Web.Controllers
         }
 
         [Route("[action]")]
-        [HttpGet]
-        public async Task<IActionResult> AuthN(string email, string password, string otp)
+        [HttpPost]
+        public async Task<IActionResult> AuthN(Data data)
         {
-            if (email == null && password == null)
+            if (data == null)
             {
                 return BadRequest(new { error = "CredentialsNullException" });
             }
 
             // Find user
-            var user = await _userManager.FindByEmailAsync(email);
+            var user = await _userManager.FindByEmailAsync(data.Email);
             if (user == null)
             {
                 return Unauthorized(new { error = "UserNotFoundException" });
             }
 
             // Two factor requires
-            if (user.TwoFactorEnabled && otp == null)
+            if (user.TwoFactorEnabled && data.Otp == null)
             {
                 return Unauthorized(new { error = "UserRequiresTwoFactor" });
             }
@@ -52,10 +52,10 @@ namespace HES.Web.Controllers
             await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
 
             // Sing In
-            var result = await _signInManager.PasswordSignInAsync(email, password, false, lockoutOnFailure: true);
+            var result = await _signInManager.PasswordSignInAsync(data.Email, data.Password, false, lockoutOnFailure: true);
             if (result.Succeeded)
             {
-                _logger.LogInformation($"User {email} succeeded auth via API");
+                _logger.LogInformation($"User {data.Email} succeeded auth via API");
 
                 var response = new User()
                 {
@@ -72,13 +72,13 @@ namespace HES.Web.Controllers
                 // Clear the existing cookie to ensure a clean login process
                 await HttpContext.SignOutAsync(IdentityConstants.TwoFactorRememberMeScheme);
 
-                var authenticatorCode = otp.Replace(" ", string.Empty).Replace("-", string.Empty);
+                var authenticatorCode = data.Otp.Replace(" ", string.Empty).Replace("-", string.Empty);
 
                 var twoFactorResult = await _signInManager.TwoFactorAuthenticatorSignInAsync(authenticatorCode, false, false);
 
                 if (twoFactorResult.Succeeded)
                 {
-                    _logger.LogInformation($"User {email} succeeded auth via API with 2FA");
+                    _logger.LogInformation($"User {data.Email} succeeded auth via API with 2FA");
 
                     var response = new User()
                     {
@@ -113,6 +113,13 @@ namespace HES.Web.Controllers
                 return Unauthorized(new { error = "UnauthorizedException" });
             }
         }
+    }
+
+    public class Data
+    {
+        public string Email { get; set; }
+        public string Password { get; set; }
+        public string Otp { get; set; }
     }
 
     class User
