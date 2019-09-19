@@ -185,7 +185,16 @@ namespace HES.Web.Pages.Workstations
 
             Workstation = await _workstationService
                .WorkstationQuery()
+               .Include(w => w.Department.Company)
                .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (Workstation == null)
+            {
+                _logger.LogWarning("Workstation == null");
+                return NotFound();
+            }
+
+            ViewData["CompanyId"] = new SelectList(await _workstationService.CompanyQuery().ToListAsync(), "Id", "Name");
 
             return Partial("_ApproveWorkstation", this);
         }

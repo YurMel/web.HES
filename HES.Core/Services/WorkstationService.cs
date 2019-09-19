@@ -103,7 +103,7 @@ namespace HES.Core.Services
             if (workstation == null)
                 throw new ArgumentNullException(nameof(workstation));
 
-            string[] properties = { "Approved", "RFID" };
+            string[] properties = { "DepartmentId", "Approved", "RFID" };
             await _workstationRepository.UpdateOnlyPropAsync(workstation, properties);
         }
 
@@ -117,8 +117,10 @@ namespace HES.Core.Services
                 throw new Exception("Workstation not found");
 
             workstation.Approved = false;
+            workstation.DepartmentId = null;
+            workstation.RFID = false;
 
-            string[] properties = { "Approved" };
+            string[] properties = { "Approved", "DepartmentId", "RFID" };
             await _workstationRepository.UpdateOnlyPropAsync(workstation, properties);
         }
 
