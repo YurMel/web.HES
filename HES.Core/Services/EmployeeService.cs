@@ -15,6 +15,11 @@ namespace HES.Core.Services
     public class EmployeeService : IEmployeeService
     {
         private readonly IAsyncRepository<Employee> _employeeRepository;
+        private readonly IDeviceService _deviceService;
+        private readonly IDeviceTaskService _deviceTaskService;
+        private readonly IDeviceAccountService _deviceAccountService;
+        private readonly IWorkstationProximityDeviceService _workstationProximityDeviceService;
+
         private readonly IAsyncRepository<Device> _deviceRepository;
         private readonly IAsyncRepository<DeviceAccount> _deviceAccountRepository;
         private readonly IAsyncRepository<DeviceTask> _deviceTaskRepository;
@@ -26,11 +31,15 @@ namespace HES.Core.Services
         private readonly IAsyncRepository<WorkstationEvent> _workstationEventRepository;
         private readonly IAsyncRepository<WorkstationSession> _workstationSessionRepository;
         private readonly IRemoteTaskService _remoteTaskService;
-        private readonly IWorkstationProximityDeviceService _workstationProximityDeviceService;
         private readonly IDataProtectionService _dataProtectionService;
         private readonly ISamlIdentityProviderService _samlIdentityProviderService;
 
         public EmployeeService(IAsyncRepository<Employee> employeeRepository,
+                               IDeviceService deviceService,
+                               IDeviceTaskService deviceTaskService,
+                               IDeviceAccountService deviceAccountService,
+                               IWorkstationProximityDeviceService workstationProximityDeviceService,
+
                                IAsyncRepository<Device> deviceRepository,
                                IAsyncRepository<DeviceAccount> deviceAccountRepository,
                                IAsyncRepository<DeviceTask> deviceTaskRepository,
@@ -42,11 +51,15 @@ namespace HES.Core.Services
                                IAsyncRepository<WorkstationEvent> workstationEventRepository,
                                IAsyncRepository<WorkstationSession> workstationSessionRepository,
                                IRemoteTaskService remoteTaskService,
-                               IWorkstationProximityDeviceService workstationProximityDeviceService,
                                IDataProtectionService dataProtectionService,
                                ISamlIdentityProviderService samlIdentityProviderService)
         {
             _employeeRepository = employeeRepository;
+            _deviceService = deviceService;
+            _deviceTaskService = deviceTaskService;
+            _deviceAccountService = deviceAccountService;
+            _workstationProximityDeviceService = workstationProximityDeviceService;
+
             _deviceRepository = deviceRepository;
             _deviceAccountRepository = deviceAccountRepository;
             _deviceTaskRepository = deviceTaskRepository;
@@ -58,7 +71,6 @@ namespace HES.Core.Services
             _workstationEventRepository = workstationEventRepository;
             _workstationSessionRepository = workstationSessionRepository;
             _remoteTaskService = remoteTaskService;
-            _workstationProximityDeviceService = workstationProximityDeviceService;
             _dataProtectionService = dataProtectionService;
             _samlIdentityProviderService = samlIdentityProviderService;
         }
@@ -1060,6 +1072,21 @@ namespace HES.Core.Services
 
             var result = string.Join(";", verifiedUrls.ToArray());
             return result;
+        }
+
+        public async Task HandlingMasterPasswordErrorAsync(string deviceId)
+        {
+            // Remove all tasks
+            await _deviceTaskService.RemoveAllTasksAsync(deviceId);
+
+            // Remove all accounts
+            await _deviceAccountService.RemoveAllAccountsAsync(deviceId);
+
+            // Remove all proximity
+            await _workstationProximityDeviceService.DeleteProximityDeviceAsync(deviceId);
+
+            // Remove employee
+            await _deviceService.RemoveEmployeeAsync(deviceId);
         }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using HES.Core.Entities;
 using HES.Core.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace HES.Core.Services
 {
@@ -16,6 +18,21 @@ namespace HES.Core.Services
         public IQueryable<DeviceAccount> Query()
         {
             return _deviceAccountRepository.Query();
+        }
+
+        public async Task RemoveAllAccountsAsync(string deviceId)
+        {
+            var allAccounts = await _deviceAccountRepository
+                 .Query()
+                 .Where(d => d.DeviceId == deviceId)
+                 .ToListAsync();
+
+            foreach (var account in allAccounts)
+            {
+                account.Deleted = true;
+            }
+
+            await _deviceAccountRepository.UpdateOnlyPropAsync(allAccounts, new string[] { "Deleted" });
         }
     }
 }

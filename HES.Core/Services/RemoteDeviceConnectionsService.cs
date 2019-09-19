@@ -25,24 +25,27 @@ namespace HES.Core.Services
             }
         }
 
-        const byte channelNo = 4;
-
-        readonly IDeviceService _deviceService;
-        readonly ILogger<RemoteDeviceConnectionsService> _logger;
-        readonly IDataProtectionService _dataProtectionService;
-
         static readonly ConcurrentDictionary<string, PendingConnectionDescription> _pendingConnections
             = new ConcurrentDictionary<string, PendingConnectionDescription>();
 
         static readonly ConcurrentDictionary<string, RemoteDevice> _connections
             = new ConcurrentDictionary<string, RemoteDevice>();
 
-        public RemoteDeviceConnectionsService(IDeviceService deviceService,
-                                 ILogger<RemoteDeviceConnectionsService> logger,
-                                 IDataProtectionService dataProtectionService)
+        const byte channelNo = 4;
+
+        readonly ILogger<RemoteDeviceConnectionsService> _logger;
+        readonly IDeviceService _deviceService;
+        readonly IEmployeeService _employeeService;
+        readonly IDataProtectionService _dataProtectionService;
+
+        public RemoteDeviceConnectionsService(ILogger<RemoteDeviceConnectionsService> logger,
+                                              IDeviceService deviceService,
+                                              IEmployeeService employeeService,
+                                              IDataProtectionService dataProtectionService)
         {
-            _deviceService = deviceService;
             _logger = logger;
+            _deviceService = deviceService;
+            _employeeService = employeeService;
             _dataProtectionService = dataProtectionService;
         }
 
@@ -72,7 +75,7 @@ namespace HES.Core.Services
 
                 if (_pendingConnections.TryGetValue(deviceId, out PendingConnectionDescription pendingConnection))
                 {
-                    // inform clients about connection ready
+                    // Inform clients about connection ready
                     pendingConnection.Tcs.TrySetResult(remoteDevice);
                     _pendingConnections.TryRemove(deviceId, out PendingConnectionDescription _);
                 }
@@ -82,14 +85,14 @@ namespace HES.Core.Services
             catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.ERR_KEY_WRONG)
             {
                 _logger.LogCritical($"[{deviceId}] {ex.Message}");
-                
-                //todo await ErrorMasterPassword(deviceId);
+
+                await _employeeService.HandlingMasterPasswordErrorAsync(deviceId);
 
                 HandleDeviceInitializationError(deviceId, ex);
             }
             catch (Exception ex)
             {
-                _logger.LogCritical(ex.Message);
+                _logger.LogCritical($"[{deviceId}] {ex.Message}");
 
                 HandleDeviceInitializationError(deviceId, ex);
             }
@@ -124,8 +127,7 @@ namespace HES.Core.Services
             if (string.IsNullOrWhiteSpace(device.MasterPassword))
                 throw new HideezException(HideezErrorCode.HesEmptyMasterKey);
 
-            //todo - Unprotect?
-            var key = ConvertUtils.HexStringToBytes(device.MasterPassword);
+            var key = ConvertUtils.HexStringToBytes(_dataProtectionService.Unprotect(device.MasterPassword));
 
             var accessParams = new AccessParams()
             {

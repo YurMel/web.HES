@@ -118,7 +118,7 @@ namespace HES.Core.Services
             {
                 throw new ArgumentNullException(nameof(proximityDevices));
             }
-            
+
             await _workstationProximityDeviceRepository.DeleteRangeAsync(proximityDevices);
 
             foreach (var item in proximityDevices)
@@ -171,6 +171,21 @@ namespace HES.Core.Services
             var deviceProximitySettings = await GetProximitySettingsAsync(workstationId);
 
             await AppHub.UpdateProximitySettings(workstationId, deviceProximitySettings);
+        }
+
+        public async Task RemoveAllProximityAsync(string deviceId)
+        {
+            var allProximity = await _workstationProximityDeviceRepository
+             .Query()
+             .Where(w => w.DeviceId == deviceId)
+             .ToListAsync();
+
+            await _workstationProximityDeviceRepository.DeleteRangeAsync(allProximity);
+
+            foreach (var item in allProximity)
+            {
+                await UpdateProximitySettingsAsync(item.WorkstationId);
+            }
         }
     }
 }

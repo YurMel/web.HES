@@ -238,5 +238,25 @@ namespace HES.Core.Services
         {
             return await _deviceRepository.ExistAsync(predicate);
         }
+
+        public async Task RemoveEmployeeAsync(string deviceId)
+        {
+            var device = await _deviceRepository.GetByIdAsync(deviceId);
+
+            device.EmployeeId = null;
+            device.PrimaryAccountId = null;
+            device.MasterPassword = null;
+            device.LastSynced = DateTime.UtcNow;
+
+            var properties = new List<string>()
+            {
+                "EmployeeId",
+                "PrimaryAccountId",
+                "MasterPassword",
+                "LastSynced"
+            };
+
+            await _deviceRepository.UpdateOnlyPropAsync(device, properties.ToArray());
+        }
     }
 }

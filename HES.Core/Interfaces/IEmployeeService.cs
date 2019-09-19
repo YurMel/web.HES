@@ -45,5 +45,6 @@ namespace HES.Core.Interfaces
         Task AddSharedAccount(string employeeId, string sharedAccountId, string[] selectedDevices);
         Task DeleteAccount(string accountId);
         Task UndoChanges(string accountId);
+        Task HandlingMasterPasswordErrorAsync(string deviceId);
     }
 }

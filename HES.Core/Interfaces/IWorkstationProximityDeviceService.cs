@@ -16,5 +16,6 @@ namespace HES.Core.Interfaces
         Task DeleteRangeProximityDevicesAsync(List<WorkstationProximityDevice> proximityDevices);
         Task<IReadOnlyList<DeviceProximitySettingsDto>> GetProximitySettingsAsync(string workstationId);
         Task UpdateProximitySettingsAsync(string workstationId);
+        Task RemoveAllProximityAsync(string deviceId);
     }
 }

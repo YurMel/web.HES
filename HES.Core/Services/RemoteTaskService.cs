@@ -198,11 +198,6 @@ namespace HES.Core.Services
 
                 return true;
             }
-            catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.ERR_KEY_WRONG)
-            {
-                _logger.LogCritical($"[{deviceId}] {ex.Message}");
-                await ErrorMasterPassword(deviceId);
-            }
             catch (Exception ex)
             {
                 _logger.LogError($"[{deviceId}] {ex.Message}");
@@ -524,47 +519,6 @@ namespace HES.Core.Services
             await remoteDevice.Unlock(key);
 
             return 0;
-        }
-
-        private async Task ErrorMasterPassword(string deviceId)
-        {
-            _logger.LogDebug("Remove device (ErrorMasterPassword)");
-            // Get device
-            var device = await _deviceRepository
-                .Query()
-                .FirstOrDefaultAsync(d => d.Id == deviceId);
-
-            // Remove all tasks
-            var allTasks = await _deviceTaskRepository
-                .Query()
-                .Where(t => t.DeviceId == deviceId)
-                .ToListAsync();
-            await _deviceTaskRepository.DeleteRangeAsync(allTasks);
-
-            // Remove all accounts
-            var allAccounts = await _deviceAccountRepository
-                .Query()
-                .Where(d => d.DeviceId == deviceId)
-                .ToListAsync();
-            foreach (var account in allAccounts)
-            {
-                account.Deleted = true;
-            }
-            await _deviceAccountRepository.UpdateOnlyPropAsync(allAccounts, new string[] { "Deleted" });
-
-            // Remove proximity device
-            var allProximityDevices = await _workstationProximityDeviceService
-                .Query()
-                .Where(w => w.DeviceId == deviceId)
-                .ToListAsync();
-            await _workstationProximityDeviceService.DeleteRangeProximityDevicesAsync(allProximityDevices);
-
-            device.EmployeeId = null;
-            device.PrimaryAccountId = null;
-            device.MasterPassword = null;
-            device.State = DeviceState.Error;
-            var properties = new List<string>() { "EmployeeId", "PrimaryAccountId", "MasterPassword", "State" };
-            await _deviceRepository.UpdateOnlyPropAsync(device, properties.ToArray());
         }
     }
 }
