@@ -1,5 +1,4 @@
 ﻿using System;
-using HES.Core.Hubs;
 using Hideez.SDK.Communication.Log;
 using Microsoft.Extensions.Logging;
 
@@ -7,9 +6,9 @@ namespace HES.Core.Services
 {
     public class SdkLogger : ILog
     {
-        ILogger<DeviceHub> _logger;
+        ILogger<RemoteDeviceConnectionsService> _logger; //todo
 
-        public SdkLogger(ILogger<DeviceHub> logger)
+        public SdkLogger(ILogger<RemoteDeviceConnectionsService> logger)
         {
             _logger = logger;
         }

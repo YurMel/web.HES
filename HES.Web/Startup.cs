@@ -105,6 +105,16 @@ namespace HES.Web
                                             deviceAccessProfilesService,
                                             hubContext);
             });
+            services.AddSingleton<IRemoteDeviceConnectionsService, RemoteDeviceConnectionsService>(s =>
+            {
+                var scope = s.CreateScope();
+                var logger = scope.ServiceProvider.GetService<ILogger<RemoteDeviceConnectionsService>>();
+                var dataProtectionRepository = scope.ServiceProvider.GetService<IDataProtectionService>();
+                var deviceService = scope.ServiceProvider.GetService<IDeviceService>();
+                return new RemoteDeviceConnectionsService(deviceService, 
+                                            logger,
+                                            dataProtectionRepository);
+            });
             services.AddSingleton<IDataProtectionService, DataProtectionService>(s =>
             {
                 var scope = s.CreateScope();

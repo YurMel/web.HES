@@ -1,5 +1,6 @@
 ﻿using HES.Core.Entities;
 using HES.Core.Interfaces;
+using HES.Core.Services;
 using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.Command;
 using Hideez.SDK.Communication.HES.DTO;
@@ -48,6 +49,7 @@ namespace HES.Core.Hubs
         static readonly ConcurrentDictionary<string, WorkstationDescription> _workstationConnections
                     = new ConcurrentDictionary<string, WorkstationDescription>();
 
+        private readonly IRemoteDeviceConnectionsService _remoteDeviceConnectionsService;
         private readonly IRemoteTaskService _remoteTaskService;
         private readonly IEmployeeService _employeeService;
         private readonly IWorkstationService _workstationService;
@@ -58,7 +60,8 @@ namespace HES.Core.Hubs
         private readonly IDeviceAccountService _deviceAccountService;
         private readonly ILogger<AppHub> _logger;
 
-        public AppHub(IRemoteTaskService remoteTaskService,
+        public AppHub(IRemoteDeviceConnectionsService remoteDeviceConnectionsService,
+                      IRemoteTaskService remoteTaskService,
                       IEmployeeService employeeService,
                       IWorkstationService workstationService,
                       IWorkstationProximityDeviceService workstationProximityDeviceService,
@@ -68,6 +71,7 @@ namespace HES.Core.Hubs
                       IDeviceAccountService deviceAccountService,
                       ILogger<AppHub> logger)
         {
+            _remoteDeviceConnectionsService = remoteDeviceConnectionsService;
             _remoteTaskService = remoteTaskService;
             _employeeService = employeeService;
             _workstationService = workstationService;
@@ -138,7 +142,7 @@ namespace HES.Core.Hubs
             var deviceList = GetDeviceList();
             deviceList.TryRemove(deviceId, out string removed);
 
-            DeviceHub.RemoveDevice(deviceId);
+            RemoteDeviceConnectionsService.RemoveDevice(deviceId);
 
             return Task.CompletedTask;
         }
@@ -153,7 +157,7 @@ namespace HES.Core.Hubs
         {
             try
             {
-                var device = DeviceHub.FindDevice(deviceId);
+                RemoteDevice device = RemoteDeviceConnectionsService.FindInitializedDevice(deviceId);
 
                 if (device != null)
                 {
@@ -168,7 +172,7 @@ namespace HES.Core.Hubs
                     // call Hideez Client to make remote channel
                     await deviceDescr.Connection.EstablishRemoteDeviceConnection(deviceId, channelNo);
 
-                    device = await DeviceHub.WaitDeviceConnection(deviceId, channelNo, timeout: 20_000);
+                    device = await RemoteDeviceConnectionsService.WaitDeviceConnection(deviceId, channelNo, timeout: 20_000);
                 }
 
                 return device;
