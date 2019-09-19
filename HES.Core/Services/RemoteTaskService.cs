@@ -120,6 +120,38 @@ namespace HES.Core.Services
             });
         }
 
+        public async Task ProcessTasksAsync(string deviceId)
+        {
+            Debug.WriteLine($"!!!!!!!!!!!!! ProcessTasksAsync {deviceId}");
+
+            if (_devicesInProgress.TryAdd(deviceId, deviceId))
+            {
+                try
+                {
+                    Debug.WriteLine($"!!!!!!!!!!!!! ExecuteRemoteTasks start {deviceId}");
+                    await ExecuteRemoteTasks(deviceId).TimeoutAfter(300_000);
+                }
+                catch (TimeoutException ex)
+                {
+                    Debug.Assert(false);
+                    _logger.LogCritical(ex.Message, deviceId);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex.Message);
+                }
+                finally
+                {
+                    Debug.WriteLine($"!!!!!!!!!!!!! ExecuteRemoteTasks end {deviceId}");
+                    _devicesInProgress.TryRemove(deviceId, out string removed);
+                }
+            }
+            else
+            {
+                Debug.WriteLine($"!!!!!!!!!!!!! in progress {deviceId}");
+            }
+        }
+
         public void StartTaskProcessing(IList<string> deviceId)
         {
             foreach (var item in deviceId)
