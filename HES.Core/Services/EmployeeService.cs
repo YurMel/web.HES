@@ -1083,7 +1083,7 @@ namespace HES.Core.Services
             await _deviceAccountService.RemoveAllAccountsAsync(deviceId);
 
             // Remove all proximity
-            await _workstationProximityDeviceService.DeleteProximityDeviceAsync(deviceId);
+            await _workstationProximityDeviceService.RemoveAllProximityAsync(deviceId);
 
             // Remove employee
             await _deviceService.RemoveEmployeeAsync(deviceId);

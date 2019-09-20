@@ -60,6 +60,7 @@ namespace HES.Core.Hubs
         private readonly IDeviceService _deviceService;
         private readonly IDeviceAccountService _deviceAccountService;
         private readonly ILogger<AppHub> _logger;
+        private readonly IDataProtectionService _dataProtectionService;
 
         public AppHub(IRemoteDeviceConnectionsService remoteDeviceConnectionsService,
                       IRemoteTaskService remoteTaskService,
@@ -70,7 +71,8 @@ namespace HES.Core.Hubs
                       IWorkstationSessionService workstationSessionService,
                       IDeviceService deviceService,
                       IDeviceAccountService deviceAccountService,
-                      ILogger<AppHub> logger)
+                      ILogger<AppHub> logger,
+                      IDataProtectionService dataProtectionService)
         {
             _remoteDeviceConnectionsService = remoteDeviceConnectionsService;
             _remoteTaskService = remoteTaskService;
@@ -82,6 +84,7 @@ namespace HES.Core.Hubs
             _deviceService = deviceService;
             _deviceAccountService = deviceAccountService;
             _logger = logger;
+            _dataProtectionService = dataProtectionService;
         }
 
         #region Device
@@ -311,7 +314,7 @@ namespace HES.Core.Hubs
                         throw new HideezException(HideezErrorCode.HesEmptyMasterKey);
 
                     //todo - unprotect
-                    var key = ConvertUtils.HexStringToBytes(device.MasterPassword);
+                    var key = ConvertUtils.HexStringToBytes(_dataProtectionService.Unprotect(device.MasterPassword));
 
                     await remoteDevice.Access(DateTime.UtcNow, key, accessParams);
                 }
@@ -323,7 +326,7 @@ namespace HES.Core.Hubs
             catch (Exception ex)
             {
                 Debug.WriteLine($"!!!!!!!!!!!!! FixDevice ERROR {ex.Message}");
-                _logger.LogError(ex.Message);
+                _logger.LogError($"[{deviceId}] {ex.Message}");
                 return new HideezErrorInfo(ex);
             }
         }
@@ -363,7 +366,7 @@ namespace HES.Core.Hubs
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError($"[{workstationInfo.MachineName}] {ex.Message}");
                 return new HideezErrorInfo(ex);
             }
         }
@@ -372,7 +375,7 @@ namespace HES.Core.Hubs
         {
             try
             {
-                _logger.LogDebug($"Workstaton {workstationId} connected");
+                _logger.LogDebug($"[{workstationId}] connected");
                 await _workstationProximityDeviceService.UpdateProximitySettingsAsync(workstationId);
 
                 await _workstationService.UpdateRfidStateAsync(workstationId);
@@ -385,7 +388,7 @@ namespace HES.Core.Hubs
 
         private Task OnWorkstationDisconnected(string workstationId)
         {
-            _logger.LogDebug($"Workstaton {workstationId} disconnected");
+            _logger.LogDebug($"[{workstationId}] disconnected");
 
             _workstationConnections.TryRemove(workstationId, out WorkstationDescription workstation);
 
@@ -456,7 +459,7 @@ namespace HES.Core.Hubs
                 if (events == null)
                     throw new ArgumentNullException(nameof(events));
 
-                _logger.LogDebug($"({events[0].WorkstationId}) HCW sent events. {string.Join("; ", events.Select(s => s.EventId))}");
+                _logger.LogDebug($"[{events[0].WorkstationId}] Sent events: {string.Join("; ", events.Select(s => s.EventId))}");
                 // todo: ignore not approved workstation
 
                 // Events that duplicate ID of other events are ignored

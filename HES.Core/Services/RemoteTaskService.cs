@@ -20,8 +20,8 @@ namespace HES.Core.Services
 {
     public class RemoteTaskService : IRemoteTaskService
     {
-        readonly ConcurrentDictionary<string, string> _devicesInProgress
-            = new ConcurrentDictionary<string, string>();
+        readonly ConcurrentDictionary<string, TaskCompletionSource<Task<bool>>> _devicesInProgress
+            = new ConcurrentDictionary<string, TaskCompletionSource<Task<bool>>>();
         readonly IAsyncRepository<DeviceAccount> _deviceAccountRepository;
         readonly IAsyncRepository<DeviceTask> _deviceTaskRepository;
         readonly IAsyncRepository<Device> _deviceRepository;
@@ -124,33 +124,43 @@ namespace HES.Core.Services
         {
             Debug.WriteLine($"!!!!!!!!!!!!! ProcessTasksAsync start {deviceId}");
 
-            if (_devicesInProgress.TryAdd(deviceId, deviceId))
+            var isNew = false;
+
+            var tcs = _devicesInProgress.GetOrAdd(deviceId, (x) =>
             {
-                try
-                {
-                    Debug.WriteLine($"!!!!!!!!!!!!! ExecuteRemoteTasks start {deviceId}");
-                    await ExecuteRemoteTasks(deviceId).TimeoutAfter(300_000);
-                }
-                catch (TimeoutException ex)
-                {
-                    Debug.Assert(false);
-                    _logger.LogCritical(ex.Message, deviceId);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex.Message);
-                }
-                finally
-                {
-                    Debug.WriteLine($"!!!!!!!!!!!!! ExecuteRemoteTasks end {deviceId}");
-                    _devicesInProgress.TryRemove(deviceId, out string removed);
-                }
+                isNew = true;
+                return new TaskCompletionSource<Task<bool>>();
+            });
+
+            if (!isNew)
+            {
+                await tcs.Task;
+                return;
             }
-            else
+
+            var result = false;
+
+            try
             {
-                Debug.WriteLine($"!!!!!!!!!!!!! tasks in progress, waiting for compleate {deviceId}");
-                while (_devicesInProgress.ContainsKey(deviceId))
-                    await Task.Delay(200);
+                Debug.WriteLine($"!!!!!!!!!!!!! ExecuteRemoteTasks start {deviceId}");
+                result = await ExecuteRemoteTasks(deviceId).TimeoutAfter(300_000);
+            }
+            catch (TimeoutException ex)
+            {
+                Debug.Assert(false);
+                tcs.SetException(ex);
+                _logger.LogCritical($"[{deviceId}] {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                tcs.SetException(ex);
+                _logger.LogError($"[{deviceId}] {ex.Message}");
+            }
+            finally
+            {
+                Debug.WriteLine($"!!!!!!!!!!!!! ExecuteRemoteTasks end {deviceId}");
+                tcs.TrySetResult(Task.FromResult(result));
+                _devicesInProgress.TryRemove(deviceId, out TaskCompletionSource<Task<bool>> value);
             }
 
             Debug.WriteLine($"!!!!!!!!!!!!! ProcessTasksAsync end {deviceId}");
@@ -168,7 +178,7 @@ namespace HES.Core.Services
         {
             Debug.WriteLine($"!!!!!!!!!!!!! StartTaskProcessing {deviceId}");
 
-            if (_devicesInProgress.TryAdd(deviceId, deviceId))
+            if (_devicesInProgress.TryAdd(deviceId, new TaskCompletionSource<Task<bool>>()))
             {
                 Task.Run(async () =>
                 {
@@ -189,7 +199,7 @@ namespace HES.Core.Services
                     finally
                     {
                         Debug.WriteLine($"!!!!!!!!!!!!! ExecuteRemoteTasks end {deviceId}");
-                        _devicesInProgress.TryRemove(deviceId, out string removed);
+                        _devicesInProgress.TryRemove(deviceId, out TaskCompletionSource<Task<bool>> value);
                     }
                 });
             }
