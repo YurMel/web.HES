@@ -14,7 +14,7 @@ namespace HES.Core.Entities
         public string FirstName { get; set; }
         [Required]
         [Display(Name = "Last Name")]
-        public string LastName { get; set; }    
+        public string LastName { get; set; }
         [Required]
         [EmailAddress]
         public string Email { get; set; }
@@ -29,7 +29,6 @@ namespace HES.Core.Entities
         [Display(Name = "Last Seen")]
         public DateTime? LastSeen { get; set; }
         public List<Device> Devices { get; set; }
-        public string SamlIdpDevice { get; set; }
 
         [ForeignKey("DepartmentId")]
         public Department Department { get; set; }
@@ -46,6 +45,6 @@ namespace HES.Core.Entities
         [Display(Name = "Department")]
         public string EmpDepartment => Department?.Name;
         [NotMapped]
-        public bool SamlIdpEnabled => SamlIdpDevice != null ? true : false;
+        public string CurrentDevice { get; set; }
     }
 }

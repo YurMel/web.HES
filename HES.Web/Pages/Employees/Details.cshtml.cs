@@ -34,7 +34,8 @@ namespace HES.Web.Pages.Employees
         public DeviceAccount DeviceAccount { get; set; }
         public SharedAccount SharedAccount { get; set; }
         public InputModel Input { get; set; }
-        public SamlIdentityProvider SamlIdentityProvider { get; set; }
+        public bool SamlIdentityProviderEnabled { get; set; }
+        public bool UserSamlIdpEnabled { get; set; }
 
         [TempData]
         public string SuccessMessage { get; set; }
@@ -86,7 +87,18 @@ namespace HES.Web.Pages.Employees
                 .ToListAsync();
 
             ViewData["Devices"] = new SelectList(Employee.Devices.OrderBy(d => d.Id), "Id", "Id");
-            ViewData["SamlIdentityProviderEnabled"] = await _samlIdentityProviderService.GetStatusAsync();
+
+            var user = await _userManager.FindByEmailAsync(Employee.Email);
+            if (user != null)
+            {
+                UserSamlIdpEnabled = await _userManager.IsInRoleAsync(user, ApplicationRoles.UserRole);
+            }
+            else
+            {
+                UserSamlIdpEnabled = false;
+            }
+
+            SamlIdentityProviderEnabled = await _samlIdentityProviderService.GetStatusAsync();
 
             return Page();
         }
@@ -104,13 +116,15 @@ namespace HES.Web.Pages.Employees
                     Email = employee.Email,
                     FirstName = employee.FirstName,
                     LastName = employee.LastName,
-                    PhoneNumber = employee.PhoneNumber
+                    PhoneNumber = employee.PhoneNumber,
+                    DeviceId = employee.CurrentDevice
                 };
                 var password = Guid.NewGuid().ToString();
                 var result = await _userManager.CreateAsync(user, password);
                 if (!result.Succeeded)
                 {
-                    throw new Exception("Error creating idp user");
+                    var erorrs = string.Join("; ", result.Errors.Select(s => s.Description).ToArray());
+                    throw new Exception(erorrs);
                 }
 
                 // Role
@@ -127,9 +141,6 @@ namespace HES.Web.Pages.Employees
 
                 await _emailSender.SendEmailAsync(email, "Hideez Enterpise Server - Activation of SAML IdP account",
                     $"Dear {employee.FullName}, please click the link below to activate your SAML IdP account: <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
-
-                // Save device id for idp account
-                await _employeeService.EnableSamlIdpAsync(employee);
 
                 SuccessMessage = "SAML IdP account enabled.";
             }

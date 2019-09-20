@@ -88,7 +88,7 @@ namespace HES.Web.Areas.Identity.Pages.Account.External
                 if (login_result.Succeeded)
                 {
                     _logger.LogInformation($"SAML IdP User {user.Email} logged in.");
-                    await _employeeService.CreateSamlIdpAccountAsync(Input.Email, Input.Password, Request.Host.Value);
+                    await _employeeService.CreateSamlIdpAccountAsync(Input.Email, Input.Password, Request.Host.Value, user.DeviceId);
                     return LocalRedirect("~/Identity/Account/External");
                 }
             }

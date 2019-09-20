@@ -33,7 +33,7 @@
 </div>
 
 @*SAML IdP*@
-<div class="@((ViewBag.SamlIdentityProviderEnabled && Model.Employee.Devices.Count > 0) == true ? "" : "d-none")">
+<div class="@(Model.SamlIdentityProviderEnabled == true ? "" : "d-none")">
     <h4 class="text-navyblue mb-2 mt-3">SAML IdP Account</h4>
     <form method="post" class="samlidp-card">
         <input type="hidden" asp-for="Employee.Id" />
@@ -41,19 +41,18 @@
         <input type="hidden" asp-for="Employee.FirstName" />
         <input type="hidden" asp-for="Employee.LastName" />
         <div class="d-flex flex-row">
-            <div class="d-inline-flex align-self-center mr-3" >
+            <div class="d-inline-flex align-self-center mr-3">
                 <label class="control-label mb-0 mr-2">Enable</label>
                 <div class="custom-control custom-switch">
-                    <input id="idpEnabled" type="checkbox" class="custom-control-input" checked="@Model.Employee.SamlIdpEnabled">
+                    <input id="idpEnabled" type="checkbox" class="custom-control-input" checked="@Model.UserSamlIdpEnabled">
                     <label class="custom-control-label" for="idpEnabled"></label>
                 </div>
             </div>
 
-            @if (!Model.Employee.SamlIdpEnabled)
+            @if (!Model.UserSamlIdpEnabled)
             {
                 <div id="device_group" class="d-none mr-3">
-                    @*<label class="control-label">Device</label>*@
-                    <select class="form-control" asp-for="Employee.SamlIdpDevice" asp-items="ViewBag.Devices"></select>
+                    <select class="form-control" asp-for="Employee.CurrentDevice" asp-items="ViewBag.Devices"></select>
                 </div>
             }
             else
@@ -63,7 +62,7 @@
                 </div>
             }
             <div>
-                @if (!@Model.Employee.SamlIdpEnabled)
+                @if (!Model.UserSamlIdpEnabled)
                 {
                     <input id="idpSaveBtn" type="submit" value="Save" class="btn btn-primary d-none" asp-page-handler="EnableSamlIdentityProvider" />
                 }
@@ -558,7 +557,7 @@
         // SAML IdP
         $(document).on("change", "#idpEnabled", function () {
 
-            var enabled = '@Model.Employee.SamlIdpEnabled';
+            var enabled = '@Model.UserSamlIdpEnabled';
 
             if (enabled === 'False') {
                 if (this.checked) {

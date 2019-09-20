@@ -27,7 +27,7 @@ namespace HES.Core.Services
 
         public async Task<bool> GetStatusAsync()
         {
-            var idp = await _samlIdentityProviderRepository.GetByIdAsync(SamlIdentityProvider.Key);
+            var idp = await _samlIdentityProviderRepository.GetByIdAsync(SamlIdentityProvider.PrimaryKey);
             return idp.Enabled;
         }
 

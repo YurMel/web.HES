@@ -80,12 +80,12 @@ namespace HES.Infrastructure
 
         private async Task InitIdentityProviderSettings()
         {
-            var samlIdPEnabled = await _context.SamlIdentityProvider.FindAsync(SamlIdentityProvider.Key);
+            var samlIdPEnabled = await _context.SamlIdentityProvider.FindAsync(SamlIdentityProvider.PrimaryKey);
             if (samlIdPEnabled == null)
             {
                 await _context.SamlIdentityProvider.AddAsync(new SamlIdentityProvider
                 {
-                    Id = SamlIdentityProvider.Key,
+                    Id = SamlIdentityProvider.PrimaryKey,
                     Enabled = false,
                     Url = "url"
                 });

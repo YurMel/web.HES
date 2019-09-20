@@ -20,8 +20,8 @@ namespace HES.Core.Services
 {
     public class RemoteTaskService : IRemoteTaskService
     {
-        readonly ConcurrentDictionary<string, TaskCompletionSource<Task<bool>>> _devicesInProgress
-            = new ConcurrentDictionary<string, TaskCompletionSource<Task<bool>>>();
+        readonly ConcurrentDictionary<string, TaskCompletionSource<bool>> _devicesInProgress
+            = new ConcurrentDictionary<string, TaskCompletionSource<bool>>();
         readonly IAsyncRepository<DeviceAccount> _deviceAccountRepository;
         readonly IAsyncRepository<DeviceTask> _deviceTaskRepository;
         readonly IAsyncRepository<Device> _deviceRepository;
@@ -129,7 +129,7 @@ namespace HES.Core.Services
             var tcs = _devicesInProgress.GetOrAdd(deviceId, (x) =>
             {
                 isNew = true;
-                return new TaskCompletionSource<Task<bool>>();
+                return new TaskCompletionSource<bool>();
             });
 
             if (!isNew)
@@ -159,8 +159,8 @@ namespace HES.Core.Services
             finally
             {
                 Debug.WriteLine($"!!!!!!!!!!!!! ExecuteRemoteTasks end {deviceId}");
-                tcs.TrySetResult(Task.FromResult(result));
-                _devicesInProgress.TryRemove(deviceId, out TaskCompletionSource<Task<bool>> value);
+                tcs.TrySetResult(result);
+                _devicesInProgress.TryRemove(deviceId, out TaskCompletionSource<bool> value);
             }
 
             Debug.WriteLine($"!!!!!!!!!!!!! ProcessTasksAsync end {deviceId}");
@@ -178,7 +178,7 @@ namespace HES.Core.Services
         {
             Debug.WriteLine($"!!!!!!!!!!!!! StartTaskProcessing {deviceId}");
 
-            if (_devicesInProgress.TryAdd(deviceId, new TaskCompletionSource<Task<bool>>()))
+            if (_devicesInProgress.TryAdd(deviceId, new TaskCompletionSource<bool>()))
             {
                 Task.Run(async () =>
                 {
@@ -199,7 +199,7 @@ namespace HES.Core.Services
                     finally
                     {
                         Debug.WriteLine($"!!!!!!!!!!!!! ExecuteRemoteTasks end {deviceId}");
-                        _devicesInProgress.TryRemove(deviceId, out TaskCompletionSource<Task<bool>> value);
+                        _devicesInProgress.TryRemove(deviceId, out TaskCompletionSource<bool> value);
                     }
                 });
             }

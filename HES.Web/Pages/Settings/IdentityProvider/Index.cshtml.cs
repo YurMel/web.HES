@@ -52,7 +52,7 @@ namespace HES.Web.Pages.Settings.IdentityProvider
                 var currentIdentityProvider = await _samlIdentityProviderService
                     .Query()
                     .AsNoTracking()
-                    .FirstOrDefaultAsync(d => d.Id == SamlIdentityProvider.Key);
+                    .FirstOrDefaultAsync(d => d.Id == SamlIdentityProvider.PrimaryKey);
 
                 await _samlIdentityProviderService.UpdateSamlIdentityProviderAsync(samlIdentityProvider);
 

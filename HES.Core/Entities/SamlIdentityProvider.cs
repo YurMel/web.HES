@@ -14,7 +14,7 @@ namespace HES.Core.Entities
         public string Url { get; set; }
 
         [NotMapped]
-        public static string Key => "IdentityProvider";
+        public static string PrimaryKey => "IdentityProvider";
         [NotMapped]
         public static string DeviceAccountName => "SAMLIdP";
     }    

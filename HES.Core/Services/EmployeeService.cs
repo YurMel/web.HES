@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using HES.Core.Entities;
 using HES.Core.Entities.Models;
 using HES.Core.Interfaces;
+using HES.Core.Utilities;
 using Hideez.SDK.Communication.Security;
 using Hideez.SDK.Communication.Utils;
 using Microsoft.EntityFrameworkCore;
@@ -203,17 +204,7 @@ namespace HES.Core.Services
             return await _employeeRepository.ExistAsync(predicate);
         }
 
-        public async Task EnableSamlIdpAsync(Employee employee)
-        {
-            if (employee == null)
-            {
-                throw new ArgumentNullException(nameof(employee));
-            }
-
-            await _employeeRepository.UpdateOnlyPropAsync(employee, new string[] { "SamlIdpDevice" });
-        }
-
-        public async Task CreateSamlIdpAccountAsync(string email, string password, string hesUrl)
+        public async Task CreateSamlIdpAccountAsync(string email, string password, string hesUrl, string deviceId)
         {
             _dataProtectionService.Validate();
 
@@ -223,13 +214,13 @@ namespace HES.Core.Services
                 throw new ArgumentNullException(nameof(employee));
             }
 
-            var device = await _deviceRepository.GetByIdAsync(employee.SamlIdpDevice);
+            var device = await _deviceRepository.GetByIdAsync(deviceId);
             if (device == null)
             {
                 throw new ArgumentNullException(nameof(device));
             }
 
-            var samlIdP = await _samlIdentityProviderService.GetByIdAsync(SamlIdentityProvider.Key);
+            var samlIdP = await _samlIdentityProviderService.GetByIdAsync(SamlIdentityProvider.PrimaryKey);
 
             // Create account
             var deviceAccountId = Guid.NewGuid().ToString();
@@ -251,30 +242,7 @@ namespace HES.Core.Services
             };
 
             // Validate url
-            List<string> verifiedUrls = new List<string>();
-            foreach (var url in deviceAccount.Urls.Split(";"))
-            {
-                string uriString = url;
-                string domain = string.Empty;
-
-                if (string.IsNullOrWhiteSpace(uriString))
-                {
-                    throw new Exception("Not correct url");
-                }
-
-                if (!uriString.Contains(Uri.SchemeDelimiter))
-                {
-                    uriString = string.Concat(Uri.UriSchemeHttp, Uri.SchemeDelimiter, uriString);
-                }
-
-                domain = new Uri(uriString).Host;
-
-                if (domain.StartsWith("www."))
-                    domain = domain.Remove(0, 4);
-
-                verifiedUrls.Add(domain);
-            }
-            deviceAccount.Urls = string.Join(";", verifiedUrls.ToArray());
+            deviceAccount.Urls = Utils.VerifyUrls(deviceAccount.Urls);
 
             // Create task
             var deviceTask = new DeviceTask
@@ -413,8 +381,8 @@ namespace HES.Core.Services
              .Where(d => d.Name == SamlIdentityProvider.DeviceAccountName && d.Deleted == false)
              .ToListAsync();
 
-            var samlIdP = await _samlIdentityProviderService.GetByIdAsync(SamlIdentityProvider.Key);
-            var validUrls = VerifiedUrls($"{samlIdP.Url};{hesUrl}");
+            var samlIdP = await _samlIdentityProviderService.GetByIdAsync(SamlIdentityProvider.PrimaryKey);
+            var validUrls = Utils.VerifyUrls($"{samlIdP.Url};{hesUrl}");
 
             foreach (var account in deviceAccounts)
             {
@@ -465,10 +433,10 @@ namespace HES.Core.Services
                 .Where(d => d.EmployeeId == employeeId && d.Name == SamlIdentityProvider.DeviceAccountName)
                 .FirstOrDefaultAsync();
 
-            await DeleteAccount(account.Id);
-
-            employee.SamlIdpDevice = null;
-            await _employeeRepository.UpdateOnlyPropAsync(employee, new string[] { "SamlIdpDevice" });
+            if (account != null)
+            {
+                await DeleteAccount(account.Id);
+            }
         }
 
         public async Task SetPrimaryAccount(string deviceId, string deviceAccountId)
@@ -1042,36 +1010,6 @@ namespace HES.Core.Services
             var buf = AesCryptoHelper.CreateRandomBuf(32);
             var pass = ConvertUtils.ByteArrayToHexString(buf);
             return pass;
-        }
-
-        private string VerifiedUrls(string urls)
-        {
-            List<string> verifiedUrls = new List<string>();
-            foreach (var url in urls.Split(";"))
-            {
-                string uriString = url;
-                string domain = string.Empty;
-
-                if (string.IsNullOrWhiteSpace(uriString))
-                {
-                    throw new Exception("Not correct url");
-                }
-
-                if (!uriString.Contains(Uri.SchemeDelimiter))
-                {
-                    uriString = string.Concat(Uri.UriSchemeHttp, Uri.SchemeDelimiter, uriString);
-                }
-
-                domain = new Uri(uriString).Host;
-
-                if (domain.StartsWith("www."))
-                    domain = domain.Remove(0, 4);
-
-                verifiedUrls.Add(domain);
-            }
-
-            var result = string.Join(";", verifiedUrls.ToArray());
-            return result;
         }
 
         public async Task HandlingMasterPasswordErrorAsync(string deviceId)
