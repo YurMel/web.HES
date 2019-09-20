@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -137,13 +138,15 @@ namespace HES.Core.Hubs
 
         public Task OnDeviceDisconnected(string deviceId)
         {
-            _deviceConnections.TryRemove(deviceId, out DeviceDescription deviceDescription);
+            if (!string.IsNullOrEmpty(deviceId))
+            {
+                _deviceConnections.TryRemove(deviceId, out DeviceDescription deviceDescription);
 
-            var deviceList = GetDeviceList();
-            deviceList.TryRemove(deviceId, out string removed);
+                var deviceList = GetDeviceList();
+                deviceList.TryRemove(deviceId, out string removed);
 
-            RemoteDeviceConnectionsService.RemoveDevice(deviceId);
-
+                RemoteDeviceConnectionsService.RemoveDevice(deviceId);
+            }
             return Task.CompletedTask;
         }
 
@@ -253,6 +256,7 @@ namespace HES.Core.Hubs
         {
             try
             {
+                Debug.WriteLine($"!!!!!!!!!!!!! FixDevice {deviceId}");
                 //todo
                 //if (true) //conection not approved
                 //throw new HideezException(HideezErrorCode.HesWorkstationNotApproved);
@@ -270,20 +274,15 @@ namespace HES.Core.Hubs
                 if (device == null)
                     throw new HideezException(HideezErrorCode.HesDeviceNotFound);
 
-                if (device.DeviceAccessProfile == null)
-                    throw new HideezException(HideezErrorCode.HesEmptyDeviceAccessProfile);
-
-                if (string.IsNullOrWhiteSpace(device.MasterPassword))
-                    throw new HideezException(HideezErrorCode.HesEmptyMasterKey);
-
-                var key = ConvertUtils.HexStringToBytes(device.MasterPassword);
-
                 // Getting device info
                 await remoteDevice.Initialize();
 
                 // Access 
                 if (remoteDevice.AccessLevel.IsMasterKeyRequired)
                 {
+                    if (device.DeviceAccessProfile == null)
+                        throw new HideezException(HideezErrorCode.HesEmptyDeviceAccessProfile);
+
                     var accessParams = new AccessParams()
                     {
                         MasterKey_Bond = device.DeviceAccessProfile.MasterKeyBonding,
@@ -308,13 +307,22 @@ namespace HES.Core.Hubs
                         ButtonExpirationPeriod = device.DeviceAccessProfile.ButtonExpiration,
                     };
 
+                    if (string.IsNullOrWhiteSpace(device.MasterPassword))
+                        throw new HideezException(HideezErrorCode.HesEmptyMasterKey);
+
+                    //todo - unprotect
+                    var key = ConvertUtils.HexStringToBytes(device.MasterPassword);
+
                     await remoteDevice.Access(DateTime.UtcNow, key, accessParams);
                 }
+
+                await _remoteTaskService.ProcessTasksAsync(deviceId);
 
                 return HideezErrorInfo.Ok;
             }
             catch (Exception ex)
             {
+                Debug.WriteLine($"!!!!!!!!!!!!! FixDevice ERROR {ex.Message}");
                 _logger.LogError(ex.Message);
                 return new HideezErrorInfo(ex);
             }

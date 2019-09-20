@@ -122,7 +122,7 @@ namespace HES.Core.Services
 
         public async Task ProcessTasksAsync(string deviceId)
         {
-            Debug.WriteLine($"!!!!!!!!!!!!! ProcessTasksAsync {deviceId}");
+            Debug.WriteLine($"!!!!!!!!!!!!! ProcessTasksAsync start {deviceId}");
 
             if (_devicesInProgress.TryAdd(deviceId, deviceId))
             {
@@ -148,8 +148,12 @@ namespace HES.Core.Services
             }
             else
             {
-                Debug.WriteLine($"!!!!!!!!!!!!! in progress {deviceId}");
+                Debug.WriteLine($"!!!!!!!!!!!!! tasks in progress, waiting for compleate {deviceId}");
+                while (_devicesInProgress.ContainsKey(deviceId))
+                    await Task.Delay(200);
             }
+
+            Debug.WriteLine($"!!!!!!!!!!!!! ProcessTasksAsync end {deviceId}");
         }
 
         public void StartTaskProcessing(IList<string> deviceId)

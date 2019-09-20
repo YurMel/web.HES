@@ -12,6 +12,7 @@ namespace HES.Core.Interfaces
         Task UndoLastTaskAsync(string accountId);
         Task RemoveDeviceAsync(Device device);
 
+        Task ProcessTasksAsync(string deviceId);
         void StartTaskProcessing(string deviceId);
         void StartTaskProcessing(IList<string> deviceIdList);
     }

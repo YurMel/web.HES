@@ -69,6 +69,13 @@ namespace HES.Core.Services
 
                     await remoteDevice.Initialize();
 
+                    //todo - remove this block when FW will be fixed
+                    if (remoteDevice.AccessLevel.IsMasterKeyRequired)
+                    {
+                        await remoteDevice.Access(DateTime.UtcNow, prms.Item2, prms.Item1);
+                        await remoteDevice.Initialize();
+                    }
+
                     if (remoteDevice.AccessLevel.IsMasterKeyRequired)
                         throw new HideezException(HideezErrorCode.HesDeviceAuthorizationFailed);
                 }
