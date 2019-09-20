@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace HES.Infrastructure
+namespace HES.Core.Entities
 {
     public class ApplicationUser : IdentityUser
     {

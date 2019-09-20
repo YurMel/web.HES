@@ -17,12 +17,12 @@ namespace HES.Core.Services
         On,
         Off,
         Busy,
-        WaitingForActivation
+        RequiresActivation
     }
 
     public class DataProtectionService : IDataProtectionService
     {
-        private readonly IAsyncRepository<AppSettings> _dataProtectionRepository;
+        private readonly IAsyncRepository<DataProtection> _dataProtectionRepository;
         private readonly IAsyncRepository<Device> _deviceRepository;
         private readonly IAsyncRepository<DeviceTask> _deviceTaskRepository;
         private readonly IAsyncRepository<SharedAccount> _sharedAccountRepository;
@@ -34,7 +34,7 @@ namespace HES.Core.Services
         private bool _activatedProtection;
         private bool _isBusy;
 
-        public DataProtectionService(IAsyncRepository<AppSettings> dataProtectionRepository,
+        public DataProtectionService(IAsyncRepository<DataProtection> dataProtectionRepository,
                                      IAsyncRepository<Device> deviceRepository,
                                      IAsyncRepository<DeviceTask> deviceTaskRepository,
                                      IAsyncRepository<SharedAccount> sharedAccountRepository,
@@ -53,20 +53,16 @@ namespace HES.Core.Services
 
         public async Task<ProtectionStatus> Status()
         {
-            var appSettings = await _dataProtectionRepository
-                .Query()
-                .Where(d => d.Key == "ProtectedValue")
-                .FirstOrDefaultAsync();
+            var dataProtection = await _dataProtectionRepository.GetByIdAsync(DataProtection.PrimaryKey);
 
-            if (appSettings?.Value != null)
+            if (dataProtection != null)
             {
                 _enabledProtection = true;
 
                 if (!_activatedProtection)
                 {
-                    await _notificationService.AddNotifyAsync(NotifyId.DataProtection, "Data protection is enabled and requires activation.", "/Settings/DataProtection/Index");
-
-                    return ProtectionStatus.WaitingForActivation;
+                    await _notificationService.AddNotifyAsync(NotifyType.DataProtection, "Data protection is enabled and requires activation.", "/Settings/DataProtection/Index");
+                    return ProtectionStatus.RequiresActivation;
                 }
 
                 if (_isBusy)
@@ -119,16 +115,13 @@ namespace HES.Core.Services
                 // Temp protector
                 var tempProtector = _dataProtectionProvider.CreateProtector(password);
                 // Get value
-                var appSettings = await _dataProtectionRepository
-                    .Query()
-                    .Where(d => d.Key == "ProtectedValue")
-                    .FirstOrDefaultAsync();
+                var dataProtection = await _dataProtectionRepository.GetByIdAsync(DataProtection.PrimaryKey);
                 // If no error occurred during the decrypt, then the password is correct
-                var unprotectedValue = tempProtector.Unprotect(appSettings.Value);
+                var unprotectedValue = tempProtector.Unprotect(dataProtection.Value);
                 // Create protector
                 _dataProtector = _dataProtectionProvider.CreateProtector(password);
                 _activatedProtection = true;
-                await _notificationService.RemoveNotifyAsync(NotifyId.DataProtection);
+                await _notificationService.RemoveNotifyAsync(NotifyType.DataProtection);
                 _logger.LogInformation($"Protection was activated by {user}.");
             }
             catch (CryptographicException)
@@ -158,12 +151,9 @@ namespace HES.Core.Services
                 throw new Exception("Data protection is already enabled.");
             }
 
-            var appSettings = await _dataProtectionRepository
-                .Query()
-                .Where(d => d.Key == "ProtectedValue")
-                .FirstOrDefaultAsync();
+            var dataProtection = await _dataProtectionRepository.GetByIdAsync(DataProtection.PrimaryKey);
 
-            if (appSettings?.Value != null)
+            if (dataProtection != null)
             {
                 throw new Exception("The password already added.");
             }
@@ -176,7 +166,7 @@ namespace HES.Core.Services
                 _dataProtector = _dataProtectionProvider.CreateProtector(password);
                 // Protect value
                 var protectedValue = _dataProtector.Protect(Guid.NewGuid().ToString());
-                await _dataProtectionRepository.AddAsync(new AppSettings() { Key = "ProtectedValue", Value = protectedValue });
+                await _dataProtectionRepository.AddAsync(new DataProtection() { Id = DataProtection.PrimaryKey, Value = protectedValue });
 
                 await ProtectAllDataAsync();
 
@@ -211,17 +201,14 @@ namespace HES.Core.Services
                 // Temp protector
                 var tempProtector = _dataProtectionProvider.CreateProtector(password);
                 // Get value
-                var appSettings = await _dataProtectionRepository
-                    .Query()
-                    .Where(d => d.Key == "ProtectedValue")
-                    .FirstOrDefaultAsync();
+                var dataProtection = await _dataProtectionRepository.GetByIdAsync(DataProtection.PrimaryKey);
                 // If no error occurred during the decrypt, then the password is correct
-                var unprotectedValue = tempProtector.Unprotect(appSettings.Value);
+                var unprotectedValue = tempProtector.Unprotect(dataProtection.Value);
                 // Unprotect
                 await UnprotectAllDataAsync();
                 // Disable protector
                 _dataProtector = null;
-                await _dataProtectionRepository.DeleteAsync(appSettings);
+                await _dataProtectionRepository.DeleteAsync(dataProtection);
 
                 _enabledProtection = false;
                 _activatedProtection = false;
@@ -264,20 +251,17 @@ namespace HES.Core.Services
                 // Temp protector
                 var tempProtector = _dataProtectionProvider.CreateProtector(oldPassword);
                 // Get value
-                var appSettings = await _dataProtectionRepository
-                    .Query()
-                    .Where(d => d.Key == "ProtectedValue")
-                    .FirstOrDefaultAsync();
+                var dataProtection = await _dataProtectionRepository.GetByIdAsync(DataProtection.PrimaryKey);
                 // If no error occurred during the decrypt, then the password is correct
-                var unprotectedValue = tempProtector.Unprotect(appSettings.Value);
+                var unprotectedValue = tempProtector.Unprotect(dataProtection.Value);
                 // Unprotect all
                 await UnprotectAllDataAsync();
                 // Create protector
                 _dataProtector = _dataProtectionProvider.CreateProtector(newPassword);
                 // Protect value
                 var protectedValue = _dataProtector.Protect(Guid.NewGuid().ToString());
-                appSettings.Value = protectedValue;
-                await _dataProtectionRepository.UpdateOnlyPropAsync(appSettings, new string[] { "Value" });
+                dataProtection.Value = protectedValue;
+                await _dataProtectionRepository.UpdateOnlyPropAsync(dataProtection, new string[] { "Value" });
                 // Protect all
                 await ProtectAllDataAsync();
                 _isBusy = false;
@@ -337,7 +321,7 @@ namespace HES.Core.Services
 
         private async Task ProtectAllDataAsync()
         {
-            _logger.LogInformation($"Devices stage");
+            _logger.LogDebug($"Devices stage");
             var devices = await _deviceRepository.Query().AsNoTracking().ToListAsync();
             foreach (var device in devices)
             {
@@ -348,7 +332,7 @@ namespace HES.Core.Services
                 }
             }
 
-            _logger.LogInformation($"DeviceTasks stage");
+            _logger.LogDebug($"DeviceTasks stage");
             var deviceTasks = await _deviceTaskRepository.Query().AsNoTracking().ToListAsync();
             foreach (var task in deviceTasks)
             {
@@ -366,7 +350,7 @@ namespace HES.Core.Services
                 await _deviceTaskRepository.UpdateOnlyPropAsync(task, taskProperties.ToArray());
             }
 
-            _logger.LogInformation($"SharedAccounts stage");
+            _logger.LogDebug($"SharedAccounts stage");
             var sharedAccounts = await _sharedAccountRepository.Query().AsNoTracking().ToListAsync();
             foreach (var account in sharedAccounts)
             {
@@ -389,7 +373,7 @@ namespace HES.Core.Services
         {
             try
             {
-                _logger.LogInformation($"Devices stage");
+                _logger.LogDebug($"Devices stage");
                 var devices = await _deviceRepository.Query().AsNoTracking().ToListAsync();
                 foreach (var device in devices)
                 {
@@ -400,7 +384,7 @@ namespace HES.Core.Services
                     }
                 }
 
-                _logger.LogInformation($"DeviceTasks stage");
+                _logger.LogDebug($"DeviceTasks stage");
                 var deviceTasks = await _deviceTaskRepository.Query().AsNoTracking().ToListAsync();
                 foreach (var task in deviceTasks)
                 {
@@ -418,7 +402,7 @@ namespace HES.Core.Services
                     await _deviceTaskRepository.UpdateOnlyPropAsync(task, taskProperties.ToArray());
                 }
 
-                _logger.LogInformation($"SharedAccounts stage");
+                _logger.LogDebug($"SharedAccounts stage");
                 var sharedAccounts = await _sharedAccountRepository.Query().AsNoTracking().ToListAsync();
                 foreach (var account in sharedAccounts)
                 {

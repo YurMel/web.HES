@@ -7,15 +7,16 @@ namespace HES.Core.Entities
     {
         [Key]
         public string Id { get; set; }
-        public NotifyId NotifyId { get; set; }
+        public NotifyType Type { get; set; }
         [Display(Name = "Created")]
         public DateTime CreatedAt { get; set; }
         public string Message { get; set; }
         public string Url { get; set; }
     }
 
-    public enum NotifyId
+    public enum NotifyType
     {
+        Message,
         DataProtection
     }
 }

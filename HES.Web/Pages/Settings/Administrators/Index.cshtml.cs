@@ -1,6 +1,6 @@
-﻿using HES.Core.Interfaces;
+﻿using HES.Core.Entities;
+using HES.Core.Interfaces;
 using HES.Infrastructure;
-using HES.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -124,7 +124,7 @@ namespace HES.Web.Pages.Settings.Administrators
                 return Partial("_Error", this);
             }
 
-            ApplicationUser = await _applicationUserService.GetFirstOrDefaultAsync(id);
+            ApplicationUser = await _applicationUserService.GetByIdAsync(id);
 
             if (ApplicationUser == null)
             {

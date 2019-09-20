@@ -11,13 +11,22 @@ namespace HES.Core.Services
 {
     public class NotificationService : INotificationService
     {
-        private readonly IAsyncRepository<Notification> _notificationRepository;
         private readonly ILogger<NotificationService> _logger;
+        private readonly IAsyncRepository<Notification> _notificationRepository;
+        private readonly IApplicationUserService _applicationUserService;
 
-        public NotificationService(ILogger<NotificationService> logger, IAsyncRepository<Notification> notificationRepository)
+        public NotificationService(ILogger<NotificationService> logger,
+                                   IAsyncRepository<Notification> notificationRepository,
+                                   IApplicationUserService applicationUserService)
         {
             _logger = logger;
             _notificationRepository = notificationRepository;
+            _applicationUserService = applicationUserService;
+        }
+
+        public IQueryable<Notification> Query()
+        {
+            return _notificationRepository.Query();
         }
 
         public async Task<bool> GetNotifyStatusAsync()
@@ -25,31 +34,33 @@ namespace HES.Core.Services
             return await _notificationRepository.Query().AsNoTracking().AnyAsync();
         }
 
-        public async Task AddNotifyAsync(NotifyId notifyId, string message, string url)
+        public async Task<IList<Notification>> GetAllNotifyAsync()
         {
-            var allNotify = await _notificationRepository.Query().ToListAsync();
+            return await _notificationRepository.Query().AsNoTracking().ToListAsync();
+        }
 
-            switch (notifyId)
+        public async Task AddNotifyAsync(NotifyType type, string message, string url)
+        {
+            switch (type)
             {
-                case NotifyId.DataProtection:
-                    if (!allNotify.Where(n => n.NotifyId == NotifyId.DataProtection).Any())
+                case NotifyType.Message:
+                    await _notificationRepository.AddAsync(new Notification() { Type = type, CreatedAt = DateTime.UtcNow, Message = message, Url = url });
+                    break;
+                case NotifyType.DataProtection:
+                    var dp = await _notificationRepository.Query().FirstOrDefaultAsync(d => d.Type == NotifyType.DataProtection);
+                    if (dp == null)
                     {
-                        _logger.LogWarning("Data protection requires activation");
-                        await _notificationRepository.AddAsync(new Notification() { NotifyId = notifyId, CreatedAt = DateTime.UtcNow, Message = message, Url = url });
+                        await _notificationRepository.AddAsync(new Notification() { Type = type, CreatedAt = DateTime.UtcNow, Message = message, Url = url });
+                        await _applicationUserService.SendEmailDataProtectionNotify();
                     }
                     break;
             }
         }
 
-        public async Task RemoveNotifyAsync(NotifyId notifyId)
+        public async Task RemoveNotifyAsync(NotifyType type)
         {
-            var notify = await _notificationRepository.Query().Where(n => n.NotifyId == notifyId).FirstOrDefaultAsync();
+            var notify = await _notificationRepository.Query().Where(n => n.Type == type).FirstOrDefaultAsync();
             await _notificationRepository.DeleteAsync(notify);
-        }
-
-        public async Task<IList<Notification>> GetAllNotifyAsync()
-        {
-            return await _notificationRepository.Query().AsNoTracking().ToListAsync();
         }
     }
 }

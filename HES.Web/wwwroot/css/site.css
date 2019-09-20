@@ -440,6 +440,10 @@ a.navbar-brand {
         border-bottom: 0;
     }
 
+td:focus {
+    outline: none;
+}
+
 th {
     white-space: nowrap;
 }

@@ -3,7 +3,6 @@ using HES.Core.Hubs;
 using HES.Core.Interfaces;
 using HES.Core.Services;
 using HES.Infrastructure;
-using HES.Infrastructure.Identity;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
@@ -120,21 +119,28 @@ namespace HES.Web
             services.AddSingleton<IDataProtectionService, DataProtectionService>(s =>
             {
                 var scope = s.CreateScope();
-                var dataProtectionRepository = scope.ServiceProvider.GetService<IAsyncRepository<AppSettings>>();
+                var dataProtectionRepository = scope.ServiceProvider.GetService<IAsyncRepository<DataProtection>>();
                 var sharedAccountRepository = scope.ServiceProvider.GetService<IAsyncRepository<SharedAccount>>();
                 var deviceTaskRepository = scope.ServiceProvider.GetService<IAsyncRepository<DeviceTask>>();
                 var deviceRepository = scope.ServiceProvider.GetService<IAsyncRepository<Device>>();
                 var dataProtectionProvider = scope.ServiceProvider.GetService<IDataProtectionProvider>();
-                var notificationService = scope.ServiceProvider.GetService<INotificationService>();
+                var notificationService = scope.ServiceProvider.GetService<INotificationService>();               
                 var logger = scope.ServiceProvider.GetService<ILogger<DataProtectionService>>();
-                return new DataProtectionService(dataProtectionRepository, deviceRepository, deviceTaskRepository, sharedAccountRepository, dataProtectionProvider, notificationService, logger);
+                return new DataProtectionService(dataProtectionRepository,
+                                                 deviceRepository,
+                                                 deviceTaskRepository,
+                                                 sharedAccountRepository,
+                                                 dataProtectionProvider,
+                                                 notificationService,
+                                                 logger);
             });
             services.AddSingleton<INotificationService, NotificationService>(s =>
             {
                 var scope = s.CreateScope();
                 var logger = scope.ServiceProvider.GetService<ILogger<NotificationService>>();
                 var notificationRepository = scope.ServiceProvider.GetService<IAsyncRepository<Notification>>();
-                return new NotificationService(logger, notificationRepository);
+                var applicationUserService = scope.ServiceProvider.GetService<IApplicationUserService>();
+                return new NotificationService(logger, notificationRepository, applicationUserService);
             });
 
             // Crypto

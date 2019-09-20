@@ -1,4 +1,5 @@
-﻿using HES.Core.Interfaces;
+﻿using HES.Core.Entities;
+using HES.Core.Interfaces;
 using HES.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
