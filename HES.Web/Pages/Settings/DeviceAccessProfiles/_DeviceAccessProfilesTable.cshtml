@@ -46,7 +46,7 @@
     <tbody>
         @foreach (var item in Model.DeviceAccessProfiles)
         {
-            <tr data-id="@item.Id" data-action="DetailsProfile" data-title="Device access profile">
+            <tr data-id="@item.Id" data-action="EditProfile" data-title="Device access profile">
                 <td class="d-none"></td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Name)
@@ -70,16 +70,18 @@
                             <img src="~/svg/action/more.svg" />
                         </a>
                         <div class="dropdown-menu dropdown-menu-right shadow" aria-labelledby="dropdownMenuLink">
-                            <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="DetailsProfile" data-title="Device access profile">
-                                <img src="~/svg/action/details.svg" />
-                                Details
+                            @*
+                                <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="DetailsProfile" data-title="Device access profile">
+                                    <img src="~/svg/action/details.svg" />
+                                    Details
+                                </a>
+                            *@
+                            <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="EditProfile" data-title="Edit device access profile">
+                                <img src="~/svg/action/edit.svg" />
+                                Edit
                             </a>
                             @if (item.Id != "default")
                             {
-                                <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="EditProfile" data-title="Edit device access profile">
-                                    <img src="~/svg/action/edit.svg" />
-                                    Edit
-                                </a>
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="DeleteProfile" data-title="Delete device access profile">
                                     <img src="~/svg/action/delete.svg" />

@@ -42,12 +42,7 @@ namespace HES.Core.Services
             {
                 throw new ArgumentNullException(nameof(deviceAccessProfile));
             }
-
-            if (deviceAccessProfile.Id == "default")
-            {
-                throw new Exception("Cannot edit a default profile");
-            }
-
+                       
             deviceAccessProfile.UpdatedAt = DateTime.UtcNow;
             await _deviceAccessProfileRepository.UpdateAsync(deviceAccessProfile);
         }
