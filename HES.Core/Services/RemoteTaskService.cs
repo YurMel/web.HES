@@ -138,12 +138,11 @@ namespace HES.Core.Services
                 return;
             }
 
-            var result = false;
-
             try
             {
                 Debug.WriteLine($"!!!!!!!!!!!!! ExecuteRemoteTasks start {deviceId}");
-                result = await ExecuteRemoteTasks(deviceId).TimeoutAfter(300_000);
+                var result = await ExecuteRemoteTasks(deviceId).TimeoutAfter(300_000);
+                tcs.TrySetResult(result);
             }
             catch (TimeoutException ex)
             {
@@ -159,7 +158,6 @@ namespace HES.Core.Services
             finally
             {
                 Debug.WriteLine($"!!!!!!!!!!!!! ExecuteRemoteTasks end {deviceId}");
-                tcs.TrySetResult(result);
                 _devicesInProgress.TryRemove(deviceId, out TaskCompletionSource<bool> value);
             }
 
@@ -178,35 +176,46 @@ namespace HES.Core.Services
         {
             Debug.WriteLine($"!!!!!!!!!!!!! StartTaskProcessing {deviceId}");
 
-            if (_devicesInProgress.TryAdd(deviceId, new TaskCompletionSource<bool>()))
+            var isNew = false;
+
+            var tcs = _devicesInProgress.GetOrAdd(deviceId, (x) =>
             {
-                Task.Run(async () =>
+                isNew = true;
+                return new TaskCompletionSource<bool>();
+            });
+
+            if (!isNew)
+            {
+                return;
+            }
+
+            Task.Run(async () =>
+            {
+                try
                 {
-                    try
-                    {
-                        Debug.WriteLine($"!!!!!!!!!!!!! ExecuteRemoteTasks start {deviceId}");
-                        await ExecuteRemoteTasks(deviceId).TimeoutAfter(300_000);
-                    }
-                    catch (TimeoutException ex)
-                    {
-                        Debug.Assert(false);
-                        _logger.LogCritical(ex.Message, deviceId);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex.Message);
-                    }
-                    finally
-                    {
-                        Debug.WriteLine($"!!!!!!!!!!!!! ExecuteRemoteTasks end {deviceId}");
-                        _devicesInProgress.TryRemove(deviceId, out TaskCompletionSource<bool> value);
-                    }
-                });
-            }
-            else
-            {
-                Debug.WriteLine($"!!!!!!!!!!!!! in progress {deviceId}");
-            }
+                    Debug.WriteLine($"!!!!!!!!!!!!! ExecuteRemoteTasks start {deviceId}");
+                    var result = await ExecuteRemoteTasks(deviceId).TimeoutAfter(300_000);
+                    tcs.SetResult(result);
+                }
+                catch (TimeoutException ex)
+                {
+                    Debug.Assert(false);
+                    tcs.SetException(ex);
+                    _logger.LogCritical($"[{deviceId}] {ex.Message}");
+                }
+                catch (Exception ex)
+                {
+                    tcs.SetException(ex);
+                    _logger.LogError($"[{deviceId}] {ex.Message}");
+                }
+                finally
+                {
+                    Debug.WriteLine($"!!!!!!!!!!!!! ExecuteRemoteTasks end {deviceId}");
+                    _devicesInProgress.TryRemove(deviceId, out TaskCompletionSource<bool> value);
+                }
+            });
+
+            Debug.WriteLine($"!!!!!!!!!!!!! StartTaskProcessing in progress {deviceId}");
         }
 
         private async Task<bool> ExecuteRemoteTasks(string deviceId)
