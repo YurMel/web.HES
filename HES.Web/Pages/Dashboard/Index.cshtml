@@ -1,0 +1,56 @@
+﻿@page
+@model HES.Web.Pages.Dashboard.IndexModel
+@{
+    ViewData["Title"] = "Dashboard";
+    ViewData["ActivePage"] = MenuNavPages.Dashboard;
+}
+<partial name="_SuccessMessage" for="SuccessMessage" />
+<partial name="_ErrorMessage" for="ErrorMessage" />
+<style>
+    .dashboard-card {
+        background-color: #fff;
+        background-clip: border-box;
+        border: 1px solid rgba(0,0,0,.125);
+        border-radius: .25rem;
+        height: 200px;
+        margin-bottom: 30px;
+        padding: 15px;
+    }
+</style>
+<h1 class="text-navyblue">Hideez Enterprise Server</h1>
+<div class="row">
+    <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+        <div class="dashboard-card">
+            <h1>Count</h1>
+            <h1>HES</h1>
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+        <div class="dashboard-card">
+            <h1>Count</h1>
+            <h1>Device Tasks</h1>
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+        <div class="dashboard-card">
+            <h1>Count</h1>
+            <h1>Workstations</h1>
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+        <div class="dashboard-card">
+            <h1>Count</h1>
+            <h1>Devices</h1>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        $(document).ready(function () {
+            // Breadcrumbs
+            $('#breadcrumb').toggleClass('d-none');
+            $('.breadcrumb').append('<li class="breadcrumb-item active">Dashboard</li>');
+        });
+    </script>
+}
