@@ -69,6 +69,7 @@ namespace HES.Web
 
             // Add Services
             services.AddScoped(typeof(IAsyncRepository<>), typeof(Repository<>));
+            services.AddScoped<IDashboardService, DashboardService>();
             services.AddScoped<IEmployeeService, EmployeeService>();
             services.AddScoped<IWorkstationService, WorkstationService>();
             services.AddScoped<IWorkstationEventService, WorkstationEventService>();
@@ -124,7 +125,7 @@ namespace HES.Web
                 var deviceTaskRepository = scope.ServiceProvider.GetService<IAsyncRepository<DeviceTask>>();
                 var deviceRepository = scope.ServiceProvider.GetService<IAsyncRepository<Device>>();
                 var dataProtectionProvider = scope.ServiceProvider.GetService<IDataProtectionProvider>();
-                var notificationService = scope.ServiceProvider.GetService<INotificationService>();               
+                var notificationService = scope.ServiceProvider.GetService<INotificationService>();
                 var logger = scope.ServiceProvider.GetService<ILogger<DataProtectionService>>();
                 return new DataProtectionService(dataProtectionRepository,
                                                  deviceRepository,

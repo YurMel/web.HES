@@ -1,0 +1,40 @@
+﻿@model HES.Web.Pages.Dashboard.IndexModel
+<div class="row">
+    <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+        <div class="dashboard-card">
+            <h1>Count</h1>
+            <h1>HES</h1>
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+        <div class="dashboard-card">
+            <div class="d-inline-flex">
+                <h4 id="deviceTaks" class="mr-2">@Model.DeviceTaskCount</h4>
+                <h4>Device Tasks</h4>
+            </div>
+            <hr />
+            <div>
+                @if (Model.DeviceTaskCount > 0)
+                {
+                    <a class="btn-link" asp-page="DeviceTasks">View tasks</a>
+                }
+                else
+                {
+                    <span>All tasks is done</span>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+        <div class="dashboard-card">
+            <h1>Count</h1>
+            <h1>Workstations</h1>
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+        <div class="dashboard-card">
+            <h1>Count</h1>
+            <h1>Devices</h1>
+        </div>
+    </div>
+</div>

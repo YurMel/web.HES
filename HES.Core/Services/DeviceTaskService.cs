@@ -2,6 +2,7 @@
 using HES.Core.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,6 +16,11 @@ namespace HES.Core.Services
         public DeviceTaskService(IAsyncRepository<DeviceTask> deviceTaskRepository)
         {
             _deviceTaskRepository = deviceTaskRepository;
+        }
+
+        public IQueryable<DeviceTask> Query()
+        {
+            return _deviceTaskRepository.Query();
         }
 
         public Task AddTaskAsync(DeviceTask deviceTask)
@@ -41,5 +47,7 @@ namespace HES.Core.Services
 
             await _deviceTaskRepository.DeleteRangeAsync(allTasks);
         }
+
+        //public async Task<IList<DeviceTask>> 
     }
 }

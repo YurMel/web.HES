@@ -18,36 +18,31 @@
     }
 </style>
 <h1 class="text-navyblue">Hideez Enterprise Server</h1>
-<div class="row">
-    <div class="col-12 col-md-6 col-lg-4 col-xl-3">
-        <div class="dashboard-card">
-            <h1>Count</h1>
-            <h1>HES</h1>
-        </div>
-    </div>
-    <div class="col-12 col-md-6 col-lg-4 col-xl-3">
-        <div class="dashboard-card">
-            <h1>Count</h1>
-            <h1>Device Tasks</h1>
-        </div>
-    </div>
-    <div class="col-12 col-md-6 col-lg-4 col-xl-3">
-        <div class="dashboard-card">
-            <h1>Count</h1>
-            <h1>Workstations</h1>
-        </div>
-    </div>
-    <div class="col-12 col-md-6 col-lg-4 col-xl-3">
-        <div class="dashboard-card">
-            <h1>Count</h1>
-            <h1>Devices</h1>
-        </div>
-    </div>
+
+<div id="content">
+    <partial name="_DashboardContent" />
 </div>
 
 @section scripts{
     <script>
+
+        function LoadInfo() {
+            $.ajax({
+                url: "/Dashboard?handler=LoadInfo",
+                type: "Get",
+                //data: { id: id },
+                async: true,
+                success: function (response) {
+                    alert('@Model.DeviceTaskCount');
+                    $('#deviceTaks').html('@Model.DeviceTaskCount');
+                }
+            });
+        }
+
         $(document).ready(function () {
+            // Device Tasks
+            //LoadInfo();
+
             // Breadcrumbs
             $('#breadcrumb').toggleClass('d-none');
             $('.breadcrumb').append('<li class="breadcrumb-item active">Dashboard</li>');
