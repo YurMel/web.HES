@@ -313,7 +313,6 @@ namespace HES.Core.Hubs
                     if (string.IsNullOrWhiteSpace(device.MasterPassword))
                         throw new HideezException(HideezErrorCode.HesEmptyMasterKey);
 
-                    //todo - unprotect
                     var key = ConvertUtils.HexStringToBytes(_dataProtectionService.Unprotect(device.MasterPassword));
 
                     await remoteDevice.Access(DateTime.UtcNow, key, accessParams);

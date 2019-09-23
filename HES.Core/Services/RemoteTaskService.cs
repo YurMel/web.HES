@@ -218,48 +218,6 @@ namespace HES.Core.Services
             Debug.WriteLine($"!!!!!!!!!!!!! StartTaskProcessing in progress {deviceId}");
         }
 
-        private async Task<bool> ExecuteRemoteTasks(string deviceId)
-        {
-            try
-            {
-                _dataProtectionService.Validate();
-
-                var tasks = await _deviceTaskRepository.Query()
-                    .Include(t => t.DeviceAccount)
-                    .Where(t => t.DeviceId == deviceId)
-                    .OrderBy(x => x.CreatedAt)
-                    .ToListAsync();
-
-                while (tasks.Any())
-                {
-                    var remoteDevice = await AppHub.EstablishRemoteConnection(deviceId, 4);
-                    if (remoteDevice == null)
-                        break;
-
-                    foreach (var task in tasks)
-                    {
-                        task.Password = _dataProtectionService.Unprotect(task.Password);
-                        task.OtpSecret = _dataProtectionService.Unprotect(task.OtpSecret);
-                        var idFromDevice = await ExecuteRemoteTask(remoteDevice, task);
-                        await TaskCompleted(task.Id, idFromDevice);
-                    }
-
-                    tasks = await _deviceTaskRepository.Query()
-                        .Include(t => t.DeviceAccount)
-                        .Where(t => t.DeviceId == deviceId)
-                        .OrderBy(x => x.CreatedAt)
-                        .ToListAsync();
-                }
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"[{deviceId}] {ex.Message}");
-            }
-            return false;
-        }
-
         private async Task TaskCompleted(string taskId, ushort idFromDevice)
         {
             // Task
@@ -360,13 +318,15 @@ namespace HES.Core.Services
                     _logger.LogInformation($"[{device.Id}] Task operation {deviceTask.Operation.ToString()}");
                     break;
                 case TaskOperation.Link:
+                    device.MasterPassword = deviceTask.Password;
+                    await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "MasterPassword" });
                     _logger.LogInformation($"[{device.Id}] Task operation {deviceTask.Operation.ToString()}");
                     break;
                 case TaskOperation.Profile:
                     _logger.LogInformation($"[{device.Id}] Task operation {deviceTask.Operation.ToString()}");
                     break;
                 default:
-                    _logger.LogWarning($"[{device.Id}] unhandled case {deviceTask.Operation.ToString()}");
+                    _logger.LogCritical($"[{device.Id}] unhandled case {deviceTask.Operation.ToString()}");
                     break;
             }
 
@@ -376,6 +336,49 @@ namespace HES.Core.Services
             await Task.Delay(500);
             await _hubContext.Clients.All.SendAsync("ReloadPage", deviceAccount?.EmployeeId);
         }
+
+        private async Task<bool> ExecuteRemoteTasks(string deviceId)
+        {
+            try
+            {
+                _dataProtectionService.Validate();
+
+                var tasks = await _deviceTaskRepository.Query()
+                    .Include(t => t.DeviceAccount)
+                    .Where(t => t.DeviceId == deviceId)
+                    .OrderBy(x => x.CreatedAt)
+                    .ToListAsync();
+
+                while (tasks.Any())
+                {
+                    var remoteDevice = await AppHub.EstablishRemoteConnection(deviceId, 4);
+                    if (remoteDevice == null)
+                        break;
+
+                    foreach (var task in tasks)
+                    {
+                        task.Password = _dataProtectionService.Unprotect(task.Password);
+                        task.OtpSecret = _dataProtectionService.Unprotect(task.OtpSecret);
+                        var idFromDevice = await ExecuteRemoteTask(remoteDevice, task);
+                        await TaskCompleted(task.Id, idFromDevice);
+                    }
+
+                    tasks = await _deviceTaskRepository.Query()
+                        .Include(t => t.DeviceAccount)
+                        .Where(t => t.DeviceId == deviceId)
+                        .OrderBy(x => x.CreatedAt)
+                        .ToListAsync();
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"[{deviceId}] {ex.Message}");
+            }
+            return false;
+        }
+
 
         private async Task<ushort> ExecuteRemoteTask(RemoteDevice remoteDevice, DeviceTask task)
         {

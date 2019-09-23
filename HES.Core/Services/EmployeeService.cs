@@ -493,12 +493,11 @@ namespace HES.Core.Services
                 var masterPassword = GenerateMasterPassword();
 
                 device.EmployeeId = employeeId;
-                device.MasterPassword = masterPassword;
-                await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "EmployeeId", "MasterPassword" });
+                await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "EmployeeId" });
 
                 await _remoteTaskService.AddTaskAsync(new DeviceTask
                 {
-                    Password = masterPassword,
+                    Password = _dataProtectionService.Protect(masterPassword),
                     Operation = TaskOperation.Link,
                     CreatedAt = DateTime.UtcNow,
                     DeviceId = device.Id
