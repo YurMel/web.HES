@@ -136,7 +136,7 @@ namespace HES.Core.Hubs
             var deviceList = GetDeviceList();
             deviceList.TryAdd(dto.DeviceSerialNo, dto.DeviceSerialNo);
 
-            _remoteTaskService.StartTaskProcessing(dto.DeviceSerialNo);
+            //_remoteTaskService.StartTaskProcessing(dto.DeviceSerialNo);
         }
 
         public Task OnDeviceDisconnected(string deviceId)
