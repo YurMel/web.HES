@@ -6,18 +6,8 @@
 }
 <partial name="_SuccessMessage" for="SuccessMessage" />
 <partial name="_ErrorMessage" for="ErrorMessage" />
-<style>
-    .dashboard-card {
-        background-color: #fff;
-        background-clip: border-box;
-        border: 1px solid rgba(0,0,0,.125);
-        border-radius: .25rem;
-        height: 200px;
-        margin-bottom: 30px;
-        padding: 15px;
-    }
-</style>
-<h1 class="text-navyblue">Hideez Enterprise Server</h1>
+
+<h1 class="text-navyblue">Dashboard</h1>
 
 <div id="content">
     <partial name="_DashboardContent" />
@@ -40,9 +30,6 @@
         }
 
         $(document).ready(function () {
-            // Device Tasks
-            //LoadInfo();
-
             // Breadcrumbs
             $('#breadcrumb').toggleClass('d-none');
             $('.breadcrumb').append('<li class="breadcrumb-item active">Dashboard</li>');

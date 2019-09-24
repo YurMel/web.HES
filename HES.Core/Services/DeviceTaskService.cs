@@ -23,6 +23,11 @@ namespace HES.Core.Services
             return _deviceTaskRepository.Query();
         }
 
+        public async Task<int> GetCountAsync()
+        {
+            return await _deviceTaskRepository.GetCountAsync();
+        }
+
         public Task AddTaskAsync(DeviceTask deviceTask)
         {
             throw new NotImplementedException();

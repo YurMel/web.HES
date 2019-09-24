@@ -1,40 +1,51 @@
 ﻿@model HES.Web.Pages.Dashboard.IndexModel
 <div class="row">
-    <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+    <div class="col-12 col-md-6 col-lg-4">
         <div class="dashboard-card">
-            <h1>Count</h1>
-            <h1>HES</h1>
-        </div>
-    </div>
-    <div class="col-12 col-md-6 col-lg-4 col-xl-3">
-        <div class="dashboard-card">
-            <div class="d-inline-flex">
-                <h4 id="deviceTaks" class="mr-2">@Model.DeviceTaskCount</h4>
-                <h4>Device Tasks</h4>
-            </div>
+            <h4>Hideez Enterprise Server - 2.1.1</h4>
             <hr />
             <div>
-                @if (Model.DeviceTaskCount > 0)
-                {
-                    <a class="btn-link" asp-page="DeviceTasks">View tasks</a>
-                }
-                else
-                {
-                    <span>All tasks is done</span>
-                }
+                Data Protecton <span class="badge badge-success">Enabled</span>
+            </div>
+            <div>
+                Device Tasks <a class="btn-link" asp-page="DeviceTasks"> <span class="badge badge-primary">@Model.DeviceTaskCount</span></a>
+            </div>
+            ____________________
+            <div>
+                Update avaible <span class="badge badge-warning">New version 2.1.2</span>
+            </div>
+            <div>
+                Device Task long pending <span class="badge badge-warning">1</span>
+            </div>
+            <div>
+                Device Task error <span class="badge badge-danger">6</span>
             </div>
         </div>
     </div>
-    <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+    <div class="col-12 col-md-6 col-lg-4">
         <div class="dashboard-card">
-            <h1>Count</h1>
-            <h1>Workstations</h1>
+            <h4>Workstations - 90</h4>
+            <hr />
+
+            @*<div>
+                Total count <span class="badge badge-success">70</span>
+            </div>*@
+            <div>
+                Online <span class="badge badge-primary">45</span>
+            </div>
+            <div>
+                Need appruve <span class="badge badge-danger">4</span>
+            </div>
+            _____
         </div>
     </div>
-    <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+    <div class="col-12 col-md-6 col-lg-4">
         <div class="dashboard-card">
-            <h1>Count</h1>
-            <h1>Devices</h1>
+            <h4>Devices - 36</h4>
+            <hr />
+            <div>
+                Total count <span class="badge badge-primary">36</span>
+            </div>
         </div>
     </div>
 </div>

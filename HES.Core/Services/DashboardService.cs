@@ -26,8 +26,7 @@ namespace HES.Core.Services
 
         public async Task<int> GetDeviceTasksCount()
         {
-            var tasks = await _deviceTaskService.Query().ToListAsync();
-            return tasks.Count;
+            return await _deviceTaskService.GetCountAsync();
         }
 
         public async Task<List<DeviceTask>> GetDeviceTasks()
