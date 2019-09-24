@@ -379,7 +379,6 @@ namespace HES.Core.Services
             return false;
         }
 
-
         private async Task<ushort> ExecuteRemoteTask(RemoteDevice remoteDevice, DeviceTask task)
         {
             ushort idFromDevice = 0;

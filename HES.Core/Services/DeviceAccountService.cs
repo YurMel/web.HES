@@ -20,6 +20,16 @@ namespace HES.Core.Services
             return _deviceAccountRepository.Query();
         }
 
+        public async Task<DeviceAccount> GetByIdAsync(string accountId)
+        {
+            return await _deviceAccountRepository.GetByIdAsync(accountId);
+        }
+
+        public async Task UpdateOnlyPropAsync(DeviceAccount deviceAccount, string[] properties)
+        {
+            await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties);
+        }
+
         public async Task RemoveAllAccountsAsync(string deviceId)
         {
             var allAccounts = await _deviceAccountRepository

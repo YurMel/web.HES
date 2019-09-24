@@ -142,7 +142,6 @@ namespace HES.Web
                 var applicationUserService = scope.ServiceProvider.GetService<IApplicationUserService>();
                 return new NotificationService(logger, notificationRepository, applicationUserService);
             });
-
             // Crypto
             services.AddTransient<IAesCryptography, AesCryptography>();
             // Email
