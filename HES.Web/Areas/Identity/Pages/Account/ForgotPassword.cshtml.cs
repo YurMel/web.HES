@@ -16,11 +16,11 @@ namespace HES.Web.Areas.Identity.Pages.Account
     public class ForgotPasswordModel : PageModel
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IEmailSender _emailSender;
+        private readonly IEmailSenderService _emailSender;
         private readonly IEmployeeService _employeeService;
 
         public ForgotPasswordModel(UserManager<ApplicationUser> userManager,
-                                   IEmailSender emailSender,
+                                   IEmailSenderService emailSender,
                                    IEmployeeService employeeService)
         {
             _userManager = userManager;

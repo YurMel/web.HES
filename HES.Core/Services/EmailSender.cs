@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace HES.Core.Services
 {
-    public class EmailSender : IEmailSender
+    public class EmailSenderService : IEmailSenderService
     {
         private string host;
         private int port;
@@ -13,7 +13,7 @@ namespace HES.Core.Services
         private string userName;
         private string password;
 
-        public EmailSender(string host, int port, bool enableSSL, string userName, string password)
+        public EmailSenderService(string host, int port, bool enableSSL, string userName, string password)
         {
             this.host = host;
             this.port = port;

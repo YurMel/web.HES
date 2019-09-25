@@ -25,6 +25,32 @@ namespace HES.Core.Services
             await _deviceTaskRepository.AddAsync(deviceTask);
         }
 
+        public async Task AddProfileTaskAsync(Device device)
+        {
+            var task = new DeviceTask
+            {
+                DeviceId = device.Id,
+                Password = device.MasterPassword,
+                Operation = TaskOperation.Profile,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await _deviceTaskRepository.AddAsync(task);
+        }
+
+        public async Task AddUnlockPinTaskAsync(Device device)
+        {
+            var task = new DeviceTask
+            {
+                DeviceId = device.Id,
+                Password = device.MasterPassword,
+                Operation = TaskOperation.UnlockPin,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await _deviceTaskRepository.AddAsync(task);
+        }
+
         public async Task AddRangeAsync(IList<DeviceTask> deviceTasks)
         {
             await _deviceTaskRepository.AddRangeAsync(deviceTasks);
@@ -84,6 +110,16 @@ namespace HES.Core.Services
             var allTasks = await _deviceTaskRepository
                 .Query()
                 .Where(t => t.DeviceId == deviceId)
+                .ToListAsync();
+
+            await _deviceTaskRepository.DeleteRangeAsync(allTasks);
+        }
+
+        public async Task RemoveAllProfileTasksAsync(string deviceId)
+        {
+            var allTasks = await _deviceTaskRepository
+                .Query()
+                .Where(t => t.DeviceId == deviceId && t.Operation == TaskOperation.Profile)
                 .ToListAsync();
 
             await _deviceTaskRepository.DeleteRangeAsync(allTasks);

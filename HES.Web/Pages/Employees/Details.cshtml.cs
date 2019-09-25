@@ -23,7 +23,7 @@ namespace HES.Web.Pages.Employees
 
         private readonly IApplicationUserService _applicationUserService;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IEmailSender _emailSender;
+        private readonly IEmailSenderService _emailSender;
 
         public IList<Device> Devices { get; set; }
         public IList<DeviceAccount> DeviceAccounts { get; set; }
@@ -47,7 +47,7 @@ namespace HES.Web.Pages.Employees
                             ILogger<DetailsModel> logger,
                             IApplicationUserService applicationUserService,
                             UserManager<ApplicationUser> userManager,
-                            IEmailSender emailSender)
+                            IEmailSenderService emailSender)
         {
             _employeeService = employeeService;
             _samlIdentityProviderService = samlIdentityProviderService;

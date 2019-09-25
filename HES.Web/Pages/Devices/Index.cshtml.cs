@@ -19,6 +19,7 @@ namespace HES.Web.Pages.Devices
         private readonly IDeviceService _deviceService;
         private readonly IEmployeeService _employeeService;
         private readonly IDeviceAccessProfilesService _deviceAccessProfilesService;
+        private readonly IRemoteTaskService _remoteTaskService;
         private readonly ILogger<IndexModel> _logger;
 
         public IList<DeviceAccessProfile> DeviceAccessProfiles { get; set; }
@@ -34,11 +35,13 @@ namespace HES.Web.Pages.Devices
         public IndexModel(IDeviceService deviceService,
                           IEmployeeService employeeService,
                           IDeviceAccessProfilesService deviceAccessProfilesService,
+                          IRemoteTaskService remoteTaskService,
                           ILogger<IndexModel> logger)
         {
             _deviceService = deviceService;
             _employeeService = employeeService;
             _deviceAccessProfilesService = deviceAccessProfilesService;
+            _remoteTaskService = remoteTaskService;
             _logger = logger;
         }
 
@@ -173,6 +176,7 @@ namespace HES.Web.Pages.Devices
             try
             {
                 await _deviceService.UpdateProfileAsync(devices, profileId);
+                _remoteTaskService.StartTaskProcessing(devices);
                 SuccessMessage = $"New profile sent to server for processing.";
             }
             catch (Exception ex)
@@ -215,6 +219,7 @@ namespace HES.Web.Pages.Devices
             try
             {
                 await _deviceService.UnlockPinAsync(deviceId);
+                _remoteTaskService.StartTaskProcessing(deviceId);
                 SuccessMessage = $"Pending unlock.";
             }
             catch (Exception ex)

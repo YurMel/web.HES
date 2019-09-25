@@ -26,9 +26,9 @@ namespace HES.Core.Services
         readonly IAsyncRepository<DeviceTask> _deviceTaskRepository;
         readonly IAsyncRepository<Device> _deviceRepository;
         readonly IWorkstationProximityDeviceService _workstationProximityDeviceService;
-        readonly ILogger<RemoteTaskService> _logger;
         readonly IDataProtectionService _dataProtectionService;
         readonly IDeviceAccessProfilesService _deviceAccessProfilesService;
+        readonly ILogger<RemoteTaskService> _logger;
         readonly IHubContext<EmployeeDetailsHub> _hubContext;
 
         public RemoteTaskService(IAsyncRepository<DeviceAccount> deviceAccountRepository,

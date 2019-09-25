@@ -11,17 +11,17 @@ namespace HES.Core.Services
 {
     public class NotificationService : INotificationService
     {
-        private readonly ILogger<NotificationService> _logger;
         private readonly IAsyncRepository<Notification> _notificationRepository;
         private readonly IApplicationUserService _applicationUserService;
+        private readonly ILogger<NotificationService> _logger;
 
-        public NotificationService(ILogger<NotificationService> logger,
-                                   IAsyncRepository<Notification> notificationRepository,
-                                   IApplicationUserService applicationUserService)
+        public NotificationService(IAsyncRepository<Notification> notificationRepository,
+                                   IApplicationUserService applicationUserService,
+                                   ILogger<NotificationService> logger)
         {
-            _logger = logger;
             _notificationRepository = notificationRepository;
             _applicationUserService = applicationUserService;
+            _logger = logger;
         }
 
         public IQueryable<Notification> Query()

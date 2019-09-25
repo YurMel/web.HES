@@ -126,7 +126,7 @@ namespace HES.Core.Hubs
         public async Task OnDeviceConnected(BleDeviceDto dto)
         {
             // Update Battery, Firmware, State, LastSynced         
-            await _deviceService.UpdateDevicePropAsync(dto.DeviceSerialNo, dto.Battery, dto.FirmwareVersion, dto.IsLocked);
+            await _deviceService.UpdateDeviceInfoAsync(dto.DeviceSerialNo, dto.Battery, dto.FirmwareVersion, dto.IsLocked);
 
             _deviceConnections.AddOrUpdate(dto.DeviceSerialNo, new DeviceDescription(Clients.Caller), (deviceMac, oldDescr) =>
             {

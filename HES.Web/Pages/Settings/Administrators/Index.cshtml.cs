@@ -18,7 +18,7 @@ namespace HES.Web.Pages.Settings.Administrators
         private readonly IApplicationUserService _applicationUserService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly IEmailSender _emailSender;
+        private readonly IEmailSenderService _emailSender;
         private readonly ILogger<IndexModel> _logger;
 
         public IList<ApplicationUser> ApplicationUsers { get; set; }
@@ -42,7 +42,7 @@ namespace HES.Web.Pages.Settings.Administrators
         public IndexModel(IApplicationUserService applicationUserService,
                           UserManager<ApplicationUser> userManager,
                           SignInManager<ApplicationUser> signInManager,
-                          IEmailSender emailSender,
+                          IEmailSenderService emailSender,
                           ILogger<IndexModel> logger)
         {
             _applicationUserService = applicationUserService;

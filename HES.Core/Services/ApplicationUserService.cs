@@ -13,11 +13,11 @@ namespace HES.Core.Services
     {
         private readonly IAsyncRepository<ApplicationUser> _applicationUserRepository;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IEmailSender _emailSender;
+        private readonly IEmailSenderService _emailSender;
 
         public ApplicationUserService(IAsyncRepository<ApplicationUser> applicationUserRepository,
                                       UserManager<ApplicationUser> userManager,
-                                      IEmailSender emailSender)
+                                      IEmailSenderService emailSender)
         {
             _applicationUserRepository = applicationUserRepository;
             _userManager = userManager;

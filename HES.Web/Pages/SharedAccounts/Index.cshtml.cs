@@ -14,6 +14,7 @@ namespace HES.Web.Pages.SharedAccounts
     public class IndexModel : PageModel
     {
         private readonly ISharedAccountService _sharedAccountService;
+        private readonly IRemoteTaskService _remoteTaskService;
         private readonly ILogger<IndexModel> _logger;
 
         public IList<SharedAccount> SharedAccounts { get; set; }
@@ -25,16 +26,17 @@ namespace HES.Web.Pages.SharedAccounts
         [TempData]
         public string ErrorMessage { get; set; }
 
-        public IndexModel(ISharedAccountService sharedAccountService, ILogger<IndexModel> logger)
+        public IndexModel(ISharedAccountService sharedAccountService, IRemoteTaskService remoteTaskService, ILogger<IndexModel> logger)
         {
             _sharedAccountService = sharedAccountService;
+            _remoteTaskService = remoteTaskService;
             _logger = logger;
         }
 
         public async Task OnGetAsync()
         {
             SharedAccounts = await _sharedAccountService
-                .SharedAccountQuery()
+                .Query()
                 .Where(d => d.Deleted == false)
                 .ToListAsync();
         }
@@ -77,7 +79,7 @@ namespace HES.Web.Pages.SharedAccounts
             }
 
             SharedAccount = await _sharedAccountService
-                .SharedAccountQuery()
+                .Query()
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (SharedAccount == null)
@@ -99,7 +101,8 @@ namespace HES.Web.Pages.SharedAccounts
 
             try
             {
-                await _sharedAccountService.EditSharedAccountAsync(sharedAccount);
+                var devices = await _sharedAccountService.EditSharedAccountAsync(sharedAccount);
+                _remoteTaskService.StartTaskProcessing(devices);
                 SuccessMessage = $"Shared account updated.";
             }
             catch (Exception ex)
@@ -120,7 +123,7 @@ namespace HES.Web.Pages.SharedAccounts
             }
 
             SharedAccount = await _sharedAccountService
-                .SharedAccountQuery()
+                .Query()
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (SharedAccount == null)
@@ -141,7 +144,8 @@ namespace HES.Web.Pages.SharedAccounts
 
             try
             {
-                await _sharedAccountService.EditSharedAccountPwdAsync(sharedAccount, input);
+                var devices = await _sharedAccountService.EditSharedAccountPwdAsync(sharedAccount, input);
+                _remoteTaskService.StartTaskProcessing(devices);
                 SuccessMessage = $"Shared account updated.";
             }
             catch (Exception ex)
@@ -162,7 +166,7 @@ namespace HES.Web.Pages.SharedAccounts
             }
 
             SharedAccount = await _sharedAccountService
-                .SharedAccountQuery()
+                .Query()
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (SharedAccount == null)
@@ -178,7 +182,8 @@ namespace HES.Web.Pages.SharedAccounts
         {
             try
             {
-                await _sharedAccountService.EditSharedAccountOtpAsync(sharedAccount, input);
+                var devices = await _sharedAccountService.EditSharedAccountOtpAsync(sharedAccount, input);
+                _remoteTaskService.StartTaskProcessing(devices);
                 SuccessMessage = $"Shared account updated.";
             }
             catch (Exception ex)
@@ -189,7 +194,7 @@ namespace HES.Web.Pages.SharedAccounts
 
             return RedirectToPage("./Index");
         }
-               
+
         public async Task<IActionResult> OnGetDeleteSharedAccountAsync(string id)
         {
             if (id == null)
@@ -199,7 +204,7 @@ namespace HES.Web.Pages.SharedAccounts
             }
 
             SharedAccount = await _sharedAccountService
-                .SharedAccountQuery()
+                .Query()
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (SharedAccount == null)
@@ -220,7 +225,8 @@ namespace HES.Web.Pages.SharedAccounts
 
             try
             {
-                await _sharedAccountService.DeleteSharedAccountAsync(id);
+                var devices = await _sharedAccountService.DeleteSharedAccountAsync(id);
+                _remoteTaskService.StartTaskProcessing(devices);
                 SuccessMessage = $"Shared account deleted.";
             }
             catch (Exception ex)

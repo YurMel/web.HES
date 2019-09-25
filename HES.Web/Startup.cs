@@ -140,13 +140,11 @@ namespace HES.Web
                 var logger = scope.ServiceProvider.GetService<ILogger<NotificationService>>();
                 var notificationRepository = scope.ServiceProvider.GetService<IAsyncRepository<Notification>>();
                 var applicationUserService = scope.ServiceProvider.GetService<IApplicationUserService>();
-                return new NotificationService(logger, notificationRepository, applicationUserService);
+            return new NotificationService(notificationRepository, applicationUserService, logger);
             });
-            // Crypto
-            services.AddTransient<IAesCryptography, AesCryptography>();
-            // Email
-            services.AddSingleton<IEmailSender, EmailSender>(i =>
-                 new EmailSender(
+            services.AddTransient<IAesCryptographyService, AesCryptographyService>();
+            services.AddSingleton<IEmailSenderService, EmailSenderService>(i =>
+                 new EmailSenderService(
                      Configuration["EmailSender:Host"],
                      Configuration.GetValue<int>("EmailSender:Port"),
                      Configuration.GetValue<bool>("EmailSender:EnableSSL"),

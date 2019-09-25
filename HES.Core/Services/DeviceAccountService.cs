@@ -1,6 +1,7 @@
 ﻿using HES.Core.Entities;
 using HES.Core.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -28,6 +29,11 @@ namespace HES.Core.Services
         public async Task UpdateOnlyPropAsync(DeviceAccount deviceAccount, string[] properties)
         {
             await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties);
+        }
+
+        public async Task UpdateOnlyPropAsync(IList<DeviceAccount> deviceAccounts, string[] properties)
+        {
+            await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccounts, properties);
         }
 
         public async Task RemoveAllAccountsAsync(string deviceId)
