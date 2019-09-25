@@ -6,22 +6,19 @@ using System.Threading.Tasks;
 
 namespace HES.Core.Services
 {
-    public class SettingsService : ISettingsService
+    public class OrgStructureService : IOrgStructureService
     {
         private readonly IAsyncRepository<Company> _companyRepository;
         private readonly IAsyncRepository<Department> _departmentRepository;
         private readonly IAsyncRepository<Position> _positionRepository;
-        private readonly IAsyncRepository<Employee> _employeeRepository;
 
-        public SettingsService(IAsyncRepository<Company> companyRepository,
-                               IAsyncRepository<Department> departmentRepository,
-                               IAsyncRepository<Position> positionRepository,
-                               IAsyncRepository<Employee> employeeRepository)
+        public OrgStructureService(IAsyncRepository<Company> companyRepository,
+                                   IAsyncRepository<Department> departmentRepository,
+                                   IAsyncRepository<Position> positionRepository)
         {
             _companyRepository = companyRepository;
             _departmentRepository = departmentRepository;
             _positionRepository = positionRepository;
-            _employeeRepository = employeeRepository;
         }
 
         public IQueryable<Company> CompanyQuery()
@@ -37,11 +34,6 @@ namespace HES.Core.Services
         public IQueryable<Position> PositionQuery()
         {
             return _positionRepository.Query();
-        }
-
-        public IQueryable<Employee> EmployeeQuery()
-        {
-            return _employeeRepository.Query();
         }
 
         public async Task CreateCompanyAsync(Company company)

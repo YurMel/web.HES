@@ -20,6 +20,12 @@ namespace HES.Core.Services
             _deviceAccountService = deviceAccountService;
         }
 
+
+        public IQueryable<DeviceTask> Query()
+        {
+            return _deviceTaskRepository.Query();
+        }
+
         public async Task AddTaskAsync(DeviceTask deviceTask)
         {
             await _deviceTaskRepository.AddAsync(deviceTask);

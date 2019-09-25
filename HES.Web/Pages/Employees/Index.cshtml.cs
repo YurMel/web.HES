@@ -19,7 +19,7 @@ namespace HES.Web.Pages.Employees
         private readonly IEmployeeService _employeeService;
         private readonly IWorkstationService _workstationService;
         private readonly IWorkstationProximityDeviceService _workstationProximityDeviceService;
-        private readonly ISettingsService _settingsService;
+        private readonly IOrgStructureService _settingsService;
         private readonly ILogger<IndexModel> _logger;
 
         public IList<Employee> Employees { get; set; }
@@ -42,7 +42,7 @@ namespace HES.Web.Pages.Employees
         public IndexModel(IEmployeeService employeeService,
                           IWorkstationService workstationService,
                           IWorkstationProximityDeviceService workstationProximityDeviceService,
-                          ISettingsService settingsService,
+                          IOrgStructureService settingsService,
                           ILogger<IndexModel> logger)
         {
             _employeeService = employeeService;
