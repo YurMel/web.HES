@@ -1,4 +1,4 @@
-﻿using HES.Core.Hubs;
+﻿using HES.Core.Services;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -31,7 +31,7 @@ namespace HES.Core.Entities
         public DeviceAccessProfile DeviceAccessProfile { get; set; }
 
         [NotMapped]
-        public bool IsOnline => AppHub.IsDeviceConnectedToHost(Id);
+        public bool IsOnline => RemoteDeviceConnectionsService.IsDeviceConnectedToHost(Id);
     }
 
     public enum DeviceState

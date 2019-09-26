@@ -36,7 +36,7 @@ namespace HES.Core.Hubs
             }
             else
             {
-                _remoteDeviceConnectionsService.MakeConnection(deviceId, Clients.Caller);
+                _remoteDeviceConnectionsService.OnDeviceHubConnected(deviceId, Clients.Caller);
                 Context.Items.Add("DeviceId", deviceId);
             }
 
@@ -75,6 +75,7 @@ namespace HES.Core.Hubs
             return remoteDevice;
         }
 
+        // incoming request
         public Task OnVerifyResponse(byte[] data, string error)
         {
             try
@@ -91,6 +92,7 @@ namespace HES.Core.Hubs
             return Task.CompletedTask;
         }
 
+        // incoming request
         public Task OnCommandResponse(byte[] data, string error)
         {
             try

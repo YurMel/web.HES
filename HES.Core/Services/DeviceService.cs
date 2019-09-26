@@ -138,7 +138,9 @@ namespace HES.Core.Services
 
             device.Battery = battery;
             device.Firmware = firmware;
-            device.State = locked == true ? DeviceState.Locked : DeviceState.OK;
+            //todo - add SetState(Device device, DeviceState newState)
+            if (device.State == DeviceState.OK && locked)
+                device.State = DeviceState.Locked;
             device.LastSynced = DateTime.UtcNow;
 
             await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "Battery", "Firmware", "State", "LastSynced" });

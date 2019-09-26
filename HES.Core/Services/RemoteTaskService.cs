@@ -120,7 +120,7 @@ namespace HES.Core.Services
             });
         }
 
-        public async Task ProcessTasksAsync(string deviceId)
+        public async Task ProcessTasksAsync(string deviceId, TaskOperation operation)
         {
             Debug.WriteLine($"!!!!!!!!!!!!! ProcessTasksAsync start {deviceId}");
 
@@ -141,7 +141,7 @@ namespace HES.Core.Services
             try
             {
                 Debug.WriteLine($"!!!!!!!!!!!!! ExecuteRemoteTasks start {deviceId}");
-                var result = await ExecuteRemoteTasks(deviceId).TimeoutAfter(300_000);
+                var result = await ExecuteRemoteTasks(deviceId, operation).TimeoutAfter(300_000);
                 tcs.TrySetResult(result);
             }
             catch (TimeoutException ex)
@@ -189,12 +189,14 @@ namespace HES.Core.Services
                 return;
             }
 
+            //todo - check if device is OK, else do not start task processing
+
             Task.Run(async () =>
             {
                 try
                 {
                     Debug.WriteLine($"!!!!!!!!!!!!! ExecuteRemoteTasks start {deviceId}");
-                    var result = await ExecuteRemoteTasks(deviceId).TimeoutAfter(300_000);
+                    var result = await ExecuteRemoteTasks(deviceId, TaskOperation.None).TimeoutAfter(300_000);
                     tcs.SetResult(result);
                 }
                 catch (TimeoutException ex)
@@ -332,26 +334,34 @@ namespace HES.Core.Services
 
             // Delete task
             await _deviceTaskRepository.DeleteAsync(deviceTask);
+
+            //todo - move this to separate thread
             // Update UI use SognalR
             await Task.Delay(500);
             await _hubContext.Clients.All.SendAsync("ReloadPage", deviceAccount?.EmployeeId);
         }
 
-        private async Task<bool> ExecuteRemoteTasks(string deviceId)
+        async Task<bool> ExecuteRemoteTasks(string deviceId, TaskOperation operation)
         {
             try
             {
                 _dataProtectionService.Validate();
 
-                var tasks = await _deviceTaskRepository.Query()
+                var query = _deviceTaskRepository.Query()
                     .Include(t => t.DeviceAccount)
-                    .Where(t => t.DeviceId == deviceId)
-                    .OrderBy(x => x.CreatedAt)
-                    .ToListAsync();
+                    .Where(t => t.DeviceId == deviceId);
+
+                if (operation != TaskOperation.None)
+                    query = query.Where(t => t.Operation == operation);
+
+                query = query.OrderBy(x => x.CreatedAt);
+
+                var tasks = await query.ToListAsync();
 
                 while (tasks.Any())
                 {
-                    var remoteDevice = await AppHub.EstablishRemoteConnection(deviceId, 4);
+                    //var remoteDevice = await AppHub.EstablishRemoteConnection(deviceId, 4);
+                    var remoteDevice = await RemoteDeviceConnectionsService.Connect(deviceId, 4);
                     if (remoteDevice == null)
                         break;
 
@@ -361,13 +371,12 @@ namespace HES.Core.Services
                         task.OtpSecret = _dataProtectionService.Unprotect(task.OtpSecret);
                         var idFromDevice = await ExecuteRemoteTask(remoteDevice, task);
                         await TaskCompleted(task.Id, idFromDevice);
+
+                        if (task.Operation == TaskOperation.Wipe)
+                            return false; // the device has been wiped, further processing is not possible
                     }
 
-                    tasks = await _deviceTaskRepository.Query()
-                        .Include(t => t.DeviceAccount)
-                        .Where(t => t.DeviceId == deviceId)
-                        .OrderBy(x => x.CreatedAt)
-                        .ToListAsync();
+                    tasks = await query.ToListAsync();
                 }
 
                 return true;

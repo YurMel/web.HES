@@ -1,4 +1,9 @@
-﻿using HES.Core.Entities;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
+using HES.Core.Entities;
 using HES.Core.Interfaces;
 using HES.Core.Services;
 using Hideez.SDK.Communication;
@@ -10,45 +15,39 @@ using Hideez.SDK.Communication.Workstation;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace HES.Core.Hubs
 {
     public class AppHub : Hub<IRemoteAppConnection>
     {
-        class DeviceDescription
-        {
-            public IRemoteAppConnection Connection { get; }
+        //class DeviceDescription
+        //{
+        //    public IRemoteAppConnection Connection { get; }
 
-            public DeviceDescription(IRemoteAppConnection connection)
-            {
-                Connection = connection;
-            }
-        }
+        //    public DeviceDescription(IRemoteAppConnection connection)
+        //    {
+        //        Connection = connection;
+        //    }
+        //}
 
-        class WorkstationDescription
-        {
-            public IRemoteAppConnection Connection { get; }
+        //class WorkstationDescription
+        //{
+        //    public IRemoteAppConnection Connection { get; }
 
-            public string WorkstationId { get; }
+        //    public string WorkstationId { get; }
 
-            public WorkstationDescription(IRemoteAppConnection connection, string workstationId)
-            {
-                Connection = connection;
-                WorkstationId = workstationId;
-            }
-        }
+        //    public WorkstationDescription(IRemoteAppConnection connection, string workstationId)
+        //    {
+        //        Connection = connection;
+        //        WorkstationId = workstationId;
+        //    }
+        //}
 
-        static readonly ConcurrentDictionary<string, DeviceDescription> _deviceConnections
-            = new ConcurrentDictionary<string, DeviceDescription>();
+        //static readonly ConcurrentDictionary<string, DeviceDescription> _deviceConnections
+        //    = new ConcurrentDictionary<string, DeviceDescription>();
 
-        static readonly ConcurrentDictionary<string, WorkstationDescription> _workstationConnections
-                    = new ConcurrentDictionary<string, WorkstationDescription>();
+        //static readonly ConcurrentDictionary<string, WorkstationDescription> _workstationConnections
+        //            = new ConcurrentDictionary<string, WorkstationDescription>();
 
         private readonly IRemoteDeviceConnectionsService _remoteDeviceConnectionsService;
         private readonly IRemoteTaskService _remoteTaskService;
@@ -89,111 +88,114 @@ namespace HES.Core.Hubs
 
         #region Device
 
-        public override Task OnConnectedAsync()
-        {
-            Context.Items.Add("DeviceList", new ConcurrentDictionary<string, string>());
-            return base.OnConnectedAsync();
-        }
+        //public override Task OnConnectedAsync()
+        //{
+        //    Context.Items.Add("DeviceList", new ConcurrentDictionary<string, string>());
+        //    return base.OnConnectedAsync();
+        //}
 
         public override Task OnDisconnectedAsync(Exception exception)
         {
-            // remove all device connections for this app
-            var deviceList = GetDeviceList();
-            foreach (var item in deviceList.ToArray())
-                OnDeviceDisconnected(item.Key);
+            //// remove all device connections for this app
+            //var deviceList = GetDeviceList();
+            //foreach (var item in deviceList.ToArray())
+            //    OnDeviceDisconnected(item.Key);
 
-            // Remove workstation connection info
-            var workstation = GetWorkstation();
-            if (workstation != null)
-                OnWorkstationDisconnected(workstation.WorkstationId);
+            //// Remove workstation connection info
+            //var workstation = GetWorkstation();
+            //if (workstation != null)
+            //    OnWorkstationDisconnected(workstation.WorkstationId);
 
+            RemoteDeviceConnectionsService.RemoveDevice(Clients.Caller);
             return base.OnDisconnectedAsync(exception);
         }
 
-        private ConcurrentDictionary<string, string> GetDeviceList()
-        {
-            if (Context.Items.TryGetValue("DeviceList", out object deviceList))
-                return deviceList as ConcurrentDictionary<string, string>;
+        //private ConcurrentDictionary<string, string> GetDeviceList()
+        //{
+        //    if (Context.Items.TryGetValue("DeviceList", out object deviceList))
+        //        return deviceList as ConcurrentDictionary<string, string>;
 
-            _logger.LogCritical("AppHub does not contain DeviceList collection!");
+        //    _logger.LogCritical("AppHub does not contain DeviceList collection!");
 
-            var list = new ConcurrentDictionary<string, string>();
-            Context.Items.Add("DeviceList", list);
+        //    var list = new ConcurrentDictionary<string, string>();
+        //    Context.Items.Add("DeviceList", list);
 
-            return list;
-        }
+        //    return list;
+        //}
 
+        // incoming request
         public async Task OnDeviceConnected(BleDeviceDto dto)
         {
             // Update Battery, Firmware, State, LastSynced         
             await _deviceService.UpdateDeviceInfoAsync(dto.DeviceSerialNo, dto.Battery, dto.FirmwareVersion, dto.IsLocked);
 
-            _deviceConnections.AddOrUpdate(dto.DeviceSerialNo, new DeviceDescription(Clients.Caller), (deviceMac, oldDescr) =>
-            {
-                return new DeviceDescription(Clients.Caller);
-            });
+            RemoteDeviceConnectionsService.AddDevice(dto.DeviceSerialNo, Clients.Caller);
 
-            var deviceList = GetDeviceList();
-            deviceList.TryAdd(dto.DeviceSerialNo, dto.DeviceSerialNo);
+            //_deviceConnections.AddOrUpdate(dto.DeviceSerialNo, new DeviceDescription(Clients.Caller), (deviceMac, oldDescr) =>
+            //{
+            //    return new DeviceDescription(Clients.Caller);
+            //});
 
-            //_remoteTaskService.StartTaskProcessing(dto.DeviceSerialNo);
+            //var deviceList = GetDeviceList();
+            //deviceList.TryAdd(dto.DeviceSerialNo, dto.DeviceSerialNo);
         }
 
+        // incoming request
         public Task OnDeviceDisconnected(string deviceId)
         {
             if (!string.IsNullOrEmpty(deviceId))
             {
-                _deviceConnections.TryRemove(deviceId, out DeviceDescription deviceDescription);
+                //_deviceConnections.TryRemove(deviceId, out DeviceDescription deviceDescription);
 
-                var deviceList = GetDeviceList();
-                deviceList.TryRemove(deviceId, out string removed);
+                //var deviceList = GetDeviceList();
+                //deviceList.TryRemove(deviceId, out string removed);
 
                 RemoteDeviceConnectionsService.RemoveDevice(deviceId);
             }
             return Task.CompletedTask;
         }
 
-        static DeviceDescription FindDeviceDescription(string deviceId)
-        {
-            _deviceConnections.TryGetValue(deviceId, out DeviceDescription device);
-            return device;
-        }
+        //static DeviceDescription FindDeviceDescription(string deviceId)
+        //{
+        //    _deviceConnections.TryGetValue(deviceId, out DeviceDescription device);
+        //    return device;
+        //}
 
-        internal static async Task<RemoteDevice> EstablishRemoteConnection(string deviceId, byte channelNo)
-        {
-            try
-            {
-                RemoteDevice device = RemoteDeviceConnectionsService.FindInitializedDevice(deviceId);
+        //internal static async Task<RemoteDevice> EstablishRemoteConnection(string deviceId, byte channelNo)
+        //{
+        //    try
+        //    {
+        //        RemoteDevice device = RemoteDeviceConnectionsService.FindInitializedDevice(deviceId);
 
-                if (device != null)
-                {
-                    await device.Initialize();
-                }
-                else
-                {
-                    var deviceDescr = FindDeviceDescription(deviceId);
-                    if (deviceDescr == null)
-                        return null;
+        //        if (device != null)
+        //        {
+        //            await device.Initialize();
+        //        }
+        //        else
+        //        {
+        //            var deviceDescr = FindDeviceDescription(deviceId);
+        //            if (deviceDescr == null)
+        //                return null;
 
-                    // call Hideez Client to make remote channel
-                    await deviceDescr.Connection.EstablishRemoteDeviceConnection(deviceId, channelNo);
+        //            // call Hideez Client to make remote channel
+        //            await deviceDescr.Connection.EstablishRemoteDeviceConnection(deviceId, channelNo);
 
-                    device = await RemoteDeviceConnectionsService.WaitDeviceConnection(deviceId, channelNo, timeout: 20_000);
-                }
+        //            device = await RemoteDeviceConnectionsService.WaitDeviceConnection(deviceId, channelNo, timeout: 20_000);
+        //        }
 
-                return device;
-            }
-            catch (Exception ex)
-            {
-                throw new HubException(ex.Message);
-            }
-        }
+        //        return device;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new HubException(ex.Message);
+        //    }
+        //}
 
-        public static bool IsDeviceConnectedToHost(string deviceId)
-        {
-            var device = FindDeviceDescription(deviceId);
-            return device != null;
-        }
+        //public static bool IsDeviceConnectedToHost(string deviceId)
+        //{
+        //    var device = FindDeviceDescription(deviceId);
+        //    return device != null;
+        //}
 
         // Incomming request
         public async Task<DeviceInfoDto> GetInfoByRfid(string rfid)
@@ -231,7 +233,7 @@ namespace HES.Core.Hubs
             return await GetDeviceInfo(device);
         }
 
-        private async Task<DeviceInfoDto> GetDeviceInfo(Device device)
+        async Task<DeviceInfoDto> GetDeviceInfo(Device device)
         {
             if (device == null)
                 return null;
@@ -264,7 +266,8 @@ namespace HES.Core.Hubs
                 //if (true) //conection not approved
                 //throw new HideezException(HideezErrorCode.HesWorkstationNotApproved);
 
-                var remoteDevice = await EstablishRemoteConnection(deviceId, 4);
+                //var remoteDevice = await EstablishRemoteConnection(deviceId, 4);
+                var remoteDevice  = await RemoteDeviceConnectionsService.Connect(deviceId, 4);
                 if (remoteDevice == null)
                     throw new HideezException(HideezErrorCode.HesFailedEstablishRemoteDeviceConnection);
 
@@ -280,47 +283,85 @@ namespace HES.Core.Hubs
                 // Getting device info
                 await remoteDevice.Initialize();
 
-                // Access 
-                if (remoteDevice.AccessLevel.IsMasterKeyRequired)
+                // unlocking the device 
+                if (remoteDevice.AccessLevel.IsLocked)
                 {
-                    if (device.DeviceAccessProfile == null)
-                        throw new HideezException(HideezErrorCode.HesEmptyDeviceAccessProfile);
-
-                    var accessParams = new AccessParams()
-                    {
-                        MasterKey_Bond = device.DeviceAccessProfile.MasterKeyBonding,
-                        MasterKey_Connect = device.DeviceAccessProfile.MasterKeyConnection,
-                        MasterKey_Link = device.DeviceAccessProfile.MasterKeyNewLink,
-                        MasterKey_Channel = device.DeviceAccessProfile.MasterKeyNewChannel,
-
-                        Button_Bond = device.DeviceAccessProfile.ButtonBonding,
-                        Button_Connect = device.DeviceAccessProfile.ButtonConnection,
-                        Button_Link = device.DeviceAccessProfile.ButtonNewLink,
-                        Button_Channel = device.DeviceAccessProfile.ButtonNewChannel,
-
-                        Pin_Bond = device.DeviceAccessProfile.PinBonding,
-                        Pin_Connect = device.DeviceAccessProfile.ButtonConnection,
-                        Pin_Link = device.DeviceAccessProfile.PinNewLink,
-                        Pin_Channel = device.DeviceAccessProfile.PinNewChannel,
-
-                        PinMinLength = device.DeviceAccessProfile.PinLength,
-                        PinMaxTries = device.DeviceAccessProfile.PinTryCount,
-                        MasterKeyExpirationPeriod = device.DeviceAccessProfile.MasterKeyExpiration,
-                        PinExpirationPeriod = device.DeviceAccessProfile.PinExpiration,
-                        ButtonExpirationPeriod = device.DeviceAccessProfile.ButtonExpiration,
-                    };
-
-                    if (string.IsNullOrWhiteSpace(device.MasterPassword))
-                        throw new HideezException(HideezErrorCode.HesEmptyMasterKey);
-
-                    var key = ConvertUtils.HexStringToBytes(_dataProtectionService.Unprotect(device.MasterPassword));
-
-                    await remoteDevice.Access(DateTime.UtcNow, key, accessParams);
+                    // execute the UnlockPin task
+                    await _remoteTaskService.ProcessTasksAsync(deviceId, TaskOperation.UnlockPin);
+                    await remoteDevice.RefreshDeviceInfo();
                 }
 
-                await _remoteTaskService.ProcessTasksAsync(deviceId);
+                // linking the device
+                if (remoteDevice.AccessLevel.IsLinkRequired)
+                {
+                    // execute the Link task
+                    await _remoteTaskService.ProcessTasksAsync(deviceId, TaskOperation.Link);
+                    await remoteDevice.RefreshDeviceInfo();
+
+                    // refresh MasterPassword field
+                    device = await _deviceService
+                        .Query()
+                        .Include(d => d.DeviceAccessProfile)
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(d => d.Id == deviceId);
+                }
+
+                // Access 
+                if (device.DeviceAccessProfile == null)
+                    throw new HideezException(HideezErrorCode.HesEmptyDeviceAccessProfile);
+
+                var accessParams = new AccessParams()
+                {
+                    MasterKey_Bond = device.DeviceAccessProfile.MasterKeyBonding,
+                    MasterKey_Connect = device.DeviceAccessProfile.MasterKeyConnection,
+                    MasterKey_Link = device.DeviceAccessProfile.MasterKeyNewLink,
+                    MasterKey_Channel = device.DeviceAccessProfile.MasterKeyNewChannel,
+
+                    Button_Bond = device.DeviceAccessProfile.ButtonBonding,
+                    Button_Connect = device.DeviceAccessProfile.ButtonConnection,
+                    Button_Link = device.DeviceAccessProfile.ButtonNewLink,
+                    Button_Channel = device.DeviceAccessProfile.ButtonNewChannel,
+
+                    Pin_Bond = device.DeviceAccessProfile.PinBonding,
+                    Pin_Connect = device.DeviceAccessProfile.ButtonConnection,
+                    Pin_Link = device.DeviceAccessProfile.PinNewLink,
+                    Pin_Channel = device.DeviceAccessProfile.PinNewChannel,
+
+                    PinMinLength = device.DeviceAccessProfile.PinLength,
+                    PinMaxTries = device.DeviceAccessProfile.PinTryCount,
+                    MasterKeyExpirationPeriod = device.DeviceAccessProfile.MasterKeyExpiration,
+                    PinExpirationPeriod = device.DeviceAccessProfile.PinExpiration,
+                    ButtonExpirationPeriod = device.DeviceAccessProfile.ButtonExpiration,
+                };
+
+                if (string.IsNullOrWhiteSpace(device.MasterPassword))
+                    throw new HideezException(HideezErrorCode.HesEmptyMasterKey);
+
+                var key = ConvertUtils.HexStringToBytes(_dataProtectionService.Unprotect(device.MasterPassword));
+
+                await remoteDevice.Access(DateTime.UtcNow, key, accessParams);
+
+                //todo - remove this block when FW will be fixed
+                {
+                    await remoteDevice.Initialize();
+                    if (remoteDevice.AccessLevel.IsMasterKeyRequired)
+                    {
+                        await remoteDevice.Access(DateTime.UtcNow, key, accessParams);
+                        await remoteDevice.Initialize();
+                    }
+                }
+
+                // all tasks processing
+                await _remoteTaskService.ProcessTasksAsync(deviceId, TaskOperation.None);
 
                 return HideezErrorInfo.Ok;
+            }
+            catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.ERR_KEY_WRONG)
+            {
+                Debug.WriteLine($"!!!!!!!!!!!!! FixDevice ERROR {ex.Message}");
+                _logger.LogCritical($"[{deviceId}] {ex.Message}");
+                await _employeeService.HandlingMasterPasswordErrorAsync(deviceId);
+                return new HideezErrorInfo(ex);
             }
             catch (Exception ex)
             {
@@ -339,12 +380,12 @@ namespace HES.Core.Hubs
         {
             try
             {
-                var workstationDesc = _workstationConnections.AddOrUpdate(workstationInfo.Id, new WorkstationDescription(Clients.Caller, workstationInfo.Id), (workstationId, oldDescr) =>
-                {
-                    return new WorkstationDescription(Clients.Caller, workstationId);
-                });
+                //var workstationDesc = _workstationConnections.AddOrUpdate(workstationInfo.Id, new WorkstationDescription(Clients.Caller, workstationInfo.Id), (workstationId, oldDescr) =>
+                //{
+                //    return new WorkstationDescription(Clients.Caller, workstationId);
+                //});
 
-                Context.Items.Add("WorkstationDesc", workstationDesc);
+                //Context.Items.Add("WorkstationDesc", workstationDesc);
 
                 if (await _workstationService.ExistAsync(w => w.Id == workstationInfo.Id))
                 {
@@ -389,40 +430,44 @@ namespace HES.Core.Hubs
         {
             _logger.LogDebug($"[{workstationId}] disconnected");
 
-            _workstationConnections.TryRemove(workstationId, out WorkstationDescription workstation);
+            //_workstationConnections.TryRemove(workstationId, out WorkstationDescription workstation);
 
             return Task.CompletedTask;
         }
 
-        private WorkstationDescription GetWorkstation()
-        {
-            if (Context.Items.TryGetValue("WorkstationDesc", out object workstation))
-                return workstation as WorkstationDescription;
-            else
-                return null;
-        }
+        //private WorkstationDescription GetWorkstation()
+        //{
+        //    if (Context.Items.TryGetValue("WorkstationDesc", out object workstation))
+        //        return workstation as WorkstationDescription;
+        //    else
+        //        return null;
+        //}
 
-        private static WorkstationDescription FindWorkstationDescription(string workstationId)
-        {
-            _workstationConnections.TryGetValue(workstationId, out WorkstationDescription workstation);
-            return workstation;
-        }
+        //private static WorkstationDescription FindWorkstationDescription(string workstationId)
+        //{
+        //    _workstationConnections.TryGetValue(workstationId, out WorkstationDescription workstation);
+        //    return workstation;
+        //}
 
         public static bool IsWorkstationConnectedToHost(string workstationId)
         {
-            var workstation = FindWorkstationDescription(workstationId);
-            return workstation != null;
+            //todo
+            return false;
+            //var workstation = FindWorkstationDescription(workstationId);
+            //return workstation != null;
         }
 
-        public static async Task UpdateProximitySettings(string workstationId, IReadOnlyList<DeviceProximitySettingsDto> deviceProximitySettings)
+        public static Task UpdateProximitySettings(string workstationId, IReadOnlyList<DeviceProximitySettingsDto> deviceProximitySettings)
         {
             try
             {
-                var workstation = FindWorkstationDescription(workstationId);
-                if (workstation != null)
-                {
-                    await workstation.Connection.UpdateProximitySettings(deviceProximitySettings);
-                }
+                //todo
+                //var workstation = FindWorkstationDescription(workstationId);
+                //if (workstation != null)
+                //{
+                //    await workstation.Connection.UpdateProximitySettings(deviceProximitySettings);
+                //}
+                return Task.CompletedTask;
             }
             catch (Exception ex)
             {
@@ -430,15 +475,17 @@ namespace HES.Core.Hubs
             }
         }
 
-        public static async Task UpdateRfidIndicatorState(string workstationId, bool isEnabled)
+        public static Task UpdateRfidIndicatorState(string workstationId, bool isEnabled)
         {
             try
             {
-                var workstation = FindWorkstationDescription(workstationId);
-                if (workstation != null)
-                {
-                    await workstation.Connection.UpdateRFIDIndicatorState(isEnabled);
-                }
+                //todo
+                //var workstation = FindWorkstationDescription(workstationId);
+                //if (workstation != null)
+                //{
+                //    await workstation.Connection.UpdateRFIDIndicatorState(isEnabled);
+                //}
+                return Task.CompletedTask;
             }
             catch (Exception ex)
             {

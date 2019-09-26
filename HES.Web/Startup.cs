@@ -91,12 +91,12 @@ namespace HES.Web
             {
                 var scope = s.CreateScope();
                 var logger = scope.ServiceProvider.GetService<ILogger<RemoteDeviceConnectionsService>>();
-                var deviceService = scope.ServiceProvider.GetService<IDeviceService>();
-                var employeeService = scope.ServiceProvider.GetService<IEmployeeService>();
+                //var deviceService = scope.ServiceProvider.GetService<IDeviceService>();
+                //var employeeService = scope.ServiceProvider.GetService<IEmployeeService>();
                 var dataProtectionService = scope.ServiceProvider.GetService<IDataProtectionService>();
                 return new RemoteDeviceConnectionsService(logger,
-                                                          deviceService,
-                                                          employeeService,
+                                                          //deviceService,
+                                                          //employeeService,
                                                           dataProtectionService);
             });
             services.AddSingleton<IRemoteTaskService, RemoteTaskService>(s =>
