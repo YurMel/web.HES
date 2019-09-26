@@ -78,6 +78,11 @@ namespace HES.Core.Services
             return await _sharedAccountRepository.AddAsync(sharedAccount);
         }
 
+        public async Task UpdateOnlyPropAsync(SharedAccount sharedAccount, string[] properties)
+        {
+            await _sharedAccountRepository.UpdateOnlyPropAsync(sharedAccount, properties);
+        }
+
         public async Task<List<string>> EditSharedAccountAsync(SharedAccount sharedAccount)
         {
             _dataProtectionService.Validate();

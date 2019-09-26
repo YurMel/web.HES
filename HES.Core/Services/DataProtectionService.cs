@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 
@@ -26,8 +25,8 @@ namespace HES.Core.Services
         private readonly IAsyncRepository<Device> _deviceRepository;
         private readonly IAsyncRepository<DeviceTask> _deviceTaskRepository;
         private readonly IAsyncRepository<SharedAccount> _sharedAccountRepository;
-        private readonly IDataProtectionProvider _dataProtectionProvider;
         private readonly INotificationService _notificationService;
+        private readonly IDataProtectionProvider _dataProtectionProvider;
         private readonly ILogger<DataProtectionService> _logger;
         private IDataProtector _dataProtector;
         private bool _enabledProtection;
@@ -43,7 +42,7 @@ namespace HES.Core.Services
                                      ILogger<DataProtectionService> logger)
         {
             _dataProtectionRepository = dataProtectionRepository;
-            _deviceRepository = deviceRepository;
+            _deviceRepository = deviceRepository; 
             _deviceTaskRepository = deviceTaskRepository;
             _sharedAccountRepository = sharedAccountRepository;
             _dataProtectionProvider = dataProtectionProvider;
@@ -322,7 +321,7 @@ namespace HES.Core.Services
         private async Task ProtectAllDataAsync()
         {
             _logger.LogDebug($"Devices stage");
-            var devices = await _deviceRepository.Query().AsNoTracking().ToListAsync();
+            var devices = await _deviceRepository.Query().ToListAsync();
             foreach (var device in devices)
             {
                 if (device.MasterPassword != null)
@@ -333,7 +332,7 @@ namespace HES.Core.Services
             }
 
             _logger.LogDebug($"DeviceTasks stage");
-            var deviceTasks = await _deviceTaskRepository.Query().AsNoTracking().ToListAsync();
+            var deviceTasks = await _deviceTaskRepository.Query().ToListAsync();
             foreach (var task in deviceTasks)
             {
                 var taskProperties = new List<string>();
@@ -351,7 +350,7 @@ namespace HES.Core.Services
             }
 
             _logger.LogDebug($"SharedAccounts stage");
-            var sharedAccounts = await _sharedAccountRepository.Query().AsNoTracking().ToListAsync();
+            var sharedAccounts = await _sharedAccountRepository.Query().ToListAsync();
             foreach (var account in sharedAccounts)
             {
                 var accountProperties = new List<string>();
@@ -374,7 +373,7 @@ namespace HES.Core.Services
             try
             {
                 _logger.LogDebug($"Devices stage");
-                var devices = await _deviceRepository.Query().AsNoTracking().ToListAsync();
+                var devices = await _deviceRepository.Query().ToListAsync();
                 foreach (var device in devices)
                 {
                     if (device.MasterPassword != null)
@@ -385,7 +384,7 @@ namespace HES.Core.Services
                 }
 
                 _logger.LogDebug($"DeviceTasks stage");
-                var deviceTasks = await _deviceTaskRepository.Query().AsNoTracking().ToListAsync();
+                var deviceTasks = await _deviceTaskRepository.Query().ToListAsync();
                 foreach (var task in deviceTasks)
                 {
                     var taskProperties = new List<string>();
@@ -403,7 +402,7 @@ namespace HES.Core.Services
                 }
 
                 _logger.LogDebug($"SharedAccounts stage");
-                var sharedAccounts = await _sharedAccountRepository.Query().AsNoTracking().ToListAsync();
+                var sharedAccounts = await _sharedAccountRepository.Query().ToListAsync();
                 foreach (var account in sharedAccounts)
                 {
                     var accountProperties = new List<string>();

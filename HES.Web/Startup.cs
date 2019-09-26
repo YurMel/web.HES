@@ -69,21 +69,42 @@ namespace HES.Web
 
             // Add Services
             services.AddScoped(typeof(IAsyncRepository<>), typeof(Repository<>));
+
             services.AddScoped<IEmployeeService, EmployeeService>();
-            services.AddScoped<IWorkstationService, WorkstationService>();
-            services.AddScoped<IWorkstationEventService, WorkstationEventService>();
+
             services.AddScoped<IWorkstationSessionService, WorkstationSessionService>();
-            services.AddScoped<IWorkstationProximityDeviceService, WorkstationProximityDeviceService>();
 
             services.AddScoped<IDeviceService, DeviceService>();
             services.AddScoped<IDeviceTaskService, DeviceTaskService>();
             services.AddScoped<IDeviceAccountService, DeviceAccountService>();
             services.AddScoped<IDeviceAccessProfilesService, DeviceAccessProfilesService>();
 
+            services.AddScoped<IWorkstationService, WorkstationService>();
+            services.AddScoped<IWorkstationProximityDeviceService, WorkstationProximityDeviceService>();
+            services.AddScoped<IWorkstationEventService, WorkstationEventService>();
+
             services.AddScoped<ISharedAccountService, SharedAccountService>();
             services.AddScoped<ITemplateService, TemplateService>();
 
             services.AddScoped<IApplicationUserService, ApplicationUserService>();
+            services.AddSingleton<IDataProtectionService, DataProtectionService>(s =>
+            {
+                var scope = s.CreateScope();
+                var dataProtectionRepository = scope.ServiceProvider.GetService<IAsyncRepository<DataProtection>>();
+                var deviceRepository = scope.ServiceProvider.GetService<IAsyncRepository<Device>>();
+                var deviceTaskRepository = scope.ServiceProvider.GetService<IAsyncRepository<DeviceTask>>();
+                var sharedAccountRepository = scope.ServiceProvider.GetService<IAsyncRepository<SharedAccount>>();
+                var dataProtectionProvider = scope.ServiceProvider.GetService<IDataProtectionProvider>();
+                var notificationService = scope.ServiceProvider.GetService<INotificationService>();               
+                var logger = scope.ServiceProvider.GetService<ILogger<DataProtectionService>>();
+                return new DataProtectionService(dataProtectionRepository,
+                                                 deviceRepository,
+                                                 deviceTaskRepository,
+                                                 sharedAccountRepository,
+                                                 dataProtectionProvider,
+                                                 notificationService,
+                                                 logger);
+            });
             services.AddScoped<IOrgStructureService, OrgStructureService>();
             services.AddScoped<ISamlIdentityProviderService, SamlIdentityProviderService>();
 
@@ -99,6 +120,7 @@ namespace HES.Web
                                                           employeeService,
                                                           dataProtectionService);
             });
+
             services.AddSingleton<IRemoteTaskService, RemoteTaskService>(s =>
             {
                 var scope = s.CreateScope();
@@ -118,24 +140,6 @@ namespace HES.Web
                                             dataProtectionRepository,
                                             deviceAccessProfilesService,
                                             hubContext);
-            });
-            services.AddSingleton<IDataProtectionService, DataProtectionService>(s =>
-            {
-                var scope = s.CreateScope();
-                var dataProtectionRepository = scope.ServiceProvider.GetService<IAsyncRepository<DataProtection>>();
-                var sharedAccountRepository = scope.ServiceProvider.GetService<IAsyncRepository<SharedAccount>>();
-                var deviceTaskRepository = scope.ServiceProvider.GetService<IAsyncRepository<DeviceTask>>();
-                var deviceRepository = scope.ServiceProvider.GetService<IAsyncRepository<Device>>();
-                var dataProtectionProvider = scope.ServiceProvider.GetService<IDataProtectionProvider>();
-                var notificationService = scope.ServiceProvider.GetService<INotificationService>();               
-                var logger = scope.ServiceProvider.GetService<ILogger<DataProtectionService>>();
-                return new DataProtectionService(dataProtectionRepository,
-                                                 deviceRepository,
-                                                 deviceTaskRepository,
-                                                 sharedAccountRepository,
-                                                 dataProtectionProvider,
-                                                 notificationService,
-                                                 logger);
             });
 
             services.AddScoped<IAppService, AppService>();

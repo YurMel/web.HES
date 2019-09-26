@@ -12,6 +12,7 @@ namespace HES.Core.Interfaces
         IQueryable<SharedAccount> Query();
         Task<SharedAccount> GetByIdAsync(dynamic id);
         Task<SharedAccount> CreateSharedAccountAsync(SharedAccount sharedAccount, InputModel input);
+        Task UpdateOnlyPropAsync(SharedAccount sharedAccount, string[] properties);
         Task<List<string>> EditSharedAccountAsync(SharedAccount sharedAccount);
         Task<List<string>> EditSharedAccountPwdAsync(SharedAccount sharedAccount, InputModel input);
         Task<List<string>> EditSharedAccountOtpAsync(SharedAccount sharedAccount, InputModel input);

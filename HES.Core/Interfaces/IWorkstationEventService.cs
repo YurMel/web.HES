@@ -7,7 +7,7 @@ namespace HES.Core.Interfaces
 {
     public interface IWorkstationEventService
     {
-        IQueryable<WorkstationEvent> WorkstationEventQuery();
+        IQueryable<WorkstationEvent> Query();
         IQueryable<Workstation> WorkstationQuery();
         IQueryable<Device> DeviceQuery();
         IQueryable<Employee> EmployeeQuery();

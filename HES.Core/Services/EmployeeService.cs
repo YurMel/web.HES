@@ -19,16 +19,9 @@ namespace HES.Core.Services
         private readonly IDeviceService _deviceService;
         private readonly IDeviceTaskService _deviceTaskService;
         private readonly IDeviceAccountService _deviceAccountService;
+        private readonly ISharedAccountService _sharedAccountService;
         private readonly IWorkstationProximityDeviceService _workstationProximityDeviceService;
 
-        private readonly IAsyncRepository<Device> _deviceRepository;
-        private readonly IAsyncRepository<DeviceAccount> _deviceAccountRepository;
-        private readonly IAsyncRepository<DeviceTask> _deviceTaskRepository;
-        private readonly IAsyncRepository<SharedAccount> _sharedAccountRepository;
-        private readonly IAsyncRepository<Template> _templateRepository;
-        private readonly IAsyncRepository<Company> _companyRepository;
-        private readonly IAsyncRepository<Department> _departmentRepository;
-        private readonly IAsyncRepository<Position> _positionRepository;
         private readonly IAsyncRepository<WorkstationEvent> _workstationEventRepository;
         private readonly IAsyncRepository<WorkstationSession> _workstationSessionRepository;
         private readonly IRemoteTaskService _remoteTaskService;
@@ -39,16 +32,9 @@ namespace HES.Core.Services
                                IDeviceService deviceService,
                                IDeviceTaskService deviceTaskService,
                                IDeviceAccountService deviceAccountService,
+                               ISharedAccountService sharedAccountService,
                                IWorkstationProximityDeviceService workstationProximityDeviceService,
 
-                               IAsyncRepository<Device> deviceRepository,
-                               IAsyncRepository<DeviceAccount> deviceAccountRepository,
-                               IAsyncRepository<DeviceTask> deviceTaskRepository,
-                               IAsyncRepository<SharedAccount> sharedAccountRepository,
-                               IAsyncRepository<Template> templateRepository,
-                               IAsyncRepository<Company> companyRepository,
-                               IAsyncRepository<Department> departmentRepository,
-                               IAsyncRepository<Position> positionRepository,
                                IAsyncRepository<WorkstationEvent> workstationEventRepository,
                                IAsyncRepository<WorkstationSession> workstationSessionRepository,
                                IRemoteTaskService remoteTaskService,
@@ -59,16 +45,9 @@ namespace HES.Core.Services
             _deviceService = deviceService;
             _deviceTaskService = deviceTaskService;
             _deviceAccountService = deviceAccountService;
+            _sharedAccountService = sharedAccountService;
             _workstationProximityDeviceService = workstationProximityDeviceService;
 
-            _deviceRepository = deviceRepository;
-            _deviceAccountRepository = deviceAccountRepository;
-            _deviceTaskRepository = deviceTaskRepository;
-            _sharedAccountRepository = sharedAccountRepository;
-            _templateRepository = templateRepository;
-            _companyRepository = companyRepository;
-            _departmentRepository = departmentRepository;
-            _positionRepository = positionRepository;
             _workstationEventRepository = workstationEventRepository;
             _workstationSessionRepository = workstationSessionRepository;
             _remoteTaskService = remoteTaskService;
@@ -76,79 +55,14 @@ namespace HES.Core.Services
             _samlIdentityProviderService = samlIdentityProviderService;
         }
 
-        public IQueryable<Employee> EmployeeQuery()
+        public IQueryable<Employee> Query()
         {
             return _employeeRepository.Query();
         }
 
-        public IQueryable<Device> DeviceQuery()
-        {
-            return _deviceRepository.Query();
-        }
-
-        public IQueryable<DeviceAccount> DeviceAccountQuery()
-        {
-            return _deviceAccountRepository.Query();
-        }
-
-        public IQueryable<DeviceTask> DeviceTaskQuery()
-        {
-            return _deviceTaskRepository.Query();
-        }
-
-        public IQueryable<SharedAccount> SharedAccountQuery()
-        {
-            return _sharedAccountRepository.Query();
-        }
-
-        public IQueryable<Template> TemplateQuery()
-        {
-            return _templateRepository.Query();
-        }
-
-        public IQueryable<Company> CompanyQuery()
-        {
-            return _companyRepository.Query();
-        }
-
-        public IQueryable<Department> DepartmentQuery()
-        {
-            return _departmentRepository.Query();
-        }
-
-        public IQueryable<Position> PositionQuery()
-        {
-            return _positionRepository.Query();
-        }
-
-        public async Task<Employee> EmployeeGetByIdAsync(dynamic id)
+        public async Task<Employee> GetByIdAsync(dynamic id)
         {
             return await _employeeRepository.GetByIdAsync(id);
-        }
-
-        public async Task<Device> DeviceGetByIdAsync(dynamic id)
-        {
-            return await _deviceRepository.GetByIdAsync(id);
-        }
-
-        public async Task<DeviceAccount> DeviceAccountGetByIdAsync(dynamic id)
-        {
-            return await _deviceAccountRepository.GetByIdAsync(id);
-        }
-
-        public async Task<DeviceTask> DeviceTaskGetByIdAsync(dynamic id)
-        {
-            return await _deviceTaskRepository.GetByIdAsync(id);
-        }
-
-        public async Task<SharedAccount> SharedAccountGetByIdAsync(dynamic id)
-        {
-            return await _sharedAccountRepository.GetByIdAsync(id);
-        }
-
-        public async Task<Template> TemplateGetByIdAsync(dynamic id)
-        {
-            return await _templateRepository.GetByIdAsync(id);
         }
 
         public async Task<Employee> CreateEmployeeAsync(Employee employee)
@@ -193,8 +107,7 @@ namespace HES.Core.Services
             var allSessions = await _workstationSessionRepository.Query().Where(s => s.EmployeeId == id).ToListAsync();
             await _workstationSessionRepository.DeleteRangeAsync(allSessions);
             // Remove all accounts
-            var allAccounts = await _deviceAccountRepository.Query().Where(t => t.EmployeeId == id).ToListAsync();
-            await _deviceAccountRepository.DeleteRangeAsync(allAccounts);
+            await _deviceAccountService.RemoveAllByEmployeeIdAsync(id);
 
             await _employeeRepository.DeleteAsync(employee);
         }
@@ -214,7 +127,7 @@ namespace HES.Core.Services
                 throw new ArgumentNullException(nameof(employee));
             }
 
-            var device = await _deviceRepository.GetByIdAsync(deviceId);
+            var device = await _deviceService.GetByIdAsync(deviceId);
             if (device == null)
             {
                 throw new ArgumentNullException(nameof(device));
@@ -260,7 +173,7 @@ namespace HES.Core.Services
             };
 
             // Add account
-            await _deviceAccountRepository.AddAsync(deviceAccount);
+            await _deviceAccountService.AddAsync(deviceAccount);
 
             try
             {
@@ -270,7 +183,7 @@ namespace HES.Core.Services
             catch (Exception)
             {
                 // Remove account
-                await _deviceAccountRepository.DeleteAsync(deviceAccount);
+                await _deviceAccountService.DeleteAsync(deviceAccount);
                 throw;
             }
 
@@ -286,7 +199,7 @@ namespace HES.Core.Services
             {
                 throw new ArgumentNullException(nameof(employee));
             }
-            var deviceAccount = await _deviceAccountRepository
+            var deviceAccount = await _deviceAccountService
              .Query()
              .Where(d => d.EmployeeId == employee.Id && d.Name == SamlIdentityProvider.DeviceAccountName)
              .FirstOrDefaultAsync();
@@ -295,7 +208,7 @@ namespace HES.Core.Services
             deviceAccount.Status = AccountStatus.Updating;
             deviceAccount.UpdatedAt = DateTime.UtcNow;
             string[] properties = { "Status", "UpdatedAt" };
-            await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties);
+            await _deviceAccountService.UpdateOnlyPropAsync(deviceAccount, properties);
 
             // Create Device Task
             try
@@ -312,7 +225,7 @@ namespace HES.Core.Services
             catch (Exception)
             {
                 deviceAccount.Status = AccountStatus.Error;
-                await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties);
+                await _deviceAccountService.UpdateOnlyPropAsync(deviceAccount, properties);
                 throw;
             }
 
@@ -328,12 +241,12 @@ namespace HES.Core.Services
             {
                 throw new ArgumentNullException(nameof(employee));
             }
-            var deviceAccount = await _deviceAccountRepository
+            var deviceAccount = await _deviceAccountService
              .Query()
              .Where(d => d.EmployeeId == employee.Id && d.Name == SamlIdentityProvider.DeviceAccountName)
              .FirstOrDefaultAsync();
 
-            var task = await _deviceTaskRepository
+            var task = await _deviceTaskService
                 .Query()
                 .AsNoTracking()
                 .Where(d => d.DeviceAccountId == deviceAccount.Id && _dataProtectionService.Unprotect(d.OtpSecret) == otp)
@@ -348,7 +261,7 @@ namespace HES.Core.Services
             deviceAccount.Status = AccountStatus.Updating;
             deviceAccount.UpdatedAt = DateTime.UtcNow;
             string[] properties = { "Status", "UpdatedAt" };
-            await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties);
+            await _deviceAccountService.UpdateOnlyPropAsync(deviceAccount, properties);
 
             // Create Device Task
             try
@@ -365,7 +278,7 @@ namespace HES.Core.Services
             catch (Exception)
             {
                 deviceAccount.Status = AccountStatus.Error;
-                await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties);
+                await _deviceAccountService.UpdateOnlyPropAsync(deviceAccount, properties);
                 throw;
             }
 
@@ -376,7 +289,7 @@ namespace HES.Core.Services
         {
             _dataProtectionService.Validate();
 
-            var deviceAccounts = await _deviceAccountRepository
+            var deviceAccounts = await _deviceAccountService
              .Query()
              .Where(d => d.Name == SamlIdentityProvider.DeviceAccountName && d.Deleted == false)
              .ToListAsync();
@@ -390,7 +303,7 @@ namespace HES.Core.Services
                 account.Status = AccountStatus.Updating;
                 account.UpdatedAt = DateTime.UtcNow;
                 string[] properties = { "Status", "UpdatedAt" };
-                await _deviceAccountRepository.UpdateOnlyPropAsync(account, properties);
+                await _deviceAccountService.UpdateOnlyPropAsync(account, properties);
 
                 // Create Device Task
                 try
@@ -407,7 +320,7 @@ namespace HES.Core.Services
                 catch (Exception)
                 {
                     account.Status = AccountStatus.Error;
-                    await _deviceAccountRepository.UpdateOnlyPropAsync(account, properties);
+                    await _deviceAccountService.UpdateOnlyPropAsync(account, properties);
                     throw;
                 }
             }
@@ -428,7 +341,7 @@ namespace HES.Core.Services
                 throw new Exception("Employee not found.");
             }
 
-            var account = await _deviceAccountRepository
+            var account = await _deviceAccountService
                 .Query()
                 .Where(d => d.EmployeeId == employeeId && d.Name == SamlIdentityProvider.DeviceAccountName)
                 .FirstOrDefaultAsync();
@@ -447,19 +360,19 @@ namespace HES.Core.Services
             if (deviceAccountId == null)
                 throw new ArgumentNullException(nameof(deviceAccountId));
 
-            var device = await _deviceRepository.GetByIdAsync(deviceId);
+            var device = await _deviceService.GetByIdAsync(deviceId);
             if (device == null)
                 throw new Exception($"Device not found, ID: {deviceId}");
 
             // Update Device Account
-            var deviceAccount = await _deviceAccountRepository.GetByIdAsync(deviceAccountId);
+            var deviceAccount = await _deviceAccountService.GetByIdAsync(deviceAccountId);
             if (deviceAccount == null)
                 throw new Exception($"DeviceAccount not found, ID: {deviceAccountId}");
 
             deviceAccount.Status = AccountStatus.Updating;
             deviceAccount.UpdatedAt = DateTime.UtcNow;
             string[] properties = { "Status", "UpdatedAt" };
-            await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties);
+            await _deviceAccountService.UpdateOnlyPropAsync(deviceAccount, properties);
 
             // Add task
             await _remoteTaskService.AddTaskAsync(new DeviceTask()
@@ -483,7 +396,7 @@ namespace HES.Core.Services
 
             foreach (var deviceId in selectedDevices)
             {
-                var device = await _deviceRepository.GetByIdAsync(deviceId);
+                var device = await _deviceService.GetByIdAsync(deviceId);
                 if (device == null)
                     throw new Exception($"Device not found, ID: {deviceId}");
 
@@ -493,7 +406,7 @@ namespace HES.Core.Services
                 var masterPassword = GenerateMasterPassword();
 
                 device.EmployeeId = employeeId;
-                await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "EmployeeId" });
+                await _deviceService.UpdateOnlyPropAsync(device, new string[] { "EmployeeId" });
 
                 await _remoteTaskService.AddTaskAsync(new DeviceTask
                 {
@@ -511,7 +424,7 @@ namespace HES.Core.Services
         {
             _dataProtectionService.Validate();
 
-            var device = await _deviceRepository.GetByIdAsync(deviceId);
+            var device = await _deviceService.GetByIdAsync(deviceId);
             if (device == null)
                 throw new Exception($"Device not found, ID: {deviceId}");
 
@@ -519,22 +432,10 @@ namespace HES.Core.Services
                 throw new Exception($"Device {deviceId} not linked to employee");
 
             // Remove all tasks
-            var allTasks = await _deviceTaskRepository
-                .Query()
-                .Where(t => t.DeviceId == deviceId)
-                .ToListAsync();
-            await _deviceTaskRepository.DeleteRangeAsync(allTasks);
+            await _deviceTaskService.RemoveAllTasksAsync(deviceId);
 
             // Remove all accounts
-            var allAccounts = await _deviceAccountRepository
-                .Query()
-                .Where(d => d.DeviceId == deviceId)
-                .ToListAsync();
-            foreach (var account in allAccounts)
-            {
-                account.Deleted = true;
-            }
-            await _deviceAccountRepository.UpdateOnlyPropAsync(allAccounts, new string[] { "Deleted" });
+            await _deviceAccountService.RemoveAllByDeviceIdAsync(deviceId);
 
             // Remove proximity device
             var allProximityDevices = await _workstationProximityDeviceService
@@ -546,7 +447,7 @@ namespace HES.Core.Services
             // Remove employee from device
             device.EmployeeId = null;
             device.PrimaryAccountId = null;
-            await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "EmployeeId", "PrimaryAccountId" });
+            await _deviceService.UpdateOnlyPropAsync(device, new string[] { "EmployeeId", "PrimaryAccountId" });
 
             await _remoteTaskService.RemoveDeviceAsync(device);
 
@@ -609,7 +510,7 @@ namespace HES.Core.Services
 
             foreach (var deviceId in selectedDevices)
             {
-                var exist = await _deviceAccountRepository
+                var exist = await _deviceAccountService
                     .Query()
                     .Where(s => s.Name == deviceAccount.Name)
                     .Where(s => s.Login == deviceAccount.Login)
@@ -688,7 +589,7 @@ namespace HES.Core.Services
                 await SetAsPrimaryIfEmpty(deviceId, deviceAccountId);
             }
 
-            await _deviceAccountRepository.AddRangeAsync(accounts);
+            await _deviceAccountService.AddRangeAsync(accounts);
 
             try
             {
@@ -696,7 +597,7 @@ namespace HES.Core.Services
             }
             catch (Exception)
             {
-                await _deviceAccountRepository.DeleteRangeAsync(accounts);
+                await _deviceAccountService.DeleteRangeAsync(accounts);
                 throw;
             }
 
@@ -710,7 +611,7 @@ namespace HES.Core.Services
             if (deviceAccount == null)
                 throw new ArgumentNullException(nameof(deviceAccount));
 
-            var exist = await _deviceAccountRepository
+            var exist = await _deviceAccountService
                 .Query()
                 .Where(s => s.Name == deviceAccount.Name)
                 .Where(s => s.Login == deviceAccount.Login)
@@ -755,7 +656,7 @@ namespace HES.Core.Services
             deviceAccount.Status = AccountStatus.Updating;
             deviceAccount.UpdatedAt = DateTime.UtcNow;
             string[] properties = { "Status", "UpdatedAt" };
-            await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties);
+            await _deviceAccountService.UpdateOnlyPropAsync(deviceAccount, properties);
 
             // Create Device Task
             try
@@ -777,7 +678,7 @@ namespace HES.Core.Services
             catch (Exception)
             {
                 deviceAccount.Status = AccountStatus.Error;
-                await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties);
+                await _deviceAccountService.UpdateOnlyPropAsync(deviceAccount, properties);
                 throw;
             }
 
@@ -798,7 +699,7 @@ namespace HES.Core.Services
             deviceAccount.Status = AccountStatus.Updating;
             deviceAccount.UpdatedAt = DateTime.UtcNow;
             string[] properties = { "Status", "UpdatedAt" };
-            await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties);
+            await _deviceAccountService.UpdateOnlyPropAsync(deviceAccount, properties);
 
             // Create Device Task
             try
@@ -815,7 +716,7 @@ namespace HES.Core.Services
             catch (Exception)
             {
                 deviceAccount.Status = AccountStatus.Error;
-                await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties);
+                await _deviceAccountService.UpdateOnlyPropAsync(deviceAccount, properties);
                 throw;
             }
 
@@ -834,7 +735,7 @@ namespace HES.Core.Services
             deviceAccount.UpdatedAt = DateTime.UtcNow;
             deviceAccount.OtpUpdatedAt = DateTime.UtcNow;
             string[] properties = { "Status", "UpdatedAt", "OtpUpdatedAt" };
-            await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties);
+            await _deviceAccountService.UpdateOnlyPropAsync(deviceAccount, properties);
 
             // Create Device Task
             try
@@ -851,7 +752,7 @@ namespace HES.Core.Services
             catch (Exception)
             {
                 deviceAccount.Status = AccountStatus.Error;
-                await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties);
+                await _deviceAccountService.UpdateOnlyPropAsync(deviceAccount, properties);
                 throw;
             }
 
@@ -878,11 +779,11 @@ namespace HES.Core.Services
             foreach (var deviceId in selectedDevices)
             {
                 // Get Shared Account
-                var sharedAccount = await _sharedAccountRepository.GetByIdAsync(sharedAccountId);
+                var sharedAccount = await _sharedAccountService.GetByIdAsync(sharedAccountId);
                 if (sharedAccount == null)
                     throw new Exception("SharedAccount not found");
 
-                var exist = await _deviceAccountRepository
+                var exist = await _deviceAccountService
                     .Query()
                     .Where(s => s.Name == sharedAccount.Name)
                     .Where(s => s.Login == sharedAccount.Login)
@@ -931,14 +832,14 @@ namespace HES.Core.Services
                 await SetAsPrimaryIfEmpty(deviceId, deviceAccountId);
             }
 
-            await _deviceAccountRepository.AddRangeAsync(accounts);
+            await _deviceAccountService.AddRangeAsync(accounts);
             try
             {
                 await _remoteTaskService.AddRangeAsync(tasks);
             }
             catch (Exception)
             {
-                await _deviceAccountRepository.DeleteRangeAsync(accounts);
+                await _deviceAccountService.DeleteRangeAsync(accounts);
                 throw;
             }
 
@@ -952,7 +853,7 @@ namespace HES.Core.Services
             if (accountId == null)
                 throw new ArgumentNullException(nameof(accountId));
 
-            var deviceAccount = await _deviceAccountRepository.GetByIdAsync(accountId);
+            var deviceAccount = await _deviceAccountService.GetByIdAsync(accountId);
             if (deviceAccount == null)
                 throw new Exception("Device account not found");
 
@@ -960,7 +861,7 @@ namespace HES.Core.Services
             deviceAccount.Status = AccountStatus.Removing;
             deviceAccount.UpdatedAt = DateTime.UtcNow;
             string[] properties = { "Status", "UpdatedAt" };
-            await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties);
+            await _deviceAccountService.UpdateOnlyPropAsync(deviceAccount, properties);
 
             try
             {
@@ -976,7 +877,7 @@ namespace HES.Core.Services
             catch (Exception)
             {
                 deviceAccount.Status = AccountStatus.Error;
-                await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties);
+                await _deviceAccountService.UpdateOnlyPropAsync(deviceAccount, properties);
                 throw;
             }
 
@@ -995,12 +896,12 @@ namespace HES.Core.Services
 
         private async Task SetAsPrimaryIfEmpty(string deviceId, string deviceAccountId)
         {
-            var device = await _deviceRepository.GetByIdAsync(deviceId);
+            var device = await _deviceService.GetByIdAsync(deviceId);
 
             if (device.PrimaryAccountId == null)
             {
                 device.PrimaryAccountId = deviceAccountId;
-                await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "PrimaryAccountId" });
+                await _deviceService.UpdateOnlyPropAsync(device, new string[] { "PrimaryAccountId" });
             }
         }
 
@@ -1017,7 +918,7 @@ namespace HES.Core.Services
             await _deviceTaskService.RemoveAllTasksAsync(deviceId);
 
             // Remove all accounts
-            await _deviceAccountService.RemoveAllAccountsAsync(deviceId);
+            await _deviceAccountService.RemoveAllByDeviceIdAsync(deviceId);
 
             // Remove all proximity
             await _workstationProximityDeviceService.RemoveAllProximityAsync(deviceId);

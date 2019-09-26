@@ -18,12 +18,15 @@ namespace HES.Web.Pages.Employees
     public class DetailsModel : PageModel
     {
         private readonly IEmployeeService _employeeService;
+        private readonly IDeviceService _deviceService;
+        private readonly IDeviceAccountService _deviceAccountService;
+        private readonly ISharedAccountService _sharedAccountService;
+        private readonly ITemplateService _templateService;
         private readonly ISamlIdentityProviderService _samlIdentityProviderService;
-        private readonly ILogger<DetailsModel> _logger;
-
         private readonly IApplicationUserService _applicationUserService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEmailSenderService _emailSender;
+        private readonly ILogger<DetailsModel> _logger;
 
         public IList<Device> Devices { get; set; }
         public IList<DeviceAccount> DeviceAccounts { get; set; }
@@ -43,18 +46,26 @@ namespace HES.Web.Pages.Employees
         public string ErrorMessage { get; set; }
 
         public DetailsModel(IEmployeeService employeeService,
+                            IDeviceService deviceService,
+                            IDeviceAccountService deviceAccountService,
+                            ISharedAccountService sharedAccountService,
+                            ITemplateService templateService,
                             ISamlIdentityProviderService samlIdentityProviderService,
-                            ILogger<DetailsModel> logger,
                             IApplicationUserService applicationUserService,
                             UserManager<ApplicationUser> userManager,
-                            IEmailSenderService emailSender)
+                            IEmailSenderService emailSender,
+                            ILogger<DetailsModel> logger)
         {
             _employeeService = employeeService;
+            _deviceService = deviceService;
+            _deviceAccountService = deviceAccountService;
+            _sharedAccountService = sharedAccountService;
+            _templateService = templateService;
             _samlIdentityProviderService = samlIdentityProviderService;
-            _logger = logger;
             _applicationUserService = applicationUserService;
             _userManager = userManager;
             _emailSender = emailSender;
+            _logger = logger;
         }
 
         public async Task<IActionResult> OnGetAsync(string id)
@@ -66,7 +77,7 @@ namespace HES.Web.Pages.Employees
             }
 
             Employee = await _employeeService
-                .EmployeeQuery()
+                .Query()
                 .Include(e => e.Department.Company)
                 .Include(e => e.Department)
                 .Include(e => e.Position)
@@ -79,7 +90,8 @@ namespace HES.Web.Pages.Employees
                 return NotFound();
             }
 
-            DeviceAccounts = await _employeeService.DeviceAccountQuery()
+            DeviceAccounts = await _deviceAccountService
+                .Query()
                 .Include(d => d.Device)
                 .Include(d => d.Employee)
                 .Include(d => d.SharedAccount)
@@ -227,8 +239,8 @@ namespace HES.Web.Pages.Employees
                 return NotFound();
             }
 
-            DeviceAccount = await _employeeService
-                .DeviceAccountQuery()
+            DeviceAccount = await _deviceAccountService
+                .Query()
                 .Include(e => e.Employee)
                 .Include(e => e.Device)
                 .FirstOrDefaultAsync(a => a.Id == id);
@@ -272,7 +284,7 @@ namespace HES.Web.Pages.Employees
             }
 
             Employee = await _employeeService
-                .EmployeeQuery()
+                .Query()
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (Employee == null)
@@ -281,8 +293,8 @@ namespace HES.Web.Pages.Employees
                 return NotFound();
             }
 
-            Devices = await _employeeService
-                .DeviceQuery()
+            Devices = await _deviceService
+                .Query()
                 .Where(d => d.EmployeeId == null)
                 .ToListAsync();
 
@@ -341,8 +353,8 @@ namespace HES.Web.Pages.Employees
                 return NotFound();
             }
 
-            Device = await _employeeService
-                .DeviceQuery()
+            Device = await _deviceService
+                .Query()
                 .FirstOrDefaultAsync(x => x.Id == id);
 
             if (Device == null)
@@ -391,15 +403,15 @@ namespace HES.Web.Pages.Employees
 
         public async Task<JsonResult> OnGetJsonTemplateAsync(string id)
         {
-            return new JsonResult(await _employeeService.TemplateGetByIdAsync(id));
+            return new JsonResult(await _templateService.GetByIdAsync(id));
         }
 
         public async Task<IActionResult> OnGetCreatePersonalAccountAsync(string id)
         {
             ViewData["EmployeeId"] = id;
-            ViewData["Templates"] = new SelectList(await _employeeService.TemplateQuery().ToListAsync(), "Id", "Name");
+            ViewData["Templates"] = new SelectList(await _templateService.Query().ToListAsync(), "Id", "Name");
 
-            Devices = await _employeeService.DeviceQuery().Where(d => d.EmployeeId == id).ToListAsync();
+            Devices = await _deviceService.Query().Where(d => d.EmployeeId == id).ToListAsync();
 
             return Partial("_CreatePersonalAccount", this);
         }
@@ -444,8 +456,8 @@ namespace HES.Web.Pages.Employees
                 return NotFound();
             }
 
-            DeviceAccount = await _employeeService
-                .DeviceAccountQuery()
+            DeviceAccount = await _deviceAccountService
+                .Query()
                 .Include(e => e.Employee)
                 .Include(e => e.Device)
                 .FirstOrDefaultAsync(a => a.Id == id);
@@ -491,8 +503,8 @@ namespace HES.Web.Pages.Employees
                 return NotFound();
             }
 
-            DeviceAccount = await _employeeService
-                .DeviceAccountQuery()
+            DeviceAccount = await _deviceAccountService
+                .Query()
                 .Include(e => e.Employee)
                 .Include(e => e.Device)
                 .FirstOrDefaultAsync(a => a.Id == id);
@@ -538,8 +550,8 @@ namespace HES.Web.Pages.Employees
                 return NotFound();
             }
 
-            DeviceAccount = await _employeeService
-                .DeviceAccountQuery()
+            DeviceAccount = await _deviceAccountService
+                .Query()
                 .Include(e => e.Employee)
                 .Include(e => e.Device)
                 .FirstOrDefaultAsync(a => a.Id == id);
@@ -577,17 +589,17 @@ namespace HES.Web.Pages.Employees
 
         public async Task<JsonResult> OnGetJsonSharedAccountAsync(string id)
         {
-            return new JsonResult(await _employeeService.SharedAccountGetByIdAsync(id));
+            return new JsonResult(await _sharedAccountService.GetByIdAsync(id));
         }
 
         public async Task<IActionResult> OnGetAddSharedAccountAsync(string id)
         {
             ViewData["EmployeeId"] = id;
-            ViewData["SharedAccountId"] = new SelectList(await _employeeService.SharedAccountQuery().Where(d => d.Deleted == false).ToListAsync(), "Id", "Name");
+            ViewData["SharedAccountId"] = new SelectList(await _sharedAccountService.Query().Where(d => d.Deleted == false).ToListAsync(), "Id", "Name");
 
-            SharedAccount = await _employeeService.SharedAccountQuery().FirstOrDefaultAsync(d => d.Deleted == false);
-            Devices = await _employeeService
-                .DeviceQuery()
+            SharedAccount = await _sharedAccountService.Query().FirstOrDefaultAsync(d => d.Deleted == false);
+            Devices = await _deviceService
+                .Query()
                 .Where(d => d.EmployeeId == id)
                 .ToListAsync();
 
@@ -635,8 +647,8 @@ namespace HES.Web.Pages.Employees
                 return NotFound();
             }
 
-            DeviceAccount = await _employeeService
-                .DeviceAccountQuery()
+            DeviceAccount = await _deviceAccountService
+                .Query()
                 .FirstOrDefaultAsync(x => x.Id == id);
 
             if (DeviceAccount == null)
@@ -683,8 +695,8 @@ namespace HES.Web.Pages.Employees
                 return NotFound();
             }
 
-            DeviceAccount = await _employeeService
-                .DeviceAccountQuery()
+            DeviceAccount = await _deviceAccountService
+                .Query()
                 .FirstOrDefaultAsync(x => x.Id == id);
 
             if (DeviceAccount == null)

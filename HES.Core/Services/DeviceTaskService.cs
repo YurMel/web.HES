@@ -62,6 +62,11 @@ namespace HES.Core.Services
             await _deviceTaskRepository.AddRangeAsync(deviceTasks);
         }
 
+        public async Task UpdateOnlyPropAsync(DeviceTask deviceTask, string[] properties)
+        {
+            await _deviceTaskRepository.UpdateOnlyPropAsync(deviceTask, properties);
+        }
+
         public async Task UndoLastTaskAsync(string accountId)
         {
             // Current account

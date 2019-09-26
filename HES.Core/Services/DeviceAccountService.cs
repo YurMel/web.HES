@@ -26,6 +26,16 @@ namespace HES.Core.Services
             return await _deviceAccountRepository.GetByIdAsync(accountId);
         }
 
+        public async Task AddAsync(DeviceAccount deviceAccount)
+        {
+            await _deviceAccountRepository.AddAsync(deviceAccount);
+        }
+
+        public async Task AddRangeAsync(IList<DeviceAccount> deviceAccounts)
+        {
+            await _deviceAccountRepository.AddRangeAsync(deviceAccounts);
+        }
+
         public async Task UpdateOnlyPropAsync(DeviceAccount deviceAccount, string[] properties)
         {
             await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccount, properties);
@@ -36,7 +46,32 @@ namespace HES.Core.Services
             await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccounts, properties);
         }
 
-        public async Task RemoveAllAccountsAsync(string deviceId)
+        public async Task DeleteAsync(DeviceAccount deviceAccount)
+        {
+            await _deviceAccountRepository.DeleteAsync(deviceAccount);
+        }
+
+        public async Task DeleteRangeAsync(IList<DeviceAccount> deviceAccounts)
+        {
+            await _deviceAccountRepository.DeleteRangeAsync(deviceAccounts);
+        }
+
+        public async Task RemoveAllByEmployeeIdAsync(string employeeId)
+        {
+            var allAccounts = await _deviceAccountRepository
+                .Query()
+                .Where(t => t.EmployeeId == employeeId)
+                .ToListAsync();
+
+            foreach (var account in allAccounts)
+            {
+                account.Deleted = true;
+            }
+
+            await _deviceAccountRepository.UpdateOnlyPropAsync(allAccounts, new string[] { "Deleted" });
+        }
+
+        public async Task RemoveAllByDeviceIdAsync(string deviceId)
         {
             var allAccounts = await _deviceAccountRepository
                  .Query()

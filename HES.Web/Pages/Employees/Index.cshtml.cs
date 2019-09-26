@@ -17,9 +17,10 @@ namespace HES.Web.Pages.Employees
     public class IndexModel : PageModel
     {
         private readonly IEmployeeService _employeeService;
+        private readonly IDeviceService _deviceService;
         private readonly IWorkstationService _workstationService;
         private readonly IWorkstationProximityDeviceService _workstationProximityDeviceService;
-        private readonly IOrgStructureService _settingsService;
+        private readonly IOrgStructureService _orgStructureService;
         private readonly ILogger<IndexModel> _logger;
 
         public IList<Employee> Employees { get; set; }
@@ -40,29 +41,31 @@ namespace HES.Web.Pages.Employees
         public string ErrorMessage { get; set; }
 
         public IndexModel(IEmployeeService employeeService,
+                          IDeviceService deviceService,
                           IWorkstationService workstationService,
                           IWorkstationProximityDeviceService workstationProximityDeviceService,
-                          IOrgStructureService settingsService,
+                          IOrgStructureService orgStructureService,
                           ILogger<IndexModel> logger)
         {
             _employeeService = employeeService;
+            _deviceService = deviceService;
             _workstationService = workstationService;
             _workstationProximityDeviceService = workstationProximityDeviceService;
-            _settingsService = settingsService;
+            _orgStructureService = orgStructureService;
             _logger = logger;
         }
 
         public async Task OnGetAsync()
         {
             Employees = await _employeeService
-                .EmployeeQuery()
+                .Query()
                 .Include(e => e.Department.Company)
                 .Include(e => e.Position)
                 .Include(e => e.Devices)
                 .ToListAsync();
 
-            ViewData["Companies"] = new SelectList(await _employeeService.CompanyQuery().OrderBy(c => c.Name).ToListAsync(), "Id", "Name");
-            ViewData["Positions"] = new SelectList(await _employeeService.PositionQuery().OrderBy(c => c.Name).ToListAsync(), "Id", "Name");
+            ViewData["Companies"] = new SelectList(await _orgStructureService.CompanyQuery().OrderBy(c => c.Name).ToListAsync(), "Id", "Name");
+            ViewData["Positions"] = new SelectList(await _orgStructureService.PositionQuery().OrderBy(c => c.Name).ToListAsync(), "Id", "Name");
             ViewData["DevicesCount"] = new SelectList(Employees.Select(s => s.Devices.Count()).Distinct().OrderBy(f => f).ToDictionary(t => t, t => t), "Key", "Value");
 
             ViewData["DatePattern"] = CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern.ToLower();
@@ -72,7 +75,7 @@ namespace HES.Web.Pages.Employees
         public async Task<IActionResult> OnPostFilterEmployeesAsync(EmployeeFilter EmployeeFilter)
         {
             var filter = _employeeService
-                .EmployeeQuery()
+                .Query()
                 .Include(e => e.Department.Company)
                 .Include(e => e.Position)
                 .Include(e => e.Devices)
@@ -114,20 +117,20 @@ namespace HES.Web.Pages.Employees
 
         public async Task<IActionResult> OnGetCreateEmployee()
         {
-            ViewData["CompanyId"] = new SelectList(await _employeeService.CompanyQuery().OrderBy(c => c.Name).ToListAsync(), "Id", "Name");
-            ViewData["PositionId"] = new SelectList(await _employeeService.PositionQuery().OrderBy(c => c.Name).ToListAsync(), "Id", "Name");
-            ViewData["DeviceId"] = new SelectList(await _employeeService.DeviceQuery().Where(d => d.EmployeeId == null).ToListAsync(), "Id", "Id");
-            ViewData["WorkstationId"] = new SelectList(await _workstationService.WorkstationQuery().ToListAsync(), "Id", "Name");
+            ViewData["CompanyId"] = new SelectList(await _orgStructureService.CompanyQuery().OrderBy(c => c.Name).ToListAsync(), "Id", "Name");
+            ViewData["PositionId"] = new SelectList(await _orgStructureService.PositionQuery().OrderBy(c => c.Name).ToListAsync(), "Id", "Name");
+            ViewData["DeviceId"] = new SelectList(await _deviceService.Query().Where(d => d.EmployeeId == null).ToListAsync(), "Id", "Id");
+            ViewData["WorkstationId"] = new SelectList(await _workstationService.Query().ToListAsync(), "Id", "Name");
             ViewData["WorkstationAccountType"] = new SelectList(Enum.GetValues(typeof(WorkstationAccountType)).Cast<WorkstationAccountType>().ToDictionary(t => (int)t, t => t.ToString()), "Key", "Value");
 
 
-            Devices = await _employeeService
-               .DeviceQuery()
+            Devices = await _deviceService
+               .Query()
                .Where(d => d.EmployeeId == null)
                .ToListAsync();
 
             Workstations = await _workstationService
-                .WorkstationQuery()
+                .Query()
                 .ToListAsync();
 
             return Partial("_CreateEmployee", this);
@@ -178,7 +181,7 @@ namespace HES.Web.Pages.Employees
             }
 
             Employee = await _employeeService
-                .EmployeeQuery()
+                .Query()
                 .Include(e => e.Department)
                 .Include(e => e.Position)
                 .FirstOrDefaultAsync(m => m.Id == id);
@@ -189,9 +192,9 @@ namespace HES.Web.Pages.Employees
                 return NotFound();
             }
 
-            ViewData["CompanyId"] = new SelectList(await _employeeService.CompanyQuery().ToListAsync(), "Id", "Name");
-            ViewData["DepartmentId"] = new SelectList(await _employeeService.DepartmentQuery().Where(d => d.CompanyId == Employee.Department.CompanyId).ToListAsync(), "Id", "Name");
-            ViewData["PositionId"] = new SelectList(await _employeeService.PositionQuery().ToListAsync(), "Id", "Name");
+            ViewData["CompanyId"] = new SelectList(await _orgStructureService.CompanyQuery().ToListAsync(), "Id", "Name");
+            ViewData["DepartmentId"] = new SelectList(await _orgStructureService.DepartmentQuery().Where(d => d.CompanyId == Employee.Department.CompanyId).ToListAsync(), "Id", "Name");
+            ViewData["PositionId"] = new SelectList(await _orgStructureService.PositionQuery().ToListAsync(), "Id", "Name");
 
             return Partial("_EditEmployee", this);
         }
@@ -235,7 +238,7 @@ namespace HES.Web.Pages.Employees
             }
 
             Employee = await _employeeService
-                .EmployeeQuery()
+                .Query()
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (Employee == null)
@@ -244,8 +247,8 @@ namespace HES.Web.Pages.Employees
                 return NotFound();
             }
 
-            HasForeignKey = _employeeService
-                .DeviceQuery()
+            HasForeignKey = _deviceService
+                .Query()
                 .Where(x => x.EmployeeId == id)
                 .Any();
 
@@ -298,7 +301,7 @@ namespace HES.Web.Pages.Employees
 
             try
             {
-                await _settingsService.CreateCompanyAsync(company);
+                await _orgStructureService.CreateCompanyAsync(company);
             }
             catch (Exception ex)
             {
@@ -311,7 +314,7 @@ namespace HES.Web.Pages.Employees
 
         public async Task<JsonResult> OnGetJsonCompanyAsync()
         {
-            return new JsonResult(await _employeeService.CompanyQuery().OrderBy(c => c.Name).ToListAsync());
+            return new JsonResult(await _orgStructureService.CompanyQuery().OrderBy(c => c.Name).ToListAsync());
         }
 
         #endregion
@@ -334,7 +337,7 @@ namespace HES.Web.Pages.Employees
 
             try
             {
-                await _settingsService.CreateDepartmentAsync(department);
+                await _orgStructureService.CreateDepartmentAsync(department);
             }
             catch (Exception ex)
             {
@@ -347,7 +350,7 @@ namespace HES.Web.Pages.Employees
 
         public async Task<JsonResult> OnGetJsonDepartmentAsync(string id)
         {
-            return new JsonResult(await _employeeService.DepartmentQuery().Where(d => d.CompanyId == id).OrderBy(d => d.Name).ToListAsync());
+            return new JsonResult(await _orgStructureService.DepartmentQuery().Where(d => d.CompanyId == id).OrderBy(d => d.Name).ToListAsync());
         }
 
         #endregion
@@ -369,7 +372,7 @@ namespace HES.Web.Pages.Employees
 
             try
             {
-                await _settingsService.CreatePositionAsync(position);
+                await _orgStructureService.CreatePositionAsync(position);
             }
             catch (Exception ex)
             {
@@ -382,7 +385,7 @@ namespace HES.Web.Pages.Employees
 
         public async Task<JsonResult> OnGetJsonPositionAsync()
         {
-            return new JsonResult(await _employeeService.PositionQuery().OrderBy(c => c.Name).ToListAsync());
+            return new JsonResult(await _orgStructureService.PositionQuery().OrderBy(c => c.Name).ToListAsync());
         }
 
         #endregion

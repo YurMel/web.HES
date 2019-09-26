@@ -1,7 +1,6 @@
 ﻿using HES.Core.Entities;
 using HES.Core.Hubs;
 using HES.Core.Interfaces;
-using Hideez.SDK.Communication.HES.Client;
 using Hideez.SDK.Communication.HES.DTO;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -14,13 +13,13 @@ namespace HES.Core.Services
     public class WorkstationProximityDeviceService : IWorkstationProximityDeviceService
     {
         private readonly IAsyncRepository<WorkstationProximityDevice> _workstationProximityDeviceRepository;
-        private readonly IAsyncRepository<Workstation> _workstationRepository;
+        private readonly IWorkstationService _workstationService;
 
         public WorkstationProximityDeviceService(IAsyncRepository<WorkstationProximityDevice> workstationProximityDeviceRepository,
-                                                 IAsyncRepository<Workstation> workstationRepository)
+                                                 IWorkstationService workstationService)
         {
             _workstationProximityDeviceRepository = workstationProximityDeviceRepository;
-            _workstationRepository = workstationRepository;
+            _workstationService = workstationService;
         }
 
         public IQueryable<WorkstationProximityDevice> Query()
@@ -129,7 +128,7 @@ namespace HES.Core.Services
 
         public async Task<IReadOnlyList<DeviceProximitySettingsDto>> GetProximitySettingsAsync(string workstationId)
         {
-            var workstation = await _workstationRepository
+            var workstation = await _workstationService
                 .Query()
                 .AsNoTracking()
                 .FirstOrDefaultAsync(w => w.Id == workstationId);

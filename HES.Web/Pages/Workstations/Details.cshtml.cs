@@ -51,7 +51,7 @@ namespace HES.Web.Pages.Workstations
             }
 
             Workstation = await _workstationService
-                .WorkstationQuery()
+                .Query()
                 .Include(c => c.Department.Company)
                 .FirstOrDefaultAsync(e => e.Id == id);
 
@@ -85,7 +85,7 @@ namespace HES.Web.Pages.Workstations
             }
 
             Workstation = await _workstationService
-            .WorkstationQuery()
+            .Query()
             .FirstOrDefaultAsync(m => m.Id == id);
 
             if (Workstation == null)

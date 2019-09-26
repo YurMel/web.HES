@@ -13,34 +13,17 @@ namespace HES.Core.Services
     public class WorkstationService : IWorkstationService
     {
         private readonly IAsyncRepository<Workstation> _workstationRepository;
-        private readonly IAsyncRepository<Company> _companyRepository;
-        private readonly IAsyncRepository<Department> _departmentRepository;
 
-        public WorkstationService(IAsyncRepository<Workstation> workstationRepository,
-                                  IAsyncRepository<Company> companyRepository,
-                                  IAsyncRepository<Department> departmentRepository,
-                                  IWorkstationProximityDeviceService workstationProximityDeviceService)
+        public WorkstationService(IAsyncRepository<Workstation> workstationRepository)
         {
             _workstationRepository = workstationRepository;
-            _companyRepository = companyRepository;
-            _departmentRepository = departmentRepository;
         }
 
-        public IQueryable<Workstation> WorkstationQuery()
+        public IQueryable<Workstation> Query()
         {
             return _workstationRepository.Query();
         }
-
-        public IQueryable<Company> CompanyQuery()
-        {
-            return _companyRepository.Query();
-        }
-
-        public IQueryable<Department> DepartmentQuery()
-        {
-            return _departmentRepository.Query();
-        }
-
+        
         public async Task<Workstation> GetByIdAsync(dynamic id)
         {
             return await _workstationRepository.GetByIdAsync(id);
