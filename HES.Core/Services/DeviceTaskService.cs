@@ -19,8 +19,7 @@ namespace HES.Core.Services
             _deviceTaskRepository = deviceTaskRepository;
             _deviceAccountService = deviceAccountService;
         }
-
-
+        
         public IQueryable<DeviceTask> Query()
         {
             return _deviceTaskRepository.Query();
@@ -114,6 +113,11 @@ namespace HES.Core.Services
             }
 
             await _deviceAccountService.UpdateOnlyPropAsync(deviceAccount, new string[] { "Status", "UpdatedAt" });
+        }
+
+        public async Task DeleteTaskAsync(DeviceTask deviceTask)
+        {
+            await _deviceTaskRepository.DeleteAsync(deviceTask);
         }
 
         public async Task RemoveAllTasksAsync(string deviceId)

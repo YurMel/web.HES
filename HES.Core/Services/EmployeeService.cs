@@ -21,7 +21,6 @@ namespace HES.Core.Services
         private readonly IDeviceAccountService _deviceAccountService;
         private readonly ISharedAccountService _sharedAccountService;
         private readonly IWorkstationProximityDeviceService _workstationProximityDeviceService;
-
         private readonly IAsyncRepository<WorkstationEvent> _workstationEventRepository;
         private readonly IAsyncRepository<WorkstationSession> _workstationSessionRepository;
         private readonly IRemoteTaskService _remoteTaskService;
@@ -34,7 +33,6 @@ namespace HES.Core.Services
                                IDeviceAccountService deviceAccountService,
                                ISharedAccountService sharedAccountService,
                                IWorkstationProximityDeviceService workstationProximityDeviceService,
-
                                IAsyncRepository<WorkstationEvent> workstationEventRepository,
                                IAsyncRepository<WorkstationSession> workstationSessionRepository,
                                IRemoteTaskService remoteTaskService,
@@ -178,7 +176,7 @@ namespace HES.Core.Services
             try
             {
                 // Add task
-                await _remoteTaskService.AddTaskAsync(deviceTask);
+                await _deviceTaskService.AddTaskAsync(deviceTask);
             }
             catch (Exception)
             {
@@ -213,7 +211,7 @@ namespace HES.Core.Services
             // Create Device Task
             try
             {
-                await _remoteTaskService.AddTaskAsync(new DeviceTask
+                await _deviceTaskService.AddTaskAsync(new DeviceTask
                 {
                     DeviceAccountId = deviceAccount.Id,
                     Password = _dataProtectionService.Protect(password),
@@ -266,7 +264,7 @@ namespace HES.Core.Services
             // Create Device Task
             try
             {
-                await _remoteTaskService.AddTaskAsync(new DeviceTask
+                await _deviceTaskService.AddTaskAsync(new DeviceTask
                 {
                     DeviceAccountId = deviceAccount.Id,
                     OtpSecret = _dataProtectionService.Protect(otp),
@@ -308,7 +306,7 @@ namespace HES.Core.Services
                 // Create Device Task
                 try
                 {
-                    await _remoteTaskService.AddTaskAsync(new DeviceTask
+                    await _deviceTaskService.AddTaskAsync(new DeviceTask
                     {
                         DeviceAccountId = account.Id,
                         Urls = validUrls,
@@ -375,7 +373,7 @@ namespace HES.Core.Services
             await _deviceAccountService.UpdateOnlyPropAsync(deviceAccount, properties);
 
             // Add task
-            await _remoteTaskService.AddTaskAsync(new DeviceTask()
+            await _deviceTaskService.AddTaskAsync(new DeviceTask()
             {
                 Operation = TaskOperation.Primary,
                 CreatedAt = DateTime.UtcNow,
@@ -408,7 +406,7 @@ namespace HES.Core.Services
                 device.EmployeeId = employeeId;
                 await _deviceService.UpdateOnlyPropAsync(device, new string[] { "EmployeeId" });
 
-                await _remoteTaskService.AddTaskAsync(new DeviceTask
+                await _deviceTaskService.AddTaskAsync(new DeviceTask
                 {
                     Password = _dataProtectionService.Protect(masterPassword),
                     Operation = TaskOperation.Link,
@@ -449,7 +447,14 @@ namespace HES.Core.Services
             device.PrimaryAccountId = null;
             await _deviceService.UpdateOnlyPropAsync(device, new string[] { "EmployeeId", "PrimaryAccountId" });
 
-            await _remoteTaskService.RemoveDeviceAsync(device);
+            // Remove device
+            await _deviceTaskService.AddTaskAsync(new DeviceTask
+            {
+                Password = _dataProtectionService.Protect(device.MasterPassword),
+                CreatedAt = DateTime.UtcNow,
+                Operation = TaskOperation.Wipe,
+                DeviceId = device.Id
+            });
 
             _remoteTaskService.StartTaskProcessing(deviceId);
         }
@@ -593,7 +598,7 @@ namespace HES.Core.Services
 
             try
             {
-                await _remoteTaskService.AddRangeAsync(tasks);
+                await _deviceTaskService.AddRangeAsync(tasks);
             }
             catch (Exception)
             {
@@ -661,7 +666,7 @@ namespace HES.Core.Services
             // Create Device Task
             try
             {
-                await _remoteTaskService.AddTaskAsync(new DeviceTask
+                await _deviceTaskService.AddTaskAsync(new DeviceTask
                 {
                     DeviceAccountId = deviceAccount.Id,
                     Name = deviceAccount.Name,
@@ -704,7 +709,7 @@ namespace HES.Core.Services
             // Create Device Task
             try
             {
-                await _remoteTaskService.AddTaskAsync(new DeviceTask
+                await _deviceTaskService.AddTaskAsync(new DeviceTask
                 {
                     DeviceAccountId = deviceAccount.Id,
                     Password = _dataProtectionService.Protect(input.Password),
@@ -740,7 +745,7 @@ namespace HES.Core.Services
             // Create Device Task
             try
             {
-                await _remoteTaskService.AddTaskAsync(new DeviceTask
+                await _deviceTaskService.AddTaskAsync(new DeviceTask
                 {
                     DeviceAccountId = deviceAccount.Id,
                     OtpSecret = _dataProtectionService.Protect(input.OtpSecret ?? string.Empty),
@@ -835,7 +840,7 @@ namespace HES.Core.Services
             await _deviceAccountService.AddRangeAsync(accounts);
             try
             {
-                await _remoteTaskService.AddRangeAsync(tasks);
+                await _deviceTaskService.AddRangeAsync(tasks);
             }
             catch (Exception)
             {
@@ -866,7 +871,7 @@ namespace HES.Core.Services
             try
             {
                 // Create Device Task
-                await _remoteTaskService.AddTaskAsync(new DeviceTask
+                await _deviceTaskService.AddTaskAsync(new DeviceTask
                 {
                     DeviceAccountId = accountId,
                     CreatedAt = DateTime.UtcNow,
@@ -891,7 +896,7 @@ namespace HES.Core.Services
 
             _dataProtectionService.Validate();
 
-            await _remoteTaskService.UndoLastTaskAsync(accountId);
+            await _deviceTaskService.UndoLastTaskAsync(accountId);
         }
 
         private async Task SetAsPrimaryIfEmpty(string deviceId, string deviceAccountId)
