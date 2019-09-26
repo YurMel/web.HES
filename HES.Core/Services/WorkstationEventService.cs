@@ -12,7 +12,7 @@ namespace HES.Core.Services
     {
         private readonly IAsyncRepository<WorkstationEvent> _workstationEventRepository;
         private readonly IAsyncRepository<Workstation> _workstationRepository;
-        private readonly IAsyncRepository<WorkstationProximityDevice> _workstationBindingRepository;
+        private readonly IAsyncRepository<WorkstationProximityDevice> _workstationProximityDeviceRepository;
         private readonly IAsyncRepository<Device> _deviceRepository;
         private readonly IAsyncRepository<Employee> _employeeRepository;
         private readonly IAsyncRepository<Company> _companyRepository;
@@ -30,7 +30,7 @@ namespace HES.Core.Services
         {
             _workstationEventRepository = workstationEventRepository;
             _workstationRepository = workstationRepository;
-            _workstationBindingRepository = workstationBindingRepository;
+            _workstationProximityDeviceRepository = workstationBindingRepository;
             _deviceRepository = deviceRepository;
             _employeeRepository = employeeRepository;
             _companyRepository = companyRepository;
@@ -38,7 +38,7 @@ namespace HES.Core.Services
             _deviceAccountRepository = deviceAccountRepository;
         }
 
-        public IQueryable<WorkstationEvent> WorkstationEventQuery()
+        public IQueryable<WorkstationEvent> Query()
         {
             return _workstationEventRepository.Query();
         }
@@ -87,30 +87,30 @@ namespace HES.Core.Services
                 throw new ArgumentNullException(nameof(workstationEvents));
 
             // Get EmployeeId, DepartmentId, DeviceAccountId based on DeviceId and other information from event
-            foreach (var e in workstationEvents)
+            foreach (var workstationEvent in workstationEvents)
             {
                 // Skip events for workstations that are not present in DB
-                var workstationExist = await _workstationRepository.ExistAsync(w => w.Id == e.WorkstationId);
+                var workstationExist = await _workstationRepository.ExistAsync(w => w.Id == workstationEvent.WorkstationId);
                 if (!workstationExist)
                     continue;
 
-                e.EmployeeId = _employeeRepository.Query()
+                workstationEvent.EmployeeId = _employeeRepository.Query()
                     .Include(employee => employee.Devices)
                     .AsNoTracking()
-                    .FirstOrDefault(employee => employee.Devices.Any(d => d.Id == e.DeviceId))?.Id;
+                    .FirstOrDefault(employee => employee.Devices.Any(d => d.Id == workstationEvent.DeviceId))?.Id;
 
-                e.DepartmentId = _employeeRepository.Query()
+                workstationEvent.DepartmentId = _employeeRepository.Query()
                     .AsNoTracking()
-                    .FirstOrDefault(employee => employee.Id == e.EmployeeId)?.DepartmentId;
+                    .FirstOrDefault(employee => employee.Id == workstationEvent.EmployeeId)?.DepartmentId;
 
-                if (e.DeviceAccount != null)
+                if (workstationEvent.DeviceAccount != null)
                 {
-                    e.DeviceAccountId = _deviceAccountRepository.Query()
+                    workstationEvent.DeviceAccountId = _deviceAccountRepository.Query()
                         .AsNoTracking()
-                        .FirstOrDefault(da => da.EmployeeId == e.EmployeeId
-                        && da.DeviceId == e.DeviceId
-                        && da.Name == e.DeviceAccount.Name
-                        && da.Login == e.DeviceAccount.Login)?.Id;
+                        .FirstOrDefault(da => da.EmployeeId == workstationEvent.EmployeeId
+                        && da.DeviceId == workstationEvent.DeviceId
+                        && da.Name == workstationEvent.DeviceAccount.Name
+                        && da.Login == workstationEvent.DeviceAccount.Login)?.Id;
                 }
             }
 

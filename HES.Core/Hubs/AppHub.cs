@@ -57,6 +57,7 @@ namespace HES.Core.Hubs
         private readonly IWorkstationEventService _workstationEventService;
         private readonly IWorkstationSessionService _workstationSessionService;
         private readonly IDeviceService _deviceService;
+        private readonly IDeviceTaskService _deviceTaskService;
         private readonly IDeviceAccountService _deviceAccountService;
         private readonly ILogger<AppHub> _logger;
         private readonly IDataProtectionService _dataProtectionService;
@@ -69,6 +70,7 @@ namespace HES.Core.Hubs
                       IWorkstationEventService workstationEventService,
                       IWorkstationSessionService workstationSessionService,
                       IDeviceService deviceService,
+                      IDeviceTaskService deviceTaskService,
                       IDeviceAccountService deviceAccountService,
                       ILogger<AppHub> logger,
                       IDataProtectionService dataProtectionService)
@@ -81,6 +83,7 @@ namespace HES.Core.Hubs
             _workstationEventService = workstationEventService;
             _workstationSessionService = workstationSessionService;
             _deviceService = deviceService;
+            _deviceTaskService = deviceTaskService;
             _deviceAccountService = deviceAccountService;
             _logger = logger;
             _dataProtectionService = dataProtectionService;
@@ -200,8 +203,8 @@ namespace HES.Core.Hubs
         // Incomming request
         public async Task<DeviceInfoDto> GetInfoByRfid(string rfid)
         {
-            var device = await _employeeService
-                .DeviceQuery()
+            var device = await _deviceService
+                .Query()
                 .Include(d => d.Employee)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(d => d.RFID == rfid);
@@ -212,8 +215,8 @@ namespace HES.Core.Hubs
         // Incomming request
         public async Task<DeviceInfoDto> GetInfoByMac(string mac)
         {
-            var device = await _employeeService
-                .DeviceQuery()
+            var device = await _deviceService
+                .Query()
                 .Include(d => d.Employee)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(d => d.MAC == mac);
@@ -224,8 +227,8 @@ namespace HES.Core.Hubs
         // Incomming request
         public async Task<DeviceInfoDto> GetInfoBySerialNo(string serialNo)
         {
-            var device = await _employeeService
-                .DeviceQuery()
+            var device = await _deviceService
+                .Query()
                 .Include(d => d.Employee)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(d => d.Id == serialNo);
@@ -238,8 +241,8 @@ namespace HES.Core.Hubs
             if (device == null)
                 return null;
 
-            bool needUpdate = await _employeeService
-                .DeviceTaskQuery()
+            bool needUpdate = await _deviceTaskService
+                .Query()
                 .Where(t => t.DeviceId == device.Id)
                 .AsNoTracking()
                 .AnyAsync();
@@ -512,7 +515,7 @@ namespace HES.Core.Hubs
                 events = events.GroupBy(e => e.Id).Select(s => s.First()).ToArray();
 
                 // Filter out from incomming events all those who share ID with events saved in database 
-                var filtered = events.Where(e => !_workstationEventService.WorkstationEventQuery().Any(we => we.Id == e.Id)).ToList(); //TODO move to Async
+                var filtered = events.Where(e => !_workstationEventService.Query().Any(we => we.Id == e.Id)).ToList(); //TODO move to Async
 
                 // Convert from SDK WorkstationEvent to HES WorkstationEvent
                 List<WorkstationEvent> converted = new List<WorkstationEvent>();

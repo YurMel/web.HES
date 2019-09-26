@@ -9,9 +9,9 @@ namespace HES.Core.Interfaces
 {
     public interface IWorkstationService
     {
-        IQueryable<Workstation> WorkstationQuery();
-        IQueryable<Company> CompanyQuery();
-        IQueryable<Department> DepartmentQuery();
+        IQueryable<Workstation> Query();
+        //IQueryable<Company> CompanyQuery();
+        //IQueryable<Department> DepartmentQuery();
         Task<Workstation> GetByIdAsync(dynamic id);
         Task<bool> ExistAsync(Expression<Func<Workstation, bool>> predicate);
         Task AddWorkstationAsync(WorkstationInfo workstationInfo);

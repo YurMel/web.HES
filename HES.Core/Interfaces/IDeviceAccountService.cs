@@ -9,8 +9,13 @@ namespace HES.Core.Interfaces
     {
         IQueryable<DeviceAccount> Query();
         Task<DeviceAccount> GetByIdAsync(string accountId);
+        Task AddAsync(DeviceAccount deviceAccount);
+        Task AddRangeAsync(IList<DeviceAccount> deviceAccounts);
         Task UpdateOnlyPropAsync(DeviceAccount deviceAccount, string[] properties);
         Task UpdateOnlyPropAsync(IList<DeviceAccount> deviceAccounts, string[] properties);
-        Task RemoveAllAccountsAsync(string deviceId);
+        Task DeleteAsync(DeviceAccount deviceAccount);
+        Task DeleteRangeAsync(IList<DeviceAccount> deviceAccounts);
+        Task RemoveAllByEmployeeIdAsync(string employeeId);
+        Task RemoveAllByDeviceIdAsync(string deviceId);
     }
 }
