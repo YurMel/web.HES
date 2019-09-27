@@ -20,8 +20,8 @@ namespace HES.Core.Services
 {
     public class RemoteTaskService : IRemoteTaskService
     {
-        private readonly ConcurrentDictionary<string, TaskCompletionSource<bool>> _devicesInProgress
-            = new ConcurrentDictionary<string, TaskCompletionSource<bool>>();
+        //private readonly ConcurrentDictionary<string, TaskCompletionSource<bool>> _devicesInProgress
+        //    = new ConcurrentDictionary<string, TaskCompletionSource<bool>>();
         private readonly IDeviceService _deviceService;
         private readonly IDeviceTaskService _deviceTaskService;
         private readonly IDeviceAccountService _deviceAccountService;
@@ -48,101 +48,101 @@ namespace HES.Core.Services
         {
             Debug.WriteLine($"!!!!!!!!!!!!! ProcessTasksAsync start {deviceId}");
 
-            var isNew = false;
+            //var isNew = false;
 
-            var tcs = _devicesInProgress.GetOrAdd(deviceId, (x) =>
-            {
-                isNew = true;
-                return new TaskCompletionSource<bool>();
-            });
+            //var tcs = _devicesInProgress.GetOrAdd(deviceId, (x) =>
+            //{
+            //    isNew = true;
+            //    return new TaskCompletionSource<bool>();
+            //});
 
-            if (!isNew)
-            {
-                await tcs.Task;
-                return;
-            }
+            //if (!isNew)
+            //{
+            //    await tcs.Task;
+            //    return;
+            //}
 
             try
             {
                 Debug.WriteLine($"!!!!!!!!!!!!! ExecuteRemoteTasks start {deviceId}");
                 var result = await ExecuteRemoteTasks(deviceId, operation).TimeoutAfter(300_000);
-                tcs.TrySetResult(result);
+                //tcs.TrySetResult(result);
             }
             catch (TimeoutException ex)
             {
                 Debug.Assert(false);
-                tcs.SetException(ex);
+                //tcs.SetException(ex);
                 _logger.LogCritical($"[{deviceId}] {ex.Message}");
             }
             catch (Exception ex)
             {
-                tcs.SetException(ex);
+                //tcs.SetException(ex);
                 _logger.LogError($"[{deviceId}] {ex.Message}");
             }
             finally
             {
                 Debug.WriteLine($"!!!!!!!!!!!!! ExecuteRemoteTasks end {deviceId}");
-                _devicesInProgress.TryRemove(deviceId, out TaskCompletionSource<bool> value);
+               // _devicesInProgress.TryRemove(deviceId, out TaskCompletionSource<bool> value);
             }
 
             Debug.WriteLine($"!!!!!!!!!!!!! ProcessTasksAsync end {deviceId}");
         }
 
-        public void StartTaskProcessing(IList<string> deviceId)
-        {
-            foreach (var item in deviceId)
-            {
-                StartTaskProcessing(item);
-            }
-        }
+        //public void StartTaskProcessing(IList<string> deviceId)
+        //{
+        //    foreach (var item in deviceId)
+        //    {
+        //        StartTaskProcessing(item);
+        //    }
+        //}
 
-        public void StartTaskProcessing(string deviceId)
-        {
-            Debug.WriteLine($"!!!!!!!!!!!!! StartTaskProcessing {deviceId}");
+        //public void StartTaskProcessing(string deviceId)
+        //{
+        //    Debug.WriteLine($"!!!!!!!!!!!!! StartTaskProcessing {deviceId}");
 
-            var isNew = false;
+        //    var isNew = false;
 
-            var tcs = _devicesInProgress.GetOrAdd(deviceId, (x) =>
-            {
-                isNew = true;
-                return new TaskCompletionSource<bool>();
-            });
+        //    var tcs = _devicesInProgress.GetOrAdd(deviceId, (x) =>
+        //    {
+        //        isNew = true;
+        //        return new TaskCompletionSource<bool>();
+        //    });
 
-            if (!isNew)
-            {
-                return;
-            }
+        //    if (!isNew)
+        //    {
+        //        return;
+        //    }
 
-            //todo - check if device is OK, else do not start task processing
+        //    //todo - check if device is OK, else do not start task processing
 
-            Task.Run(async () =>
-            {
-                try
-                {
-                    Debug.WriteLine($"!!!!!!!!!!!!! ExecuteRemoteTasks start {deviceId}");
-                    var result = await ExecuteRemoteTasks(deviceId, TaskOperation.None).TimeoutAfter(300_000);
-                    tcs.SetResult(result);
-                }
-                catch (TimeoutException ex)
-                {
-                    Debug.Assert(false);
-                    tcs.SetException(ex);
-                    _logger.LogCritical($"[{deviceId}] {ex.Message}");
-                }
-                catch (Exception ex)
-                {
-                    tcs.SetException(ex);
-                    _logger.LogError($"[{deviceId}] {ex.Message}");
-                }
-                finally
-                {
-                    Debug.WriteLine($"!!!!!!!!!!!!! ExecuteRemoteTasks end {deviceId}");
-                    _devicesInProgress.TryRemove(deviceId, out TaskCompletionSource<bool> value);
-                }
-            });
+        //    Task.Run(async () =>
+        //    {
+        //        try
+        //        {
+        //            Debug.WriteLine($"!!!!!!!!!!!!! ExecuteRemoteTasks start {deviceId}");
+        //            var result = await ExecuteRemoteTasks(deviceId, TaskOperation.None).TimeoutAfter(300_000);
+        //            tcs.SetResult(result);
+        //        }
+        //        catch (TimeoutException ex)
+        //        {
+        //            Debug.Assert(false);
+        //            tcs.SetException(ex);
+        //            _logger.LogCritical($"[{deviceId}] {ex.Message}");
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            tcs.SetException(ex);
+        //            _logger.LogError($"[{deviceId}] {ex.Message}");
+        //        }
+        //        finally
+        //        {
+        //            Debug.WriteLine($"!!!!!!!!!!!!! ExecuteRemoteTasks end {deviceId}");
+        //            _devicesInProgress.TryRemove(deviceId, out TaskCompletionSource<bool> value);
+        //        }
+        //    });
 
-            Debug.WriteLine($"!!!!!!!!!!!!! StartTaskProcessing in progress {deviceId}");
-        }
+        //    Debug.WriteLine($"!!!!!!!!!!!!! StartTaskProcessing in progress {deviceId}");
+        //}
 
         private async Task TaskCompleted(string taskId, ushort idFromDevice)
         {
@@ -415,17 +415,17 @@ namespace HES.Core.Services
 
         private async Task<ushort> LinkDevice(RemoteDevice remoteDevice, DeviceTask task)
         {
-            var device = await _deviceService
-                .Query()
-                .Include(d => d.DeviceAccessProfile)
-                .AsNoTracking()
-                .FirstOrDefaultAsync(d => d.Id == task.DeviceId);
+            //var device = await _deviceService
+            //    .Query()
+            //    .Include(d => d.DeviceAccessProfile)
+            //    .AsNoTracking()
+            //    .FirstOrDefaultAsync(d => d.Id == task.DeviceId);
 
-            if (device == null)
-                throw new Exception($"Device not found");
+            //if (device == null)
+            //    throw new Exception($"Device not found");
 
-            if (device.DeviceAccessProfile == null)
-                throw new Exception($"DeviceAccessProfile is not set for {device.Id}");
+            //if (device.DeviceAccessProfile == null)
+            //    throw new Exception($"DeviceAccessProfile is not set for {device.Id}");
 
             // Set Link   
             var key = ConvertUtils.HexStringToBytes(task.Password);
@@ -434,32 +434,32 @@ namespace HES.Core.Services
                 await remoteDevice.Link(key);
             }
 
-            // Set default profile
-            var accessParams = new AccessParams()
-            {
-                MasterKey_Bond = device.DeviceAccessProfile.MasterKeyBonding,
-                MasterKey_Connect = device.DeviceAccessProfile.MasterKeyConnection,
-                MasterKey_Link = device.DeviceAccessProfile.MasterKeyNewLink,
-                MasterKey_Channel = device.DeviceAccessProfile.MasterKeyNewChannel,
+            //// Set default profile
+            //var accessParams = new AccessParams()
+            //{
+            //    MasterKey_Bond = device.DeviceAccessProfile.MasterKeyBonding,
+            //    MasterKey_Connect = device.DeviceAccessProfile.MasterKeyConnection,
+            //    MasterKey_Link = device.DeviceAccessProfile.MasterKeyNewLink,
+            //    MasterKey_Channel = device.DeviceAccessProfile.MasterKeyNewChannel,
 
-                Button_Bond = device.DeviceAccessProfile.ButtonBonding,
-                Button_Connect = device.DeviceAccessProfile.ButtonConnection,
-                Button_Link = device.DeviceAccessProfile.ButtonNewLink,
-                Button_Channel = device.DeviceAccessProfile.ButtonNewChannel,
+            //    Button_Bond = device.DeviceAccessProfile.ButtonBonding,
+            //    Button_Connect = device.DeviceAccessProfile.ButtonConnection,
+            //    Button_Link = device.DeviceAccessProfile.ButtonNewLink,
+            //    Button_Channel = device.DeviceAccessProfile.ButtonNewChannel,
 
-                Pin_Bond = device.DeviceAccessProfile.PinBonding,
-                Pin_Connect = device.DeviceAccessProfile.ButtonConnection,
-                Pin_Link = device.DeviceAccessProfile.PinNewLink,
-                Pin_Channel = device.DeviceAccessProfile.PinNewChannel,
+            //    Pin_Bond = device.DeviceAccessProfile.PinBonding,
+            //    Pin_Connect = device.DeviceAccessProfile.ButtonConnection,
+            //    Pin_Link = device.DeviceAccessProfile.PinNewLink,
+            //    Pin_Channel = device.DeviceAccessProfile.PinNewChannel,
 
-                PinMinLength = device.DeviceAccessProfile.PinLength,
-                PinMaxTries = device.DeviceAccessProfile.PinTryCount,
-                MasterKeyExpirationPeriod = device.DeviceAccessProfile.MasterKeyExpiration,
-                PinExpirationPeriod = device.DeviceAccessProfile.PinExpiration,
-                ButtonExpirationPeriod = device.DeviceAccessProfile.ButtonExpiration,
-            };
+            //    PinMinLength = device.DeviceAccessProfile.PinLength,
+            //    PinMaxTries = device.DeviceAccessProfile.PinTryCount,
+            //    MasterKeyExpirationPeriod = device.DeviceAccessProfile.MasterKeyExpiration,
+            //    PinExpirationPeriod = device.DeviceAccessProfile.PinExpiration,
+            //    ButtonExpirationPeriod = device.DeviceAccessProfile.ButtonExpiration,
+            //};
 
-            await remoteDevice.Access(DateTime.UtcNow, key, accessParams);
+            //await remoteDevice.Access(DateTime.UtcNow, key, accessParams);
 
             return 0;
         }

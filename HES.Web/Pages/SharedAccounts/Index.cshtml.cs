@@ -102,7 +102,8 @@ namespace HES.Web.Pages.SharedAccounts
             try
             {
                 var devices = await _sharedAccountService.EditSharedAccountAsync(sharedAccount);
-                _remoteTaskService.StartTaskProcessing(devices);
+                //todo - use AppHub.StartUpdateRemoteDevice
+                //_remoteTaskService.StartTaskProcessing(devices);
                 SuccessMessage = $"Shared account updated.";
             }
             catch (Exception ex)
@@ -145,7 +146,8 @@ namespace HES.Web.Pages.SharedAccounts
             try
             {
                 var devices = await _sharedAccountService.EditSharedAccountPwdAsync(sharedAccount, input);
-                _remoteTaskService.StartTaskProcessing(devices);
+                //todo - use AppHub.StartUpdateRemoteDevice
+                //_remoteTaskService.StartTaskProcessing(devices);
                 SuccessMessage = $"Shared account updated.";
             }
             catch (Exception ex)
@@ -183,7 +185,8 @@ namespace HES.Web.Pages.SharedAccounts
             try
             {
                 var devices = await _sharedAccountService.EditSharedAccountOtpAsync(sharedAccount, input);
-                _remoteTaskService.StartTaskProcessing(devices);
+                //todo - use AppHub.StartUpdateRemoteDevice
+                //_remoteTaskService.StartTaskProcessing(devices);
                 SuccessMessage = $"Shared account updated.";
             }
             catch (Exception ex)
@@ -226,7 +229,8 @@ namespace HES.Web.Pages.SharedAccounts
             try
             {
                 var devices = await _sharedAccountService.DeleteSharedAccountAsync(id);
-                _remoteTaskService.StartTaskProcessing(devices);
+                //todo - use AppHub.StartUpdateRemoteDevice
+                //_remoteTaskService.StartTaskProcessing(devices);
                 SuccessMessage = $"Shared account deleted.";
             }
             catch (Exception ex)

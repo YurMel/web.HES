@@ -114,13 +114,13 @@ namespace HES.Web
                 var deviceService = scope.ServiceProvider.GetService<IDeviceService>();
                 var deviceTaskService = scope.ServiceProvider.GetService<IDeviceTaskService>();
                 var deviceAccountService = scope.ServiceProvider.GetService<IDeviceAccountService>();
-                var dataProtectionRepository = scope.ServiceProvider.GetService<IDataProtectionService>();
+                var dataProtectionService = scope.ServiceProvider.GetService<IDataProtectionService>();
                 var logger = scope.ServiceProvider.GetService<ILogger<RemoteTaskService>>();
                 var hubContext = scope.ServiceProvider.GetService<IHubContext<EmployeeDetailsHub>>();
                 return new RemoteTaskService(deviceService,
                                              deviceTaskService,
                                              deviceAccountService,
-                                             dataProtectionRepository,
+                                             dataProtectionService,
                                              logger,
                                              hubContext);
             });

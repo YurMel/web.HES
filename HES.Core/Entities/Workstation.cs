@@ -28,6 +28,6 @@ namespace HES.Core.Entities
         public Department Department { get; set; }
 
         [NotMapped]
-        public bool IsOnline => Id != null ? AppHub.IsWorkstationConnectedToHost(Id) : false;
+        public bool IsOnline => Id != null ? AppHub.IsWorkstationConnectedToServer(Id) : false;
     }
 }

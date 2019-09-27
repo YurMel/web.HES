@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -30,24 +31,27 @@ namespace HES.Core.Hubs
         //    }
         //}
 
-        //class WorkstationDescription
-        //{
-        //    public IRemoteAppConnection Connection { get; }
+        class WorkstationDescription
+        {
+            public IRemoteAppConnection Connection { get; }
 
-        //    public string WorkstationId { get; }
+            public string WorkstationId { get; }
 
-        //    public WorkstationDescription(IRemoteAppConnection connection, string workstationId)
-        //    {
-        //        Connection = connection;
-        //        WorkstationId = workstationId;
-        //    }
-        //}
+            public WorkstationDescription(IRemoteAppConnection connection, string workstationId)
+            {
+                Connection = connection;
+                WorkstationId = workstationId;
+            }
+        }
 
         //static readonly ConcurrentDictionary<string, DeviceDescription> _deviceConnections
         //    = new ConcurrentDictionary<string, DeviceDescription>();
 
-        //static readonly ConcurrentDictionary<string, WorkstationDescription> _workstationConnections
-        //            = new ConcurrentDictionary<string, WorkstationDescription>();
+        static readonly ConcurrentDictionary<string, WorkstationDescription> _workstationConnections
+                    = new ConcurrentDictionary<string, WorkstationDescription>();
+
+        private readonly ConcurrentDictionary<string, TaskCompletionSource<HideezErrorInfo>> _devicesInProgress
+            = new ConcurrentDictionary<string, TaskCompletionSource<HideezErrorInfo>>();
 
         private readonly IRemoteDeviceConnectionsService _remoteDeviceConnectionsService;
         private readonly IRemoteTaskService _remoteTaskService;
@@ -129,6 +133,8 @@ namespace HES.Core.Hubs
         // incoming request
         public async Task OnDeviceConnected(BleDeviceDto dto)
         {
+            Debug.WriteLine($"!!!!!!!!!!!!! OnDeviceConnected {dto.DeviceSerialNo}");
+
             // Update Battery, Firmware, State, LastSynced         
             await _deviceService.UpdateDeviceInfoAsync(dto.DeviceSerialNo, dto.Battery, dto.FirmwareVersion, dto.IsLocked);
 
@@ -146,6 +152,8 @@ namespace HES.Core.Hubs
         // incoming request
         public Task OnDeviceDisconnected(string deviceId)
         {
+            Debug.WriteLine($"!!!!!!!!!!!!! OnDeviceDisconnected {deviceId}");
+
             if (!string.IsNullOrEmpty(deviceId))
             {
                 //_deviceConnections.TryRemove(deviceId, out DeviceDescription deviceDescription);
@@ -259,12 +267,109 @@ namespace HES.Core.Hubs
             return info;
         }
 
-        // Incomming request
+        public void StartUpdateRemoteDevice(string deviceId)
+        {
+            Debug.WriteLine($"!!!!!!!!!!!!! StartUpdateRemoteDevice {deviceId}");
+
+            var isNew = false;
+
+            var tcs = _devicesInProgress.GetOrAdd(deviceId, (x) =>
+            {
+                isNew = true;
+                return new TaskCompletionSource<HideezErrorInfo>();
+            });
+
+            if (!isNew)
+            {
+                Debug.WriteLine($"!!!!!!!!!!!!! StartUpdateRemoteDevice already running {deviceId}");
+                return;
+            }
+
+            Task.Run(async () =>
+            {
+                await UpdateRemoteDeviceWithTimeout(deviceId, tcs);
+                //try
+                //{
+                //    Debug.WriteLine($"!!!!!!!!!!!!! StartUpdateRemoteDevice start {deviceId}");
+                //    var result = await UpdateRemoteDevice(deviceId).TimeoutAfter(300_000);
+                //    tcs.SetResult(result);
+                //}
+                //catch (TimeoutException ex)
+                //{
+                //    Debug.Assert(false);
+                //    tcs.SetException(ex);
+                //    _logger.LogCritical($"[{deviceId}] {ex.Message}");
+                //}
+                //catch (Exception ex)
+                //{
+                //    tcs.SetException(ex);
+                //    _logger.LogError($"[{deviceId}] {ex.Message}");
+                //}
+                //finally
+                //{
+                //    Debug.WriteLine($"!!!!!!!!!!!!! StartUpdateRemoteDevice end {deviceId}");
+                //    _devicesInProgress.TryRemove(deviceId, out TaskCompletionSource<HideezErrorInfo> _);
+                //}
+            });
+        }
+
+        // Incoming request
         public async Task<HideezErrorInfo> FixDevice(string deviceId)
+        {
+            if (deviceId == null)
+                throw new ArgumentNullException(nameof(deviceId));
+
+            var isNew = false;
+            var tcs = _devicesInProgress.GetOrAdd(deviceId, (x) =>
+            {
+                isNew = true;
+                return new TaskCompletionSource<HideezErrorInfo>();
+            });
+
+            if (!isNew)
+            {
+                Debug.WriteLine($"!!!!!!!!!!!!! FixDevice already running {deviceId}");
+                return await tcs.Task;
+            }
+
+            return await UpdateRemoteDeviceWithTimeout(deviceId, tcs);
+        }
+
+        async Task<HideezErrorInfo> UpdateRemoteDeviceWithTimeout(string deviceId, TaskCompletionSource<HideezErrorInfo> tcs)
+        {
+            HideezErrorInfo result = HideezErrorInfo.Ok;
+
+            try
+            {
+                Debug.WriteLine($"!!!!!!!!!!!!! FixDevice start {deviceId}");
+                result = await UpdateRemoteDevice(deviceId).TimeoutAfter(300_000);
+                tcs.SetResult(result);
+            }
+            catch (TimeoutException ex)
+            {
+                Debug.Assert(false);
+                tcs.SetException(ex);
+                _logger.LogCritical($"[{deviceId}] {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                tcs.SetException(ex);
+                _logger.LogError($"[{deviceId}] {ex.Message}");
+            }
+            finally
+            {
+                Debug.WriteLine($"!!!!!!!!!!!!! FixDevice end {deviceId}, {result.Code}");
+                _devicesInProgress.TryRemove(deviceId, out TaskCompletionSource<HideezErrorInfo> _);
+            }
+
+            return result;
+        }
+
+        async Task<HideezErrorInfo> UpdateRemoteDevice(string deviceId)
         {
             try
             {
-                Debug.WriteLine($"!!!!!!!!!!!!! FixDevice {deviceId}");
+                Debug.WriteLine($"!!!!!!!!!!!!! UpdateRemoteDevice {deviceId}");
                 //todo
                 //if (true) //conection not approved
                 //throw new HideezException(HideezErrorCode.HesWorkstationNotApproved);
@@ -357,18 +462,19 @@ namespace HES.Core.Hubs
                 // all tasks processing
                 await _remoteTaskService.ProcessTasksAsync(deviceId, TaskOperation.None);
 
+                Debug.WriteLine($"!!!!!!!!!!!!! UpdateRemoteDevice OK");
                 return HideezErrorInfo.Ok;
             }
             catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.ERR_KEY_WRONG)
             {
-                Debug.WriteLine($"!!!!!!!!!!!!! FixDevice ERROR {ex.Message}");
+                Debug.WriteLine($"!!!!!!!!!!!!! UpdateRemoteDevice ERROR {ex.Message}");
                 _logger.LogCritical($"[{deviceId}] {ex.Message}");
                 await _employeeService.HandlingMasterPasswordErrorAsync(deviceId);
                 return new HideezErrorInfo(ex);
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"!!!!!!!!!!!!! FixDevice ERROR {ex.Message}");
+                Debug.WriteLine($"!!!!!!!!!!!!! UpdateRemoteDevice ERROR {ex.Message}");
                 _logger.LogError($"[{deviceId}] {ex.Message}");
                 return new HideezErrorInfo(ex);
             }
@@ -383,12 +489,12 @@ namespace HES.Core.Hubs
         {
             try
             {
-                //var workstationDesc = _workstationConnections.AddOrUpdate(workstationInfo.Id, new WorkstationDescription(Clients.Caller, workstationInfo.Id), (workstationId, oldDescr) =>
-                //{
-                //    return new WorkstationDescription(Clients.Caller, workstationId);
-                //});
+                var workstationDesc = _workstationConnections.AddOrUpdate(workstationInfo.Id, new WorkstationDescription(Clients.Caller, workstationInfo.Id), (workstationId, oldDescr) =>
+                {
+                    return new WorkstationDescription(Clients.Caller, workstationId);
+                });
 
-                //Context.Items.Add("WorkstationDesc", workstationDesc);
+                Context.Items.Add("WorkstationDesc", workstationDesc);
 
                 if (await _workstationService.ExistAsync(w => w.Id == workstationInfo.Id))
                 {
@@ -414,7 +520,7 @@ namespace HES.Core.Hubs
             }
         }
 
-        private async Task OnWorkstationConnected(string workstationId)
+        async Task OnWorkstationConnected(string workstationId)
         {
             try
             {
@@ -429,11 +535,12 @@ namespace HES.Core.Hubs
             }
         }
 
-        private Task OnWorkstationDisconnected(string workstationId)
+        Task OnWorkstationDisconnected(string workstationId)
         {
             _logger.LogDebug($"[{workstationId}] disconnected");
 
-            //_workstationConnections.TryRemove(workstationId, out WorkstationDescription workstation);
+            _workstationConnections.TryRemove(workstationId, out WorkstationDescription _);
+            Context.Items.Remove("WorkstationDesc");
 
             return Task.CompletedTask;
         }
@@ -446,31 +553,26 @@ namespace HES.Core.Hubs
         //        return null;
         //}
 
-        //private static WorkstationDescription FindWorkstationDescription(string workstationId)
-        //{
-        //    _workstationConnections.TryGetValue(workstationId, out WorkstationDescription workstation);
-        //    return workstation;
-        //}
-
-        public static bool IsWorkstationConnectedToHost(string workstationId)
+        static WorkstationDescription FindWorkstationDescription(string workstationId)
         {
-            //todo
-            return false;
-            //var workstation = FindWorkstationDescription(workstationId);
-            //return workstation != null;
+            _workstationConnections.TryGetValue(workstationId, out WorkstationDescription workstation);
+            return workstation;
         }
 
-        public static Task UpdateProximitySettings(string workstationId, IReadOnlyList<DeviceProximitySettingsDto> deviceProximitySettings)
+        public static bool IsWorkstationConnectedToServer(string workstationId)
+        {
+            return _workstationConnections.ContainsKey(workstationId);
+        }
+
+        public static async Task UpdateProximitySettings(string workstationId, IReadOnlyList<DeviceProximitySettingsDto> deviceProximitySettings)
         {
             try
             {
-                //todo
-                //var workstation = FindWorkstationDescription(workstationId);
-                //if (workstation != null)
-                //{
-                //    await workstation.Connection.UpdateProximitySettings(deviceProximitySettings);
-                //}
-                return Task.CompletedTask;
+                var workstation = FindWorkstationDescription(workstationId);
+                if (workstation != null)
+                {
+                    await workstation.Connection.UpdateProximitySettings(deviceProximitySettings);
+                }
             }
             catch (Exception ex)
             {
@@ -478,17 +580,15 @@ namespace HES.Core.Hubs
             }
         }
 
-        public static Task UpdateRfidIndicatorState(string workstationId, bool isEnabled)
+        public static async Task UpdateRfidIndicatorState(string workstationId, bool isEnabled)
         {
             try
             {
-                //todo
-                //var workstation = FindWorkstationDescription(workstationId);
-                //if (workstation != null)
-                //{
-                //    await workstation.Connection.UpdateRFIDIndicatorState(isEnabled);
-                //}
-                return Task.CompletedTask;
+                var workstation = FindWorkstationDescription(workstationId);
+                if (workstation != null)
+                {
+                    await workstation.Connection.UpdateRFIDIndicatorState(isEnabled);
+                }
             }
             catch (Exception ex)
             {

@@ -179,7 +179,8 @@ namespace HES.Web.Pages.Devices
             try
             {
                 await _deviceService.UpdateProfileAsync(devices, profileId);
-                _remoteTaskService.StartTaskProcessing(devices);
+                //todo - use AppHub.StartUpdateRemoteDevice
+                //_remoteTaskService.StartTaskProcessing(devices);
                 SuccessMessage = $"New profile sent to server for processing.";
             }
             catch (Exception ex)
@@ -222,7 +223,8 @@ namespace HES.Web.Pages.Devices
             try
             {
                 await _deviceService.UnlockPinAsync(deviceId);
-                _remoteTaskService.StartTaskProcessing(deviceId);
+                //todo - use AppHub.StartUpdateRemoteDevice
+                //_remoteTaskService.StartTaskProcessing(deviceId);
                 SuccessMessage = $"Pending unlock.";
             }
             catch (Exception ex)
