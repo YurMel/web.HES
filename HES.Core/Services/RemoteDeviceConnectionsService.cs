@@ -103,7 +103,7 @@ namespace HES.Core.Services
                 if (deviceDescription == null)
                     throw new HideezException(HideezErrorCode.DeviceNotConnectedToAnyHost);
 
-                deviceDescription.RemoteDevice = new RemoteDevice(deviceId, caller, null, new SdkLogger(_logger));
+                deviceDescription.RemoteDevice = new RemoteDevice(deviceId, caller, null, new SdkLogger<RemoteDeviceConnectionsService>(_logger));
 
                 await deviceDescription.RemoteDevice.Verify(channelNo);
 

@@ -15,6 +15,7 @@ namespace HES.Web.Pages.Settings.IdentityProvider
         private readonly ISamlIdentityProviderService _samlIdentityProviderService;
         private readonly ILogger<IndexModel> _logger;
         private readonly IEmployeeService _employeeService;
+        private readonly IRemoteWorkstationConnectionsService _remoteWorkstationConnectionsService;
 
         public SamlIdentityProvider SamlIdentityProvider { get; set; }
 
@@ -25,11 +26,13 @@ namespace HES.Web.Pages.Settings.IdentityProvider
 
         public IndexModel(ISamlIdentityProviderService samlIdentityProviderService,
                           ILogger<IndexModel> logger,
-                          IEmployeeService employeeService)
+                          IEmployeeService employeeService,
+                          IRemoteWorkstationConnectionsService remoteWorkstationConnectionsService)
         {
             _samlIdentityProviderService = samlIdentityProviderService;
             _logger = logger;
             _employeeService = employeeService;
+            _remoteWorkstationConnectionsService = remoteWorkstationConnectionsService;
         }
 
         public async Task OnGet()
@@ -58,7 +61,8 @@ namespace HES.Web.Pages.Settings.IdentityProvider
 
                 if (currentIdentityProvider.Url != samlIdentityProvider.Url)
                 {
-                    await _employeeService.UpdateUrlSamlIdpAccountAsync(Request.Host.Value);
+                    var devices = await _employeeService.UpdateUrlSamlIdpAccountAsync(Request.Host.Value);
+                    _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(devices);
                 }
 
                 SuccessMessage = $"SAML IdP settings updated.";

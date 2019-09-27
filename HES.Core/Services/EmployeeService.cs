@@ -274,7 +274,7 @@ namespace HES.Core.Services
             }
         }
 
-        public async Task UpdateUrlSamlIdpAccountAsync(string hesUrl)
+        public async Task<IList<string>> UpdateUrlSamlIdpAccountAsync(string hesUrl)
         {
             _dataProtectionService.Validate();
 
@@ -314,8 +314,7 @@ namespace HES.Core.Services
                 }
             }
 
-            //todo - move to UI
-            //_remoteTaskService.StartTaskProcessing(deviceAccounts.Select(s => s.Id).ToList());
+            return deviceAccounts.Select(s => s.Id).ToList();
         }
 
         public async Task DeleteSamlIdpAccountAsync(string employeeId)
@@ -372,9 +371,6 @@ namespace HES.Core.Services
                 DeviceId = device.Id,
                 DeviceAccountId = deviceAccountId
             });
-
-            //todo - move to UI
-            //_remoteTaskService.StartTaskProcessing(deviceId);
         }
 
         public async Task AddDeviceAsync(string employeeId, string[] selectedDevices)

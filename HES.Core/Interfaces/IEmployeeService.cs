@@ -1,6 +1,7 @@
 ﻿using HES.Core.Entities;
 using HES.Core.Entities.Models;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -18,7 +19,7 @@ namespace HES.Core.Interfaces
         Task CreateSamlIdpAccountAsync(string email, string password, string hesUrl, string deviceId);
         Task UpdatePasswordSamlIdpAccountAsync(string email, string password);
         Task UpdateOtpSamlIdpAccountAsync(string email, string otp);
-        Task UpdateUrlSamlIdpAccountAsync(string hesUrl);
+        Task<IList<string>> UpdateUrlSamlIdpAccountAsync(string hesUrl);
         Task DeleteSamlIdpAccountAsync(string employeeId);
         Task SetPrimaryAccount(string deviceId, string deviceAccountId);
         Task AddDeviceAsync(string employeeId, string[] selectedDevices);
