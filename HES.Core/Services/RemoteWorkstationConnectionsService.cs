@@ -163,7 +163,7 @@ namespace HES.Core.Services
                 if (remoteDevice.AccessLevel.IsLocked)
                 {
                     // execute the UnlockPin task
-                    await _remoteTaskService.ProcessTasksAsync(deviceId, TaskOperation.UnlockPin);
+                    await _remoteTaskService.ExecuteRemoteTasks(deviceId, TaskOperation.UnlockPin);
                     await remoteDevice.RefreshDeviceInfo();
                 }
 
@@ -171,7 +171,7 @@ namespace HES.Core.Services
                 if (remoteDevice.AccessLevel.IsLinkRequired)
                 {
                     // execute the Link task
-                    await _remoteTaskService.ProcessTasksAsync(deviceId, TaskOperation.Link);
+                    await _remoteTaskService.ExecuteRemoteTasks(deviceId, TaskOperation.Link);
                     await remoteDevice.RefreshDeviceInfo();
 
                     // refresh MasterPassword field
@@ -228,7 +228,9 @@ namespace HES.Core.Services
                 }
 
                 // all tasks processing
-                await _remoteTaskService.ProcessTasksAsync(deviceId, TaskOperation.None);
+                var res = await _remoteTaskService.ExecuteRemoteTasks(deviceId, TaskOperation.None);
+                if (res != HideezErrorCode.Ok)
+                    throw new HideezException(res);
 
                 Debug.WriteLine($"!!!!!!!!!!!!! UpdateRemoteDevice OK");
                 return HideezErrorInfo.Ok;
