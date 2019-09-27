@@ -131,6 +131,24 @@ namespace HES.Web
                 var dataProtectionService = scope.ServiceProvider.GetService<IDataProtectionService>();
                 return new RemoteDeviceConnectionsService(logger, dataProtectionService);
             });
+            services.AddSingleton<IRemoteWorkstationConnectionsService, RemoteWorkstationConnectionsService>(s =>
+            {
+                var scope = s.CreateScope();
+                var remoteTasksService = scope.ServiceProvider.GetService<IRemoteTaskService>();
+                var employeeService = scope.ServiceProvider.GetService<IEmployeeService>();
+                var workstationService = scope.ServiceProvider.GetService<IWorkstationService>();
+                var workstationProximityDeviceService = scope.ServiceProvider.GetService<IWorkstationProximityDeviceService>();
+                var deviceService = scope.ServiceProvider.GetService<IDeviceService>();
+                var dataProtectionService = scope.ServiceProvider.GetService<IDataProtectionService>();
+                var logger = scope.ServiceProvider.GetService<ILogger<RemoteWorkstationConnectionsService>>();
+                return new RemoteWorkstationConnectionsService(remoteTasksService,
+                                             employeeService,
+                                             workstationService,
+                                             workstationProximityDeviceService,
+                                             deviceService,
+                                             dataProtectionService,
+                                             logger);
+            });
 
             services.AddScoped<IAppService, AppService>();
             services.AddSingleton<INotificationService, NotificationService>(s =>

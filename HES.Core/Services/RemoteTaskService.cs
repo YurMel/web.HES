@@ -1,7 +1,11 @@
-﻿using HES.Core.Entities;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
+using HES.Core.Entities;
 using HES.Core.Hubs;
 using HES.Core.Interfaces;
-using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.Command;
 using Hideez.SDK.Communication.PasswordManager;
 using Hideez.SDK.Communication.Remote;
@@ -9,12 +13,6 @@ using Hideez.SDK.Communication.Utils;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace HES.Core.Services
 {
@@ -284,8 +282,10 @@ namespace HES.Core.Services
 
                 while (tasks.Any())
                 {
-                    //var remoteDevice = await AppHub.EstablishRemoteConnection(deviceId, 4);
-                    var remoteDevice = await RemoteDeviceConnectionsService.Connect(deviceId, 4);
+                    var remoteDevice = await RemoteDeviceConnectionsService
+                        .Connect(deviceId, 4)
+                        .TimeoutAfter(30_000);
+
                     if (remoteDevice == null)
                         break;
 

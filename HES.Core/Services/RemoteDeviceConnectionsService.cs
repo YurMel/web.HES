@@ -10,7 +10,6 @@ using Microsoft.Extensions.Logging;
 
 namespace HES.Core.Services
 {
-    //todo - remove all 'static'
     public class RemoteDeviceConnectionsService : IRemoteDeviceConnectionsService
     {
         class DeviceDescription
@@ -44,7 +43,7 @@ namespace HES.Core.Services
             _dataProtectionService = dataProtectionService;
         }
 
-        internal static void AddDevice(string deviceId, IRemoteAppConnection appConnection)
+        public void AddDevice(string deviceId, IRemoteAppConnection appConnection)
         {
             var deviceDescription = _deviceDescriptions.GetOrAdd(deviceId, (x) =>
             {
@@ -54,7 +53,7 @@ namespace HES.Core.Services
             deviceDescription.AppConnection = appConnection;
         }
 
-        internal static void RemoveDevice(IRemoteAppConnection appConnection)
+        public void RemoveDevice(IRemoteAppConnection appConnection)
         {
             var devices = _deviceDescriptions.Values.Where(x => x.AppConnection == appConnection).ToList();
             foreach (var item in devices)
@@ -70,6 +69,14 @@ namespace HES.Core.Services
 
         public static async Task<RemoteDevice> Connect(string deviceId, byte channelNo)
         {
+            _deviceDescriptions.TryGetValue(deviceId, out DeviceDescription deviceDescription);
+            if (deviceDescription == null || deviceDescription.AppConnection == null)
+                throw new HideezException(HideezErrorCode.DeviceNotConnectedToAnyHost);
+
+            // return existing connection
+            if (deviceDescription.RemoteDevice != null)
+                return deviceDescription.RemoteDevice;
+
             var isNew = false;
             var tcs = _pendingConnections.GetOrAdd(deviceId, (x) =>
             {
@@ -79,14 +86,6 @@ namespace HES.Core.Services
 
             if (!isNew)
                 return await tcs.Task;
-
-            // call client app to make DeviceHub connection
-            var deviceDescription = FindDeviceDescription(deviceId);
-            if (deviceDescription == null || deviceDescription.AppConnection == null)
-                throw new HideezException(HideezErrorCode.DeviceNotConnectedToAnyHost);
-
-            if (deviceDescription.RemoteDevice != null)
-                return deviceDescription.RemoteDevice;
 
             // call Hideez Client to make remote channel
             await deviceDescription.AppConnection.EstablishRemoteDeviceConnection(deviceId, channelNo);
@@ -100,7 +99,7 @@ namespace HES.Core.Services
         {
             try
             {
-                var deviceDescription = FindDeviceDescription(deviceId);
+                _deviceDescriptions.TryGetValue(deviceId, out DeviceDescription deviceDescription);
                 if (deviceDescription == null)
                     throw new HideezException(HideezErrorCode.DeviceNotConnectedToAnyHost);
 
@@ -174,12 +173,6 @@ namespace HES.Core.Services
             return null;
         }
 
-        static DeviceDescription FindDeviceDescription(string deviceId)
-        {
-            _deviceDescriptions.TryGetValue(deviceId, out DeviceDescription device);
-            return device;
-        }
-
         public static RemoteDevice FindDevice(string deviceId)
         {
             if (_deviceDescriptions.TryGetValue(deviceId, out DeviceDescription deviceDescription))
@@ -188,16 +181,6 @@ namespace HES.Core.Services
             }
             return null;
         }
-
-        //internal static RemoteDevice FindInitializedDevice(string id)
-        //{
-        //    // a device should not be used before it initialized
-        //    if (_pendingConnections.ContainsKey(id))
-        //        return null;
-
-        //    _connections.TryGetValue(id, out RemoteDevice device);
-        //    return device;
-        //}
 
         public static void RemoveDevice(string deviceId)
         {
