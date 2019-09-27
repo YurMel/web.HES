@@ -29,7 +29,7 @@ namespace HES.Web.Pages.Audit.WorkstationEvents
         public async Task OnGetAsync()
         {
             WorkstationEvents = await _workstationEventService
-                .WorkstationEventQuery()
+                .Query()
                 .Include(w => w.Workstation)
                 .Include(w => w.Device)
                 .Include(w => w.Employee)
@@ -54,7 +54,7 @@ namespace HES.Web.Pages.Audit.WorkstationEvents
         public async Task<IActionResult> OnPostFilterWorkstationEventsAsync(WorkstationEventFilter WorkstationEventFilter)
         {
             var filter = _workstationEventService
-                 .WorkstationEventQuery()
+                 .Query()
                  .Include(w => w.Workstation)
                  .Include(w => w.Device)
                  .Include(w => w.Employee)

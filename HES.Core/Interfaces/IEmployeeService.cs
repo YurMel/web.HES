@@ -9,21 +9,8 @@ namespace HES.Core.Interfaces
 {
     public interface IEmployeeService
     {
-        IQueryable<Employee> EmployeeQuery();
-        IQueryable<Device> DeviceQuery();
-        IQueryable<DeviceAccount> DeviceAccountQuery();
-        IQueryable<DeviceTask> DeviceTaskQuery();
-        IQueryable<SharedAccount> SharedAccountQuery();
-        IQueryable<Template> TemplateQuery();
-        IQueryable<Company> CompanyQuery();
-        IQueryable<Department> DepartmentQuery();
-        IQueryable<Position> PositionQuery();
-        Task<Employee> EmployeeGetByIdAsync(dynamic id);
-        Task<Device> DeviceGetByIdAsync(dynamic id);
-        Task<DeviceAccount> DeviceAccountGetByIdAsync(dynamic id);
-        Task<DeviceTask> DeviceTaskGetByIdAsync(dynamic id);
-        Task<SharedAccount> SharedAccountGetByIdAsync(dynamic id);
-        Task<Template> TemplateGetByIdAsync(dynamic id);
+        IQueryable<Employee> Query();
+        Task<Employee> GetByIdAsync(dynamic id);
         Task<Employee> CreateEmployeeAsync(Employee employee);
         Task EditEmployeeAsync(Employee employee);
         Task DeleteEmployeeAsync(string id);

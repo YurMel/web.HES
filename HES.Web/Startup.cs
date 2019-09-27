@@ -68,42 +68,63 @@ namespace HES.Web
             services.AddSignalR();
 
             // Add Services
-            services.AddScoped(typeof(IAsyncRepository<>), typeof(Repository<>));
-            services.AddScoped<IDashboardService, DashboardService>();
+  services.AddScoped(typeof(IAsyncRepository<>), typeof(Repository<>));
+
+ services.AddScoped<IDashboardService, DashboardService>();
+
             services.AddScoped<IEmployeeService, EmployeeService>();
-            services.AddScoped<IWorkstationService, WorkstationService>();
-            services.AddScoped<IWorkstationEventService, WorkstationEventService>();
+
             services.AddScoped<IWorkstationSessionService, WorkstationSessionService>();
-            services.AddScoped<IWorkstationProximityDeviceService, WorkstationProximityDeviceService>();
+
             services.AddScoped<IDeviceService, DeviceService>();
             services.AddScoped<IDeviceTaskService, DeviceTaskService>();
             services.AddScoped<IDeviceAccountService, DeviceAccountService>();
+            services.AddScoped<IDeviceAccessProfilesService, DeviceAccessProfilesService>();
+
+            services.AddScoped<IWorkstationService, WorkstationService>();
+            services.AddScoped<IWorkstationProximityDeviceService, WorkstationProximityDeviceService>();
+            services.AddScoped<IWorkstationEventService, WorkstationEventService>();
+
             services.AddScoped<ISharedAccountService, SharedAccountService>();
             services.AddScoped<ITemplateService, TemplateService>();
-            services.AddScoped<ISettingsService, SettingsService>();
+
             services.AddScoped<IApplicationUserService, ApplicationUserService>();
-            services.AddScoped<IDeviceAccessProfilesService, DeviceAccessProfilesService>();
-            services.AddScoped<IAppVersionService, AppVersionService>();
+            services.AddSingleton<IDataProtectionService, DataProtectionService>(s =>
+            {
+                var scope = s.CreateScope();
+                var dataProtectionRepository = scope.ServiceProvider.GetService<IAsyncRepository<DataProtection>>();
+                var deviceRepository = scope.ServiceProvider.GetService<IAsyncRepository<Device>>();
+                var deviceTaskRepository = scope.ServiceProvider.GetService<IAsyncRepository<DeviceTask>>();
+                var sharedAccountRepository = scope.ServiceProvider.GetService<IAsyncRepository<SharedAccount>>();
+                var dataProtectionProvider = scope.ServiceProvider.GetService<IDataProtectionProvider>();
+                var notificationService = scope.ServiceProvider.GetService<INotificationService>();
+                var logger = scope.ServiceProvider.GetService<ILogger<DataProtectionService>>();
+                return new DataProtectionService(dataProtectionRepository,
+                                                 deviceRepository,
+                                                 deviceTaskRepository,
+                                                 sharedAccountRepository,
+                                                 dataProtectionProvider,
+                                                 notificationService,
+                                                 logger);
+            });
+            services.AddScoped<IOrgStructureService, OrgStructureService>();
             services.AddScoped<ISamlIdentityProviderService, SamlIdentityProviderService>();
+
             services.AddSingleton<IRemoteTaskService, RemoteTaskService>(s =>
             {
                 var scope = s.CreateScope();
-                var deviceAccountRepository = scope.ServiceProvider.GetService<IAsyncRepository<DeviceAccount>>();
-                var deviceTaskRepository = scope.ServiceProvider.GetService<IAsyncRepository<DeviceTask>>();
-                var deviceRepository = scope.ServiceProvider.GetService<IAsyncRepository<Device>>();
-                var workstationProximityDeviceService = scope.ServiceProvider.GetService<IWorkstationProximityDeviceService>();
-                var logger = scope.ServiceProvider.GetService<ILogger<RemoteTaskService>>();
+                var deviceService = scope.ServiceProvider.GetService<IDeviceService>();
+                var deviceTaskService = scope.ServiceProvider.GetService<IDeviceTaskService>();
+                var deviceAccountService = scope.ServiceProvider.GetService<IDeviceAccountService>();
                 var dataProtectionRepository = scope.ServiceProvider.GetService<IDataProtectionService>();
-                var deviceAccessProfilesService = scope.ServiceProvider.GetService<IDeviceAccessProfilesService>();
+                var logger = scope.ServiceProvider.GetService<ILogger<RemoteTaskService>>();
                 var hubContext = scope.ServiceProvider.GetService<IHubContext<EmployeeDetailsHub>>();
-                return new RemoteTaskService(deviceAccountRepository,
-                                            deviceTaskRepository,
-                                            deviceRepository,
-                                            workstationProximityDeviceService,
-                                            logger,
-                                            dataProtectionRepository,
-                                            deviceAccessProfilesService,
-                                            hubContext);
+                return new RemoteTaskService(deviceService,
+                                             deviceTaskService,
+                                             deviceAccountService,
+                                             dataProtectionRepository,
+                                             logger,
+                                             hubContext);
             });
             services.AddSingleton<IRemoteDeviceConnectionsService, RemoteDeviceConnectionsService>(s =>
             {
@@ -117,38 +138,19 @@ namespace HES.Web
                                                           employeeService,
                                                           dataProtectionService);
             });
-            services.AddSingleton<IDataProtectionService, DataProtectionService>(s =>
-            {
-                var scope = s.CreateScope();
-                var dataProtectionRepository = scope.ServiceProvider.GetService<IAsyncRepository<DataProtection>>();
-                var sharedAccountRepository = scope.ServiceProvider.GetService<IAsyncRepository<SharedAccount>>();
-                var deviceTaskRepository = scope.ServiceProvider.GetService<IAsyncRepository<DeviceTask>>();
-                var deviceRepository = scope.ServiceProvider.GetService<IAsyncRepository<Device>>();
-                var dataProtectionProvider = scope.ServiceProvider.GetService<IDataProtectionProvider>();
-                var notificationService = scope.ServiceProvider.GetService<INotificationService>();
-                var logger = scope.ServiceProvider.GetService<ILogger<DataProtectionService>>();
-                return new DataProtectionService(dataProtectionRepository,
-                                                 deviceRepository,
-                                                 deviceTaskRepository,
-                                                 sharedAccountRepository,
-                                                 dataProtectionProvider,
-                                                 notificationService,
-                                                 logger);
-            });
+
+            services.AddScoped<IAppService, AppService>();
             services.AddSingleton<INotificationService, NotificationService>(s =>
             {
                 var scope = s.CreateScope();
                 var logger = scope.ServiceProvider.GetService<ILogger<NotificationService>>();
                 var notificationRepository = scope.ServiceProvider.GetService<IAsyncRepository<Notification>>();
                 var applicationUserService = scope.ServiceProvider.GetService<IApplicationUserService>();
-                return new NotificationService(logger, notificationRepository, applicationUserService);
+                return new NotificationService(notificationRepository, applicationUserService, logger);
             });
-
-            // Crypto
-            services.AddTransient<IAesCryptography, AesCryptography>();
-            // Email
-            services.AddSingleton<IEmailSender, EmailSender>(i =>
-                 new EmailSender(
+            services.AddTransient<IAesCryptographyService, AesCryptographyService>();
+            services.AddSingleton<IEmailSenderService, EmailSenderService>(i =>
+                 new EmailSenderService(
                      Configuration["EmailSender:Host"],
                      Configuration.GetValue<int>("EmailSender:Port"),
                      Configuration.GetValue<bool>("EmailSender:EnableSSL"),

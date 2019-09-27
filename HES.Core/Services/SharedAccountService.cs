@@ -1,5 +1,6 @@
 ﻿using HES.Core.Entities;
 using HES.Core.Interfaces;
+using HES.Core.Utilities;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -12,27 +13,27 @@ namespace HES.Core.Services
     public class SharedAccountService : ISharedAccountService
     {
         private readonly IAsyncRepository<SharedAccount> _sharedAccountRepository;
-        private readonly IAsyncRepository<DeviceAccount> _deviceAccountRepository;
-        private readonly IRemoteTaskService _remoteTaskService;
+        private readonly IDeviceAccountService _deviceAccountService;
+        private readonly IDeviceTaskService _deviceTaskService;
         private readonly IDataProtectionService _dataProtectionService;
 
         public SharedAccountService(IAsyncRepository<SharedAccount> sharedAccountRepository,
-                                    IAsyncRepository<DeviceAccount> deviceAccountRepository,
-                                    IRemoteTaskService remoteTaskService,
+                                    IDeviceAccountService deviceAccountService,
+                                    IDeviceTaskService deviceTaskService,
                                     IDataProtectionService dataProtectionService)
         {
             _sharedAccountRepository = sharedAccountRepository;
-            _deviceAccountRepository = deviceAccountRepository;
-            _remoteTaskService = remoteTaskService;
+            _deviceAccountService = deviceAccountService;
+            _deviceTaskService = deviceTaskService;
             _dataProtectionService = dataProtectionService;
         }
 
-        public IQueryable<SharedAccount> SharedAccountQuery()
+        public IQueryable<SharedAccount> Query()
         {
             return _sharedAccountRepository.Query();
         }
 
-        public async Task<SharedAccount> SharedAccountGetByIdAsync(dynamic id)
+        public async Task<SharedAccount> GetByIdAsync(dynamic id)
         {
             return await _sharedAccountRepository.GetByIdAsync(id);
         }
@@ -61,30 +62,7 @@ namespace HES.Core.Services
             // Validate url
             if (sharedAccount.Urls != null)
             {
-                List<string> verifiedUrls = new List<string>();
-                foreach (var url in sharedAccount.Urls.Split(";"))
-                {
-                    string uriString = url;
-                    string domain = string.Empty;
-
-                    if (string.IsNullOrWhiteSpace(uriString))
-                    {
-                        throw new Exception("Not correct url");
-                    }
-
-                    if (!uriString.Contains(Uri.SchemeDelimiter))
-                    {
-                        uriString = string.Concat(Uri.UriSchemeHttp, Uri.SchemeDelimiter, uriString);
-                    }
-
-                    domain = new Uri(uriString).Host;
-
-                    if (domain.StartsWith("www."))
-                        domain = domain.Remove(0, 4);
-
-                    verifiedUrls.Add(domain);
-                }
-                sharedAccount.Urls = string.Join(";", verifiedUrls.ToArray());
+                sharedAccount.Urls = Utils.VerifyUrls(sharedAccount.Urls);
             }
             // Set password
             sharedAccount.Password = _dataProtectionService.Protect(input.Password);
@@ -100,7 +78,12 @@ namespace HES.Core.Services
             return await _sharedAccountRepository.AddAsync(sharedAccount);
         }
 
-        public async Task EditSharedAccountAsync(SharedAccount sharedAccount)
+        public async Task UpdateOnlyPropAsync(SharedAccount sharedAccount, string[] properties)
+        {
+            await _sharedAccountRepository.UpdateOnlyPropAsync(sharedAccount, properties);
+        }
+
+        public async Task<List<string>> EditSharedAccountAsync(SharedAccount sharedAccount)
         {
             _dataProtectionService.Validate();
 
@@ -125,30 +108,7 @@ namespace HES.Core.Services
             // Validate url
             if (sharedAccount.Urls != null)
             {
-                List<string> verifiedUrls = new List<string>();
-                foreach (var url in sharedAccount.Urls.Split(";"))
-                {
-                    string uriString = url;
-                    string domain = string.Empty;
-
-                    if (string.IsNullOrWhiteSpace(uriString))
-                    {
-                        throw new Exception("Not correct url");
-                    }
-
-                    if (!uriString.Contains(Uri.SchemeDelimiter))
-                    {
-                        uriString = string.Concat(Uri.UriSchemeHttp, Uri.SchemeDelimiter, uriString);
-                    }
-
-                    domain = new Uri(uriString).Host;
-
-                    if (domain.StartsWith("www."))
-                        domain = domain.Remove(0, 4);
-
-                    verifiedUrls.Add(domain);
-                }
-                sharedAccount.Urls = string.Join(";", verifiedUrls.ToArray());
+                sharedAccount.Urls = Utils.VerifyUrls(sharedAccount.Urls);
             }
 
             // Update Shared Account
@@ -157,7 +117,7 @@ namespace HES.Core.Services
 
             // Update all device accounts
             // Get all device accounts where equals this shared account
-            var deviceAccounts = await _deviceAccountRepository
+            var deviceAccounts = await _deviceAccountService
                 .Query()
                 .Where(d => d.Deleted == false)
                 .Where(d => d.SharedAccountId == sharedAccount.Id)
@@ -187,17 +147,16 @@ namespace HES.Core.Services
             }
 
             // Update device accounts
-            await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccounts, new string[] { "Status", "UpdatedAt" });
+            await _deviceAccountService.UpdateOnlyPropAsync(deviceAccounts, new string[] { "Status", "UpdatedAt" });
 
             // Create Tasks
-            await _remoteTaskService.AddRangeAsync(tasks);
+            await _deviceTaskService.AddRangeAsync(tasks);
 
-            // Start task processing
             var devices = deviceAccounts.Select(s => s.DeviceId).ToList();
-            _remoteTaskService.StartTaskProcessing(devices);
+            return devices;
         }
 
-        public async Task EditSharedAccountPwdAsync(SharedAccount sharedAccount, InputModel input)
+        public async Task<List<string>> EditSharedAccountPwdAsync(SharedAccount sharedAccount, InputModel input)
         {
             _dataProtectionService.Validate();
 
@@ -214,7 +173,7 @@ namespace HES.Core.Services
 
             // Update all device accounts
             // Get all device accounts where equals this shared account
-            var deviceAccounts = await _deviceAccountRepository
+            var deviceAccounts = await _deviceAccountService
                 .Query()
                 .Where(d => d.Deleted == false)
                 .Where(d => d.SharedAccountId == sharedAccount.Id)
@@ -239,17 +198,16 @@ namespace HES.Core.Services
             }
 
             // Update device accounts
-            await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccounts, new string[] { "Status", "UpdatedAt" });
+            await _deviceAccountService.UpdateOnlyPropAsync(deviceAccounts, new string[] { "Status", "UpdatedAt" });
 
             // Create Tasks
-            await _remoteTaskService.AddRangeAsync(tasks);
+            await _deviceTaskService.AddRangeAsync(tasks);
 
-            // Start task processing
             var devices = deviceAccounts.Select(s => s.DeviceId).ToList();
-            _remoteTaskService.StartTaskProcessing(devices);
+            return devices;
         }
 
-        public async Task EditSharedAccountOtpAsync(SharedAccount sharedAccount, InputModel input)
+        public async Task<List<string>> EditSharedAccountOtpAsync(SharedAccount sharedAccount, InputModel input)
         {
             _dataProtectionService.Validate();
 
@@ -266,7 +224,7 @@ namespace HES.Core.Services
 
             // Update all device accounts
             // Get all device accounts where equals this shared account
-            var deviceAccounts = await _deviceAccountRepository
+            var deviceAccounts = await _deviceAccountService
                 .Query()
                 .Where(d => d.Deleted == false)
                 .Where(d => d.SharedAccountId == sharedAccount.Id)
@@ -291,17 +249,16 @@ namespace HES.Core.Services
             }
 
             // Update device accounts
-            await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccounts, new string[] { "Status", "UpdatedAt" });
+            await _deviceAccountService.UpdateOnlyPropAsync(deviceAccounts, new string[] { "Status", "UpdatedAt" });
 
             // Create Tasks
-            await _remoteTaskService.AddRangeAsync(tasks);
+            await _deviceTaskService.AddRangeAsync(tasks);
 
-            // Start task processing
             var devices = deviceAccounts.Select(s => s.DeviceId).ToList();
-            _remoteTaskService.StartTaskProcessing(devices);
+            return devices;
         }
 
-        public async Task DeleteSharedAccountAsync(string id)
+        public async Task<List<string>> DeleteSharedAccountAsync(string id)
         {
             _dataProtectionService.Validate();
 
@@ -320,7 +277,7 @@ namespace HES.Core.Services
 
             // Update all device accounts
             // Get all device accounts where equals this shared account
-            var deviceAccounts = await _deviceAccountRepository
+            var deviceAccounts = await _deviceAccountService
                 .Query()
                 .Where(d => d.Deleted == false)
                 .Where(d => d.SharedAccountId == sharedAccount.Id)
@@ -336,22 +293,21 @@ namespace HES.Core.Services
                 // Add Device Task
                 tasks.Add(new DeviceTask
                 {
-                    DeviceAccountId = deviceAccount.Id,         
+                    DeviceAccountId = deviceAccount.Id,
                     CreatedAt = DateTime.UtcNow,
                     Operation = TaskOperation.Delete,
-                    DeviceId = deviceAccount.DeviceId  
+                    DeviceId = deviceAccount.DeviceId
                 });
             }
 
             // Update device accounts
-            await _deviceAccountRepository.UpdateOnlyPropAsync(deviceAccounts, new string[] { "Status", "UpdatedAt" });
+            await _deviceAccountService.UpdateOnlyPropAsync(deviceAccounts, new string[] { "Status", "UpdatedAt" });
 
             // Create Tasks
-            await _remoteTaskService.AddRangeAsync(tasks);
+            await _deviceTaskService.AddRangeAsync(tasks);
 
-            // Start task processing
             var devices = deviceAccounts.Select(s => s.DeviceId).ToList();
-            _remoteTaskService.StartTaskProcessing(devices);
+            return devices;
         }
 
         public async Task<bool> ExistAync(Expression<Func<SharedAccount, bool>> predicate)

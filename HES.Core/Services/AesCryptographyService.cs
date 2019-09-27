@@ -6,12 +6,12 @@ using System.Text;
 
 namespace HES.Core.Services
 {
-    public class AesCryptography : IAesCryptography
+    public class AesCryptographyService : IAesCryptographyService
     {
         private byte[] saltBytes { get; }
         private SymmetricAlgorithm cipher { get; }
 
-        public AesCryptography()
+        public AesCryptographyService()
         {
             saltBytes = new byte[] { 1, 123, 90, 49, 98, 121, 2, 56 };
 

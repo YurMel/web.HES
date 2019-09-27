@@ -19,6 +19,8 @@ namespace HES.Web.Pages.Devices
         private readonly IDeviceService _deviceService;
         private readonly IEmployeeService _employeeService;
         private readonly IDeviceAccessProfilesService _deviceAccessProfilesService;
+        private readonly IRemoteTaskService _remoteTaskService;
+        private readonly IOrgStructureService _orgStructureService;
         private readonly ILogger<IndexModel> _logger;
 
         public IList<DeviceAccessProfile> DeviceAccessProfiles { get; set; }
@@ -34,11 +36,15 @@ namespace HES.Web.Pages.Devices
         public IndexModel(IDeviceService deviceService,
                           IEmployeeService employeeService,
                           IDeviceAccessProfilesService deviceAccessProfilesService,
+                          IRemoteTaskService remoteTaskService,
+                          IOrgStructureService orgStructureService,
                           ILogger<IndexModel> logger)
         {
             _deviceService = deviceService;
             _employeeService = employeeService;
             _deviceAccessProfilesService = deviceAccessProfilesService;
+            _remoteTaskService = remoteTaskService;
+            _orgStructureService = orgStructureService;
             _logger = logger;
         }
 
@@ -51,8 +57,8 @@ namespace HES.Web.Pages.Devices
                 .ToListAsync();
 
             ViewData["Firmware"] = new SelectList(Devices.Select(s => s.Firmware).Distinct().OrderBy(f => f).ToDictionary(t => t, t => t), "Key", "Value");
-            ViewData["Employees"] = new SelectList(await _employeeService.EmployeeQuery().OrderBy(e => e.FirstName).ThenBy(e => e.LastName).ToListAsync(), "Id", "FullName");
-            ViewData["Companies"] = new SelectList(await _employeeService.CompanyQuery().ToListAsync(), "Id", "Name");
+            ViewData["Employees"] = new SelectList(await _employeeService.Query().OrderBy(e => e.FirstName).ThenBy(e => e.LastName).ToListAsync(), "Id", "FullName");
+            ViewData["Companies"] = new SelectList(await _orgStructureService.CompanyQuery().ToListAsync(), "Id", "Name");
 
             ViewData["DatePattern"] = CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern.ToLower();
             ViewData["TimePattern"] = CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern.ToUpper() == "H:MM" ? "hh:ii" : "hh:ii aa";
@@ -153,7 +159,7 @@ namespace HES.Web.Pages.Devices
 
         public async Task<JsonResult> OnGetJsonDepartmentAsync(string id)
         {
-            return new JsonResult(await _employeeService.DepartmentQuery().Where(d => d.CompanyId == id).ToListAsync());
+            return new JsonResult(await _orgStructureService.DepartmentQuery().Where(d => d.CompanyId == id).ToListAsync());
         }
 
         public async Task<IActionResult> OnGetSetProfileAsync()
@@ -173,6 +179,7 @@ namespace HES.Web.Pages.Devices
             try
             {
                 await _deviceService.UpdateProfileAsync(devices, profileId);
+                _remoteTaskService.StartTaskProcessing(devices);
                 SuccessMessage = $"New profile sent to server for processing.";
             }
             catch (Exception ex)
@@ -215,6 +222,7 @@ namespace HES.Web.Pages.Devices
             try
             {
                 await _deviceService.UnlockPinAsync(deviceId);
+                _remoteTaskService.StartTaskProcessing(deviceId);
                 SuccessMessage = $"Pending unlock.";
             }
             catch (Exception ex)

@@ -1,6 +1,6 @@
 ﻿namespace HES.Core.Interfaces
 {
-    public interface IAppVersionService
+    public interface IAppService
     {
         string Version { get; }
     }

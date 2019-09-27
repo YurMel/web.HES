@@ -1,0 +1,39 @@
+﻿@page
+@model HES.Web.Pages.Devices.DeviceTasksModel
+@{
+    ViewData["Title"] = "DeviceTasks";
+}
+
+<h1>DeviceTasks</h1>
+
+<table class="table table-hover border rounded" style="width:100%">
+    <thead>
+        <tr>
+            <th data-priority="1">
+                @Html.DisplayNameFor(model => model.DeviceTasks[0].DeviceId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DeviceTasks[0].Operation)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DeviceTasks[0].CreatedAt)
+            </th>            
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.DeviceTasks)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DeviceId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Operation)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CreatedAt)
+                </td>   
+            </tr>
+        }
+    </tbody>
+</table>

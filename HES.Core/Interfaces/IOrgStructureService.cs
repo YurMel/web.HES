@@ -4,12 +4,11 @@ using System.Threading.Tasks;
 
 namespace HES.Core.Interfaces
 {
-    public interface ISettingsService
+    public interface IOrgStructureService
     {
         IQueryable<Company> CompanyQuery();
         IQueryable<Department> DepartmentQuery();
         IQueryable<Position> PositionQuery();
-        IQueryable<Employee> EmployeeQuery();
         Task CreateCompanyAsync(Company company);
         Task EditCompanyAsync(Company company);
         Task DeleteCompanyAsync(string id);

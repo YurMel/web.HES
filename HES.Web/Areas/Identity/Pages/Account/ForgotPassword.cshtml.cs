@@ -16,11 +16,11 @@ namespace HES.Web.Areas.Identity.Pages.Account
     public class ForgotPasswordModel : PageModel
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IEmailSender _emailSender;
+        private readonly IEmailSenderService _emailSender;
         private readonly IEmployeeService _employeeService;
 
         public ForgotPasswordModel(UserManager<ApplicationUser> userManager,
-                                   IEmailSender emailSender,
+                                   IEmailSenderService emailSender,
                                    IEmployeeService employeeService)
         {
             _userManager = userManager;
@@ -48,7 +48,7 @@ namespace HES.Web.Areas.Identity.Pages.Account
                     // Don't reveal that the user does not exist or is not confirmed
                     return RedirectToPage("./ForgotPasswordConfirmation");
                 }
-                var employee = await _employeeService.EmployeeQuery().FirstOrDefaultAsync(e => e.Email == Input.Email);
+                var employee = await _employeeService.Query().FirstOrDefaultAsync(e => e.Email == Input.Email);
                 var resetPasswordUrl = "/Account/ResetPassword";
                 var emailTitle = "Reset Password";
                 var emailBody = "Please reset your password by";

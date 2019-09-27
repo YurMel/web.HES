@@ -1,5 +1,5 @@
 ﻿@using HES.Core.Interfaces
-@inject IAppVersionService AppVersionService
+@inject IAppService AppService
 
 <div class="navigation-menu">
     <div class="navigation-menu__body">
@@ -121,6 +121,6 @@
     <div class="navigation-menu__footer copyright">
         <span class="d-block">© 2019 Hideez Group Inc.</span>
         <span class="d-block">Hideez Enterprise Server</span>
-        <span class="d-block">Version: @AppVersionService.Version</span>
+        <span class="d-block">Version: @AppService.Version</span>
     </div>
 </div>
