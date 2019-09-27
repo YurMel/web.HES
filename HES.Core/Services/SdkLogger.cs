@@ -6,7 +6,7 @@ namespace HES.Core.Services
 {
     public class SdkLogger : ILog
     {
-        ILogger<RemoteDeviceConnectionsService> _logger; //todo
+        private readonly ILogger<RemoteDeviceConnectionsService> _logger; //todo
 
         public SdkLogger(ILogger<RemoteDeviceConnectionsService> logger)
         {

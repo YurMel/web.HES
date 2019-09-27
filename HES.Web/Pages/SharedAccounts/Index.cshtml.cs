@@ -15,6 +15,7 @@ namespace HES.Web.Pages.SharedAccounts
     {
         private readonly ISharedAccountService _sharedAccountService;
         private readonly IRemoteTaskService _remoteTaskService;
+        private readonly IRemoteWorkstationConnectionsService _remoteWorkstationConnectionsService;
         private readonly ILogger<IndexModel> _logger;
 
         public IList<SharedAccount> SharedAccounts { get; set; }
@@ -26,10 +27,14 @@ namespace HES.Web.Pages.SharedAccounts
         [TempData]
         public string ErrorMessage { get; set; }
 
-        public IndexModel(ISharedAccountService sharedAccountService, IRemoteTaskService remoteTaskService, ILogger<IndexModel> logger)
+        public IndexModel(ISharedAccountService sharedAccountService,
+                          IRemoteTaskService remoteTaskService,
+                          IRemoteWorkstationConnectionsService remoteWorkstationConnectionsService,
+                          ILogger<IndexModel> logger)
         {
             _sharedAccountService = sharedAccountService;
             _remoteTaskService = remoteTaskService;
+            _remoteWorkstationConnectionsService = remoteWorkstationConnectionsService;
             _logger = logger;
         }
 
@@ -102,8 +107,7 @@ namespace HES.Web.Pages.SharedAccounts
             try
             {
                 var devices = await _sharedAccountService.EditSharedAccountAsync(sharedAccount);
-                //todo - use AppHub.StartUpdateRemoteDevice
-                //_remoteTaskService.StartTaskProcessing(devices);
+                _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(devices);
                 SuccessMessage = $"Shared account updated.";
             }
             catch (Exception ex)
@@ -146,8 +150,7 @@ namespace HES.Web.Pages.SharedAccounts
             try
             {
                 var devices = await _sharedAccountService.EditSharedAccountPwdAsync(sharedAccount, input);
-                //todo - use AppHub.StartUpdateRemoteDevice
-                //_remoteTaskService.StartTaskProcessing(devices);
+                _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(devices);
                 SuccessMessage = $"Shared account updated.";
             }
             catch (Exception ex)
@@ -185,8 +188,7 @@ namespace HES.Web.Pages.SharedAccounts
             try
             {
                 var devices = await _sharedAccountService.EditSharedAccountOtpAsync(sharedAccount, input);
-                //todo - use AppHub.StartUpdateRemoteDevice
-                //_remoteTaskService.StartTaskProcessing(devices);
+                _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(devices);
                 SuccessMessage = $"Shared account updated.";
             }
             catch (Exception ex)
@@ -229,8 +231,7 @@ namespace HES.Web.Pages.SharedAccounts
             try
             {
                 var devices = await _sharedAccountService.DeleteSharedAccountAsync(id);
-                //todo - use AppHub.StartUpdateRemoteDevice
-                //_remoteTaskService.StartTaskProcessing(devices);
+                _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(devices);
                 SuccessMessage = $"Shared account deleted.";
             }
             catch (Exception ex)

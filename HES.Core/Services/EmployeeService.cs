@@ -23,7 +23,6 @@ namespace HES.Core.Services
         private readonly IWorkstationProximityDeviceService _workstationProximityDeviceService;
         private readonly IAsyncRepository<WorkstationEvent> _workstationEventRepository;
         private readonly IAsyncRepository<WorkstationSession> _workstationSessionRepository;
-        //private readonly IRemoteTaskService _remoteTaskService;
         private readonly IDataProtectionService _dataProtectionService;
         private readonly ISamlIdentityProviderService _samlIdentityProviderService;
 
@@ -35,7 +34,6 @@ namespace HES.Core.Services
                                IWorkstationProximityDeviceService workstationProximityDeviceService,
                                IAsyncRepository<WorkstationEvent> workstationEventRepository,
                                IAsyncRepository<WorkstationSession> workstationSessionRepository,
-                               //IRemoteTaskService remoteTaskService,
                                IDataProtectionService dataProtectionService,
                                ISamlIdentityProviderService samlIdentityProviderService)
         {
@@ -48,7 +46,6 @@ namespace HES.Core.Services
 
             _workstationEventRepository = workstationEventRepository;
             _workstationSessionRepository = workstationSessionRepository;
-            //_remoteTaskService = remoteTaskService;
             _dataProtectionService = dataProtectionService;
             _samlIdentityProviderService = samlIdentityProviderService;
         }
@@ -184,9 +181,6 @@ namespace HES.Core.Services
                 await _deviceAccountService.DeleteAsync(deviceAccount);
                 throw;
             }
-
-            //todo - move to UI
-            //_remoteTaskService.StartTaskProcessing(device.Id);
         }
 
         public async Task UpdatePasswordSamlIdpAccountAsync(string email, string password)
@@ -227,9 +221,6 @@ namespace HES.Core.Services
                 await _deviceAccountService.UpdateOnlyPropAsync(deviceAccount, properties);
                 throw;
             }
-
-            //todo - move to UI
-            //_remoteTaskService.StartTaskProcessing(deviceAccount.DeviceId);
         }
 
         public async Task UpdateOtpSamlIdpAccountAsync(string email, string otp)
@@ -281,9 +272,6 @@ namespace HES.Core.Services
                 await _deviceAccountService.UpdateOnlyPropAsync(deviceAccount, properties);
                 throw;
             }
-
-            //todo - move to UI
-            //_remoteTaskService.StartTaskProcessing(deviceAccount.DeviceId);
         }
 
         public async Task UpdateUrlSamlIdpAccountAsync(string hesUrl)
@@ -418,9 +406,6 @@ namespace HES.Core.Services
                     CreatedAt = DateTime.UtcNow,
                     DeviceId = device.Id
                 });
-
-            //todo - move to UI
-                //_remoteTaskService.StartTaskProcessing(deviceId);
             }
         }
 
@@ -461,9 +446,6 @@ namespace HES.Core.Services
                 Operation = TaskOperation.Wipe,
                 DeviceId = device.Id
             });
-
-            //todo - move to UI
-            //_remoteTaskService.StartTaskProcessing(deviceId);
         }
 
         public async Task CreateWorkstationAccountAsync(WorkstationAccountModel workstationAccount, string employeeId, string deviceId)
@@ -612,9 +594,6 @@ namespace HES.Core.Services
                 await _deviceAccountService.DeleteRangeAsync(accounts);
                 throw;
             }
-
-            //todo - move to UI
-            //_remoteTaskService.StartTaskProcessing(selectedDevices);
         }
 
         public async Task EditPersonalAccountAsync(DeviceAccount deviceAccount)
@@ -694,9 +673,6 @@ namespace HES.Core.Services
                 await _deviceAccountService.UpdateOnlyPropAsync(deviceAccount, properties);
                 throw;
             }
-
-            //todo - move to UI
-            //_remoteTaskService.StartTaskProcessing(deviceAccount.DeviceId);
         }
 
         public async Task EditPersonalAccountPwdAsync(DeviceAccount deviceAccount, InputModel input)
@@ -733,9 +709,6 @@ namespace HES.Core.Services
                 await _deviceAccountService.UpdateOnlyPropAsync(deviceAccount, properties);
                 throw;
             }
-
-            //todo - move to UI
-            //_remoteTaskService.StartTaskProcessing(deviceAccount.DeviceId);
         }
 
         public async Task EditPersonalAccountOtpAsync(DeviceAccount deviceAccount, InputModel input)
@@ -770,9 +743,6 @@ namespace HES.Core.Services
                 await _deviceAccountService.UpdateOnlyPropAsync(deviceAccount, properties);
                 throw;
             }
-
-            //todo - move to UI
-            //_remoteTaskService.StartTaskProcessing(deviceAccount.DeviceId);
         }
 
         public async Task AddSharedAccount(string employeeId, string sharedAccountId, string[] selectedDevices)
@@ -858,12 +828,9 @@ namespace HES.Core.Services
                 await _deviceAccountService.DeleteRangeAsync(accounts);
                 throw;
             }
-
-            //todo - move to UI
-            //_remoteTaskService.StartTaskProcessing(selectedDevices);
         }
 
-        public async Task DeleteAccount(string accountId)
+        public async Task<string> DeleteAccount(string accountId)
         {
             _dataProtectionService.Validate();
 
@@ -897,9 +864,7 @@ namespace HES.Core.Services
                 await _deviceAccountService.UpdateOnlyPropAsync(deviceAccount, properties);
                 throw;
             }
-
-            //todo - move to UI
-            //_remoteTaskService.StartTaskProcessing(deviceAccount.DeviceId);
+            return deviceAccount.DeviceId;
         }
 
         public async Task UndoChanges(string accountId)

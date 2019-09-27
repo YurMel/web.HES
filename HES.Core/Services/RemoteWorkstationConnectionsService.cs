@@ -53,6 +53,15 @@ namespace HES.Core.Services
         }
 
         #region Device
+
+        public void StartUpdateRemoteDevice(IList<string> devicesId)
+        {
+            foreach (var device in devicesId)
+            {
+                StartUpdateRemoteDevice(device);
+            }
+        }
+
         public void StartUpdateRemoteDevice(string deviceId)
         {
             Debug.WriteLine($"!!!!!!!!!!!!! StartUpdateRemoteDevice {deviceId}");
@@ -247,6 +256,7 @@ namespace HES.Core.Services
                 return new HideezErrorInfo(ex);
             }
         }
+
         #endregion Device
 
         #region Workstation
@@ -260,12 +270,12 @@ namespace HES.Core.Services
             return workstationDescr;
         }
 
-        public async Task<HideezErrorInfo> RegisterWorkstationInfo(IRemoteAppConnection remoteAppConnection, 
+        public async Task<HideezErrorInfo> RegisterWorkstationInfo(IRemoteAppConnection remoteAppConnection,
                                                                    WorkstationInfo workstationInfo)
         {
             try
             {
-                _workstationConnections.AddOrUpdate(workstationInfo.Id, remoteAppConnection, (id, oldConnection) => 
+                _workstationConnections.AddOrUpdate(workstationInfo.Id, remoteAppConnection, (id, oldConnection) =>
                 {
                     return remoteAppConnection;
                 });

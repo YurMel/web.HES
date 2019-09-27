@@ -21,6 +21,7 @@ namespace HES.Web.Pages.Employees
         private readonly IWorkstationService _workstationService;
         private readonly IWorkstationProximityDeviceService _workstationProximityDeviceService;
         private readonly IOrgStructureService _orgStructureService;
+        private readonly IRemoteWorkstationConnectionsService _remoteWorkstationConnectionsService;
         private readonly ILogger<IndexModel> _logger;
 
         public IList<Employee> Employees { get; set; }
@@ -45,6 +46,7 @@ namespace HES.Web.Pages.Employees
                           IWorkstationService workstationService,
                           IWorkstationProximityDeviceService workstationProximityDeviceService,
                           IOrgStructureService orgStructureService,
+                          IRemoteWorkstationConnectionsService remoteWorkstationConnectionsService,
                           ILogger<IndexModel> logger)
         {
             _employeeService = employeeService;
@@ -52,6 +54,7 @@ namespace HES.Web.Pages.Employees
             _workstationService = workstationService;
             _workstationProximityDeviceService = workstationProximityDeviceService;
             _orgStructureService = orgStructureService;
+            _remoteWorkstationConnectionsService = remoteWorkstationConnectionsService;
             _logger = logger;
         }
 
@@ -151,6 +154,7 @@ namespace HES.Web.Pages.Employees
 
                 // Add device
                 await _employeeService.AddDeviceAsync(user.Id, new string[] { EmployeeWizard.DeviceId });
+                _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(EmployeeWizard.DeviceId);
 
                 // Proximity
                 if (EmployeeWizard.ProximityUnlock == true)
@@ -160,6 +164,7 @@ namespace HES.Web.Pages.Employees
 
                 // Add account
                 await _employeeService.CreateWorkstationAccountAsync(EmployeeWizard.WorkstationAccount, user.Id, EmployeeWizard.DeviceId);
+                _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(EmployeeWizard.DeviceId);
 
                 SuccessMessage = $"Employee created.";
             }

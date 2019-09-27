@@ -16,16 +16,19 @@ namespace HES.Web.Areas.Identity.Pages.Account.External
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IEmployeeService _employeeService;
+        private readonly IRemoteWorkstationConnectionsService _remoteWorkstationConnectionsService;
         private readonly ILogger<ActivateAccountModel> _logger;
 
         public ActivateAccountModel(UserManager<ApplicationUser> userManager,
                             SignInManager<ApplicationUser> signInManager,
                             IEmployeeService employeeService,
+                            IRemoteWorkstationConnectionsService remoteWorkstationConnectionsService,
                             ILogger<ActivateAccountModel> logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _employeeService = employeeService;
+            _remoteWorkstationConnectionsService = remoteWorkstationConnectionsService;
             _logger = logger;
         }
 
@@ -89,6 +92,7 @@ namespace HES.Web.Areas.Identity.Pages.Account.External
                 {
                     _logger.LogInformation($"SAML IdP User {user.Email} logged in.");
                     await _employeeService.CreateSamlIdpAccountAsync(Input.Email, Input.Password, Request.Host.Value, user.DeviceId);
+                    _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(user.DeviceId);
                     return LocalRedirect("~/Identity/Account/External");
                 }
             }

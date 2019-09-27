@@ -29,7 +29,7 @@ namespace HES.Core.Interfaces
         Task EditPersonalAccountPwdAsync(DeviceAccount deviceAccount, InputModel input);
         Task EditPersonalAccountOtpAsync(DeviceAccount deviceAccount, InputModel input);
         Task AddSharedAccount(string employeeId, string sharedAccountId, string[] selectedDevices);
-        Task DeleteAccount(string accountId);
+        Task<string> DeleteAccount(string accountId);
         Task UndoChanges(string accountId);
         Task HandlingMasterPasswordErrorAsync(string deviceId);
     }

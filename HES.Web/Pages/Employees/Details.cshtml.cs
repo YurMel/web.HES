@@ -24,6 +24,7 @@ namespace HES.Web.Pages.Employees
         private readonly ITemplateService _templateService;
         private readonly ISamlIdentityProviderService _samlIdentityProviderService;
         private readonly IApplicationUserService _applicationUserService;
+        private readonly IRemoteWorkstationConnectionsService _remoteWorkstationConnectionsService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEmailSenderService _emailSender;
         private readonly ILogger<DetailsModel> _logger;
@@ -52,6 +53,7 @@ namespace HES.Web.Pages.Employees
                             ITemplateService templateService,
                             ISamlIdentityProviderService samlIdentityProviderService,
                             IApplicationUserService applicationUserService,
+                            IRemoteWorkstationConnectionsService remoteWorkstationConnectionsService,
                             UserManager<ApplicationUser> userManager,
                             IEmailSenderService emailSender,
                             ILogger<DetailsModel> logger)
@@ -63,6 +65,7 @@ namespace HES.Web.Pages.Employees
             _templateService = templateService;
             _samlIdentityProviderService = samlIdentityProviderService;
             _applicationUserService = applicationUserService;
+            _remoteWorkstationConnectionsService = remoteWorkstationConnectionsService;
             _userManager = userManager;
             _emailSender = emailSender;
             _logger = logger;
@@ -312,6 +315,7 @@ namespace HES.Web.Pages.Employees
             try
             {
                 await _employeeService.AddDeviceAsync(employeeId, selectedDevices);
+                _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(selectedDevices);
 
                 if (selectedDevices.Length > 1)
                 {
@@ -377,6 +381,7 @@ namespace HES.Web.Pages.Employees
             try
             {
                 await _employeeService.RemoveDeviceAsync(device.EmployeeId, device.Id);
+                _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(device.Id);
                 SuccessMessage = $"Device {device.Id} deleted.";
             }
             catch (Exception ex)
@@ -429,6 +434,7 @@ namespace HES.Web.Pages.Employees
             try
             {
                 await _employeeService.CreatePersonalAccountAsync(deviceAccount, input, selectedDevices);
+                _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(selectedDevices);
                 SuccessMessage = "Account created and will be recorded when the device is connected to the server.";
             }
             catch (Exception ex)
@@ -484,6 +490,7 @@ namespace HES.Web.Pages.Employees
             try
             {
                 await _employeeService.EditPersonalAccountAsync(deviceAccount);
+                _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(deviceAccount.DeviceId);
                 SuccessMessage = "Account updated and will be recorded when the device is connected to the server.";
             }
             catch (Exception ex)
@@ -531,6 +538,7 @@ namespace HES.Web.Pages.Employees
             try
             {
                 await _employeeService.EditPersonalAccountPwdAsync(deviceAccount, input);
+                _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(deviceAccount.DeviceId);
                 SuccessMessage = "Account updated and will be recorded when the device is connected to the server.";
             }
             catch (Exception ex)
@@ -572,6 +580,7 @@ namespace HES.Web.Pages.Employees
             try
             {
                 await _employeeService.EditPersonalAccountOtpAsync(deviceAccount, input);
+                _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(deviceAccount.DeviceId);
                 SuccessMessage = "Account updated and will be recorded when the device is connected to the server.";
             }
             catch (Exception ex)
@@ -623,6 +632,7 @@ namespace HES.Web.Pages.Employees
             try
             {
                 await _employeeService.AddSharedAccount(employeeId, sharedAccountId, selectedDevices);
+                _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(selectedDevices);
                 SuccessMessage = "Account added and will be recorded when the device is connected to the server.";
             }
             catch (Exception ex)
@@ -670,7 +680,8 @@ namespace HES.Web.Pages.Employees
 
             try
             {
-                await _employeeService.DeleteAccount(accountId);
+                var deviceId = await _employeeService.DeleteAccount(accountId);
+                _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(deviceId);
                 SuccessMessage = "Account deleting and will be deleted when the device is connected to the server.";
             }
             catch (Exception ex)

@@ -21,6 +21,7 @@ namespace HES.Web.Pages.Devices
         private readonly IDeviceAccessProfilesService _deviceAccessProfilesService;
         private readonly IRemoteTaskService _remoteTaskService;
         private readonly IOrgStructureService _orgStructureService;
+        private readonly IRemoteWorkstationConnectionsService _remoteWorkstationConnectionsService;
         private readonly ILogger<IndexModel> _logger;
 
         public IList<DeviceAccessProfile> DeviceAccessProfiles { get; set; }
@@ -38,6 +39,7 @@ namespace HES.Web.Pages.Devices
                           IDeviceAccessProfilesService deviceAccessProfilesService,
                           IRemoteTaskService remoteTaskService,
                           IOrgStructureService orgStructureService,
+                          IRemoteWorkstationConnectionsService remoteWorkstationConnectionsService,
                           ILogger<IndexModel> logger)
         {
             _deviceService = deviceService;
@@ -45,6 +47,7 @@ namespace HES.Web.Pages.Devices
             _deviceAccessProfilesService = deviceAccessProfilesService;
             _remoteTaskService = remoteTaskService;
             _orgStructureService = orgStructureService;
+            _remoteWorkstationConnectionsService = remoteWorkstationConnectionsService;
             _logger = logger;
         }
 
@@ -179,8 +182,7 @@ namespace HES.Web.Pages.Devices
             try
             {
                 await _deviceService.UpdateProfileAsync(devices, profileId);
-                //todo - use AppHub.StartUpdateRemoteDevice
-                //_remoteTaskService.StartTaskProcessing(devices);
+                _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(devices);
                 SuccessMessage = $"New profile sent to server for processing.";
             }
             catch (Exception ex)
@@ -223,8 +225,7 @@ namespace HES.Web.Pages.Devices
             try
             {
                 await _deviceService.UnlockPinAsync(deviceId);
-                //todo - use AppHub.StartUpdateRemoteDevice
-                //_remoteTaskService.StartTaskProcessing(deviceId);
+                _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(deviceId);
                 SuccessMessage = $"Pending unlock.";
             }
             catch (Exception ex)
