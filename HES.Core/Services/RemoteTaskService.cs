@@ -27,7 +27,7 @@ namespace HES.Core.Services
         private readonly IHubContext<EmployeeDetailsHub> _hubContext;
 
         public RemoteTaskService(IDeviceService deviceService,
-                                 IDeviceTaskService deviceTaskService,                              
+                                 IDeviceTaskService deviceTaskService,
                                  IDeviceAccountService deviceAccountService,
                                  IDataProtectionService dataProtectionService,
                                  ILogger<RemoteTaskService> logger,
@@ -40,7 +40,7 @@ namespace HES.Core.Services
             _logger = logger;
             _hubContext = hubContext;
         }
-             
+
         //public async Task ProcessTasksAsync(string deviceId, TaskOperation operation)
         //{
         //    Debug.WriteLine($"+++++++++++++ ProcessTasksAsync start {deviceId}");
@@ -179,7 +179,10 @@ namespace HES.Core.Services
             await _deviceTaskService.DeleteTaskAsync(deviceTask);
 
             // Update UI 
-            await _hubContext.Clients.All.SendAsync("ReloadPage", deviceAccount?.EmployeeId);
+            if (deviceAccount != null)
+            {
+                await _hubContext.Clients.All.SendAsync("UpdateTable", deviceAccount.EmployeeId);
+            }
         }
 
         public async Task<HideezErrorCode> ExecuteRemoteTasks(string deviceId, TaskOperation operation)

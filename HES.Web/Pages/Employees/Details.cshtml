@@ -103,6 +103,7 @@
 
 @section Scripts{
     <script src="~/js/custom-popover.js"></script>
+    <script src="~/lib/signalr/signalr.js"></script>
     <script>
         // Open modal dialog
         $(document).on('click', '.open-modal-dialog', function () {
@@ -193,44 +194,37 @@
         }
 
         // Set DataTables
-        $("table").each(function () {
-            var currentTable = $(this);
-            var currentId = currentTable.attr('id');
+        SetDT();
+        function SetDT() {
+            $("table").each(function () {
+                var currentTable = $(this);
+                var currentId = currentTable.attr('id');
 
-            if (currentId != 'undefined') {
-                if (currentId.substr(0, 5) =='title') {
-                    $('#' + currentId).DataTable({
-                        responsive: true,
-                        "paging": false,
-                        "ordering": false,
-                        "info": false
-                    });
-                }
-                else {
+                if (currentId != 'undefined') {
                     $('#' + currentId).DataTable({
                         responsive: true,
                         "order": [[1, "asc"]],
                         "columnDefs": [
-                            { "orderable": false, "targets": [0,12] }
+                            { "orderable": false, "targets": [0, 12] }
                         ]
                     });
-                }
 
-                var dataTable = $('#' + currentId).dataTable();
-                // Search box
-                $('#searchbox_' + currentId).keyup(function () {
-                    dataTable.fnFilter(this.value);
-                });
-                $('.dataTables_filter').addClass('d-none');
-                // Length
-                $('#entries_place_' + currentId).html($('.dataTables_length select').removeClass('custom-select-sm form-control-sm'));
-                $('.dataTables_length').addClass('d-none');
-                // Info
-                $('#showing_place_' + currentId).html($('#' + currentId + '_info'));
-                // Paginate
-                $('#pagination_place_' + currentId).html($('#' + currentId + '_paginate'));
-            }
-        });
+                    var dataTable = $('#' + currentId).dataTable();
+                    // Search box
+                    $('#searchbox_' + currentId).keyup(function () {
+                        dataTable.fnFilter(this.value);
+                    });
+                    $('.dataTables_filter').addClass('d-none');
+                    // Length
+                    $('#entries_place_' + currentId).html($('.dataTables_length select').removeClass('custom-select-sm form-control-sm'));
+                    $('.dataTables_length').addClass('d-none');
+                    // Info
+                    $('#showing_place_' + currentId).html($('#' + currentId + '_info'));
+                    // Paginate
+                    $('#pagination_place_' + currentId).html($('#' + currentId + '_paginate'));
+                }
+            });
+        }
 
         // SAML IdP
         $(document).on("change", "#idpEnabled", function () {
@@ -257,7 +251,6 @@
             }
         });
 
-
         $(document).ready(function () {
             // Set btn disable if device count 0
             if (@Model.Employee.Devices.Count() == 0) {
@@ -272,23 +265,21 @@
             $('.breadcrumb').append('<li class="breadcrumb-item active">@Model.Employee.FullName</li>');
         });
 
+        // SignalR
         var connection = new signalR.HubConnectionBuilder().withUrl("/employeeDetailsHub").build();
-
         connection.start();
-
-        connection.on("ReloadPage", function (id) {
+        connection.on("UpdateTable", function (id) {
             $.ajax({
-                url: "/Employees/Details?handler=UpdatePage",
+                url: "/Employees/Details?handler=UpdateTable",
                 type: "Get",
                 data: { id: id },
                 async: true,
                 success: function (response) {
                     $("#employeeDeviceAccounts").html(response);
+                    SetDT();
                 }
             });
         });
     </script>
-    <script src="~/lib/signalr/signalr.js"></script>
-    @*<script src="~/lib/signalr/employee.details.js"></script>*@
     <partial name="_ValidationScriptsPartial" />
 }
