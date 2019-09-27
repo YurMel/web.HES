@@ -98,6 +98,7 @@ namespace HES.Web.Pages.Employees
                 .Include(d => d.Device)
                 .Include(d => d.Employee)
                 .Include(d => d.SharedAccount)
+                .Where(e => e.EmployeeId == Employee.Id)
                 .Where(d => d.Deleted == false && d.Name != SamlIdentityProvider.DeviceAccountName)
                 .ToListAsync();
 
@@ -116,6 +117,40 @@ namespace HES.Web.Pages.Employees
             SamlIdentityProviderEnabled = await _samlIdentityProviderService.GetStatusAsync();
 
             return Page();
+        }
+
+        public async Task<IActionResult> OnGetUpdatePageAsync(string id)
+        {
+            //if (id == null)
+            //{
+            //    _logger.LogWarning("id == null");
+            //    return NotFound();
+            //}
+
+            Employee = await _employeeService
+                .Query()
+                .Include(e => e.Department.Company)
+                .Include(e => e.Department)
+                .Include(e => e.Position)
+                .Include(e => e.Devices).ThenInclude(e => e.DeviceAccessProfile)
+                .FirstOrDefaultAsync(e => e.Id == id);
+
+            //if (Employee == null)
+            //{
+            //    _logger.LogWarning("Employee == null");
+            //    return NotFound();
+            //}
+
+            DeviceAccounts = await _deviceAccountService
+                .Query()
+                .Include(d => d.Device)
+                .Include(d => d.Employee)
+                .Include(d => d.SharedAccount)
+                .Where(e => e.EmployeeId == Employee.Id)
+                .Where(d => d.Deleted == false && d.Name != SamlIdentityProvider.DeviceAccountName)
+                .ToListAsync();
+
+            return Partial("_EmployeeDeviceAccounts", this);
         }
 
         #region Employee
