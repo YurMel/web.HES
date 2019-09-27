@@ -20,7 +20,7 @@ namespace HES.Core.Services
         {
             return _deviceAccountRepository.Query();
         }
-
+               
         public async Task<DeviceAccount> GetByIdAsync(string accountId)
         {
             return await _deviceAccountRepository.GetByIdAsync(accountId);
