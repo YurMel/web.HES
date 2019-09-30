@@ -151,6 +151,7 @@ namespace HES.Web
             });
 
             services.AddScoped<IAppService, AppService>();
+            services.AddScoped<ILogViewerService, LogViewerService>();
             services.AddSingleton<INotificationService, NotificationService>(s =>
             {
                 var scope = s.CreateScope();
