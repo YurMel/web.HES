@@ -224,6 +224,7 @@ namespace HES.Web
                     options.Conventions.AuthorizeFolder("/Settings", "RequireAdministratorRole");
                     options.Conventions.AuthorizeFolder("/Logs", "RequireAdministratorRole");
                     options.Conventions.AuthorizeFolder("/Notifications", "RequireAdministratorRole");
+                    options.Conventions.AuthorizeFolder("/Develop", "RequireAdministratorRole");
                 })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
