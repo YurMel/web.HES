@@ -25,7 +25,7 @@
         <!-- Sidebar -->
         <div class="dashboard-sidebar">
             <div class="dashboard-sidebar__body">
-                <div class="list-group" id="list-tab" role="tablist">       
+                <div class="list-group" id="list-tab" role="tablist">
                     @foreach (var log in Model.LogFiles.OrderByDescending(x => x))
                     {
                         <a class="list-group-item list-group-item-action show-log" data-toggle="list" href="#" role="tab">@log</a>
@@ -38,8 +38,12 @@
             <div class="dashboard-content__header">
                 <nav class="navbar navbar-light bg-light border-bottom shadow-sm">
                     <div>
-                        <span id="log_name" class="font-weight-bold"></span>
-                        <a class="btn btn-primary" asp-page-handler="DownloadFile" asp-route-name="hes-log-own-2019-09-27.log">Download</a>
+                        <button id="download_btn" class="btn btn-secondary d-none" data-name="" data-toggle="tooltip" data-placement="bottom" title="Download file">
+                            <img src="~/svg/logs/download.svg" />
+                        </button>
+                        <button id="delete_btn" class="btn btn-secondary d-none" data-name="" data-toggle="tooltip" data-placement="bottom" title="Delete file">
+                            <img src="~/svg/logs/delete.svg" />
+                        </button>
                     </div>
                     <div>
                         <span class="badge badge-success">INFO</span> <span id="infoLabel" class="badge badge-light">0</span>
@@ -97,9 +101,23 @@
     <script src="~/lib/datatebles/dataTables.bootstrap4.min.js"></script>
 
     <script>
+        $(document).on('click', '#download_btn', function () {
+            var name = $(this).attr('data-name');
+            document.location.href = "/Logs?name=" + name + "&handler=DownloadFile";
+        });
+
+        $(document).on('click', '#delete_btn', function () {
+            var name = $(this).attr('data-name');
+            document.location.href = "/Logs?name=" + name + "&handler=DeleteFile";
+        });
+
         $(document).on('click', '.show-log', function () {
-            $('#content').html("<div class='text-center d-flex align-items-center justify-content-center' style='height: calc(100vh - 73px);'><div class='spinner-border text-primary' role='status'></div></div>");
+            $('#content').html("<div class='text-center d-flex align-items-center justify-content-center' style='height: calc(100vh - 90px);'><div class='spinner-border text-primary' role='status'></div></div>");
             var name = $(this).text();
+            $('#download_btn').removeClass('d-none');
+            $('#download_btn').attr('data-name', name);
+            $('#delete_btn').removeClass('d-none');
+            $('#delete_btn').attr('data-name', name);
             $.ajax({
                 url: "/logs?handler=ShowLog",
                 type: "Get",
@@ -110,6 +128,8 @@
                 }
             });
         });
+
+        $('[data-toggle="tooltip"]').tooltip();
     </script>
 </body>
 </html>

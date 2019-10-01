@@ -5,11 +5,12 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace HES.Web.Pages.Logs
 {
     public class IndexModel : PageModel
-    {   
+    {
         private readonly ILogViewerService _logViewerService;
 
         public List<LogModel> SelectedLog { get; set; } = new List<LogModel>();
@@ -20,7 +21,7 @@ namespace HES.Web.Pages.Logs
 
         public IndexModel(ILogViewerService logViewerService)
         {
-            _logViewerService = logViewerService;   
+            _logViewerService = logViewerService;
         }
 
         public void OnGet()
@@ -35,7 +36,7 @@ namespace HES.Web.Pages.Logs
             }
         }
 
-        public IActionResult OnGetShowLog(string name)
+        public async Task<IActionResult> OnGetShowLogAsync(string name)
         {
             if (name == null)
             {
@@ -44,7 +45,7 @@ namespace HES.Web.Pages.Logs
 
             try
             {
-                SelectedLog = _logViewerService.GetSelectedLog(name);
+                SelectedLog = await _logViewerService.GetSelectedLog(name);
             }
             catch (Exception ex)
             {
@@ -56,10 +57,16 @@ namespace HES.Web.Pages.Logs
 
         public FileResult OnGetDownloadFile(string name)
         {
-            string file_path = _logViewerService.GetFilePath(name); //"C:\\Users\\CORE\\Documents\\Visual Studio Projects\\web.hes\\HES.Web\\bin\\x64\\Debug\\netcoreapp2.2\\logs\\hes-log-own-2019-09-25.log";
+            string file_path = _logViewerService.GetFilePath(name);
             string file_type = "application/octet-stream";
             string file_name = Path.GetFileName(file_path);
             return PhysicalFile(file_path, file_type, file_name);
         }
-    }    
+
+        public IActionResult OnGetDeleteFile(string name)
+        {
+            _logViewerService.DeleteFile(name);
+            return RedirectToPage("./Index");
+        }
+    }
 }
