@@ -2,7 +2,9 @@
 using HES.Core.Entities.Models;
 using HES.Core.Interfaces;
 using Hideez.SDK.Communication;
+using Hideez.SDK.Communication.HES.DTO;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,6 +26,7 @@ namespace HES.Core.Services
         private readonly IAsyncRepository<SummaryByEmployees> _summaryByEmployeesRepository;
         private readonly IAsyncRepository<SummaryByDepartments> _summaryByDepartmentsRepository;
         private readonly IAsyncRepository<SummaryByWorkstations> _summaryByWorkstationsRepository;
+        private readonly ILogger<WorkstationSessionService> _logger;
 
         public WorkstationSessionService(IAsyncRepository<WorkstationSession> workstationSessionRepository,
                                        IAsyncRepository<WorkstationEvent> workstationEventRepository,
@@ -36,7 +39,8 @@ namespace HES.Core.Services
                                        IAsyncRepository<SummaryByDayAndEmployee> summaryByDayAndEmployeeRepository,
                                        IAsyncRepository<SummaryByEmployees> summaryByEmployeesRepository,
                                        IAsyncRepository<SummaryByDepartments> summaryByDepartmentsRepository,
-                                       IAsyncRepository<SummaryByWorkstations> summaryByWorkstationsRepository)
+                                       IAsyncRepository<SummaryByWorkstations> summaryByWorkstationsRepository,
+                                       ILogger<WorkstationSessionService> logger)
         {
             _workstationSessionRepository = workstationSessionRepository;
             _workstationEventRepository = workstationEventRepository;
@@ -50,6 +54,7 @@ namespace HES.Core.Services
             _summaryByEmployeesRepository = summaryByEmployeesRepository;
             _summaryByDepartmentsRepository = summaryByDepartmentsRepository;
             _summaryByWorkstationsRepository = summaryByWorkstationsRepository;
+            _logger = logger;
         }
 
         public IQueryable<WorkstationSession> WorkstationSessionQuery()
@@ -107,88 +112,130 @@ namespace HES.Core.Services
             return _summaryByWorkstationsRepository.SqlQuery(sql);
         }
 
-        public async Task AddSessionAsync(WorkstationSession workstationSession)
+        public async Task AddOrUpdateWorkstationSessions(IList<WorkstationEventDto> workstationEventsDto)
+        {
+            if (workstationEventsDto == null)
+            {
+                throw new Exception(nameof(workstationEventsDto));
+            }
+
+            foreach (var workstationEvent in workstationEventsDto.OrderBy(w => w.Date))
+            {
+                if ((workstationEvent.EventId == WorkstationEventType.ServiceStarted ||
+                     workstationEvent.EventId == WorkstationEventType.ComputerUnlock ||
+                     workstationEvent.EventId == WorkstationEventType.ComputerLogon) &&
+                     workstationEvent.WorkstationSessionId != null)
+                {
+                    await AddSessionAsync(workstationEvent);
+                }
+
+                if ((workstationEvent.EventId == WorkstationEventType.ServiceStopped ||
+                     workstationEvent.EventId == WorkstationEventType.ComputerLock ||
+                     workstationEvent.EventId == WorkstationEventType.ComputerLogoff) &&
+                     workstationEvent.WorkstationSessionId != null)
+                {
+                    var lastSession = await _workstationSessionRepository
+                    .Query()
+                    .Where(w => w.Id == workstationEvent.WorkstationSessionId)
+                    .FirstOrDefaultAsync();
+
+                    if (lastSession == null)
+                    {
+                        _logger.LogCritical($"[{workstationEvent.WorkstationId}] Сannot find last session for closing");
+                        continue;
+                    }
+
+                    lastSession.EndDate = workstationEvent.Date;
+                    await UpdateSessionAsync(lastSession);
+                }
+            }
+            
+
+            //var sessionToAdd = workstationEventsDto.Where(w => (w.EventId == WorkstationEventType.ServiceStarted ||
+            //                                                         w.EventId == WorkstationEventType.ComputerUnlock ||
+            //                                                         w.EventId == WorkstationEventType.ComputerLogon) &&
+            //                                                         w.WorkstationSessionId != null).ToList();
+            //foreach (var item in sessionToAdd)
+            //{
+            //    await AddSessionAsync(item);
+            //}
+
+            //var sessionToUpdate = workstationEventsDto.Where(w => (w.EventId == WorkstationEventType.ServiceStopped ||
+            //                                                       w.EventId == WorkstationEventType.ComputerLock ||
+            //                                                       w.EventId == WorkstationEventType.ComputerLogoff) &&
+            //                                                       w.WorkstationSessionId != null).ToList();
+            //foreach (var item in sessionToUpdate)
+            //{
+            //    var lastSession = await _workstationSessionRepository
+            //        .Query()
+            //        .Where(w => w.Id == item.WorkstationSessionId)
+            //        .FirstOrDefaultAsync();
+
+            //    if (lastSession == null)
+            //    {
+            //        _logger.LogCritical($"[{item.WorkstationId}] Сannot find last session for closing");
+            //        continue;
+            //    }
+
+            //    lastSession.EndDate = item.Date;
+            //    await UpdateSessionAsync(lastSession);
+            //}
+        }
+
+        public async Task AddSessionAsync(WorkstationEventDto workstationEventDto)
+        {
+            if (workstationEventDto == null)
+            {
+                throw new ArgumentNullException(nameof(workstationEventDto));
+            }
+
+            Enum.TryParse(typeof(SessionSwitchSubject), workstationEventDto.Note, out object unlockMethod);
+            SessionSwitchSubject unlockedBy = unlockMethod == null ? SessionSwitchSubject.NonHideez : (SessionSwitchSubject)unlockMethod;
+
+            string employeeId = null;
+            string departmentId = null;
+            string deviceAccountId = null;
+
+            if (workstationEventDto.DeviceId != null)
+            {
+                var device = await _deviceRepository.GetByIdAsync(workstationEventDto.DeviceId);
+                var employee = await _employeeRepository.GetByIdAsync(device.EmployeeId);
+                var deviceAccount = await _deviceAccountRepository
+                    .Query()
+                    .Where(d => d.Name == workstationEventDto.AccountName && d.Login == workstationEventDto.AccountLogin && d.DeviceId == workstationEventDto.DeviceId)
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync();
+
+                employeeId = device?.EmployeeId;
+                departmentId = employee?.DepartmentId;
+                deviceAccountId = deviceAccount?.Id;
+            }
+
+            var workstationSession = new WorkstationSession()
+            {
+                Id = workstationEventDto.WorkstationSessionId,
+                StartDate = workstationEventDto.Date,
+                EndDate = null,
+                UnlockedBy = unlockedBy,
+                WorkstationId = workstationEventDto.WorkstationId,
+                UserSession = workstationEventDto.UserSession,
+                DeviceId = workstationEventDto.DeviceId,
+                EmployeeId = employeeId,
+                DepartmentId = departmentId,
+                DeviceAccountId = deviceAccountId,
+            };
+
+            await _workstationSessionRepository.AddAsync(workstationSession);
+        }
+
+        public async Task UpdateSessionAsync(WorkstationSession workstationSession)
         {
             if (workstationSession == null)
             {
                 throw new ArgumentNullException(nameof(workstationSession));
             }
 
-            await _workstationSessionRepository.AddAsync(workstationSession);
-        }
-
-        public async Task UpdateWorkstationSessionsAsync(IList<WorkstationEvent> events)
-        {
-            if (events == null)
-            {
-                throw new ArgumentNullException(nameof(events));
-            }
-
-            foreach (var e in events)
-            {
-                var lastSession = await _workstationSessionRepository
-                    .Query()
-                    .OrderBy(o => o.EndDate)
-                    //.AsNoTracking()
-                    .LastOrDefaultAsync(s => s.EndDate == null && s.WorkstationId == e.WorkstationId);
-
-                if (e.EventId == WorkstationEventType.ComputerLock || e.EventId == WorkstationEventType.ComputerLogoff)
-                {
-                    if (lastSession == null)
-                    {
-                        // Todo: Sessions with 00:00 duration are confusing
-                        // There is no unfinished sessions for current workstation
-                        //var newSession = CreateSessionFromEvent(e);
-                        //newSession.EndTime = newSession.StartTime;
-                        //await _workstationSessionRepository.AddAsync(newSession);
-
-                        // Todo: add warning: closed a session when there were no open sessions
-
-                        continue;
-                    }
-                    else
-                    {
-                        lastSession.EndDate = e.Date;
-                        await _workstationSessionRepository.UpdateAsync(lastSession);
-                        continue;
-                    }
-                }
-
-                if (e.EventId == WorkstationEventType.ComputerLogon || e.EventId == WorkstationEventType.ComputerUnlock)
-                {
-                    if (lastSession != null)
-                    {
-                        // There is an unfinished session for current workstation
-                        lastSession.EndDate = e.Date;
-                        await _workstationSessionRepository.UpdateAsync(lastSession);
-
-                        // Todo: add warning notification: created a new session while the previous one was still active
-                    }
-
-                    var newSession = CreateSessionFromEvent(e);
-                    await _workstationSessionRepository.AddAsync(newSession);
-                    continue;
-                }
-            }
-        }
-
-        private WorkstationSession CreateSessionFromEvent(WorkstationEvent workstationEvent)
-        {
-            Enum.TryParse(typeof(SessionSwitchSubject), workstationEvent.Note, out object unlockMethod);
-            SessionSwitchSubject unlockedBy = unlockMethod == null ? SessionSwitchSubject.NonHideez : (SessionSwitchSubject)unlockMethod;
-
-            return new WorkstationSession()
-            {
-                StartDate = workstationEvent.Date,
-                EndDate = null,
-                UnlockedBy = unlockedBy,
-                WorkstationId = workstationEvent.WorkstationId,
-                DeviceId = workstationEvent.DeviceId,
-                EmployeeId = workstationEvent.EmployeeId,
-                DepartmentId = workstationEvent.DepartmentId,
-                DeviceAccountId = workstationEvent.DeviceAccountId,
-                UserSession = workstationEvent.UserSession,
-            };
+            await _workstationSessionRepository.UpdateOnlyPropAsync(workstationSession, new string[] { "EndDate" });
         }
     }
 }

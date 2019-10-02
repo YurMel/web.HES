@@ -231,62 +231,25 @@ namespace HES.Core.Hubs
         #region Audit
 
         // Incomming request
-        public async Task<HideezErrorInfo> SaveClientEvents(WorkstationEventDto[] events)
+        public async Task<HideezErrorInfo> SaveClientEvents(WorkstationEventDto[] workstationEventsDto)
         {
             try
             {
-                if (events == null)
-                    throw new ArgumentNullException(nameof(events));
+                if (workstationEventsDto == null)
+                    throw new ArgumentNullException(nameof(workstationEventsDto));
 
-                _logger.LogDebug($"[{events[0].WorkstationId}] Sent events: {string.Join("; ", events.Select(s => s.EventId))}");
-                // todo: ignore not approved workstation
+                _logger.LogDebug($"[{workstationEventsDto.FirstOrDefault().WorkstationId}] Sent events: {string.Join("; ", workstationEventsDto.Select(s => s.EventId))}");
 
-                // Events that duplicate ID of other events are ignored
-                events = events.GroupBy(e => e.Id).Select(s => s.First()).ToArray();
+                // Ignore not approved workstation
+                //var workstationId = workstationEventsDto.FirstOrDefault().WorkstationId;
+                //var workstaton = await _workstationService.GetByIdAsync(workstationId);
+                //if (workstaton.Approved == false)
+                //{
+                //    return new HideezErrorInfo(HideezErrorCode.HesWorkstationNotApproved, $"{workstationId}");
+                //}
 
-                // Filter out from incomming events all those who share ID with events saved in database 
-                var filtered = events.Where(e => !_workstationEventService.Query().Any(we => we.Id == e.Id)).ToList(); //TODO move to Async
-
-                // Convert from SDK WorkstationEvent to HES WorkstationEvent
-                List<WorkstationEvent> converted = new List<WorkstationEvent>();
-                foreach (var dto in filtered)
-                {
-                    var convertedEvent =
-                        new WorkstationEvent()
-                        {
-                            Id = dto.Id,
-                            Date = dto.Date,
-                            EventId = dto.EventId,
-                            SeverityId = dto.SeverityId,
-                            Note = dto.Note,
-                            WorkstationId = dto.WorkstationId,
-                            UserSession = dto.UserSession,
-                            DeviceId = dto.DeviceId,
-                        };
-
-                    if (!string.IsNullOrWhiteSpace(dto.AccountName) && !string.IsNullOrWhiteSpace(dto.AccountLogin))
-                    {
-                        convertedEvent.DeviceAccount = await _deviceAccountService
-                            .Query()
-                            .Where(d => d.Name == dto.AccountName
-                                     && d.Login == dto.AccountLogin
-                                     && d.DeviceId == dto.DeviceId)
-                            .AsNoTracking()
-                            .FirstOrDefaultAsync();
-                    }
-                    converted.Add(convertedEvent);
-                }
-
-
-                var addedEvents = await _workstationEventService.AddEventsRangeAsync(converted);
-
-                var authEventsOnly = converted.Where(e => e.EventId == WorkstationEventType.ComputerLock
-                    || e.EventId == WorkstationEventType.ComputerLogoff
-                    || e.EventId == WorkstationEventType.ComputerLogon
-                    || e.EventId == WorkstationEventType.ComputerUnlock).ToArray();
-
-                if (authEventsOnly.Length > 0)
-                    await _workstationSessionService.UpdateWorkstationSessionsAsync(authEventsOnly);
+                await _workstationEventService.AddEventsRangeAsync(workstationEventsDto);
+                await _workstationSessionService.AddOrUpdateWorkstationSessions(workstationEventsDto);
 
                 return HideezErrorInfo.Ok;
             }
