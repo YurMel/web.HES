@@ -1,6 +1,7 @@
 ﻿using HES.Core.Interfaces;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace HES.Core.Services
 {
@@ -28,13 +29,13 @@ namespace HES.Core.Services
             return list;
         }
 
-        public List<LogModel> GetSelectedLog(string name)
+        public async Task<List<LogModel>> GetSelectedLog(string name)
         {
             var list = new List<LogModel>();
 
             var path = Path.Combine(_folderPath, name);
-            var text = File.ReadAllText(path);
-            var separator = name.Substring(12, 10);
+            var text = await File.ReadAllTextAsync(path);
+            var separator = name.Substring(8, 10);
             var separated = text.Split(separator);
 
             foreach (var item in separated)
@@ -47,10 +48,16 @@ namespace HES.Core.Services
 
             return list;
         }
-               
+
         public string GetFilePath(string name)
         {
-            return Path.Combine(_folderPath, name);    
+            return Path.Combine(_folderPath, name);
+        }
+
+        public void DeleteFile(string name)
+        {
+            var path = Path.Combine(_folderPath, name);
+            File.Delete(path);
         }
     }
 

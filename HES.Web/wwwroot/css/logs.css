@@ -74,9 +74,9 @@ tr {
 }
 
 .dashboard-sidebar {
-    /*flex-basis: 250px !important;*/
-    min-width: 270px;
-    max-width: 270px;
+    /*flex-basis: 250px;*/
+    min-width: 250px;
+    max-width: 250px;
     overflow-x: hidden;
     overflow-y: auto;
     border-right: 1px solid #dee2e6;
