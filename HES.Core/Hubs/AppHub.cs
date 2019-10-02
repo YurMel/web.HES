@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using HES.Core.Entities;
 using HES.Core.Interfaces;
-using HES.Core.Services;
 using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.HES.DTO;
 using Hideez.SDK.Communication.Remote;
@@ -21,9 +19,6 @@ namespace HES.Core.Hubs
         private readonly IRemoteDeviceConnectionsService _remoteDeviceConnectionsService;
         private readonly IRemoteWorkstationConnectionsService _remoteWorkstationConnectionsService;
         private readonly IRemoteTaskService _remoteTaskService;
-        private readonly IEmployeeService _employeeService;
-        private readonly IWorkstationService _workstationService;
-        private readonly IWorkstationProximityDeviceService _workstationProximityDeviceService;
         private readonly IWorkstationEventService _workstationEventService;
         private readonly IWorkstationSessionService _workstationSessionService;
         private readonly IDeviceService _deviceService;
@@ -35,9 +30,6 @@ namespace HES.Core.Hubs
         public AppHub(IRemoteDeviceConnectionsService remoteDeviceConnectionsService,
                       IRemoteWorkstationConnectionsService remoteWorkstationConnectionsService,
                       IRemoteTaskService remoteTaskService,
-                      IEmployeeService employeeService,
-                      IWorkstationService workstationService,
-                      IWorkstationProximityDeviceService workstationProximityDeviceService,
                       IWorkstationEventService workstationEventService,
                       IWorkstationSessionService workstationSessionService,
                       IDeviceService deviceService,
@@ -49,9 +41,6 @@ namespace HES.Core.Hubs
             _remoteDeviceConnectionsService = remoteDeviceConnectionsService;
             _remoteWorkstationConnectionsService = remoteWorkstationConnectionsService;
             _remoteTaskService = remoteTaskService;
-            _employeeService = employeeService;
-            _workstationService = workstationService;
-            _workstationProximityDeviceService = workstationProximityDeviceService;
             _workstationEventService = workstationEventService;
             _workstationSessionService = workstationSessionService;
             _deviceService = deviceService;
@@ -61,32 +50,57 @@ namespace HES.Core.Hubs
             _dataProtectionService = dataProtectionService;
         }
 
+        string GetWorkstationId()
+        {
+            if (Context.Items.TryGetValue("WorkstationId", out object workstationId))
+                return (string)workstationId;
+            else
+            {
+                _logger.LogCritical("AppHub does not contain WorkstationId!");
+                throw new Exception("AppHub does not contain WorkstationId!");
+            }
+        }
+
         #region Device
+
+        public override Task OnConnectedAsync()
+        {
+            var httpContext = Context.GetHttpContext();
+            string workstationId = httpContext.Request.Headers["WorkstationId"].ToString();
+
+            if (string.IsNullOrWhiteSpace(workstationId))
+            {
+                _logger.LogCritical($"AppHub.OnConnectedAsync - WorkstationId cannot be empty");
+            }
+            else
+            {
+                _remoteDeviceConnectionsService.OnAppHubConnected(workstationId, Clients.Caller);
+                Context.Items.Add("WorkstationId", workstationId);
+            }
+
+            return base.OnConnectedAsync();
+        }
 
         public override Task OnDisconnectedAsync(Exception exception)
         {
-            _remoteDeviceConnectionsService.RemoveDevice(Clients.Caller);
+            _remoteDeviceConnectionsService.OnAppHubDisconnected(GetWorkstationId());
             return base.OnDisconnectedAsync(exception);
         }
 
         // incoming request
         public async Task OnDeviceConnected(BleDeviceDto dto)
         {
-            Debug.WriteLine($"!!!!!!!!!!!!! OnDeviceConnected {dto.DeviceSerialNo}");
-
             // Update Battery, Firmware, State, LastSynced         
             await _deviceService.UpdateDeviceInfoAsync(dto.DeviceSerialNo, dto.Battery, dto.FirmwareVersion, dto.IsLocked);
 
-            _remoteDeviceConnectionsService.AddDevice(dto.DeviceSerialNo, Clients.Caller);
+            _remoteDeviceConnectionsService.OnDeviceConnected(dto.DeviceSerialNo, GetWorkstationId(), Clients.Caller);
         }
 
         // incoming request
         public Task OnDeviceDisconnected(string deviceId)
         {
-            Debug.WriteLine($"!!!!!!!!!!!!! OnDeviceDisconnected {deviceId}");
-
             if (!string.IsNullOrEmpty(deviceId))
-                RemoteDeviceConnectionsService.RemoveDevice(deviceId);
+                _remoteDeviceConnectionsService.OnDeviceDisconnected(deviceId, GetWorkstationId());
 
             return Task.CompletedTask;
         }
@@ -156,7 +170,7 @@ namespace HES.Core.Hubs
             if (deviceId == null)
                 throw new ArgumentNullException(nameof(deviceId));
 
-            return await _remoteWorkstationConnectionsService.UpdateRemoteDeviceAsync(deviceId);
+            return await _remoteWorkstationConnectionsService.UpdateRemoteDeviceAsync(deviceId, GetWorkstationId());
         }
 
         #endregion
@@ -171,60 +185,6 @@ namespace HES.Core.Hubs
 
             return await _remoteWorkstationConnectionsService.RegisterWorkstationInfo(Clients.Caller, workstationInfo);
         }
-
-
-        //Task OnWorkstationDisconnected(string workstationId)
-        //{
-        //    _logger.LogDebug($"[{workstationId}] disconnected");
-
-        //    _workstationConnections.TryRemove(workstationId, out WorkstationDescription _);
-        //    Context.Items.Remove("WorkstationDesc");
-
-        //    return Task.CompletedTask;
-        //}
-
-        //static WorkstationDescription FindWorkstationDescription(string workstationId)
-        //{
-        //    _workstationConnections.TryGetValue(workstationId, out WorkstationDescription workstation);
-        //    return workstation;
-        //}
-
-        //public static bool IsWorkstationConnectedToServer(string workstationId)
-        //{
-        //    return _workstationConnections.ContainsKey(workstationId);
-        //}
-
-        //public static async Task UpdateProximitySettings(string workstationId, IReadOnlyList<DeviceProximitySettingsDto> deviceProximitySettings)
-        //{
-        //    try
-        //    {
-        //        var workstation = FindWorkstationDescription(workstationId);
-        //        if (workstation != null)
-        //        {
-        //            await workstation.Connection.UpdateProximitySettings(deviceProximitySettings);
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw new HubException(ex.Message);
-        //    }
-        //}
-
-        //public static async Task UpdateRfidIndicatorState(string workstationId, bool isEnabled)
-        //{
-        //    try
-        //    {
-        //        var workstation = FindWorkstationDescription(workstationId);
-        //        if (workstation != null)
-        //        {
-        //            await workstation.Connection.UpdateRFIDIndicatorState(isEnabled);
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw new HubException(ex.Message);
-        //    }
-        //}
 
         #endregion
 

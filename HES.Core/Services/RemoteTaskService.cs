@@ -19,14 +19,16 @@ namespace HES.Core.Services
 {
     public class RemoteTaskService : IRemoteTaskService
     {
-        private readonly IDeviceService _deviceService;
-        private readonly IDeviceTaskService _deviceTaskService;
-        private readonly IDeviceAccountService _deviceAccountService;
-        private readonly IDataProtectionService _dataProtectionService;
-        private readonly ILogger<RemoteTaskService> _logger;
-        private readonly IHubContext<EmployeeDetailsHub> _hubContext;
+        readonly IDeviceService _deviceService;
+        readonly IRemoteDeviceConnectionsService _remoteDeviceConnectionsService;
+        readonly IDeviceTaskService _deviceTaskService;
+        readonly IDeviceAccountService _deviceAccountService;
+        readonly IDataProtectionService _dataProtectionService;
+        readonly ILogger<RemoteTaskService> _logger;
+        readonly IHubContext<EmployeeDetailsHub> _hubContext;
 
         public RemoteTaskService(IDeviceService deviceService,
+                                 IRemoteDeviceConnectionsService remoteDeviceConnectionsService,
                                  IDeviceTaskService deviceTaskService,
                                  IDeviceAccountService deviceAccountService,
                                  IDataProtectionService dataProtectionService,
@@ -34,34 +36,13 @@ namespace HES.Core.Services
                                  IHubContext<EmployeeDetailsHub> hubContext)
         {
             _deviceService = deviceService;
+            _remoteDeviceConnectionsService = remoteDeviceConnectionsService;
             _deviceTaskService = deviceTaskService;
             _deviceAccountService = deviceAccountService;
             _dataProtectionService = dataProtectionService;
             _logger = logger;
             _hubContext = hubContext;
         }
-
-        //public async Task ProcessTasksAsync(string deviceId, TaskOperation operation)
-        //{
-        //    Debug.WriteLine($"+++++++++++++ ProcessTasksAsync start {deviceId}");
-
-        //    try
-        //    {
-        //        var result = await ExecuteRemoteTasks(deviceId, operation).TimeoutAfter(300_000);
-        //    }
-        //    catch (TimeoutException ex)
-        //    {
-        //        _logger.LogCritical($"[{deviceId}] {ex.Message}");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError($"[{deviceId}] {ex.Message}");
-        //    }
-        //    finally
-        //    {
-        //        Debug.WriteLine($"------------- ExecuteRemoteTasks end {deviceId}");
-        //    }
-        //}
 
         async Task TaskCompleted(string taskId, ushort idFromDevice)
         {
@@ -185,7 +166,7 @@ namespace HES.Core.Services
             }
         }
 
-        public async Task<HideezErrorCode> ExecuteRemoteTasks(string deviceId, TaskOperation operation)
+        public async Task<HideezErrorCode> ExecuteRemoteTasks(string deviceId, RemoteDevice remoteDevice, TaskOperation operation)
         {
             _dataProtectionService.Validate();
 
@@ -202,13 +183,6 @@ namespace HES.Core.Services
 
             while (tasks.Any())
             {
-                var remoteDevice = await RemoteDeviceConnectionsService
-                    .Connect(deviceId, 4)
-                    .TimeoutAfter(30_000);
-
-                if (remoteDevice == null)
-                    break;
-
                 foreach (var task in tasks)
                 {
                     task.Password = _dataProtectionService.Unprotect(task.Password);
