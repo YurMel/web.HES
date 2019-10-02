@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 using System.Threading.Tasks;
 using HES.Core.Entities;
 using HES.Core.Interfaces;
@@ -27,6 +26,7 @@ namespace HES.Core.Services
             = new ConcurrentDictionary<string, TaskCompletionSource<HideezErrorInfo>>();
 
         readonly IRemoteTaskService _remoteTaskService;
+        readonly IRemoteDeviceConnectionsService _remoteDeviceConnectionsService;
         readonly IEmployeeService _employeeService;
         readonly IWorkstationService _workstationService;
         readonly IWorkstationProximityDeviceService _workstationProximityDeviceService;
@@ -36,6 +36,7 @@ namespace HES.Core.Services
 
         public RemoteWorkstationConnectionsService(
                       IRemoteTaskService remoteTaskService,
+                      IRemoteDeviceConnectionsService remoteDeviceConnectionsService,
                       IEmployeeService employeeService,
                       IWorkstationService workstationService,
                       IWorkstationProximityDeviceService workstationProximityDeviceService,
@@ -44,6 +45,7 @@ namespace HES.Core.Services
                       ILogger<RemoteWorkstationConnectionsService> logger)
         {
             _remoteTaskService = remoteTaskService;
+            _remoteDeviceConnectionsService = remoteDeviceConnectionsService;
             _employeeService = employeeService;
             _workstationService = workstationService;
             _workstationProximityDeviceService = workstationProximityDeviceService;
@@ -84,11 +86,11 @@ namespace HES.Core.Services
 
             Task.Run(async () =>
             {
-                await UpdateRemoteDeviceWithTimeout(deviceId, tcs);
+                await UpdateRemoteDeviceWithTimeout(deviceId, tcs, workstationId: null);
             });
         }
 
-        public async Task<HideezErrorInfo> UpdateRemoteDeviceAsync(string deviceId)
+        public async Task<HideezErrorInfo> UpdateRemoteDeviceAsync(string deviceId, string workstationId)
         {
             Debug.WriteLine($"!!!!!!!!!!!!! UpdateRemoteDeviceAsync start {deviceId}");
             if (deviceId == null)
@@ -107,17 +109,17 @@ namespace HES.Core.Services
                 return await tcs.Task;
             }
 
-            return await UpdateRemoteDeviceWithTimeout(deviceId, tcs);
+            return await UpdateRemoteDeviceWithTimeout(deviceId, tcs, workstationId);
         }
 
-        async Task<HideezErrorInfo> UpdateRemoteDeviceWithTimeout(string deviceId, TaskCompletionSource<HideezErrorInfo> tcs)
+        async Task<HideezErrorInfo> UpdateRemoteDeviceWithTimeout(string deviceId, TaskCompletionSource<HideezErrorInfo> tcs, string workstationId)
         {
             HideezErrorInfo result = HideezErrorInfo.Ok;
 
             try
             {
                 Debug.WriteLine($"!!!!!!!!!!!!! FixDevice start {deviceId}");
-                result = await UpdateRemoteDevice(deviceId).TimeoutAfter(300_000);
+                result = await UpdateRemoteDevice(deviceId, workstationId).TimeoutAfter(300_000);
                 tcs.SetResult(result);
             }
             catch (TimeoutException ex)
@@ -140,7 +142,7 @@ namespace HES.Core.Services
             return result;
         }
 
-        async Task<HideezErrorInfo> UpdateRemoteDevice(string deviceId)
+        async Task<HideezErrorInfo> UpdateRemoteDevice(string deviceId, string workstationId)
         {
             try
             {
@@ -149,8 +151,8 @@ namespace HES.Core.Services
                 //if (true) //conection not approved
                 //throw new HideezException(HideezErrorCode.HesWorkstationNotApproved);
 
-                var remoteDevice = await RemoteDeviceConnectionsService
-                    .Connect(deviceId, 4)
+                var remoteDevice = await _remoteDeviceConnectionsService
+                    .ConnectDevice(deviceId, workstationId)
                     .TimeoutAfter(30_000);
 
                 if (remoteDevice == null)
@@ -172,7 +174,7 @@ namespace HES.Core.Services
                 if (remoteDevice.AccessLevel.IsLocked)
                 {
                     // execute the UnlockPin task
-                    await _remoteTaskService.ExecuteRemoteTasks(deviceId, TaskOperation.UnlockPin);
+                    await _remoteTaskService.ExecuteRemoteTasks(deviceId, remoteDevice, TaskOperation.UnlockPin);
                     await remoteDevice.RefreshDeviceInfo();
                 }
 
@@ -180,7 +182,7 @@ namespace HES.Core.Services
                 if (remoteDevice.AccessLevel.IsLinkRequired)
                 {
                     // execute the Link task
-                    await _remoteTaskService.ExecuteRemoteTasks(deviceId, TaskOperation.Link);
+                    await _remoteTaskService.ExecuteRemoteTasks(deviceId, remoteDevice, TaskOperation.Link);
                     await remoteDevice.RefreshDeviceInfo();
 
                     // refresh MasterPassword field
@@ -237,7 +239,7 @@ namespace HES.Core.Services
                 }
 
                 // all tasks processing
-                var res = await _remoteTaskService.ExecuteRemoteTasks(deviceId, TaskOperation.None);
+                var res = await _remoteTaskService.ExecuteRemoteTasks(deviceId, remoteDevice, TaskOperation.None);
                 if (res != HideezErrorCode.Ok)
                     throw new HideezException(res);
 
@@ -281,13 +283,6 @@ namespace HES.Core.Services
                 {
                     return remoteAppConnection;
                 });
-
-                //var workstationDesc = _workstationConnections.AddOrUpdate(workstationInfo.Id, new WorkstationDescription(Clients.Caller, workstationInfo.Id), (workstationId, oldDescr) =>
-                //{
-                //    return new WorkstationDescription(remoteAppConnection, workstationId);
-                //});
-
-                //Context.Items.Add("WorkstationDesc", workstationDesc);
 
                 if (await _workstationService.ExistAsync(w => w.Id == workstationInfo.Id))
                 {
@@ -333,7 +328,6 @@ namespace HES.Core.Services
             _logger.LogDebug($"[{workstationId}] disconnected");
 
             _workstationConnections.TryRemove(workstationId, out IRemoteAppConnection _);
-            //Context.Items.Remove("WorkstationDesc");
 
             return Task.CompletedTask;
         }

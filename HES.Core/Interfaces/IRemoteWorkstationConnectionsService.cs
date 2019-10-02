@@ -10,7 +10,7 @@ namespace HES.Core.Interfaces
     {
         void StartUpdateRemoteDevice(IList<string> devicesId);
         void StartUpdateRemoteDevice(string deviceId);
-        Task<HideezErrorInfo> UpdateRemoteDeviceAsync(string deviceId);
+        Task<HideezErrorInfo> UpdateRemoteDeviceAsync(string deviceId, string workstationId);
         Task<HideezErrorInfo> RegisterWorkstationInfo(IRemoteAppConnection remoteAppConnection, WorkstationInfo workstationInfo);
     }
 }
