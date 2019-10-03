@@ -158,12 +158,6 @@ namespace HES.Core.Services
 
             // Delete task
             await _deviceTaskService.DeleteTaskAsync(deviceTask);
-
-            // Update UI 
-            if (deviceAccount != null)
-            {
-                await _hubContext.Clients.All.SendAsync("UpdateTable", deviceAccount.EmployeeId);
-            }
         }
 
         public async Task<HideezErrorCode> ExecuteRemoteTasks(string deviceId, RemoteDevice remoteDevice, TaskOperation operation)
@@ -195,6 +189,12 @@ namespace HES.Core.Services
                 }
 
                 tasks = await query.ToListAsync();
+            }
+
+            var device = await _deviceService.GetByIdAsync(deviceId);
+            if (device != null)
+            {
+                await _hubContext.Clients.All.SendAsync("UpdateTable", device.EmployeeId);
             }
 
             return HideezErrorCode.Ok;
