@@ -32,6 +32,7 @@ namespace HES.Core.Services
         readonly IWorkstationProximityDeviceService _workstationProximityDeviceService;
         readonly IDeviceService _deviceService;
         readonly IDataProtectionService _dataProtectionService;
+        readonly IWorkstationSessionService _workstationSessionService;
         readonly ILogger<RemoteWorkstationConnectionsService> _logger;
 
         public RemoteWorkstationConnectionsService(
@@ -42,6 +43,7 @@ namespace HES.Core.Services
                       IWorkstationProximityDeviceService workstationProximityDeviceService,
                       IDeviceService deviceService,
                       IDataProtectionService dataProtectionService,
+                      IWorkstationSessionService workstationSessionService,
                       ILogger<RemoteWorkstationConnectionsService> logger)
         {
             _remoteTaskService = remoteTaskService;
@@ -51,6 +53,7 @@ namespace HES.Core.Services
             _workstationProximityDeviceService = workstationProximityDeviceService;
             _deviceService = deviceService;
             _dataProtectionService = dataProtectionService;
+            _workstationSessionService = workstationSessionService;
             _logger = logger;
         }
 
@@ -112,7 +115,7 @@ namespace HES.Core.Services
             return await UpdateRemoteDeviceWithTimeout(deviceId, tcs, workstationId);
         }
 
-        async Task<HideezErrorInfo> UpdateRemoteDeviceWithTimeout(string deviceId, TaskCompletionSource<HideezErrorInfo> tcs, string workstationId)
+        private async Task<HideezErrorInfo> UpdateRemoteDeviceWithTimeout(string deviceId, TaskCompletionSource<HideezErrorInfo> tcs, string workstationId)
         {
             HideezErrorInfo result = HideezErrorInfo.Ok;
 
@@ -142,7 +145,7 @@ namespace HES.Core.Services
             return result;
         }
 
-        async Task<HideezErrorInfo> UpdateRemoteDevice(string deviceId, string workstationId)
+        private async Task<HideezErrorInfo> UpdateRemoteDevice(string deviceId, string workstationId)
         {
             try
             {
@@ -274,8 +277,7 @@ namespace HES.Core.Services
             return workstationDescr;
         }
 
-        public async Task<HideezErrorInfo> RegisterWorkstationInfo(IRemoteAppConnection remoteAppConnection,
-                                                                   WorkstationInfo workstationInfo)
+        public async Task<HideezErrorInfo> RegisterWorkstationInfo(IRemoteAppConnection remoteAppConnection, WorkstationInfo workstationInfo)
         {
             try
             {
@@ -308,7 +310,7 @@ namespace HES.Core.Services
             }
         }
 
-        async Task OnWorkstationConnected(string workstationId)
+        private async Task OnWorkstationConnected(string workstationId)
         {
             try
             {
@@ -323,16 +325,16 @@ namespace HES.Core.Services
             }
         }
 
-        Task OnWorkstationDisconnected(string workstationId)
+        public async Task OnWorkstationDisconnected(string workstationId)
         {
             _logger.LogDebug($"[{workstationId}] disconnected");
 
             _workstationConnections.TryRemove(workstationId, out IRemoteAppConnection _);
 
-            return Task.CompletedTask;
+            await _workstationSessionService.CloseSessionAsync(workstationId);
         }
 
-        static IRemoteAppConnection FindWorkstationConnection(string workstationId)
+        private static IRemoteAppConnection FindWorkstationConnection(string workstationId)
         {
             _workstationConnections.TryGetValue(workstationId, out IRemoteAppConnection workstation);
             return workstation;

@@ -15,12 +15,8 @@ namespace HES.Core.Services
     public class WorkstationSessionService : IWorkstationSessionService
     {
         private readonly IAsyncRepository<WorkstationSession> _workstationSessionRepository;
-        private readonly IAsyncRepository<WorkstationEvent> _workstationEventRepository;
-        private readonly IAsyncRepository<Workstation> _workstationRepository;
         private readonly IAsyncRepository<Device> _deviceRepository;
         private readonly IAsyncRepository<Employee> _employeeRepository;
-        private readonly IAsyncRepository<Company> _companyRepository;
-        private readonly IAsyncRepository<Department> _departmentRepository;
         private readonly IAsyncRepository<DeviceAccount> _deviceAccountRepository;
         private readonly IAsyncRepository<SummaryByDayAndEmployee> _summaryByDayAndEmployeeRepository;
         private readonly IAsyncRepository<SummaryByEmployees> _summaryByEmployeesRepository;
@@ -29,26 +25,18 @@ namespace HES.Core.Services
         private readonly ILogger<WorkstationSessionService> _logger;
 
         public WorkstationSessionService(IAsyncRepository<WorkstationSession> workstationSessionRepository,
-                                       IAsyncRepository<WorkstationEvent> workstationEventRepository,
-                                       IAsyncRepository<Workstation> workstationRepository,
-                                       IAsyncRepository<Device> deviceRepository,
-                                       IAsyncRepository<Employee> employeeRepository,
-                                       IAsyncRepository<Company> companyRepository,
-                                       IAsyncRepository<Department> departmentRepository,
-                                       IAsyncRepository<DeviceAccount> deviceAccountRepository,
-                                       IAsyncRepository<SummaryByDayAndEmployee> summaryByDayAndEmployeeRepository,
-                                       IAsyncRepository<SummaryByEmployees> summaryByEmployeesRepository,
-                                       IAsyncRepository<SummaryByDepartments> summaryByDepartmentsRepository,
-                                       IAsyncRepository<SummaryByWorkstations> summaryByWorkstationsRepository,
-                                       ILogger<WorkstationSessionService> logger)
+                                         IAsyncRepository<Device> deviceRepository,
+                                         IAsyncRepository<Employee> employeeRepository,
+                                         IAsyncRepository<DeviceAccount> deviceAccountRepository,
+                                         IAsyncRepository<SummaryByDayAndEmployee> summaryByDayAndEmployeeRepository,
+                                         IAsyncRepository<SummaryByEmployees> summaryByEmployeesRepository,
+                                         IAsyncRepository<SummaryByDepartments> summaryByDepartmentsRepository,
+                                         IAsyncRepository<SummaryByWorkstations> summaryByWorkstationsRepository,
+                                         ILogger<WorkstationSessionService> logger)
         {
             _workstationSessionRepository = workstationSessionRepository;
-            _workstationEventRepository = workstationEventRepository;
-            _workstationRepository = workstationRepository;
             _deviceRepository = deviceRepository;
             _employeeRepository = employeeRepository;
-            _companyRepository = companyRepository;
-            _departmentRepository = departmentRepository;
             _deviceAccountRepository = deviceAccountRepository;
             _summaryByDayAndEmployeeRepository = summaryByDayAndEmployeeRepository;
             _summaryByEmployeesRepository = summaryByEmployeesRepository;
@@ -57,39 +45,9 @@ namespace HES.Core.Services
             _logger = logger;
         }
 
-        public IQueryable<WorkstationSession> WorkstationSessionQuery()
+        public IQueryable<WorkstationSession> Query()
         {
             return _workstationSessionRepository.Query();
-        }
-
-        public IQueryable<Workstation> WorkstationQuery()
-        {
-            return _workstationRepository.Query();
-        }
-
-        public IQueryable<Device> DeviceQuery()
-        {
-            return _deviceRepository.Query();
-        }
-
-        public IQueryable<Employee> EmployeeQuery()
-        {
-            return _employeeRepository.Query();
-        }
-
-        public IQueryable<Company> CompanyQuery()
-        {
-            return _companyRepository.Query();
-        }
-
-        public IQueryable<Department> DepartmentQuery()
-        {
-            return _departmentRepository.Query();
-        }
-
-        public IQueryable<DeviceAccount> DeviceAccountQuery()
-        {
-            return _deviceAccountRepository.Query();
         }
 
         public IQueryable<SummaryByDayAndEmployee> SummaryByDayAndEmployeeSqlQuery(string sql)
@@ -121,68 +79,50 @@ namespace HES.Core.Services
 
             foreach (var workstationEvent in workstationEventsDto.OrderBy(w => w.Date))
             {
-                if ((workstationEvent.EventId == WorkstationEventType.ServiceStarted ||
+                // On unlock
+                if ((workstationEvent.EventId == WorkstationEventType.HESConnected ||
+                     workstationEvent.EventId == WorkstationEventType.ServiceStarted ||
                      workstationEvent.EventId == WorkstationEventType.ComputerUnlock ||
                      workstationEvent.EventId == WorkstationEventType.ComputerLogon) &&
                      workstationEvent.WorkstationSessionId != null)
                 {
-                    await AddSessionAsync(workstationEvent);
+                    var session = await _workstationSessionRepository.Query()
+                        .FirstOrDefaultAsync(w => w.Id == workstationEvent.WorkstationSessionId);
+
+                    if (session == null)
+                    {
+                        // Add new session
+                        await AddSessionAsync(workstationEvent);
+                    }
+                    else
+                    {
+                        // Reopen session
+                        session.EndDate = null;
+                        await UpdateSessionAsync(session);
+                    }
                 }
 
-                if ((workstationEvent.EventId == WorkstationEventType.ServiceStopped ||
-                     workstationEvent.EventId == WorkstationEventType.ComputerLock ||
+                // On disconnected or lock
+                if ((workstationEvent.EventId == WorkstationEventType.ComputerLock ||
                      workstationEvent.EventId == WorkstationEventType.ComputerLogoff) &&
                      workstationEvent.WorkstationSessionId != null)
                 {
-                    var lastSession = await _workstationSessionRepository
-                    .Query()
-                    .Where(w => w.Id == workstationEvent.WorkstationSessionId)
-                    .FirstOrDefaultAsync();
+                    var session = await _workstationSessionRepository.Query()
+                        .FirstOrDefaultAsync(w => w.Id == workstationEvent.WorkstationSessionId);
 
-                    if (lastSession == null)
+                    if (session == null)
                     {
                         _logger.LogCritical($"[{workstationEvent.WorkstationId}] Сannot find last session for closing");
                         continue;
                     }
 
-                    lastSession.EndDate = workstationEvent.Date;
-                    await UpdateSessionAsync(lastSession);
+                    session.EndDate = workstationEvent.Date;
+                    await UpdateSessionAsync(session);
                 }
             }
-            
-
-            //var sessionToAdd = workstationEventsDto.Where(w => (w.EventId == WorkstationEventType.ServiceStarted ||
-            //                                                         w.EventId == WorkstationEventType.ComputerUnlock ||
-            //                                                         w.EventId == WorkstationEventType.ComputerLogon) &&
-            //                                                         w.WorkstationSessionId != null).ToList();
-            //foreach (var item in sessionToAdd)
-            //{
-            //    await AddSessionAsync(item);
-            //}
-
-            //var sessionToUpdate = workstationEventsDto.Where(w => (w.EventId == WorkstationEventType.ServiceStopped ||
-            //                                                       w.EventId == WorkstationEventType.ComputerLock ||
-            //                                                       w.EventId == WorkstationEventType.ComputerLogoff) &&
-            //                                                       w.WorkstationSessionId != null).ToList();
-            //foreach (var item in sessionToUpdate)
-            //{
-            //    var lastSession = await _workstationSessionRepository
-            //        .Query()
-            //        .Where(w => w.Id == item.WorkstationSessionId)
-            //        .FirstOrDefaultAsync();
-
-            //    if (lastSession == null)
-            //    {
-            //        _logger.LogCritical($"[{item.WorkstationId}] Сannot find last session for closing");
-            //        continue;
-            //    }
-
-            //    lastSession.EndDate = item.Date;
-            //    await UpdateSessionAsync(lastSession);
-            //}
         }
 
-        public async Task AddSessionAsync(WorkstationEventDto workstationEventDto)
+        private async Task AddSessionAsync(WorkstationEventDto workstationEventDto)
         {
             if (workstationEventDto == null)
             {
@@ -228,7 +168,7 @@ namespace HES.Core.Services
             await _workstationSessionRepository.AddAsync(workstationSession);
         }
 
-        public async Task UpdateSessionAsync(WorkstationSession workstationSession)
+        private async Task UpdateSessionAsync(WorkstationSession workstationSession)
         {
             if (workstationSession == null)
             {
@@ -236,6 +176,16 @@ namespace HES.Core.Services
             }
 
             await _workstationSessionRepository.UpdateOnlyPropAsync(workstationSession, new string[] { "EndDate" });
+        }
+
+        public async Task CloseSessionAsync(string workstationId)
+        {
+            var session = await _workstationSessionRepository
+                .Query()
+                .Where(w => w.WorkstationId == workstationId && w.EndDate == null)
+                .FirstOrDefaultAsync();
+            session.EndDate = DateTime.UtcNow;
+            await UpdateSessionAsync(session);
         }
     }
 }

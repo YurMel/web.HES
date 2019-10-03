@@ -50,7 +50,7 @@ namespace HES.Core.Hubs
             _dataProtectionService = dataProtectionService;
         }
 
-        string GetWorkstationId()
+        private string GetWorkstationId()
         {
             if (Context.Items.TryGetValue("WorkstationId", out object workstationId))
                 return (string)workstationId;
@@ -60,9 +60,7 @@ namespace HES.Core.Hubs
                 throw new Exception("AppHub does not contain WorkstationId!");
             }
         }
-
-        #region Device
-
+        
         public override Task OnConnectedAsync()
         {
             var httpContext = Context.GetHttpContext();
@@ -84,8 +82,11 @@ namespace HES.Core.Hubs
         public override Task OnDisconnectedAsync(Exception exception)
         {
             _remoteDeviceConnectionsService.OnAppHubDisconnected(GetWorkstationId());
+            _remoteWorkstationConnectionsService.OnWorkstationDisconnected(GetWorkstationId());
             return base.OnDisconnectedAsync(exception);
         }
+
+        #region Device
 
         // incoming request
         public async Task OnDeviceConnected(BleDeviceDto dto)
