@@ -50,7 +50,7 @@ namespace HES.Web.Pages.Settings.IdentityProvider
             }
             try
             {
-                Utils.VerifyUrls(samlIdentityProvider.Url);
+                Hepler.VerifyUrls(samlIdentityProvider.Url);
 
                 var currentIdentityProvider = await _samlIdentityProviderService
                     .Query()

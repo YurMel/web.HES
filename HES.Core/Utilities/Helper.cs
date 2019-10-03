@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace HES.Core.Utilities
 {
-    public static class Utils
+    public static class Hepler
     {
         public static string VerifyUrls(string urls)
         {
@@ -33,6 +34,11 @@ namespace HES.Core.Utilities
 
             var result = string.Join(";", verifiedUrls.ToArray());
             return result;
+        }
+
+        public static bool VerifyOtpSecret(string value)
+        {
+            return Regex.IsMatch(value.Replace(" ", ""), @"^[a-zA-Z0-9]+$");
         }
     }
 }

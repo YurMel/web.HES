@@ -463,6 +463,13 @@ namespace HES.Web.Pages.Employees
                 return RedirectToPage("./Details", new { id });
             }
 
+            if (!Core.Utilities.Hepler.VerifyOtpSecret(input.OtpSecret))
+            {
+                _logger.LogWarning("OTP secret is not valid");
+                ErrorMessage = "OTP secret is not valid.";
+                return RedirectToPage("./Details", new { id });
+            }
+
             try
             {
                 await _employeeService.CreatePersonalAccountAsync(deviceAccount, input, selectedDevices);
@@ -608,6 +615,13 @@ namespace HES.Web.Pages.Employees
         public async Task<IActionResult> OnPostEditPersonalAccountOtpAsync(DeviceAccount deviceAccount, InputModel input)
         {
             var id = deviceAccount.EmployeeId;
+
+            if (!Core.Utilities.Hepler.VerifyOtpSecret(input.OtpSecret))
+            {
+                _logger.LogWarning("OTP secret is not valid");
+                ErrorMessage = "OTP secret is not valid.";
+                return RedirectToPage("./Details", new { id });
+            }
 
             try
             {

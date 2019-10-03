@@ -150,7 +150,7 @@ namespace HES.Core.Services
             };
 
             // Validate url
-            deviceAccount.Urls = Utils.VerifyUrls(deviceAccount.Urls);
+            deviceAccount.Urls = Hepler.VerifyUrls(deviceAccount.Urls);
 
             // Create task
             var deviceTask = new DeviceTask
@@ -284,7 +284,7 @@ namespace HES.Core.Services
              .ToListAsync();
 
             var samlIdP = await _samlIdentityProviderService.GetByIdAsync(SamlIdentityProvider.PrimaryKey);
-            var validUrls = Utils.VerifyUrls($"{samlIdP.Url};{hesUrl}");
+            var validUrls = Hepler.VerifyUrls($"{samlIdP.Url};{hesUrl}");
 
             foreach (var account in deviceAccounts)
             {
