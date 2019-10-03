@@ -149,6 +149,7 @@ namespace HES.Web
                 var workstationProximityDeviceService = scope.ServiceProvider.GetService<IWorkstationProximityDeviceService>();
                 var deviceService = scope.ServiceProvider.GetService<IDeviceService>();
                 var dataProtectionService = scope.ServiceProvider.GetService<IDataProtectionService>();
+                var workstationSessionService = scope.ServiceProvider.GetService<IWorkstationSessionService>();
                 var logger = scope.ServiceProvider.GetService<ILogger<RemoteWorkstationConnectionsService>>();
                 return new RemoteWorkstationConnectionsService(remoteTasksService,
                                              remoteDeviceConnectionsService,
@@ -157,6 +158,7 @@ namespace HES.Web
                                              workstationProximityDeviceService,
                                              deviceService,
                                              dataProtectionService,
+                                             workstationSessionService,
                                              logger);
             });
 
