@@ -33,7 +33,7 @@
 </div>
 
 @*SAML IdP*@
-<div class="@(Model.SamlIdentityProviderEnabled == true ? "" : "d-none")">
+<div class="@((Model.SamlIdentityProviderEnabled == true && Model.Employee.Devices.Count > 0) ? "" : "d-none")">
     <h4 class="text-navyblue mb-2 mt-3">SAML IdP Account</h4>
     <form method="post" class="samlidp-card">
         <input type="hidden" asp-for="Employee.Id" />

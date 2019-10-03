@@ -128,7 +128,7 @@ namespace HES.Web.Pages.Employees
                 .Include(e => e.Position)
                 .Include(e => e.Devices).ThenInclude(e => e.DeviceAccessProfile)
                 .FirstOrDefaultAsync(e => e.Id == id);
-                       
+
             DeviceAccounts = await _deviceAccountService
                 .Query()
                 .Include(d => d.Device)
@@ -383,6 +383,7 @@ namespace HES.Web.Pages.Employees
 
             Device = await _deviceService
                 .Query()
+                .Include(e => e.Employee)
                 .FirstOrDefaultAsync(x => x.Id == id);
 
             if (Device == null)
@@ -404,13 +405,20 @@ namespace HES.Web.Pages.Employees
 
             try
             {
-                await _employeeService.RemoveDeviceAsync(device.EmployeeId, device.Id);
+                var user = await _userManager.FindByEmailAsync(device.Employee.Email);
+                if (user != null)
+                {
+                    await _userManager.DeleteAsync(user);
+                    await _employeeService.DeleteSamlIdpAccountAsync(device.Employee.Id);
+                }
+
+                await _employeeService.RemoveDeviceAsync(device.Employee.Id, device.Id);
                 _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(device.Id);
                 SuccessMessage = $"Device {device.Id} deleted.";
             }
             catch (Exception ex)
             {
-                if (!await EmployeeExists(device.EmployeeId))
+                if (!await EmployeeExists(device.Employee.Id))
                 {
                     _logger.LogError("Employee dos not exists.");
                     return NotFound();
@@ -422,7 +430,7 @@ namespace HES.Web.Pages.Employees
                 }
             }
 
-            var id = device.EmployeeId;
+            var id = device.Employee.Id;
             return RedirectToPage("./Details", new { id });
         }
 
