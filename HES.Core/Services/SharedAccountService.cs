@@ -62,7 +62,7 @@ namespace HES.Core.Services
             // Validate url
             if (sharedAccount.Urls != null)
             {
-                sharedAccount.Urls = Utils.VerifyUrls(sharedAccount.Urls);
+                sharedAccount.Urls = Hepler.VerifyUrls(sharedAccount.Urls);
             }
             // Set password
             sharedAccount.Password = _dataProtectionService.Protect(input.Password);
@@ -108,7 +108,7 @@ namespace HES.Core.Services
             // Validate url
             if (sharedAccount.Urls != null)
             {
-                sharedAccount.Urls = Utils.VerifyUrls(sharedAccount.Urls);
+                sharedAccount.Urls = Hepler.VerifyUrls(sharedAccount.Urls);
             }
 
             // Update Shared Account

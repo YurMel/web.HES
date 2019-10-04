@@ -15,15 +15,18 @@ namespace HES.Web.Areas.Identity.Pages.Account.External
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEmployeeService _employeeService;
+        private readonly IRemoteWorkstationConnectionsService _remoteWorkstationConnectionsService;
         private readonly ILogger<ResetAccountPasswordModel> _logger;
 
 
         public ResetAccountPasswordModel(UserManager<ApplicationUser> userManager,
                                          IEmployeeService employeeService,
+                                         IRemoteWorkstationConnectionsService remoteWorkstationConnectionsService,
                                          ILogger<ResetAccountPasswordModel> logger)
         {
             _userManager = userManager;
             _employeeService = employeeService;
+            _remoteWorkstationConnectionsService = remoteWorkstationConnectionsService;
             _logger = logger;
         }
 
@@ -84,6 +87,7 @@ namespace HES.Web.Areas.Identity.Pages.Account.External
             {
                 _logger.LogInformation($"SAML IdP User {user.Email} password reseted and logged in.");
                 await _employeeService.UpdatePasswordSamlIdpAccountAsync(Input.Email, Input.Password);
+                _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(user.DeviceId);
                 return LocalRedirect("~/Identity/Account/External");
             }
 

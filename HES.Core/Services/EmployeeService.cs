@@ -23,7 +23,6 @@ namespace HES.Core.Services
         private readonly IWorkstationProximityDeviceService _workstationProximityDeviceService;
         private readonly IAsyncRepository<WorkstationEvent> _workstationEventRepository;
         private readonly IAsyncRepository<WorkstationSession> _workstationSessionRepository;
-        private readonly IRemoteTaskService _remoteTaskService;
         private readonly IDataProtectionService _dataProtectionService;
         private readonly ISamlIdentityProviderService _samlIdentityProviderService;
 
@@ -35,7 +34,6 @@ namespace HES.Core.Services
                                IWorkstationProximityDeviceService workstationProximityDeviceService,
                                IAsyncRepository<WorkstationEvent> workstationEventRepository,
                                IAsyncRepository<WorkstationSession> workstationSessionRepository,
-                               IRemoteTaskService remoteTaskService,
                                IDataProtectionService dataProtectionService,
                                ISamlIdentityProviderService samlIdentityProviderService)
         {
@@ -48,7 +46,6 @@ namespace HES.Core.Services
 
             _workstationEventRepository = workstationEventRepository;
             _workstationSessionRepository = workstationSessionRepository;
-            _remoteTaskService = remoteTaskService;
             _dataProtectionService = dataProtectionService;
             _samlIdentityProviderService = samlIdentityProviderService;
         }
@@ -153,7 +150,7 @@ namespace HES.Core.Services
             };
 
             // Validate url
-            deviceAccount.Urls = Utils.VerifyUrls(deviceAccount.Urls);
+            deviceAccount.Urls = Hepler.VerifyUrls(deviceAccount.Urls);
 
             // Create task
             var deviceTask = new DeviceTask
@@ -184,8 +181,6 @@ namespace HES.Core.Services
                 await _deviceAccountService.DeleteAsync(deviceAccount);
                 throw;
             }
-
-            _remoteTaskService.StartTaskProcessing(device.Id);
         }
 
         public async Task UpdatePasswordSamlIdpAccountAsync(string email, string password)
@@ -226,8 +221,6 @@ namespace HES.Core.Services
                 await _deviceAccountService.UpdateOnlyPropAsync(deviceAccount, properties);
                 throw;
             }
-
-            _remoteTaskService.StartTaskProcessing(deviceAccount.DeviceId);
         }
 
         public async Task UpdateOtpSamlIdpAccountAsync(string email, string otp)
@@ -279,11 +272,9 @@ namespace HES.Core.Services
                 await _deviceAccountService.UpdateOnlyPropAsync(deviceAccount, properties);
                 throw;
             }
-
-            _remoteTaskService.StartTaskProcessing(deviceAccount.DeviceId);
         }
 
-        public async Task UpdateUrlSamlIdpAccountAsync(string hesUrl)
+        public async Task<IList<string>> UpdateUrlSamlIdpAccountAsync(string hesUrl)
         {
             _dataProtectionService.Validate();
 
@@ -293,7 +284,7 @@ namespace HES.Core.Services
              .ToListAsync();
 
             var samlIdP = await _samlIdentityProviderService.GetByIdAsync(SamlIdentityProvider.PrimaryKey);
-            var validUrls = Utils.VerifyUrls($"{samlIdP.Url};{hesUrl}");
+            var validUrls = Hepler.VerifyUrls($"{samlIdP.Url};{hesUrl}");
 
             foreach (var account in deviceAccounts)
             {
@@ -323,7 +314,7 @@ namespace HES.Core.Services
                 }
             }
 
-            _remoteTaskService.StartTaskProcessing(deviceAccounts.Select(s => s.Id).ToList());
+            return deviceAccounts.Select(s => s.Id).ToList();
         }
 
         public async Task DeleteSamlIdpAccountAsync(string employeeId)
@@ -380,8 +371,6 @@ namespace HES.Core.Services
                 DeviceId = device.Id,
                 DeviceAccountId = deviceAccountId
             });
-
-            _remoteTaskService.StartTaskProcessing(deviceId);
         }
 
         public async Task AddDeviceAsync(string employeeId, string[] selectedDevices)
@@ -413,8 +402,6 @@ namespace HES.Core.Services
                     CreatedAt = DateTime.UtcNow,
                     DeviceId = device.Id
                 });
-
-                _remoteTaskService.StartTaskProcessing(deviceId);
             }
         }
 
@@ -455,8 +442,6 @@ namespace HES.Core.Services
                 Operation = TaskOperation.Wipe,
                 DeviceId = device.Id
             });
-
-            _remoteTaskService.StartTaskProcessing(deviceId);
         }
 
         public async Task CreateWorkstationAccountAsync(WorkstationAccountModel workstationAccount, string employeeId, string deviceId)
@@ -605,8 +590,6 @@ namespace HES.Core.Services
                 await _deviceAccountService.DeleteRangeAsync(accounts);
                 throw;
             }
-
-            _remoteTaskService.StartTaskProcessing(selectedDevices);
         }
 
         public async Task EditPersonalAccountAsync(DeviceAccount deviceAccount)
@@ -686,8 +669,6 @@ namespace HES.Core.Services
                 await _deviceAccountService.UpdateOnlyPropAsync(deviceAccount, properties);
                 throw;
             }
-
-            _remoteTaskService.StartTaskProcessing(deviceAccount.DeviceId);
         }
 
         public async Task EditPersonalAccountPwdAsync(DeviceAccount deviceAccount, InputModel input)
@@ -724,8 +705,6 @@ namespace HES.Core.Services
                 await _deviceAccountService.UpdateOnlyPropAsync(deviceAccount, properties);
                 throw;
             }
-
-            _remoteTaskService.StartTaskProcessing(deviceAccount.DeviceId);
         }
 
         public async Task EditPersonalAccountOtpAsync(DeviceAccount deviceAccount, InputModel input)
@@ -760,8 +739,6 @@ namespace HES.Core.Services
                 await _deviceAccountService.UpdateOnlyPropAsync(deviceAccount, properties);
                 throw;
             }
-
-            _remoteTaskService.StartTaskProcessing(deviceAccount.DeviceId);
         }
 
         public async Task AddSharedAccount(string employeeId, string sharedAccountId, string[] selectedDevices)
@@ -847,11 +824,9 @@ namespace HES.Core.Services
                 await _deviceAccountService.DeleteRangeAsync(accounts);
                 throw;
             }
-
-            _remoteTaskService.StartTaskProcessing(selectedDevices);
         }
 
-        public async Task DeleteAccount(string accountId)
+        public async Task<string> DeleteAccount(string accountId)
         {
             _dataProtectionService.Validate();
 
@@ -885,8 +860,7 @@ namespace HES.Core.Services
                 await _deviceAccountService.UpdateOnlyPropAsync(deviceAccount, properties);
                 throw;
             }
-
-            _remoteTaskService.StartTaskProcessing(deviceAccount.DeviceId);
+            return deviceAccount.DeviceId;
         }
 
         public async Task UndoChanges(string accountId)

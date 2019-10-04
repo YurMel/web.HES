@@ -4,11 +4,11 @@ using Microsoft.Extensions.Logging;
 
 namespace HES.Core.Services
 {
-    public class SdkLogger : ILog
+    public class SdkLogger<T> : ILog
     {
-        ILogger<RemoteDeviceConnectionsService> _logger; //todo
+        private readonly ILogger<T> _logger;
 
-        public SdkLogger(ILogger<RemoteDeviceConnectionsService> logger)
+        public SdkLogger(ILogger<T> logger)
         {
             _logger = logger;
         }

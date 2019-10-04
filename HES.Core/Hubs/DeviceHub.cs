@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Threading.Tasks;
 using HES.Core.Interfaces;
-using HES.Core.Services;
 using Hideez.SDK.Communication;
 using Hideez.SDK.Communication.Remote;
 using Microsoft.AspNetCore.SignalR;
@@ -22,22 +21,50 @@ namespace HES.Core.Hubs
             _logger = logger;
         }
 
+        string GetWorkstationId()
+        {
+            if (Context.Items.TryGetValue("WorkstationId", out object workstationId))
+                return (string)workstationId;
+            else
+            {
+                _logger.LogCritical("DeviceHub does not contain WorkstationId!");
+                throw new Exception("DeviceHub does not contain WorkstationId!");
+            }
+        }
+
+        string GetDeviceId()
+        {
+            if (Context.Items.TryGetValue("DeviceId", out object deviceId))
+                return (string)deviceId;
+            else
+            {
+                _logger.LogCritical("DeviceHub does not contain DeviceId!");
+                throw new Exception("DeviceHub does not contain DeviceId!");
+            }
+        }
+
         // HUB connection is connected
         public override async Task OnConnectedAsync()
         {
             var httpContext = Context.GetHttpContext();
             string deviceId = httpContext.Request.Headers["DeviceId"].ToString();
-            string channel = httpContext.Request.Headers["DeviceChannel"].ToString();
-            Debug.WriteLine($"!!!!!!!!!!!!!!!!!!!!! OnConnectedAsync {deviceId}:{channel}");
+            string workstationId = httpContext.Request.Headers["WorkstationId"].ToString();
+            Debug.WriteLine($"!!!!!!!!!!!!!!!!!!!!! OnConnectedAsync {deviceId}:{workstationId}");
 
             if (string.IsNullOrWhiteSpace(deviceId))
             {
                 _logger.LogCritical($"DeviceId cannot be empty");
             }
+            else if (string.IsNullOrWhiteSpace(workstationId))
+            {
+                _logger.LogCritical($"WorkstationId cannot be empty");
+            }
             else
             {
-                _remoteDeviceConnectionsService.MakeConnection(deviceId, Clients.Caller);
                 Context.Items.Add("DeviceId", deviceId);
+                Context.Items.Add("WorkstationId", workstationId);
+
+                _remoteDeviceConnectionsService.OnDeviceHubConnected(deviceId, workstationId, Clients.Caller);
             }
 
             await base.OnConnectedAsync();
@@ -48,15 +75,7 @@ namespace HES.Core.Hubs
         {
             Debug.WriteLine($"!!!!!!!!!!!!!!!!!!!!! OnDisconnectedAsync");
 
-            if (Context.Items.TryGetValue("DeviceId", out object deviceId))
-            {
-                RemoteDeviceConnectionsService.RemoveDevice((string)deviceId);
-            }
-            else
-            {
-                Debug.Assert(false);
-                _logger.LogCritical("DeviceHub does not contain DeviceId!");
-            }
+            _remoteDeviceConnectionsService.OnDeviceHubDisconnected(GetDeviceId(), GetWorkstationId());
 
             return base.OnDisconnectedAsync(exception);
         }
@@ -64,17 +83,15 @@ namespace HES.Core.Hubs
         // gets a device from the context
         RemoteDevice GetDevice()
         {
-            RemoteDevice remoteDevice = null;
-
-            if (Context.Items.TryGetValue("DeviceId", out object deviceId))
-                remoteDevice = RemoteDeviceConnectionsService.FindDevice((string)deviceId);
+            var remoteDevice = _remoteDeviceConnectionsService.FindRemoteDevice(GetDeviceId(), GetWorkstationId());
 
             if (remoteDevice == null)
-                throw new Exception($"Cannot find device in the DeviceHub");
+                throw new Exception($"Cannot find remote device in the DeviceHub");
 
             return remoteDevice;
         }
 
+        // incoming request
         public Task OnVerifyResponse(byte[] data, string error)
         {
             try
@@ -91,6 +108,7 @@ namespace HES.Core.Hubs
             return Task.CompletedTask;
         }
 
+        // incoming request
         public Task OnCommandResponse(byte[] data, string error)
         {
             try

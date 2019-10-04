@@ -18,18 +18,21 @@ namespace HES.Web.Areas.Identity.Pages.Account.External
         private readonly ILogger<EnableAuthenticatorModel> _logger;
         private readonly UrlEncoder _urlEncoder;
         private readonly IEmployeeService _employeeService;
+        private readonly IRemoteWorkstationConnectionsService _remoteWorkstationConnectionsService;
 
         private const string AuthenticatorUriFormat = "otpauth://totp/{0}:{1}?secret={2}&issuer={0}&digits=6";
 
         public EnableAuthenticatorModel(UserManager<ApplicationUser> userManager,
                                         ILogger<EnableAuthenticatorModel> logger,
                                         UrlEncoder urlEncoder,
-                                        IEmployeeService employeeService)
+                                        IEmployeeService employeeService,
+                                        IRemoteWorkstationConnectionsService remoteWorkstationConnectionsService)
         {
             _userManager = userManager;
             _logger = logger;
             _urlEncoder = urlEncoder;
             _employeeService = employeeService;
+            _remoteWorkstationConnectionsService = remoteWorkstationConnectionsService;
         }
 
         public string SharedKey { get; set; }
@@ -66,6 +69,7 @@ namespace HES.Web.Areas.Identity.Pages.Account.External
             await LoadSharedKeyAndQrCodeUriAsync(user);
 
             await _employeeService.UpdateOtpSamlIdpAccountAsync(user.Email, SharedKey);
+            _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(user.DeviceId);
 
             return Page();
         }

@@ -15,6 +15,7 @@ namespace HES.Web.Pages.SharedAccounts
     {
         private readonly ISharedAccountService _sharedAccountService;
         private readonly IRemoteTaskService _remoteTaskService;
+        private readonly IRemoteWorkstationConnectionsService _remoteWorkstationConnectionsService;
         private readonly ILogger<IndexModel> _logger;
 
         public IList<SharedAccount> SharedAccounts { get; set; }
@@ -26,10 +27,14 @@ namespace HES.Web.Pages.SharedAccounts
         [TempData]
         public string ErrorMessage { get; set; }
 
-        public IndexModel(ISharedAccountService sharedAccountService, IRemoteTaskService remoteTaskService, ILogger<IndexModel> logger)
+        public IndexModel(ISharedAccountService sharedAccountService,
+                          IRemoteTaskService remoteTaskService,
+                          IRemoteWorkstationConnectionsService remoteWorkstationConnectionsService,
+                          ILogger<IndexModel> logger)
         {
             _sharedAccountService = sharedAccountService;
             _remoteTaskService = remoteTaskService;
+            _remoteWorkstationConnectionsService = remoteWorkstationConnectionsService;
             _logger = logger;
         }
 
@@ -53,6 +58,13 @@ namespace HES.Web.Pages.SharedAccounts
             if (!ModelState.IsValid)
             {
                 _logger.LogWarning("Model is not valid");
+                return RedirectToPage("./Index");
+            }
+
+            if (!Core.Utilities.Hepler.VerifyOtpSecret(input.OtpSecret))
+            {
+                _logger.LogWarning("OTP secret is not valid");
+                ErrorMessage = "OTP secret is not valid.";
                 return RedirectToPage("./Index");
             }
 
@@ -102,7 +114,7 @@ namespace HES.Web.Pages.SharedAccounts
             try
             {
                 var devices = await _sharedAccountService.EditSharedAccountAsync(sharedAccount);
-                _remoteTaskService.StartTaskProcessing(devices);
+                _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(devices);
                 SuccessMessage = $"Shared account updated.";
             }
             catch (Exception ex)
@@ -145,7 +157,7 @@ namespace HES.Web.Pages.SharedAccounts
             try
             {
                 var devices = await _sharedAccountService.EditSharedAccountPwdAsync(sharedAccount, input);
-                _remoteTaskService.StartTaskProcessing(devices);
+                _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(devices);
                 SuccessMessage = $"Shared account updated.";
             }
             catch (Exception ex)
@@ -180,10 +192,17 @@ namespace HES.Web.Pages.SharedAccounts
 
         public async Task<IActionResult> OnPostEditSharedAccountOtpAsync(SharedAccount sharedAccount, InputModel input)
         {
+            if (!Core.Utilities.Hepler.VerifyOtpSecret(input.OtpSecret))
+            {
+                _logger.LogWarning("OTP secret is not valid");
+                ErrorMessage = "OTP secret is not valid.";
+                return RedirectToPage("./Index");
+            }
+
             try
             {
                 var devices = await _sharedAccountService.EditSharedAccountOtpAsync(sharedAccount, input);
-                _remoteTaskService.StartTaskProcessing(devices);
+                _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(devices);
                 SuccessMessage = $"Shared account updated.";
             }
             catch (Exception ex)
@@ -226,7 +245,7 @@ namespace HES.Web.Pages.SharedAccounts
             try
             {
                 var devices = await _sharedAccountService.DeleteSharedAccountAsync(id);
-                _remoteTaskService.StartTaskProcessing(devices);
+                _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(devices);
                 SuccessMessage = $"Shared account deleted.";
             }
             catch (Exception ex)

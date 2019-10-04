@@ -24,6 +24,7 @@ namespace HES.Web.Pages.Employees
         private readonly ITemplateService _templateService;
         private readonly ISamlIdentityProviderService _samlIdentityProviderService;
         private readonly IApplicationUserService _applicationUserService;
+        private readonly IRemoteWorkstationConnectionsService _remoteWorkstationConnectionsService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEmailSenderService _emailSender;
         private readonly ILogger<DetailsModel> _logger;
@@ -52,6 +53,7 @@ namespace HES.Web.Pages.Employees
                             ITemplateService templateService,
                             ISamlIdentityProviderService samlIdentityProviderService,
                             IApplicationUserService applicationUserService,
+                            IRemoteWorkstationConnectionsService remoteWorkstationConnectionsService,
                             UserManager<ApplicationUser> userManager,
                             IEmailSenderService emailSender,
                             ILogger<DetailsModel> logger)
@@ -63,6 +65,7 @@ namespace HES.Web.Pages.Employees
             _templateService = templateService;
             _samlIdentityProviderService = samlIdentityProviderService;
             _applicationUserService = applicationUserService;
+            _remoteWorkstationConnectionsService = remoteWorkstationConnectionsService;
             _userManager = userManager;
             _emailSender = emailSender;
             _logger = logger;
@@ -95,6 +98,7 @@ namespace HES.Web.Pages.Employees
                 .Include(d => d.Device)
                 .Include(d => d.Employee)
                 .Include(d => d.SharedAccount)
+                .Where(e => e.EmployeeId == Employee.Id)
                 .Where(d => d.Deleted == false && d.Name != SamlIdentityProvider.DeviceAccountName)
                 .ToListAsync();
 
@@ -113,6 +117,28 @@ namespace HES.Web.Pages.Employees
             SamlIdentityProviderEnabled = await _samlIdentityProviderService.GetStatusAsync();
 
             return Page();
+        }
+
+        public async Task<IActionResult> OnGetUpdateTableAsync(string id)
+        {
+            Employee = await _employeeService
+                .Query()
+                .Include(e => e.Department.Company)
+                .Include(e => e.Department)
+                .Include(e => e.Position)
+                .Include(e => e.Devices).ThenInclude(e => e.DeviceAccessProfile)
+                .FirstOrDefaultAsync(e => e.Id == id);
+
+            DeviceAccounts = await _deviceAccountService
+                .Query()
+                .Include(d => d.Device)
+                .Include(d => d.Employee)
+                .Include(d => d.SharedAccount)
+                .Where(e => e.EmployeeId == Employee.Id)
+                .Where(d => d.Deleted == false && d.Name != SamlIdentityProvider.DeviceAccountName)
+                .ToListAsync();
+
+            return Partial("_EmployeeDeviceAccounts", this);
         }
 
         #region Employee
@@ -259,6 +285,7 @@ namespace HES.Web.Pages.Employees
             try
             {
                 await _employeeService.SetPrimaryAccount(deviceId, accountId);
+                _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(deviceId);
                 SuccessMessage = "Primary account changed and will be recorded when the device is connected to the server.";
             }
             catch (Exception ex)
@@ -312,6 +339,7 @@ namespace HES.Web.Pages.Employees
             try
             {
                 await _employeeService.AddDeviceAsync(employeeId, selectedDevices);
+                _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(selectedDevices);
 
                 if (selectedDevices.Length > 1)
                 {
@@ -355,6 +383,7 @@ namespace HES.Web.Pages.Employees
 
             Device = await _deviceService
                 .Query()
+                .Include(e => e.Employee)
                 .FirstOrDefaultAsync(x => x.Id == id);
 
             if (Device == null)
@@ -376,12 +405,20 @@ namespace HES.Web.Pages.Employees
 
             try
             {
-                await _employeeService.RemoveDeviceAsync(device.EmployeeId, device.Id);
+                var user = await _userManager.FindByEmailAsync(device.Employee.Email);
+                if (user != null)
+                {
+                    await _userManager.DeleteAsync(user);
+                    await _employeeService.DeleteSamlIdpAccountAsync(device.Employee.Id);
+                }
+
+                await _employeeService.RemoveDeviceAsync(device.Employee.Id, device.Id);
+                _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(device.Id);
                 SuccessMessage = $"Device {device.Id} deleted.";
             }
             catch (Exception ex)
             {
-                if (!await EmployeeExists(device.EmployeeId))
+                if (!await EmployeeExists(device.Employee.Id))
                 {
                     _logger.LogError("Employee dos not exists.");
                     return NotFound();
@@ -393,7 +430,7 @@ namespace HES.Web.Pages.Employees
                 }
             }
 
-            var id = device.EmployeeId;
+            var id = device.Employee.Id;
             return RedirectToPage("./Details", new { id });
         }
 
@@ -426,9 +463,17 @@ namespace HES.Web.Pages.Employees
                 return RedirectToPage("./Details", new { id });
             }
 
+            if (!Core.Utilities.Hepler.VerifyOtpSecret(input.OtpSecret))
+            {
+                _logger.LogWarning("OTP secret is not valid");
+                ErrorMessage = "OTP secret is not valid.";
+                return RedirectToPage("./Details", new { id });
+            }
+
             try
             {
                 await _employeeService.CreatePersonalAccountAsync(deviceAccount, input, selectedDevices);
+                _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(selectedDevices);
                 SuccessMessage = "Account created and will be recorded when the device is connected to the server.";
             }
             catch (Exception ex)
@@ -484,6 +529,7 @@ namespace HES.Web.Pages.Employees
             try
             {
                 await _employeeService.EditPersonalAccountAsync(deviceAccount);
+                _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(deviceAccount.DeviceId);
                 SuccessMessage = "Account updated and will be recorded when the device is connected to the server.";
             }
             catch (Exception ex)
@@ -531,6 +577,7 @@ namespace HES.Web.Pages.Employees
             try
             {
                 await _employeeService.EditPersonalAccountPwdAsync(deviceAccount, input);
+                _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(deviceAccount.DeviceId);
                 SuccessMessage = "Account updated and will be recorded when the device is connected to the server.";
             }
             catch (Exception ex)
@@ -569,9 +616,17 @@ namespace HES.Web.Pages.Employees
         {
             var id = deviceAccount.EmployeeId;
 
+            if (!Core.Utilities.Hepler.VerifyOtpSecret(input.OtpSecret))
+            {
+                _logger.LogWarning("OTP secret is not valid");
+                ErrorMessage = "OTP secret is not valid.";
+                return RedirectToPage("./Details", new { id });
+            }
+
             try
             {
                 await _employeeService.EditPersonalAccountOtpAsync(deviceAccount, input);
+                _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(deviceAccount.DeviceId);
                 SuccessMessage = "Account updated and will be recorded when the device is connected to the server.";
             }
             catch (Exception ex)
@@ -623,6 +678,7 @@ namespace HES.Web.Pages.Employees
             try
             {
                 await _employeeService.AddSharedAccount(employeeId, sharedAccountId, selectedDevices);
+                _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(selectedDevices);
                 SuccessMessage = "Account added and will be recorded when the device is connected to the server.";
             }
             catch (Exception ex)
@@ -670,7 +726,8 @@ namespace HES.Web.Pages.Employees
 
             try
             {
-                await _employeeService.DeleteAccount(accountId);
+                var deviceId = await _employeeService.DeleteAccount(accountId);
+                _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(deviceId);
                 SuccessMessage = "Account deleting and will be deleted when the device is connected to the server.";
             }
             catch (Exception ex)

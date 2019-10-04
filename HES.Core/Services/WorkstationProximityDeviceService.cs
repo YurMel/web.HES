@@ -1,12 +1,11 @@
-﻿using HES.Core.Entities;
-using HES.Core.Hubs;
-using HES.Core.Interfaces;
-using Hideez.SDK.Communication.HES.DTO;
-using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using HES.Core.Entities;
+using HES.Core.Interfaces;
+using Hideez.SDK.Communication.HES.DTO;
+using Microsoft.EntityFrameworkCore;
 
 namespace HES.Core.Services
 {
@@ -169,7 +168,7 @@ namespace HES.Core.Services
         {
             var deviceProximitySettings = await GetProximitySettingsAsync(workstationId);
 
-            await AppHub.UpdateProximitySettings(workstationId, deviceProximitySettings);
+            await RemoteWorkstationConnectionsService.UpdateProximitySettings(workstationId, deviceProximitySettings);
         }
 
         public async Task RemoveAllProximityAsync(string deviceId)

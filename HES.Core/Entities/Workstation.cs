@@ -1,8 +1,8 @@
-﻿using HES.Core.Hubs;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using HES.Core.Services;
 
 namespace HES.Core.Entities
 {
@@ -28,6 +28,6 @@ namespace HES.Core.Entities
         public Department Department { get; set; }
 
         [NotMapped]
-        public bool IsOnline => Id != null ? AppHub.IsWorkstationConnectedToHost(Id) : false;
+        public bool IsOnline => Id != null ? RemoteWorkstationConnectionsService.IsWorkstationConnectedToServer(Id) : false;
     }
 }

@@ -89,6 +89,12 @@ namespace HES.Web
             services.AddScoped<ITemplateService, TemplateService>();
 
             services.AddScoped<IApplicationUserService, ApplicationUserService>();
+            services.AddScoped<IOrgStructureService, OrgStructureService>();
+            services.AddScoped<ISamlIdentityProviderService, SamlIdentityProviderService>();
+            services.AddScoped<IAppService, AppService>();
+            services.AddScoped<ILogViewerService, LogViewerService>();
+            services.AddTransient<IAesCryptographyService, AesCryptographyService>();
+
             services.AddSingleton<IDataProtectionService, DataProtectionService>(s =>
             {
                 var scope = s.CreateScope();
@@ -107,39 +113,57 @@ namespace HES.Web
                                                  notificationService,
                                                  logger);
             });
-            services.AddScoped<IOrgStructureService, OrgStructureService>();
-            services.AddScoped<ISamlIdentityProviderService, SamlIdentityProviderService>();
+
+            services.AddSingleton<IRemoteDeviceConnectionsService, RemoteDeviceConnectionsService>(s =>
+            {
+                var scope = s.CreateScope();
+                var logger = scope.ServiceProvider.GetService<ILogger<RemoteDeviceConnectionsService>>();
+                var dataProtectionService = scope.ServiceProvider.GetService<IDataProtectionService>();
+                return new RemoteDeviceConnectionsService(logger, dataProtectionService);
+            });
 
             services.AddSingleton<IRemoteTaskService, RemoteTaskService>(s =>
             {
                 var scope = s.CreateScope();
                 var deviceService = scope.ServiceProvider.GetService<IDeviceService>();
+                var remoteDeviceConnectionsService = scope.ServiceProvider.GetService<IRemoteDeviceConnectionsService>();
                 var deviceTaskService = scope.ServiceProvider.GetService<IDeviceTaskService>();
                 var deviceAccountService = scope.ServiceProvider.GetService<IDeviceAccountService>();
-                var dataProtectionRepository = scope.ServiceProvider.GetService<IDataProtectionService>();
+                var dataProtectionService = scope.ServiceProvider.GetService<IDataProtectionService>();
                 var logger = scope.ServiceProvider.GetService<ILogger<RemoteTaskService>>();
                 var hubContext = scope.ServiceProvider.GetService<IHubContext<EmployeeDetailsHub>>();
                 return new RemoteTaskService(deviceService,
+                                             remoteDeviceConnectionsService,
                                              deviceTaskService,
                                              deviceAccountService,
-                                             dataProtectionRepository,
+                                             dataProtectionService,
                                              logger,
                                              hubContext);
             });
-            services.AddSingleton<IRemoteDeviceConnectionsService, RemoteDeviceConnectionsService>(s =>
+
+            services.AddSingleton<IRemoteWorkstationConnectionsService, RemoteWorkstationConnectionsService>(s =>
             {
                 var scope = s.CreateScope();
-                var logger = scope.ServiceProvider.GetService<ILogger<RemoteDeviceConnectionsService>>();
-                var deviceService = scope.ServiceProvider.GetService<IDeviceService>();
+                var remoteTasksService = scope.ServiceProvider.GetService<IRemoteTaskService>();
+                var remoteDeviceConnectionsService = scope.ServiceProvider.GetService<IRemoteDeviceConnectionsService>();
                 var employeeService = scope.ServiceProvider.GetService<IEmployeeService>();
+                var workstationService = scope.ServiceProvider.GetService<IWorkstationService>();
+                var workstationProximityDeviceService = scope.ServiceProvider.GetService<IWorkstationProximityDeviceService>();
+                var deviceService = scope.ServiceProvider.GetService<IDeviceService>();
                 var dataProtectionService = scope.ServiceProvider.GetService<IDataProtectionService>();
-                return new RemoteDeviceConnectionsService(logger,
-                                                          deviceService,
-                                                          employeeService,
-                                                          dataProtectionService);
+                var workstationSessionService = scope.ServiceProvider.GetService<IWorkstationSessionService>();
+                var logger = scope.ServiceProvider.GetService<ILogger<RemoteWorkstationConnectionsService>>();
+                return new RemoteWorkstationConnectionsService(remoteTasksService,
+                                             remoteDeviceConnectionsService,
+                                             employeeService,
+                                             workstationService,
+                                             workstationProximityDeviceService,
+                                             deviceService,
+                                             dataProtectionService,
+                                             workstationSessionService,
+                                             logger);
             });
 
-            services.AddScoped<IAppService, AppService>();
             services.AddSingleton<INotificationService, NotificationService>(s =>
             {
                 var scope = s.CreateScope();
@@ -148,7 +172,7 @@ namespace HES.Web
                 var applicationUserService = scope.ServiceProvider.GetService<IApplicationUserService>();
                 return new NotificationService(notificationRepository, applicationUserService, logger);
             });
-            services.AddTransient<IAesCryptographyService, AesCryptographyService>();
+
             services.AddSingleton<IEmailSenderService, EmailSenderService>(i =>
                  new EmailSenderService(
                      Configuration["EmailSender:Host"],
@@ -213,6 +237,7 @@ namespace HES.Web
                     options.Conventions.AuthorizeFolder("/Settings", "RequireAdministratorRole");
                     options.Conventions.AuthorizeFolder("/Logs", "RequireAdministratorRole");
                     options.Conventions.AuthorizeFolder("/Notifications", "RequireAdministratorRole");
+                    options.Conventions.AuthorizeFolder("/Develop", "RequireAdministratorRole");
                 })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }

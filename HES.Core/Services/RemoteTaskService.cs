@@ -1,4 +1,9 @@
-﻿using HES.Core.Entities;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
+using HES.Core.Entities;
 using HES.Core.Hubs;
 using HES.Core.Interfaces;
 using Hideez.SDK.Communication;
@@ -9,140 +14,37 @@ using Hideez.SDK.Communication.Utils;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace HES.Core.Services
 {
     public class RemoteTaskService : IRemoteTaskService
     {
-        private readonly ConcurrentDictionary<string, TaskCompletionSource<bool>> _devicesInProgress
-            = new ConcurrentDictionary<string, TaskCompletionSource<bool>>();
-        private readonly IDeviceService _deviceService;
-        private readonly IDeviceTaskService _deviceTaskService;
-        private readonly IDeviceAccountService _deviceAccountService;
-        private readonly IDataProtectionService _dataProtectionService;
-        private readonly ILogger<RemoteTaskService> _logger;
-        private readonly IHubContext<EmployeeDetailsHub> _hubContext;
+        readonly IDeviceService _deviceService;
+        readonly IRemoteDeviceConnectionsService _remoteDeviceConnectionsService;
+        readonly IDeviceTaskService _deviceTaskService;
+        readonly IDeviceAccountService _deviceAccountService;
+        readonly IDataProtectionService _dataProtectionService;
+        readonly ILogger<RemoteTaskService> _logger;
+        readonly IHubContext<EmployeeDetailsHub> _hubContext;
 
         public RemoteTaskService(IDeviceService deviceService,
-                                 IDeviceTaskService deviceTaskService,                              
+                                 IRemoteDeviceConnectionsService remoteDeviceConnectionsService,
+                                 IDeviceTaskService deviceTaskService,
                                  IDeviceAccountService deviceAccountService,
                                  IDataProtectionService dataProtectionService,
                                  ILogger<RemoteTaskService> logger,
                                  IHubContext<EmployeeDetailsHub> hubContext)
         {
             _deviceService = deviceService;
+            _remoteDeviceConnectionsService = remoteDeviceConnectionsService;
             _deviceTaskService = deviceTaskService;
             _deviceAccountService = deviceAccountService;
             _dataProtectionService = dataProtectionService;
             _logger = logger;
             _hubContext = hubContext;
         }
-             
-        public async Task ProcessTasksAsync(string deviceId)
-        {
-            Debug.WriteLine($"!!!!!!!!!!!!! ProcessTasksAsync start {deviceId}");
 
-            var isNew = false;
-
-            var tcs = _devicesInProgress.GetOrAdd(deviceId, (x) =>
-            {
-                isNew = true;
-                return new TaskCompletionSource<bool>();
-            });
-
-            if (!isNew)
-            {
-                await tcs.Task;
-                return;
-            }
-
-            try
-            {
-                Debug.WriteLine($"!!!!!!!!!!!!! ExecuteRemoteTasks start {deviceId}");
-                var result = await ExecuteRemoteTasks(deviceId).TimeoutAfter(300_000);
-                tcs.TrySetResult(result);
-            }
-            catch (TimeoutException ex)
-            {
-                Debug.Assert(false);
-                tcs.SetException(ex);
-                _logger.LogCritical($"[{deviceId}] {ex.Message}");
-            }
-            catch (Exception ex)
-            {
-                tcs.SetException(ex);
-                _logger.LogError($"[{deviceId}] {ex.Message}");
-            }
-            finally
-            {
-                Debug.WriteLine($"!!!!!!!!!!!!! ExecuteRemoteTasks end {deviceId}");
-                _devicesInProgress.TryRemove(deviceId, out TaskCompletionSource<bool> value);
-            }
-
-            Debug.WriteLine($"!!!!!!!!!!!!! ProcessTasksAsync end {deviceId}");
-        }
-
-        public void StartTaskProcessing(IList<string> deviceId)
-        {
-            foreach (var item in deviceId)
-            {
-                StartTaskProcessing(item);
-            }
-        }
-
-        public void StartTaskProcessing(string deviceId)
-        {
-            Debug.WriteLine($"!!!!!!!!!!!!! StartTaskProcessing {deviceId}");
-
-            var isNew = false;
-
-            var tcs = _devicesInProgress.GetOrAdd(deviceId, (x) =>
-            {
-                isNew = true;
-                return new TaskCompletionSource<bool>();
-            });
-
-            if (!isNew)
-            {
-                return;
-            }
-
-            Task.Run(async () =>
-            {
-                try
-                {
-                    Debug.WriteLine($"!!!!!!!!!!!!! ExecuteRemoteTasks start {deviceId}");
-                    var result = await ExecuteRemoteTasks(deviceId).TimeoutAfter(300_000);
-                    tcs.SetResult(result);
-                }
-                catch (TimeoutException ex)
-                {
-                    Debug.Assert(false);
-                    tcs.SetException(ex);
-                    _logger.LogCritical($"[{deviceId}] {ex.Message}");
-                }
-                catch (Exception ex)
-                {
-                    tcs.SetException(ex);
-                    _logger.LogError($"[{deviceId}] {ex.Message}");
-                }
-                finally
-                {
-                    Debug.WriteLine($"!!!!!!!!!!!!! ExecuteRemoteTasks end {deviceId}");
-                    _devicesInProgress.TryRemove(deviceId, out TaskCompletionSource<bool> value);
-                }
-            });
-
-            Debug.WriteLine($"!!!!!!!!!!!!! StartTaskProcessing in progress {deviceId}");
-        }
-
-        private async Task TaskCompleted(string taskId, ushort idFromDevice)
+        async Task TaskCompleted(string taskId, ushort idFromDevice)
         {
             // Task
             var deviceTask = await _deviceTaskService
@@ -256,56 +158,49 @@ namespace HES.Core.Services
 
             // Delete task
             await _deviceTaskService.DeleteTaskAsync(deviceTask);
-            // Update UI use SognalR
-            await Task.Delay(500);
-            await _hubContext.Clients.All.SendAsync("ReloadPage", deviceAccount?.EmployeeId);
         }
 
-        private async Task<bool> ExecuteRemoteTasks(string deviceId)
+        public async Task<HideezErrorCode> ExecuteRemoteTasks(string deviceId, RemoteDevice remoteDevice, TaskOperation operation)
         {
-            try
+            _dataProtectionService.Validate();
+
+            var query = _deviceTaskService.Query()
+                .Include(t => t.DeviceAccount)
+                .Where(t => t.DeviceId == deviceId);
+
+            if (operation != TaskOperation.None)
+                query = query.Where(t => t.Operation == operation);
+
+            query = query.OrderBy(x => x.CreatedAt);
+
+            var tasks = await query.ToListAsync();
+
+            while (tasks.Any())
             {
-                _dataProtectionService.Validate();
-
-                var tasks = await _deviceTaskService
-                    .Query()
-                    .Include(t => t.DeviceAccount)
-                    .Where(t => t.DeviceId == deviceId)
-                    .OrderBy(x => x.CreatedAt)
-                    .ToListAsync();
-
-                while (tasks.Any())
+                foreach (var task in tasks)
                 {
-                    var remoteDevice = await AppHub.EstablishRemoteConnection(deviceId, 4);
-                    if (remoteDevice == null)
-                        break;
+                    task.Password = _dataProtectionService.Unprotect(task.Password);
+                    task.OtpSecret = _dataProtectionService.Unprotect(task.OtpSecret);
+                    var idFromDevice = await ExecuteRemoteTask(remoteDevice, task);
+                    await TaskCompleted(task.Id, idFromDevice);
 
-                    foreach (var task in tasks)
-                    {
-                        task.Password = _dataProtectionService.Unprotect(task.Password);
-                        task.OtpSecret = _dataProtectionService.Unprotect(task.OtpSecret);
-                        var idFromDevice = await ExecuteRemoteTask(remoteDevice, task);
-                        await TaskCompleted(task.Id, idFromDevice);
-                    }
-
-                    tasks = await _deviceTaskService
-                        .Query()
-                        .Include(t => t.DeviceAccount)
-                        .Where(t => t.DeviceId == deviceId)
-                        .OrderBy(x => x.CreatedAt)
-                        .ToListAsync();
+                    if (task.Operation == TaskOperation.Wipe)
+                        return HideezErrorCode.DeviceHasBeenWiped; // further processing is not possible
                 }
 
-                return true;
+                tasks = await query.ToListAsync();
             }
-            catch (Exception ex)
+
+            var device = await _deviceService.GetByIdAsync(deviceId);
+            if (device != null)
             {
-                _logger.LogError($"[{deviceId}] {ex.Message}");
+                await _hubContext.Clients.All.SendAsync("UpdateTable", device.EmployeeId);
             }
-            return false;
+
+            return HideezErrorCode.Ok;
         }
 
-        private async Task<ushort> ExecuteRemoteTask(RemoteDevice remoteDevice, DeviceTask task)
+        async Task<ushort> ExecuteRemoteTask(RemoteDevice remoteDevice, DeviceTask task)
         {
             ushort idFromDevice = 0;
             switch (task.Operation)
@@ -338,7 +233,7 @@ namespace HES.Core.Services
             return idFromDevice;
         }
 
-        private async Task<ushort> AddDeviceAccount(RemoteDevice remoteDevice, DeviceTask task)
+        async Task<ushort> AddDeviceAccount(RemoteDevice remoteDevice, DeviceTask task)
         {
             var device = await _deviceService
                 .Query()
@@ -355,7 +250,7 @@ namespace HES.Core.Services
             return key;
         }
 
-        private async Task<ushort> UpdateDeviceAccount(RemoteDevice remoteDevice, DeviceTask task)
+        async Task<ushort> UpdateDeviceAccount(RemoteDevice remoteDevice, DeviceTask task)
         {
             var device = await _deviceService
                 .Query()
@@ -372,7 +267,7 @@ namespace HES.Core.Services
             return key;
         }
 
-        private async Task<ushort> SetDeviceAccountAsPrimary(RemoteDevice remoteDevice, DeviceTask task)
+        async Task<ushort> SetDeviceAccountAsPrimary(RemoteDevice remoteDevice, DeviceTask task)
         {
             var pm = new DevicePasswordManager(remoteDevice, null);
 
@@ -382,7 +277,7 @@ namespace HES.Core.Services
             return key;
         }
 
-        private async Task<ushort> DeleteDeviceAccount(RemoteDevice remoteDevice, DeviceTask task)
+        async Task<ushort> DeleteDeviceAccount(RemoteDevice remoteDevice, DeviceTask task)
         {
             var device = await _deviceService
                 .Query()
@@ -396,68 +291,33 @@ namespace HES.Core.Services
             return 0;
         }
 
-        private async Task<ushort> WipeDevice(RemoteDevice remoteDevice, DeviceTask task)
+        async Task<ushort> WipeDevice(RemoteDevice remoteDevice, DeviceTask task)
         {
             if (remoteDevice.AccessLevel.IsLinkRequired == true)
-                return 0; // wipe is not required in this case
+            {
+                _logger.LogError($"Trying to wipe the empty device [{remoteDevice.Id}]");
+                return 0;
+            }
 
             var key = ConvertUtils.HexStringToBytes(task.Password);
             var respData = await remoteDevice.Wipe(key);
             return 0;
         }
 
-        private async Task<ushort> LinkDevice(RemoteDevice remoteDevice, DeviceTask task)
+        async Task<ushort> LinkDevice(RemoteDevice remoteDevice, DeviceTask task)
         {
-            var device = await _deviceService
-                .Query()
-                .Include(d => d.DeviceAccessProfile)
-                .AsNoTracking()
-                .FirstOrDefaultAsync(d => d.Id == task.DeviceId);
-
-            if (device == null)
-                throw new Exception($"Device not found");
-
-            if (device.DeviceAccessProfile == null)
-                throw new Exception($"DeviceAccessProfile is not set for {device.Id}");
-
-            // Set Link   
-            var key = ConvertUtils.HexStringToBytes(task.Password);
-            if (remoteDevice.AccessLevel.IsLinkRequired)
+            if (!remoteDevice.AccessLevel.IsLinkRequired)
             {
-                await remoteDevice.Link(key);
+                _logger.LogError($"Trying to link already linked device [{remoteDevice.Id}]");
+                return 0;
             }
 
-            // Set default profile
-            var accessParams = new AccessParams()
-            {
-                MasterKey_Bond = device.DeviceAccessProfile.MasterKeyBonding,
-                MasterKey_Connect = device.DeviceAccessProfile.MasterKeyConnection,
-                MasterKey_Link = device.DeviceAccessProfile.MasterKeyNewLink,
-                MasterKey_Channel = device.DeviceAccessProfile.MasterKeyNewChannel,
-
-                Button_Bond = device.DeviceAccessProfile.ButtonBonding,
-                Button_Connect = device.DeviceAccessProfile.ButtonConnection,
-                Button_Link = device.DeviceAccessProfile.ButtonNewLink,
-                Button_Channel = device.DeviceAccessProfile.ButtonNewChannel,
-
-                Pin_Bond = device.DeviceAccessProfile.PinBonding,
-                Pin_Connect = device.DeviceAccessProfile.ButtonConnection,
-                Pin_Link = device.DeviceAccessProfile.PinNewLink,
-                Pin_Channel = device.DeviceAccessProfile.PinNewChannel,
-
-                PinMinLength = device.DeviceAccessProfile.PinLength,
-                PinMaxTries = device.DeviceAccessProfile.PinTryCount,
-                MasterKeyExpirationPeriod = device.DeviceAccessProfile.MasterKeyExpiration,
-                PinExpirationPeriod = device.DeviceAccessProfile.PinExpiration,
-                ButtonExpirationPeriod = device.DeviceAccessProfile.ButtonExpiration,
-            };
-
-            await remoteDevice.Access(DateTime.UtcNow, key, accessParams);
-
+            var key = ConvertUtils.HexStringToBytes(task.Password);
+            var respData = await remoteDevice.Link(key);
             return 0;
         }
 
-        private async Task<ushort> ProfileDevice(RemoteDevice remoteDevice, DeviceTask task)
+        async Task<ushort> ProfileDevice(RemoteDevice remoteDevice, DeviceTask task)
         {
             var device = await _deviceService
                 .Query()
@@ -490,17 +350,14 @@ namespace HES.Core.Services
             };
 
             var key = ConvertUtils.HexStringToBytes(task.Password);
-
             await remoteDevice.Access(DateTime.UtcNow, key, accessParams);
-
             return 0;
         }
 
-        private async Task<ushort> UnlockPin(RemoteDevice remoteDevice, DeviceTask task)
+        async Task<ushort> UnlockPin(RemoteDevice remoteDevice, DeviceTask task)
         {
             var key = ConvertUtils.HexStringToBytes(task.Password);
             await remoteDevice.Unlock(key);
-
             return 0;
         }
     }
