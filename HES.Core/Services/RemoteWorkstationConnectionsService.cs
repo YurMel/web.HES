@@ -194,6 +194,13 @@ namespace HES.Core.Services
                         .Include(d => d.DeviceAccessProfile)
                         .AsNoTracking()
                         .FirstOrDefaultAsync(d => d.Id == deviceId);
+
+                    if (remoteDevice.AccessLevel.IsLinkRequired)
+                    {
+                        // we have tried to link the device with no success. Just in case clearing all device's tasks and linkings
+                        await _employeeService.HandlingMasterPasswordErrorAsync(deviceId);
+                        throw new HideezException(HideezErrorCode.HesDeviceNotAssignedToAnyUser);
+                    }
                 }
 
                 // Access 
