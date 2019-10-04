@@ -50,6 +50,8 @@ namespace HES.Core.Services
             _samlIdentityProviderService = samlIdentityProviderService;
         }
 
+        #region Employee
+
         public IQueryable<Employee> Query()
         {
             return _employeeRepository.Query();
@@ -112,6 +114,10 @@ namespace HES.Core.Services
             return await _employeeRepository.ExistAsync(predicate);
         }
 
+        #endregion
+
+        #region SamlIdp
+
         public async Task CreateSamlIdpAccountAsync(string email, string password, string hesUrl, string deviceId)
         {
             _dataProtectionService.Validate();
@@ -150,7 +156,7 @@ namespace HES.Core.Services
             };
 
             // Validate url
-            deviceAccount.Urls = Hepler.VerifyUrls(deviceAccount.Urls);
+            deviceAccount.Urls = ValidationHepler.VerifyUrls(deviceAccount.Urls);
 
             // Create task
             var deviceTask = new DeviceTask
@@ -225,6 +231,17 @@ namespace HES.Core.Services
 
         public async Task UpdateOtpSamlIdpAccountAsync(string email, string otp)
         {
+            if (email == null)
+            {
+                throw new ArgumentNullException(nameof(email));
+            }
+            if (otp == null)
+            {
+                throw new ArgumentNullException(nameof(otp));
+            }
+
+            ValidationHepler.VerifyOtpSecret(otp);
+
             _dataProtectionService.Validate();
 
             var employee = await _employeeRepository.Query().FirstOrDefaultAsync(e => e.Email == email);
@@ -284,7 +301,7 @@ namespace HES.Core.Services
              .ToListAsync();
 
             var samlIdP = await _samlIdentityProviderService.GetByIdAsync(SamlIdentityProvider.PrimaryKey);
-            var validUrls = Hepler.VerifyUrls($"{samlIdP.Url};{hesUrl}");
+            var validUrls = ValidationHepler.VerifyUrls($"{samlIdP.Url};{hesUrl}");
 
             foreach (var account in deviceAccounts)
             {
@@ -341,37 +358,9 @@ namespace HES.Core.Services
             }
         }
 
-        public async Task SetPrimaryAccount(string deviceId, string deviceAccountId)
-        {
-            if (deviceId == null)
-                throw new ArgumentNullException(nameof(deviceId));
+        #endregion
 
-            if (deviceAccountId == null)
-                throw new ArgumentNullException(nameof(deviceAccountId));
-
-            var device = await _deviceService.GetByIdAsync(deviceId);
-            if (device == null)
-                throw new Exception($"Device not found, ID: {deviceId}");
-
-            // Update Device Account
-            var deviceAccount = await _deviceAccountService.GetByIdAsync(deviceAccountId);
-            if (deviceAccount == null)
-                throw new Exception($"DeviceAccount not found, ID: {deviceAccountId}");
-
-            deviceAccount.Status = AccountStatus.Updating;
-            deviceAccount.UpdatedAt = DateTime.UtcNow;
-            string[] properties = { "Status", "UpdatedAt" };
-            await _deviceAccountService.UpdateOnlyPropAsync(deviceAccount, properties);
-
-            // Add task
-            await _deviceTaskService.AddTaskAsync(new DeviceTask()
-            {
-                Operation = TaskOperation.Primary,
-                CreatedAt = DateTime.UtcNow,
-                DeviceId = device.Id,
-                DeviceAccountId = deviceAccountId
-            });
-        }
+        #region Device
 
         public async Task AddDeviceAsync(string employeeId, string[] selectedDevices)
         {
@@ -434,14 +423,64 @@ namespace HES.Core.Services
             device.PrimaryAccountId = null;
             await _deviceService.UpdateOnlyPropAsync(device, new string[] { "EmployeeId", "PrimaryAccountId" });
 
-            // Remove device
-            await _deviceTaskService.AddTaskAsync(new DeviceTask
+            if (device.MasterPassword != null)
             {
-                Password = _dataProtectionService.Protect(device.MasterPassword),
+                // Add Task remove device
+                await _deviceTaskService.AddTaskAsync(new DeviceTask
+                {
+                    Password = _dataProtectionService.Protect(device.MasterPassword),
+                    CreatedAt = DateTime.UtcNow,
+                    Operation = TaskOperation.Wipe,
+                    DeviceId = device.Id
+                });
+            }
+        }
+
+        #endregion
+
+        #region Account
+
+        public async Task SetPrimaryAccount(string deviceId, string deviceAccountId)
+        {
+            if (deviceId == null)
+                throw new ArgumentNullException(nameof(deviceId));
+
+            if (deviceAccountId == null)
+                throw new ArgumentNullException(nameof(deviceAccountId));
+
+            var device = await _deviceService.GetByIdAsync(deviceId);
+            if (device == null)
+                throw new Exception($"Device not found, ID: {deviceId}");
+
+            // Update Device Account
+            var deviceAccount = await _deviceAccountService.GetByIdAsync(deviceAccountId);
+            if (deviceAccount == null)
+                throw new Exception($"DeviceAccount not found, ID: {deviceAccountId}");
+
+            deviceAccount.Status = AccountStatus.Updating;
+            deviceAccount.UpdatedAt = DateTime.UtcNow;
+            string[] properties = { "Status", "UpdatedAt" };
+            await _deviceAccountService.UpdateOnlyPropAsync(deviceAccount, properties);
+
+            // Add task
+            await _deviceTaskService.AddTaskAsync(new DeviceTask()
+            {
+                Operation = TaskOperation.Primary,
                 CreatedAt = DateTime.UtcNow,
-                Operation = TaskOperation.Wipe,
-                DeviceId = device.Id
+                DeviceId = device.Id,
+                DeviceAccountId = deviceAccountId
             });
+        }
+
+        private async Task SetAsPrimaryIfEmpty(string deviceId, string deviceAccountId)
+        {
+            var device = await _deviceService.GetByIdAsync(deviceId);
+
+            if (device.PrimaryAccountId == null)
+            {
+                device.PrimaryAccountId = deviceAccountId;
+                await _deviceService.UpdateOnlyPropAsync(device, new string[] { "PrimaryAccountId" });
+            }
         }
 
         public async Task CreateWorkstationAccountAsync(WorkstationAccountModel workstationAccount, string employeeId, string deviceId)
@@ -493,6 +532,8 @@ namespace HES.Core.Services
             if (selectedDevices == null)
                 throw new ArgumentNullException(nameof(selectedDevices));
 
+            ValidationHepler.VerifyOtpSecret(input.OtpSecret);
+
             _dataProtectionService.Validate();
 
             List<DeviceAccount> accounts = new List<DeviceAccount>();
@@ -512,37 +553,10 @@ namespace HES.Core.Services
                     throw new Exception("An account with the same name and login exists.");
 
                 // Validate url
-                if (deviceAccount.Urls != null)
-                {
-                    List<string> verifiedUrls = new List<string>();
-                    foreach (var url in deviceAccount.Urls.Split(";"))
-                    {
-                        string uriString = url;
-                        string domain = string.Empty;
-
-                        if (string.IsNullOrWhiteSpace(uriString))
-                        {
-                            throw new Exception("Not correct url");
-                        }
-
-                        if (!uriString.Contains(Uri.SchemeDelimiter))
-                        {
-                            uriString = string.Concat(Uri.UriSchemeHttp, Uri.SchemeDelimiter, uriString);
-                        }
-
-                        domain = new Uri(uriString).Host;
-
-                        if (domain.StartsWith("www."))
-                            domain = domain.Remove(0, 4);
-
-                        verifiedUrls.Add(domain);
-                    }
-                    deviceAccount.Urls = string.Join(";", verifiedUrls.ToArray());
-                }
-
-                var deviceAccountId = Guid.NewGuid().ToString();
+                deviceAccount.Urls = ValidationHepler.VerifyUrls(deviceAccount.Urls);
 
                 // Create Device Account
+                var deviceAccountId = Guid.NewGuid().ToString();
                 accounts.Add(new DeviceAccount
                 {
                     Id = deviceAccountId,
@@ -612,33 +626,7 @@ namespace HES.Core.Services
                 throw new Exception("An account with the same name and login exists.");
 
             // Validate url
-            if (deviceAccount.Urls != null)
-            {
-                List<string> verifiedUrls = new List<string>();
-                foreach (var url in deviceAccount.Urls.Split(";"))
-                {
-                    string uriString = url;
-                    string domain = string.Empty;
-
-                    if (string.IsNullOrWhiteSpace(uriString))
-                    {
-                        throw new Exception("Not correct url");
-                    }
-
-                    if (!uriString.Contains(Uri.SchemeDelimiter))
-                    {
-                        uriString = string.Concat(Uri.UriSchemeHttp, Uri.SchemeDelimiter, uriString);
-                    }
-
-                    domain = new Uri(uriString).Host;
-
-                    if (domain.StartsWith("www."))
-                        domain = domain.Remove(0, 4);
-
-                    verifiedUrls.Add(domain);
-                }
-                deviceAccount.Urls = string.Join(";", verifiedUrls.ToArray());
-            }
+            deviceAccount.Urls = ValidationHepler.VerifyUrls(deviceAccount.Urls);
 
             // Update Device Account
             deviceAccount.Status = AccountStatus.Updating;
@@ -709,6 +697,8 @@ namespace HES.Core.Services
 
         public async Task EditPersonalAccountOtpAsync(DeviceAccount deviceAccount, InputModel input)
         {
+            ValidationHepler.VerifyOtpSecret(input.OtpSecret);
+
             _dataProtectionService.Validate();
 
             if (deviceAccount == null)
@@ -873,23 +863,14 @@ namespace HES.Core.Services
             await _deviceTaskService.UndoLastTaskAsync(accountId);
         }
 
-        private async Task SetAsPrimaryIfEmpty(string deviceId, string deviceAccountId)
-        {
-            var device = await _deviceService.GetByIdAsync(deviceId);
-
-            if (device.PrimaryAccountId == null)
-            {
-                device.PrimaryAccountId = deviceAccountId;
-                await _deviceService.UpdateOnlyPropAsync(device, new string[] { "PrimaryAccountId" });
-            }
-        }
-
         private string GenerateMasterPassword()
         {
             var buf = AesCryptoHelper.CreateRandomBuf(32);
             var pass = ConvertUtils.ByteArrayToHexString(buf);
             return pass;
         }
+
+        #endregion
 
         public async Task HandlingMasterPasswordErrorAsync(string deviceId)
         {

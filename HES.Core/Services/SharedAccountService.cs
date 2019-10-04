@@ -40,12 +40,15 @@ namespace HES.Core.Services
 
         public async Task<SharedAccount> CreateSharedAccountAsync(SharedAccount sharedAccount, InputModel input)
         {
+
             _dataProtectionService.Validate();
 
             if (sharedAccount == null || input == null)
             {
                 throw new Exception("The parameter must not be null.");
             }
+
+            ValidationHepler.VerifyOtpSecret(input.OtpSecret);
 
             var exist = await _sharedAccountRepository
                 .Query()
@@ -62,7 +65,7 @@ namespace HES.Core.Services
             // Validate url
             if (sharedAccount.Urls != null)
             {
-                sharedAccount.Urls = Hepler.VerifyUrls(sharedAccount.Urls);
+                sharedAccount.Urls = ValidationHepler.VerifyUrls(sharedAccount.Urls);
             }
             // Set password
             sharedAccount.Password = _dataProtectionService.Protect(input.Password);
@@ -108,7 +111,7 @@ namespace HES.Core.Services
             // Validate url
             if (sharedAccount.Urls != null)
             {
-                sharedAccount.Urls = Hepler.VerifyUrls(sharedAccount.Urls);
+                sharedAccount.Urls = ValidationHepler.VerifyUrls(sharedAccount.Urls);
             }
 
             // Update Shared Account
@@ -213,8 +216,15 @@ namespace HES.Core.Services
 
             if (sharedAccount == null)
             {
-                throw new Exception("The parameter must not be null.");
+                throw new Exception(nameof(sharedAccount));
             }
+
+            if (input == null)
+            {
+                throw new Exception(nameof(input));
+            }
+
+            ValidationHepler.VerifyOtpSecret(input.OtpSecret);
 
             // Update Shared Account
             sharedAccount.OtpSecret = !string.IsNullOrWhiteSpace(input.OtpSecret) ? _dataProtectionService.Protect(input.OtpSecret) : null;

@@ -4,10 +4,15 @@ using System.Text.RegularExpressions;
 
 namespace HES.Core.Utilities
 {
-    public static class Hepler
+    public static class ValidationHepler
     {
         public static string VerifyUrls(string urls)
         {
+            if (urls == null)
+            {
+                return null;
+            }
+
             List<string> verifiedUrls = new List<string>();
             foreach (var url in urls.Split(";"))
             {
@@ -36,9 +41,17 @@ namespace HES.Core.Utilities
             return result;
         }
 
-        public static bool VerifyOtpSecret(string value)
+        public static void VerifyOtpSecret(string otp)
         {
-            return Regex.IsMatch(value.Replace(" ", ""), @"^[a-zA-Z0-9]+$");
+            if (otp != null)
+            {
+                var valid = Regex.IsMatch(otp.Replace(" ", ""), @"^[a-zA-Z0-9]+$");
+
+                if (!valid)
+                {
+                    throw new Exception("Otp secret is not valid");
+                }
+            }
         }
     }
 }

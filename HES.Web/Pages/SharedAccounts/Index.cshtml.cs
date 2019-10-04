@@ -61,13 +61,6 @@ namespace HES.Web.Pages.SharedAccounts
                 return RedirectToPage("./Index");
             }
 
-            if (!Core.Utilities.Hepler.VerifyOtpSecret(input.OtpSecret))
-            {
-                _logger.LogWarning("OTP secret is not valid");
-                ErrorMessage = "OTP secret is not valid.";
-                return RedirectToPage("./Index");
-            }
-
             try
             {
                 await _sharedAccountService.CreateSharedAccountAsync(sharedAccount, input);
@@ -191,14 +184,7 @@ namespace HES.Web.Pages.SharedAccounts
         }
 
         public async Task<IActionResult> OnPostEditSharedAccountOtpAsync(SharedAccount sharedAccount, InputModel input)
-        {
-            if (!Core.Utilities.Hepler.VerifyOtpSecret(input.OtpSecret))
-            {
-                _logger.LogWarning("OTP secret is not valid");
-                ErrorMessage = "OTP secret is not valid.";
-                return RedirectToPage("./Index");
-            }
-
+        {            
             try
             {
                 var devices = await _sharedAccountService.EditSharedAccountOtpAsync(sharedAccount, input);

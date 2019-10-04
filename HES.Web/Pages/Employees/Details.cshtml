@@ -265,20 +265,29 @@
             $('.breadcrumb').append('<li class="breadcrumb-item active">@Model.Employee.FullName</li>');
         });
 
+        // Get url parameter by name
+        function GetUrlParam (name) {
+            var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+            return results[1] || 0;
+        }
+
         // SignalR
         var connection = new signalR.HubConnectionBuilder().withUrl("/employeeDetailsHub").build();
         connection.start();
         connection.on("UpdateTable", function (id) {
-            $.ajax({
-                url: "/Employees/Details?handler=UpdateTable",
-                type: "Get",
-                data: { id: id },
-                async: true,
-                success: function (response) {
-                    $("#employeeDeviceAccounts").html(response);
-                    SetDT();
-                }
-            });
+            var currentId = GetUrlParam('id');
+            if (currentId == id) {
+                $.ajax({
+                    url: "/Employees/Details?handler=UpdateTable",
+                    type: "Get",
+                    data: { id: id },
+                    async: true,
+                    success: function (response) {
+                        $("#employeeDeviceAccounts").html(response);
+                        SetDT();
+                    }
+                });
+            }
         });
     </script>
     <partial name="_ValidationScriptsPartial" />
