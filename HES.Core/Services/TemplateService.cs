@@ -37,7 +37,7 @@ namespace HES.Core.Services
             // Validate url
             if (template.Urls != null)
             {
-                template.Urls = Hepler.VerifyUrls(template.Urls);
+                template.Urls = ValidationHepler.VerifyUrls(template.Urls);
             }
 
             return await _templateRepository.AddAsync(template);
@@ -53,7 +53,7 @@ namespace HES.Core.Services
             // Validate url
             if (template.Urls != null)
             {
-                template.Urls = Hepler.VerifyUrls(template.Urls);
+                template.Urls = ValidationHepler.VerifyUrls(template.Urls);
             }
 
             await _templateRepository.UpdateAsync(template);
