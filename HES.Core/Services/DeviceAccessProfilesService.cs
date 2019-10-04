@@ -1,6 +1,7 @@
 ﻿using HES.Core.Entities;
 using HES.Core.Interfaces;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -30,7 +31,7 @@ namespace HES.Core.Services
             if (deviceAccessProfile == null)
             {
                 throw new ArgumentNullException(nameof(deviceAccessProfile));
-            }            
+            }
 
             deviceAccessProfile.CreatedAt = DateTime.UtcNow;
             await _deviceAccessProfileRepository.AddAsync(deviceAccessProfile);
@@ -42,7 +43,7 @@ namespace HES.Core.Services
             {
                 throw new ArgumentNullException(nameof(deviceAccessProfile));
             }
-                       
+
             deviceAccessProfile.UpdatedAt = DateTime.UtcNow;
             await _deviceAccessProfileRepository.UpdateAsync(deviceAccessProfile);
         }

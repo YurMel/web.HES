@@ -184,6 +184,13 @@ namespace HES.Core.Services
                 .Query()
                 .Where(w => w.WorkstationId == workstationId && w.EndDate == null)
                 .FirstOrDefaultAsync();
+
+            if (session == null)
+            {
+                _logger.LogCritical($"[{workstationId}] Сannot find last session for closing");
+                return;
+            }
+
             session.EndDate = DateTime.UtcNow;
             await UpdateSessionAsync(session);
         }

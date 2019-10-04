@@ -151,7 +151,12 @@ namespace HES.Core.Services
             await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "Battery", "Firmware", "State", "LastSynced" });
         }
 
-        public async Task UpdateProfileAsync(string[] devicesId, string profileId)
+        public async Task<string[]> GetDevicesByProfile(string profileId)
+        {
+            return await _deviceRepository.Query().Where(d => d.AcceessProfileId == profileId).Select(s => s.Id).ToArrayAsync();
+        }
+
+        public async Task SetProfileAsync(string[] devicesId, string profileId)
         {
             if (devicesId == null)
             {
@@ -163,7 +168,7 @@ namespace HES.Core.Services
             }
 
             var profile = await _deviceAccessProfilesService.GetByIdAsync(profileId);
-            if (profileId == null)
+            if (profile == null)
             {
                 throw new Exception("Profile not found");
             }
@@ -186,6 +191,16 @@ namespace HES.Core.Services
                     // Add task for update profile
                     await _deviceTaskService.AddProfileTaskAsync(device);
                 }
+            }
+        }
+
+        public async Task UpdateProfileAsync(string profileId)
+        {
+            var devicesId = await GetDevicesByProfile(profileId);
+
+            if (devicesId.Length > 0)
+            {
+                await SetProfileAsync(devicesId, profileId);
             }
         }
 

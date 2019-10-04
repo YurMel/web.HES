@@ -12,6 +12,7 @@ namespace HES.Web.Pages.Settings.DeviceAccessProfiles
 {
     public class IndexModel : PageModel
     {
+        private readonly IDeviceService _deviceService;
         private readonly IDeviceAccessProfilesService _deviceAccessProfilesService;
         private readonly ILogger<IndexModel> _logger;
 
@@ -24,8 +25,11 @@ namespace HES.Web.Pages.Settings.DeviceAccessProfiles
         [TempData]
         public string ErrorMessage { get; set; }
 
-        public IndexModel(IDeviceAccessProfilesService deviceAccessProfilesService, ILogger<IndexModel> logger)
+        public IndexModel(IDeviceService deviceService,
+                          IDeviceAccessProfilesService deviceAccessProfilesService,
+                          ILogger<IndexModel> logger)
         {
+            _deviceService = deviceService;
             _deviceAccessProfilesService = deviceAccessProfilesService;
             _logger = logger;
         }
@@ -103,6 +107,7 @@ namespace HES.Web.Pages.Settings.DeviceAccessProfiles
             try
             {
                 await _deviceAccessProfilesService.EditProfileAsync(DeviceAccessProfile);
+                await _deviceService.UpdateProfileAsync(DeviceAccessProfile.Id);
                 SuccessMessage = $"Device access profile updated.";
             }
             catch (Exception ex)
