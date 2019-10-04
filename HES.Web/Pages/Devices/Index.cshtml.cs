@@ -181,7 +181,7 @@ namespace HES.Web.Pages.Devices
 
             try
             {
-                await _deviceService.UpdateProfileAsync(devices, profileId);
+                await _deviceService.SetProfileAsync(devices, profileId);
                 _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(devices);
                 SuccessMessage = $"New profile sent to server for processing.";
             }

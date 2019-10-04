@@ -151,7 +151,7 @@ namespace HES.Core.Services
             await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "Battery", "Firmware", "State", "LastSynced" });
         }
 
-        public async Task UpdateProfileAsync(string[] devicesId, string profileId)
+        public async Task SetProfileAsync(string[] devicesId, string profileId)
         {
             if (devicesId == null)
             {
@@ -163,7 +163,7 @@ namespace HES.Core.Services
             }
 
             var profile = await _deviceAccessProfilesService.GetByIdAsync(profileId);
-            if (profileId == null)
+            if (profile == null)
             {
                 throw new Exception("Profile not found");
             }
