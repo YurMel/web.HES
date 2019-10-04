@@ -240,7 +240,7 @@ namespace HES.Core.Services
                 throw new ArgumentNullException(nameof(otp));
             }
 
-            ValidationHepler.VerifyOtpSecret(otp);        
+            ValidationHepler.VerifyOtpSecret(otp);
 
             _dataProtectionService.Validate();
 
@@ -423,14 +423,17 @@ namespace HES.Core.Services
             device.PrimaryAccountId = null;
             await _deviceService.UpdateOnlyPropAsync(device, new string[] { "EmployeeId", "PrimaryAccountId" });
 
-            // Remove device
-            await _deviceTaskService.AddTaskAsync(new DeviceTask
+            if (device.MasterPassword != null)
             {
-                Password = _dataProtectionService.Protect(device.MasterPassword),
-                CreatedAt = DateTime.UtcNow,
-                Operation = TaskOperation.Wipe,
-                DeviceId = device.Id
-            });
+                // Add Task remove device
+                await _deviceTaskService.AddTaskAsync(new DeviceTask
+                {
+                    Password = _dataProtectionService.Protect(device.MasterPassword),
+                    CreatedAt = DateTime.UtcNow,
+                    Operation = TaskOperation.Wipe,
+                    DeviceId = device.Id
+                });
+            }
         }
 
         #endregion
@@ -528,7 +531,7 @@ namespace HES.Core.Services
 
             if (selectedDevices == null)
                 throw new ArgumentNullException(nameof(selectedDevices));
-            
+
             ValidationHepler.VerifyOtpSecret(input.OtpSecret);
 
             _dataProtectionService.Validate();
@@ -624,7 +627,7 @@ namespace HES.Core.Services
 
             // Validate url
             deviceAccount.Urls = ValidationHepler.VerifyUrls(deviceAccount.Urls);
-           
+
             // Update Device Account
             deviceAccount.Status = AccountStatus.Updating;
             deviceAccount.UpdatedAt = DateTime.UtcNow;
