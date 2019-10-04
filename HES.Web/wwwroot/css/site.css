@@ -140,14 +140,67 @@ a.navbar-brand {
     background-clip: border-box;
     border: 1px solid rgba(0,0,0,.125);
     border-radius: .25rem;
-    /*height: 200px;*/
+    height: 350px;
     margin-bottom: 30px;
     padding: 15px;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
 }
+
+.dashboard-card-title {
+    color: #7A7C8B;
+    font-weight: 500;
+}
+
+.dashboard-card-body {
+    height: 300px;
+    display: flex;
+    flex-direction: column;
+    align-self: stretch;
+}
+
+.dashboard-card__logo {
+    display: flex;
+    justify-content: center;
+    padding-top: 10px;
+    flex: 1 1 auto !important;
+}
+
+.dashboard-card__info-wrapper {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex: 1 1 auto !important;
+}
+
+.dashboard-card__info-block {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.dashboard-card__info-body {
+    color: #0E3059;
+    font-size: 48px;
+    font-weight: 500;
+}
+
+.dashboard-card__info-title {
+    color: #7A7C8B;
+}
+
+.dashboard-card__vline {
+    height: 64px;
+    border: 0;
+    border-left: 1px solid rgba(33, 37, 41, 0.1);
+}
+
+.dashboard-card__notify {
+    display: flex;
+}
+
 /*#endregion */
-
 /*#region Sidebar */
-
 .navigation-menu {
     display: flex;
     flex-direction: column;

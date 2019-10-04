@@ -2,24 +2,33 @@
 <div class="row">
     <div class="col-12 col-md-6 col-lg-4">
         <div class="dashboard-card">
-            <h4>Hideez Enterprise Server - 2.1.1</h4>
-            <hr />
-            <div>
-                Data Protecton <span class="badge badge-success">Enabled</span>
+            <div class="dashboard-card-title">
+                Hideez Enterprise Server
             </div>
-            <div>
-                Device Tasks <a class="btn-link" asp-page="DeviceTasks"> <span class="badge badge-primary">@Model.DeviceTaskCount</span></a>
+            <div class="dashboard-card-body">
+                <div class="dashboard-card__logo">
+                    <img src="~/svg/dashboard/dashboard_hes.svg" />
+                </div>
+                <div class="dashboard-card__info-wrapper">
+                    <div class="dashboard-card__info-block">
+                        <div class="dashboard-card__info-body">2.1.1</div>
+                        <div class="dashboard-card__info-title">HES version</div>
+                    </div>
+                    <div class="dashboard-card__vline"></div>
+                    <div class="dashboard-card__info-block">
+                        <div class="dashboard-card__info-body">5</div>
+                        <div class="dashboard-card__info-title">Remote Tasks</div>
+                    </div>
+                </div>
+                <div class="dashboard-card__notify">
+
+                </div>
             </div>
-            ____________________
-            <div>
-                Update avaible <span class="badge badge-warning">New version 2.1.2</span>
-            </div>
-            <div>
-                Device Task long pending <span class="badge badge-warning">1</span>
-            </div>
-            <div>
-                Device Task error <span class="badge badge-danger">6</span>
-            </div>
+            @*<div>
+                        Device Tasks <a class="btn-link" asp-page="DeviceTasks"> <span class="badge badge-primary">@Model.DeviceTaskCount</span></a>
+                </div>
+            *@
+
         </div>
     </div>
     <div class="col-12 col-md-6 col-lg-4">
@@ -28,8 +37,8 @@
             <hr />
 
             @*<div>
-                Total count <span class="badge badge-success">70</span>
-            </div>*@
+                    Total count <span class="badge badge-success">70</span>
+                </div>*@
             <div>
                 Online <span class="badge badge-primary">45</span>
             </div>
@@ -37,6 +46,15 @@
                 Need appruve <span class="badge badge-danger">4</span>
             </div>
             _____
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-lg-4">
+        <div class="dashboard-card">
+            <h4>Devices - 36</h4>
+            <hr />
+            <div>
+                Total count <span class="badge badge-primary">36</span>
+            </div>
         </div>
     </div>
     <div class="col-12 col-md-6 col-lg-4">
