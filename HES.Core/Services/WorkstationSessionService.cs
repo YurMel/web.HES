@@ -77,7 +77,7 @@ namespace HES.Core.Services
                 throw new Exception(nameof(workstationEventsDto));
             }
 
-            foreach (var workstationEvent in workstationEventsDto.OrderBy(w => w.Date))
+            foreach (var workstationEvent in workstationEventsDto)
             {
                 // On unlock
                 if ((workstationEvent.EventId == WorkstationEventType.HESConnected ||

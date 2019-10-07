@@ -2,6 +2,7 @@
 using HES.Core.Interfaces;
 using Hideez.SDK.Communication.HES.DTO;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,16 +16,19 @@ namespace HES.Core.Services
         private readonly IAsyncRepository<Device> _deviceRepository;
         private readonly IAsyncRepository<Employee> _employeeRepository;
         private readonly IAsyncRepository<DeviceAccount> _deviceAccountRepository;
+        private readonly ILogger<WorkstationEventService> _logger;
 
         public WorkstationEventService(IAsyncRepository<WorkstationEvent> workstationEventRepository,
                                        IAsyncRepository<Device> deviceRepository,
                                        IAsyncRepository<Employee> employeeRepository,
-                                       IAsyncRepository<DeviceAccount> deviceAccountRepository)
+                                       IAsyncRepository<DeviceAccount> deviceAccountRepository,
+                                       ILogger<WorkstationEventService> logger)
         {
             _workstationEventRepository = workstationEventRepository;
             _deviceRepository = deviceRepository;
             _employeeRepository = employeeRepository;
             _deviceAccountRepository = deviceAccountRepository;
+            _logger = logger;
         }
 
         public IQueryable<WorkstationEvent> Query()
@@ -49,6 +53,13 @@ namespace HES.Core.Services
 
             foreach (var workstationEventDto in workstationEventsDto)
             {
+                var exist = await _workstationEventRepository.Query().AsNoTracking().AnyAsync(d => d.Id == workstationEventDto.Id);
+                if (exist)
+                {
+                    _logger.LogCritical($"[{workstationEventDto.WorkstationId}] Duplicate event entry '{workstationEventDto.Id}' for key 'PRIMARY'");
+                    continue;
+                }
+
                 string employeeId = null;
                 string departmentId = null;
                 string deviceAccountId = null;

@@ -37,17 +37,11 @@ namespace HES.Web.Pages.Settings.DeviceAccessProfiles
         public async Task OnGetAsync()
         {
             DeviceAccessProfiles = await _deviceAccessProfilesService
-                .DeviceAccessProfilesQuery()
+                .Query()
                 .Include(d => d.Devices)
                 .ToListAsync();
         }
-
-        public async Task<IActionResult> OnGetDetailsProfileAsync(string id)
-        {
-            DeviceAccessProfile = await _deviceAccessProfilesService.GetByIdAsync(id);
-            return Partial("_DetailsProfile", this);
-        }
-
+        
         public IActionResult OnGetCreateProfile()
         {
             return Partial("_CreateProfile", this);
@@ -84,7 +78,7 @@ namespace HES.Web.Pages.Settings.DeviceAccessProfiles
             }
 
             DeviceAccessProfile = await _deviceAccessProfilesService
-                .DeviceAccessProfilesQuery()
+                .Query()
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (DeviceAccessProfile == null)
@@ -128,7 +122,7 @@ namespace HES.Web.Pages.Settings.DeviceAccessProfiles
             }
 
             DeviceAccessProfile = await _deviceAccessProfilesService
-                .DeviceAccessProfilesQuery()
+                .Query()
                 .Include(d => d.Devices)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
