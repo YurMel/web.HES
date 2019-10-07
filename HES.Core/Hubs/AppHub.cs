@@ -144,6 +144,7 @@ namespace HES.Core.Hubs
 
         async Task<DeviceInfoDto> GetDeviceInfo(Device device)
         {
+            _logger.LogInformation($"[GetDeviceInfo] {device?.Id}");
             if (device == null)
                 return null;
 
@@ -152,7 +153,7 @@ namespace HES.Core.Hubs
                 .Where(t => t.DeviceId == device.Id)
                 .AsNoTracking()
                 .AnyAsync();
-
+            _logger.LogInformation($"[GetDeviceInfo] {needUpdate}");
             var info = new DeviceInfoDto()
             {
                 OwnerName = device.Employee?.FullName,
@@ -161,7 +162,7 @@ namespace HES.Core.Hubs
                 DeviceSerialNo = device.Id,
                 NeedUpdate = needUpdate
             };
-
+            _logger.LogInformation($"[GetDeviceInfo] return {info?.DeviceSerialNo}");
             return info;
         }
 
