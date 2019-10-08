@@ -10,6 +10,7 @@ namespace HES.Core.Interfaces
     public interface IDeviceService
     {
         IQueryable<Device> Query();
+        Task<int> GetCountAsync();
         Task<Device> GetByIdAsync(dynamic id);
         Task<(IList<Device> devicesExists, IList<Device> devicesImported, string message)> ImportDevices(string key, byte[] fileContent);
         Task EditRfidAsync(Device device);
@@ -21,5 +22,6 @@ namespace HES.Core.Interfaces
         Task UnlockPinAsync(string deviceId);
         Task<bool> ExistAsync(Expression<Func<Device, bool>> predicate);
         Task RemoveEmployeeAsync(string deviceId);
+        Task<int> GetFreeDevicesCount();
     }
 }

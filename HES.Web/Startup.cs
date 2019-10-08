@@ -68,7 +68,9 @@ namespace HES.Web
             services.AddSignalR();
 
             // Add Services
-            services.AddScoped(typeof(IAsyncRepository<>), typeof(Repository<>));
+  services.AddScoped(typeof(IAsyncRepository<>), typeof(Repository<>));
+
+ services.AddScoped<IDashboardService, DashboardService>();
 
             services.AddScoped<IEmployeeService, EmployeeService>();
 
@@ -224,7 +226,8 @@ namespace HES.Web
                     options.Conventions.AuthorizeAreaFolder("Identity", "/Account/Manage", "RequireAdministratorRole");
                     options.Conventions.AuthorizeAreaFolder("Identity", "/Account/External");
 
-                    options.Conventions.AddPageRoute("/Employees/Index", "");
+                    options.Conventions.AddPageRoute("/Dashboard/Index", "");
+                    options.Conventions.AuthorizeFolder("/Dashboard", "RequireAdministratorRole");
                     options.Conventions.AuthorizeFolder("/Employees", "RequireAdministratorRole");
                     options.Conventions.AuthorizeFolder("/Workstations", "RequireAdministratorRole");
                     options.Conventions.AuthorizeFolder("/SharedAccounts", "RequireAdministratorRole");

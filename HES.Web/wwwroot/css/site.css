@@ -134,10 +134,123 @@ a.navbar-brand {
     height: calc(100vh - 59px);
     background: #F7F8FC;
 }
+
+.dashboard-card {
+    background-color: #fff;
+    background-clip: border-box;
+    border: 1px solid rgba(0,0,0,.125);
+    border-radius: .25rem;
+    height: 350px;
+    margin-bottom: 30px;
+    padding: 15px;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.dashboard-card-title {
+    color: #7A7C8B;
+    font-weight: 500;
+}
+
+.dashboard-card-body {
+    height: 300px;
+    display: flex;
+    flex-direction: column;
+}
+
+.dashboard-card-body__logo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 1 1 auto !important;
+}
+
+.dashboard-card-logo {
+    height: 112px;
+}
+
+.dashboard-card-body__wrapper {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex: 1 1 auto !important;
+}
+
+.dashboard-card__info {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.dashboard-card__info-title {
+    color: #7A7C8B;
+}
+
+.dashboard-card__info-body {
+    color: #0E3059;
+    font-size: 48px;
+    font-weight: 500;
+}
+
+.dashboard-card__vertical-line {
+    height: 64px;
+    border: 0;
+    border-left: 1px solid rgba(33, 37, 41, 0.1);
+}
+
+/* Card has notify */
+.dashboard-card-notify-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    margin-top: 20px;
+    margin-bottom: 30px;
+}
+
+.dashboard-card-notify__logo {
+    flex-basis: 30%;
+}
+
+.dashboard-card-notify-img {
+    height: 64px;
+}
+
+.dashboard-card-notify__wrapper {
+    flex-basis: 70%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex: 1 1 auto !important;
+}
+
+.dashboard-card-notify__info {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.dashboard-card-notify__info-title {
+    color: #7A7C8B;
+}
+
+.dashboard-card-notify__info-body {
+    color: #0E3059;
+    font-size: 32px;
+    font-weight: 500;
+}
+
+.dashboard-card-notify__list {
+    display: flex;
+    height: 100%;
+    overflow-y: auto;
+    margin-bottom: 7px;
+}
+
 /*#endregion */
 
 /*#region Sidebar */
-
 .navigation-menu {
     display: flex;
     flex-direction: column;

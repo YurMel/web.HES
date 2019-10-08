@@ -194,5 +194,10 @@ namespace HES.Core.Services
             session.EndDate = DateTime.UtcNow;
             await UpdateSessionAsync(session);
         }
+
+        public async Task<int> GetOpenedSessionsCount()
+        {
+            return await _workstationSessionRepository.Query().Where(w => w.EndDate == null).CountAsync();
+        }
     }
 }
