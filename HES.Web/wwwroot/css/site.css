@@ -573,6 +573,20 @@ td {
     margin: 0;
 }
 
+.cell-ellipsis {
+    max-width: 400px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+@media screen and (max-width: 768px) {
+    .cell-ellipsis {
+        max-width: 100px;
+    }
+}
+
+
 /* Input with icon */
 .has-search-right {
     position: relative;

@@ -167,7 +167,7 @@ namespace HES.Web.Pages.Devices
 
         public async Task<IActionResult> OnGetSetProfileAsync()
         {
-            DeviceAccessProfiles = await _deviceAccessProfilesService.DeviceAccessProfilesQuery().ToListAsync();
+            DeviceAccessProfiles = await _deviceAccessProfilesService.Query().ToListAsync();
             return Partial("_SetProfile", this);
         }
 

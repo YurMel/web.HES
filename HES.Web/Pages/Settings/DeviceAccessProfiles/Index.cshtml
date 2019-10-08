@@ -36,7 +36,7 @@
 </div>
 
 @section Scripts{
-    <script src="~/js/dt-init-device-access-profile.js"></script>
+    <script src="~/js/dt-init-device-access-profile.js" asp-append-version="true"></script>
     <script>
         // Open modal dialog
         $(document).on('click', '.open-modal-dialog', function () {
@@ -49,14 +49,14 @@
         });
 
         // Click to details of profile
-        $('#deviceAccessProfiles tbody tr td:not(:first-child, :last-child)').click(function () {
-            var row = $(this).closest("tr");
-            var id = row.data("id");
-            var action = row.data("action");
-            var title = row.data("title");
+        //$('#deviceAccessProfiles tbody tr td:not(:first-child, :last-child)').click(function () {
+        //    var row = $(this).closest("tr");
+        //    var id = row.data("id");
+        //    var action = row.data("action");
+        //    var title = row.data("title");
 
-            ShowPartial(id, action, title);
-        });
+        //    ShowPartial(id, action, title);
+        //});
 
         // Profile datails
         function ShowPartial(id, action, title) {

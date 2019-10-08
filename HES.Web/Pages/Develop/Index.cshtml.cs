@@ -72,7 +72,7 @@ namespace HES.Web.Pages.Develop
                 var input = new InputModel()
                 {
                     Password = Guid.NewGuid().ToString(),
-                    OtpSecret = Guid.NewGuid().ToString()
+                    OtpSecret = "ybqc 4bk6 fmfg oyx2 zab6 tz3w zmh2 i5zg"
                 };
 
                 var devices = new string[] { accountModel.DeviceId };
