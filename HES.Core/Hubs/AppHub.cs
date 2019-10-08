@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using HES.Core.Entities;
@@ -18,36 +17,27 @@ namespace HES.Core.Hubs
     {
         private readonly IRemoteDeviceConnectionsService _remoteDeviceConnectionsService;
         private readonly IRemoteWorkstationConnectionsService _remoteWorkstationConnectionsService;
-        private readonly IRemoteTaskService _remoteTaskService;
         private readonly IWorkstationEventService _workstationEventService;
         private readonly IWorkstationSessionService _workstationSessionService;
         private readonly IDeviceService _deviceService;
         private readonly IDeviceTaskService _deviceTaskService;
-        private readonly IDeviceAccountService _deviceAccountService;
         private readonly ILogger<AppHub> _logger;
-        private readonly IDataProtectionService _dataProtectionService;
 
         public AppHub(IRemoteDeviceConnectionsService remoteDeviceConnectionsService,
                       IRemoteWorkstationConnectionsService remoteWorkstationConnectionsService,
-                      IRemoteTaskService remoteTaskService,
                       IWorkstationEventService workstationEventService,
                       IWorkstationSessionService workstationSessionService,
                       IDeviceService deviceService,
                       IDeviceTaskService deviceTaskService,
-                      IDeviceAccountService deviceAccountService,
-                      ILogger<AppHub> logger,
-                      IDataProtectionService dataProtectionService)
+                      ILogger<AppHub> logger)
         {
             _remoteDeviceConnectionsService = remoteDeviceConnectionsService;
             _remoteWorkstationConnectionsService = remoteWorkstationConnectionsService;
-            _remoteTaskService = remoteTaskService;
             _workstationEventService = workstationEventService;
             _workstationSessionService = workstationSessionService;
             _deviceService = deviceService;
             _deviceTaskService = deviceTaskService;
-            _deviceAccountService = deviceAccountService;
             _logger = logger;
-            _dataProtectionService = dataProtectionService;
         }
 
         private string GetWorkstationId()
@@ -60,20 +50,27 @@ namespace HES.Core.Hubs
                 throw new Exception("AppHub does not contain WorkstationId!");
             }
         }
-        
+
         public override Task OnConnectedAsync()
         {
-            var httpContext = Context.GetHttpContext();
-            string workstationId = httpContext.Request.Headers["WorkstationId"].ToString();
+            try
+            {
+                var httpContext = Context.GetHttpContext();
+                string workstationId = httpContext.Request.Headers["WorkstationId"].ToString();
 
-            if (string.IsNullOrWhiteSpace(workstationId))
-            {
-                _logger.LogCritical($"AppHub.OnConnectedAsync - WorkstationId cannot be empty");
+                if (string.IsNullOrWhiteSpace(workstationId))
+                {
+                    _logger.LogCritical($"AppHub.OnConnectedAsync - WorkstationId cannot be empty");
+                }
+                else
+                {
+                    _remoteDeviceConnectionsService.OnAppHubConnected(workstationId, Clients.Caller);
+                    Context.Items.Add("WorkstationId", workstationId);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                _remoteDeviceConnectionsService.OnAppHubConnected(workstationId, Clients.Caller);
-                Context.Items.Add("WorkstationId", workstationId);
+                _logger.LogCritical(ex, "OnConnectedAsync error");
             }
 
             return base.OnConnectedAsync();
@@ -81,8 +78,16 @@ namespace HES.Core.Hubs
 
         public override Task OnDisconnectedAsync(Exception exception)
         {
-            _remoteDeviceConnectionsService.OnAppHubDisconnected(GetWorkstationId());
-            _remoteWorkstationConnectionsService.OnWorkstationDisconnected(GetWorkstationId());
+            try
+            {
+                _remoteDeviceConnectionsService.OnAppHubDisconnected(GetWorkstationId());
+                _remoteWorkstationConnectionsService.OnWorkstationDisconnected(GetWorkstationId());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(ex, "OnDisconnectedAsync error");
+            }
+
             return base.OnDisconnectedAsync(exception);
         }
 
@@ -91,55 +96,92 @@ namespace HES.Core.Hubs
         // incoming request
         public async Task OnDeviceConnected(BleDeviceDto dto)
         {
-            // Update Battery, Firmware, State, LastSynced         
-            await _deviceService.UpdateDeviceInfoAsync(dto.DeviceSerialNo, dto.Battery, dto.FirmwareVersion, dto.IsLocked);
+            try
+            {
+                // Update Battery, Firmware, State, LastSynced         
+                await _deviceService.UpdateDeviceInfoAsync(dto.DeviceSerialNo, dto.Battery, dto.FirmwareVersion, dto.IsLocked);
 
-            _remoteDeviceConnectionsService.OnDeviceConnected(dto.DeviceSerialNo, GetWorkstationId(), Clients.Caller);
+                _remoteDeviceConnectionsService.OnDeviceConnected(dto.DeviceSerialNo, GetWorkstationId(), Clients.Caller);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(ex, "OnDeviceConnected error");
+            }
         }
 
         // incoming request
         public Task OnDeviceDisconnected(string deviceId)
         {
-            if (!string.IsNullOrEmpty(deviceId))
-                _remoteDeviceConnectionsService.OnDeviceDisconnected(deviceId, GetWorkstationId());
-
+            try
+            {
+                if (!string.IsNullOrEmpty(deviceId))
+                    _remoteDeviceConnectionsService.OnDeviceDisconnected(deviceId, GetWorkstationId());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(ex, "OnDeviceDisconnected error");
+            }
             return Task.CompletedTask;
         }
 
         // Incomming request
         public async Task<DeviceInfoDto> GetInfoByRfid(string rfid)
         {
-            var device = await _deviceService
-                .Query()
-                .Include(d => d.Employee)
-                .AsNoTracking()
-                .FirstOrDefaultAsync(d => d.RFID == rfid);
+            try
+            {
+                var device = await _deviceService
+                    .Query()
+                    .Include(d => d.Employee)
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(d => d.RFID == rfid);
 
-            return await GetDeviceInfo(device);
+                return await GetDeviceInfo(device);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(ex, "GetInfoByRfid error");
+                return null;
+            }
         }
 
         // Incomming request
         public async Task<DeviceInfoDto> GetInfoByMac(string mac)
         {
-            var device = await _deviceService
-                .Query()
-                .Include(d => d.Employee)
-                .AsNoTracking()
-                .FirstOrDefaultAsync(d => d.MAC == mac);
+            try
+            {
+                var device = await _deviceService
+                    .Query()
+                    .Include(d => d.Employee)
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(d => d.MAC == mac);
 
-            return await GetDeviceInfo(device);
+                return await GetDeviceInfo(device);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(ex, "GetInfoByMac error");
+                return null;
+            }
         }
 
         // Incomming request
         public async Task<DeviceInfoDto> GetInfoBySerialNo(string serialNo)
         {
-            var device = await _deviceService
-                .Query()
-                .Include(d => d.Employee)
-                .AsNoTracking()
-                .FirstOrDefaultAsync(d => d.Id == serialNo);
+            try
+            {
+                var device = await _deviceService
+                    .Query()
+                    .Include(d => d.Employee)
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(d => d.Id == serialNo);
 
-            return await GetDeviceInfo(device);
+                return await GetDeviceInfo(device);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(ex, "GetInfoByMac error");
+                return null;
+            }
         }
 
         async Task<DeviceInfoDto> GetDeviceInfo(Device device)
@@ -169,10 +211,16 @@ namespace HES.Core.Hubs
         // Incoming request
         public async Task<HideezErrorInfo> FixDevice(string deviceId)
         {
-            if (deviceId == null)
-                throw new ArgumentNullException(nameof(deviceId));
-
-            return await _remoteWorkstationConnectionsService.UpdateRemoteDeviceAsync(deviceId, GetWorkstationId());
+            try
+            {
+                await _remoteWorkstationConnectionsService.UpdateRemoteDeviceAsync(deviceId, GetWorkstationId());
+                return HideezErrorInfo.Ok;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"[{deviceId}] {ex.Message}");
+                return new HideezErrorInfo(ex);
+            }
         }
 
         #endregion
@@ -182,10 +230,16 @@ namespace HES.Core.Hubs
         // Incomming request
         public async Task<HideezErrorInfo> RegisterWorkstationInfo(WorkstationInfo workstationInfo)
         {
-            if (workstationInfo == null)
-                throw new ArgumentNullException(nameof(workstationInfo));
-
-            return await _remoteWorkstationConnectionsService.RegisterWorkstationInfo(Clients.Caller, workstationInfo);
+            try
+            {
+                await _remoteWorkstationConnectionsService.RegisterWorkstationInfo(Clients.Caller, workstationInfo);
+                return HideezErrorInfo.Ok;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"[{workstationInfo?.MachineName}] {ex.Message}");
+                return new HideezErrorInfo(ex);
+            }
         }
 
         #endregion

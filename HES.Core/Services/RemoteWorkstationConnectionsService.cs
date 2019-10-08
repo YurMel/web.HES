@@ -22,8 +22,8 @@ namespace HES.Core.Services
         static readonly ConcurrentDictionary<string, IRemoteAppConnection> _workstationConnections
                     = new ConcurrentDictionary<string, IRemoteAppConnection>();
 
-        static readonly ConcurrentDictionary<string, TaskCompletionSource<HideezErrorInfo>> _devicesInProgress
-            = new ConcurrentDictionary<string, TaskCompletionSource<HideezErrorInfo>>();
+        static readonly ConcurrentDictionary<string, TaskCompletionSource<bool>> _devicesInProgress
+            = new ConcurrentDictionary<string, TaskCompletionSource<bool>>();
 
         readonly IRemoteTaskService _remoteTaskService;
         readonly IRemoteDeviceConnectionsService _remoteDeviceConnectionsService;
@@ -78,7 +78,7 @@ namespace HES.Core.Services
             var tcs = _devicesInProgress.GetOrAdd(deviceId, (x) =>
             {
                 isNew = true;
-                return new TaskCompletionSource<HideezErrorInfo>();
+                return new TaskCompletionSource<bool>();
             });
 
             if (!isNew)
@@ -93,7 +93,7 @@ namespace HES.Core.Services
             });
         }
 
-        public async Task<HideezErrorInfo> UpdateRemoteDeviceAsync(string deviceId, string workstationId)
+        public async Task UpdateRemoteDeviceAsync(string deviceId, string workstationId)
         {
             Debug.WriteLine($"!!!!!!!!!!!!! UpdateRemoteDeviceAsync start {deviceId}");
             if (deviceId == null)
@@ -103,31 +103,28 @@ namespace HES.Core.Services
             var tcs = _devicesInProgress.GetOrAdd(deviceId, (x) =>
             {
                 isNew = true;
-                return new TaskCompletionSource<HideezErrorInfo>();
+                return new TaskCompletionSource<bool>();
             });
 
             if (!isNew)
             {
                 Debug.WriteLine($"!!!!!!!!!!!!! UpdateRemoteDeviceAsync already running {deviceId}");
-                return await tcs.Task;
+                await tcs.Task;
+                return;
             }
 
-            return await UpdateRemoteDeviceWithTimeout(deviceId, tcs, workstationId);
+            await UpdateRemoteDeviceWithTimeout(deviceId, tcs, workstationId);
         }
 
-        private async Task<HideezErrorInfo> UpdateRemoteDeviceWithTimeout(string deviceId, TaskCompletionSource<HideezErrorInfo> tcs, string workstationId)
+        private async Task UpdateRemoteDeviceWithTimeout(string deviceId, TaskCompletionSource<bool> tcs, string workstationId)
         {
-            HideezErrorInfo result = HideezErrorInfo.Ok;
-
             try
             {
-                Debug.WriteLine($"!!!!!!!!!!!!! FixDevice start {deviceId}");
-                result = await UpdateRemoteDevice(deviceId, workstationId).TimeoutAfter(300_000);
-                tcs.SetResult(result);
+                await UpdateRemoteDevice(deviceId, workstationId).TimeoutAfter(300_000);
+                tcs.SetResult(true);
             }
             catch (TimeoutException ex)
             {
-                Debug.Assert(false);
                 tcs.SetException(ex);
                 _logger.LogCritical($"[{deviceId}] {ex.Message}");
             }
@@ -138,14 +135,11 @@ namespace HES.Core.Services
             }
             finally
             {
-                Debug.WriteLine($"!!!!!!!!!!!!! FixDevice end {deviceId}, {result.Code}");
-                _devicesInProgress.TryRemove(deviceId, out TaskCompletionSource<HideezErrorInfo> _);
+                _devicesInProgress.TryRemove(deviceId, out TaskCompletionSource<bool> _);
             }
-
-            return result;
         }
 
-        private async Task<HideezErrorInfo> UpdateRemoteDevice(string deviceId, string workstationId)
+        private async Task<bool> UpdateRemoteDevice(string deviceId, string workstationId)
         {
             try
             {
@@ -254,20 +248,15 @@ namespace HES.Core.Services
                     throw new HideezException(res);
 
                 Debug.WriteLine($"!!!!!!!!!!!!! UpdateRemoteDevice OK");
-                return HideezErrorInfo.Ok;
+
+                return true;
             }
             catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.ERR_KEY_WRONG)
             {
                 Debug.WriteLine($"!!!!!!!!!!!!! UpdateRemoteDevice ERROR {ex.Message}");
                 _logger.LogCritical($"[{deviceId}] {ex.Message}");
                 await _employeeService.HandlingMasterPasswordErrorAsync(deviceId);
-                return new HideezErrorInfo(ex);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"!!!!!!!!!!!!! UpdateRemoteDevice ERROR {ex.Message}");
-                _logger.LogError($"[{deviceId}] {ex.Message}");
-                return new HideezErrorInfo(ex);
+                throw;
             }
         }
 
@@ -284,37 +273,30 @@ namespace HES.Core.Services
             return workstationDescr;
         }
 
-        public async Task<HideezErrorInfo> RegisterWorkstationInfo(IRemoteAppConnection remoteAppConnection, WorkstationInfo workstationInfo)
+        public async Task RegisterWorkstationInfo(IRemoteAppConnection remoteAppConnection, WorkstationInfo workstationInfo)
         {
-            try
+            if (workstationInfo == null)
+                throw new ArgumentNullException(nameof(workstationInfo));
+
+            _workstationConnections.AddOrUpdate(workstationInfo.Id, remoteAppConnection, (id, oldConnection) =>
             {
-                _workstationConnections.AddOrUpdate(workstationInfo.Id, remoteAppConnection, (id, oldConnection) =>
-                {
-                    return remoteAppConnection;
-                });
+                return remoteAppConnection;
+            });
 
-                if (await _workstationService.ExistAsync(w => w.Id == workstationInfo.Id))
-                {
-                    // Workstation exists, update its information
-                    await _workstationService.UpdateWorkstationInfoAsync(workstationInfo);
-                }
-                else
-                {
-                    // Workstation does not exist in DB or its name + domain was changed
-                    // Create new unapproved workstation      
-                    await _workstationService.AddWorkstationAsync(workstationInfo);
-                    _logger.LogInformation($"New workstation {workstationInfo.MachineName} was added");
-                }
-
-                await OnWorkstationConnected(workstationInfo.Id);
-
-                return HideezErrorInfo.Ok;
-            }
-            catch (Exception ex)
+            if (await _workstationService.ExistAsync(w => w.Id == workstationInfo.Id))
             {
-                _logger.LogError($"[{workstationInfo.MachineName}] {ex.Message}");
-                return new HideezErrorInfo(ex);
+                // Workstation exists, update its information
+                await _workstationService.UpdateWorkstationInfoAsync(workstationInfo);
             }
+            else
+            {
+                // Workstation does not exist in DB or its name + domain was changed
+                // Create new unapproved workstation      
+                await _workstationService.AddWorkstationAsync(workstationInfo);
+                _logger.LogInformation($"New workstation {workstationInfo.MachineName} was added");
+            }
+
+            await OnWorkstationConnected(workstationInfo.Id);
         }
 
         private async Task OnWorkstationConnected(string workstationId)
