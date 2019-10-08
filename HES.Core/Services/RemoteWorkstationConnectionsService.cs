@@ -11,7 +11,6 @@ using Hideez.SDK.Communication.HES.DTO;
 using Hideez.SDK.Communication.Remote;
 using Hideez.SDK.Communication.Utils;
 using Hideez.SDK.Communication.Workstation;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -336,35 +335,12 @@ namespace HES.Core.Services
 
         public static async Task UpdateProximitySettings(string workstationId, IReadOnlyList<DeviceProximitySettingsDto> deviceProximitySettings)
         {
-            try
-            {
-                var workstationConnection = FindWorkstationConnection(workstationId);
-                if (workstationConnection != null)
-                {
-                    await workstationConnection.UpdateProximitySettings(deviceProximitySettings);
-                }
-            }
-            catch (Exception ex)
-            {
-                //todo- why HubException ?
-                throw new HubException(ex.Message);
-            }
+            await FindWorkstationConnection(workstationId)?.UpdateProximitySettings(deviceProximitySettings);
         }
 
         public static async Task UpdateRfidIndicatorState(string workstationId, bool isEnabled)
         {
-            try
-            {
-                var workstationConnection = FindWorkstationConnection(workstationId);
-                if (workstationConnection != null)
-                {
-                    await workstationConnection.UpdateRFIDIndicatorState(isEnabled);
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new HubException(ex.Message);
-            }
+            await FindWorkstationConnection(workstationId)?.UpdateRFIDIndicatorState(isEnabled);
         }
 
         #endregion

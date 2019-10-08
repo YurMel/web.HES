@@ -46,25 +46,32 @@ namespace HES.Core.Hubs
         // HUB connection is connected
         public override async Task OnConnectedAsync()
         {
-            var httpContext = Context.GetHttpContext();
-            string deviceId = httpContext.Request.Headers["DeviceId"].ToString();
-            string workstationId = httpContext.Request.Headers["WorkstationId"].ToString();
-            Debug.WriteLine($"!!!!!!!!!!!!!!!!!!!!! OnConnectedAsync {deviceId}:{workstationId}");
+            try
+            {
+                var httpContext = Context.GetHttpContext();
+                string deviceId = httpContext.Request.Headers["DeviceId"].ToString();
+                string workstationId = httpContext.Request.Headers["WorkstationId"].ToString();
+                Debug.WriteLine($"!!!!!!!!!!!!!!!!!!!!! OnConnectedAsync {deviceId}:{workstationId}");
 
-            if (string.IsNullOrWhiteSpace(deviceId))
-            {
-                _logger.LogCritical($"DeviceId cannot be empty");
-            }
-            else if (string.IsNullOrWhiteSpace(workstationId))
-            {
-                _logger.LogCritical($"WorkstationId cannot be empty");
-            }
-            else
-            {
-                Context.Items.Add("DeviceId", deviceId);
-                Context.Items.Add("WorkstationId", workstationId);
+                if (string.IsNullOrWhiteSpace(deviceId))
+                {
+                    _logger.LogCritical($"DeviceId cannot be empty");
+                }
+                else if (string.IsNullOrWhiteSpace(workstationId))
+                {
+                    _logger.LogCritical($"WorkstationId cannot be empty");
+                }
+                else
+                {
+                    Context.Items.Add("DeviceId", deviceId);
+                    Context.Items.Add("WorkstationId", workstationId);
 
-                _remoteDeviceConnectionsService.OnDeviceHubConnected(deviceId, workstationId, Clients.Caller);
+                    _remoteDeviceConnectionsService.OnDeviceHubConnected(deviceId, workstationId, Clients.Caller);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(ex, "DeviceHub.OnConnectedAsync error");
             }
 
             await base.OnConnectedAsync();
@@ -73,10 +80,16 @@ namespace HES.Core.Hubs
         // HUB connection is disconnected (OnDeviceDisconnected received in AppHub)
         public override Task OnDisconnectedAsync(Exception exception)
         {
-            Debug.WriteLine($"!!!!!!!!!!!!!!!!!!!!! OnDisconnectedAsync");
+            try
+            {
+                Debug.WriteLine($"!!!!!!!!!!!!!!!!!!!!! OnDisconnectedAsync");
 
-            _remoteDeviceConnectionsService.OnDeviceHubDisconnected(GetDeviceId(), GetWorkstationId());
-
+                _remoteDeviceConnectionsService.OnDeviceHubDisconnected(GetDeviceId(), GetWorkstationId());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(ex, "DeviceHub.OnDisconnectedAsync error");
+            }
             return base.OnDisconnectedAsync(exception);
         }
 

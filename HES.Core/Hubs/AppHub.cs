@@ -64,6 +64,7 @@ namespace HES.Core.Hubs
                 }
                 else
                 {
+                    _logger.LogCritical($"Workstation '{workstationId}' connected");
                     _remoteDeviceConnectionsService.OnAppHubConnected(workstationId, Clients.Caller);
                     Context.Items.Add("WorkstationId", workstationId);
                 }
