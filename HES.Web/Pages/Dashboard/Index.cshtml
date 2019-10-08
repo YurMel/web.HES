@@ -6,9 +6,7 @@
 }
 <partial name="_SuccessMessage" for="SuccessMessage" />
 <partial name="_ErrorMessage" for="ErrorMessage" />
-
 <h1 class="text-navyblue">Dashboard</h1>
-
 <div id="content">
     <partial name="_DashboardContent" />
 </div>
@@ -16,7 +14,7 @@
 @section scripts{
     <script>
 
-        function LoadInfo() {
+        @*function LoadInfo() {
             $.ajax({
                 url: "/Dashboard?handler=LoadInfo",
                 type: "Get",
@@ -27,7 +25,7 @@
                     $('#deviceTaks').html('@Model.DeviceTaskCount');
                 }
             });
-        }
+        }*@
 
         $(document).ready(function () {
             // Breadcrumbs

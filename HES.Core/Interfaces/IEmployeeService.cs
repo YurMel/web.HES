@@ -11,6 +11,7 @@ namespace HES.Core.Interfaces
     public interface IEmployeeService
     {
         IQueryable<Employee> Query();
+        Task<int> GetCountAsync();
         Task<Employee> GetByIdAsync(dynamic id);
         Task<Employee> CreateEmployeeAsync(Employee employee);
         Task EditEmployeeAsync(Employee employee);

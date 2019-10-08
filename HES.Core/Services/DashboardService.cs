@@ -3,6 +3,7 @@ using HES.Core.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -10,19 +11,34 @@ namespace HES.Core.Services
 {
     public class DashboardService : IDashboardService
     {
+        private readonly IEmployeeService _employeeService;
+        private readonly IWorkstationSessionService _workstationSessionService;
         private readonly IDeviceTaskService _deviceTaskService;
         private readonly IWorkstationService _workstationService;
         private readonly IDeviceService _deviceService;
+        private readonly IAppService _appService;
 
-        public DashboardService(IDeviceTaskService deviceTaskService,
+        public DashboardService(IEmployeeService employeeService,
+                                IWorkstationSessionService workstationSessionService,
+                                IDeviceTaskService deviceTaskService,
                                 IWorkstationService workstationService,
-                                IDeviceService deviceService)
+                                IDeviceService deviceService,
+                                IAppService appService)
         {
+            _employeeService = employeeService;
+            _workstationSessionService = workstationSessionService;
             _deviceTaskService = deviceTaskService;
             _workstationService = workstationService;
             _deviceService = deviceService;
+            _appService = appService;
         }
 
+        #region Server
+
+        public string GetServerVersion()
+        {
+            return _appService.Version;
+        }
 
         public async Task<int> GetDeviceTasksCount()
         {
@@ -33,5 +49,49 @@ namespace HES.Core.Services
         {
             return await _deviceTaskService.Query().ToListAsync();
         }
+
+        #endregion
+
+        #region Employees
+
+        public async Task<int> GetEmployeesCount()
+        {
+            return await _employeeService.GetCountAsync();
+        }
+
+        public async Task<int> GetEmployeesOpenedSessionsCount()
+        {
+            return await _workstationSessionService.GetOpenedSessionsCount();
+        }
+
+        #endregion
+
+        #region Devices
+
+        public async Task<int> GetDevicesCount()
+        {
+            return await _deviceService.GetCountAsync();
+        }
+
+        public async Task<int> GetFreeDevicesCount()
+        {
+            return await _deviceService.GetFreeDevicesCount();
+        }
+
+        #endregion
+
+        #region Workstations
+
+        public async Task<int> GetWorkstationsCount()
+        {
+            return await _workstationService.GetCountAsync();
+        }
+
+        public async Task<int> GetWorkstationsOnlineCount()
+        {
+            return await _workstationService.GetOnlineCountAsync();
+        }
+
+        #endregion
     }
 }

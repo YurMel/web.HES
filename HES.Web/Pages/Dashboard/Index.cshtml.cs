@@ -14,7 +14,14 @@ namespace HES.Web.Pages.Dashboard
         private readonly IDashboardService _dashboardService;
         private readonly ILogger<IndexModel> _logger;
 
-        public int DeviceTaskCount { get; set; }
+        public string ServerVersion { get; set; }
+        public int ServerRemoteTasksCount { get; set; }
+        public int RegisteredEmployeesCount { get; set; }
+        public int EmployeesSessionsCount { get; set; }
+        public int RegisteredDevicesCount { get; set; }
+        public int FreeDevicesCount { get; set; }
+        public int RegisteredWorkstationsCount { get; set; }
+        public int WorkstationsOnlineCount { get; set; }
 
         [TempData]
         public string SuccessMessage { get; set; }
@@ -29,12 +36,22 @@ namespace HES.Web.Pages.Dashboard
 
         public async Task OnGet()
         {
-            DeviceTaskCount = await _dashboardService.GetDeviceTasksCount();
-        }
-
-        public async Task OnGetLoadInfoAsync()
-        {
-            DeviceTaskCount = await _dashboardService.GetDeviceTasksCount();
+            try
+            {
+                ServerVersion = _dashboardService.GetServerVersion();
+                ServerRemoteTasksCount = await _dashboardService.GetDeviceTasksCount();
+                RegisteredEmployeesCount = await _dashboardService.GetEmployeesCount();
+                EmployeesSessionsCount = await _dashboardService.GetEmployeesOpenedSessionsCount();
+                RegisteredDevicesCount = await _dashboardService.GetDevicesCount();
+                FreeDevicesCount = await _dashboardService.GetFreeDevicesCount();
+                RegisteredWorkstationsCount = await _dashboardService.GetWorkstationsCount();
+                WorkstationsOnlineCount = await _dashboardService.GetWorkstationsOnlineCount();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                ErrorMessage = ex.Message;
+            }
         }
     }
 }

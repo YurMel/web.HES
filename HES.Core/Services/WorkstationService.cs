@@ -22,10 +22,20 @@ namespace HES.Core.Services
         {
             return _workstationRepository.Query();
         }
-        
+
+        public async Task<int> GetCountAsync()
+        {
+            return await _workstationRepository.GetCountAsync();
+        }
+
         public async Task<Workstation> GetByIdAsync(dynamic id)
         {
             return await _workstationRepository.GetByIdAsync(id);
+        }
+
+        public async Task<int> GetOnlineCountAsync()
+        {
+            return await _workstationRepository.Query().Where(w => w.IsOnline == true).CountAsync();
         }
 
         public async Task<bool> ExistAsync(Expression<Func<Workstation, bool>> predicate)

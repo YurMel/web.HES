@@ -16,5 +16,6 @@ namespace HES.Core.Interfaces
         IQueryable<SummaryByWorkstations> SummaryByWorkstationsSqlQuery(string sql);
         Task AddOrUpdateWorkstationSessions(IList<WorkstationEventDto> workstationEventsDto);
         Task CloseSessionAsync(string workstationId);
+        Task<int> GetOpenedSessionsCount();
     }
 }

@@ -57,6 +57,11 @@ namespace HES.Core.Services
             return _employeeRepository.Query();
         }
 
+        public async Task<int> GetCountAsync()
+        {
+            return await _employeeRepository.GetCountAsync();
+        }
+
         public async Task<Employee> GetByIdAsync(dynamic id)
         {
             return await _employeeRepository.GetByIdAsync(id);

@@ -1,0 +1,25 @@
+﻿@model HES.Web.Pages.Dashboard.IndexModel
+
+<div class="col-12 col-md-6 col-xl-4">
+    <div class="dashboard-card">
+        <div class="dashboard-card-title">
+            Devices
+        </div>
+        <div class="dashboard-card-body">
+            <div class="dashboard-card-body__logo">
+                <img src="~/svg/dashboard/devices.svg" />
+            </div>
+            <div class="dashboard-card-body__wrapper">
+                <div class="dashboard-card__info">
+                    <div class="dashboard-card__info-body">@Model.RegisteredDevicesCount</div>
+                    <div class="dashboard-card__info-title">Registered</div>
+                </div>
+                <div class="dashboard-card__vertical-line"></div>
+                <div class="dashboard-card__info">
+                    <div class="dashboard-card__info-body">@Model.FreeDevicesCount</div>
+                    <div class="dashboard-card__info-title">In reserve</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

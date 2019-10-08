@@ -52,6 +52,11 @@ namespace HES.Core.Services
             return _deviceRepository.Query();
         }
 
+        public async Task<int> GetCountAsync()
+        {
+            return await _deviceRepository.GetCountAsync();
+        }
+
         public async Task<Device> GetByIdAsync(dynamic id)
         {
             return await _deviceRepository.GetByIdAsync(id);
@@ -257,6 +262,11 @@ namespace HES.Core.Services
             };
 
             await _deviceRepository.UpdateOnlyPropAsync(device, properties.ToArray());
+        }
+
+        public async Task<int> GetFreeDevicesCount()
+        {
+            return await _deviceRepository.Query().Where(d => d.EmployeeId == null).CountAsync();
         }
     }
 }

@@ -1,31 +1,20 @@
 ﻿@model HES.Web.Pages.Dashboard.IndexModel
 <div class="row">
     <!-- HES -->
-    <div class="col-12 col-md-6 col-lg-4">
-        <div class="dashboard-card">
-            <div class="dashboard-card-title">
-                Hideez Enterprise Server
-            </div>
-            <div class="dashboard-card-body">
-                <div class="dashboard-card-body__logo">
-                    <img src="~/svg/dashboard/dashboard_hes.svg" />
-                </div>
-                <div class="dashboard-card-body__wrapper">
-                    <div class="dashboard-card__info">
-                        <div class="dashboard-card__info-body">2.1.1</div>
-                        <div class="dashboard-card__info-title">HES version</div>
-                    </div>
-                    <div class="dashboard-card__vertical-line"></div>
-                    <div class="dashboard-card__info">
-                        <div class="dashboard-card__info-body">@Model.DeviceTaskCount</div>
-                        <div class="dashboard-card__info-title">Remote Tasks</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <partial name="_ServerCard" />
     <!-- Employee -->
-    <div class="col-12 col-md-6 col-lg-4">
+    <partial name="_EmployeesCard" />
+    <!-- Devices -->
+    <partial name="_DevicesCard" />
+    <!-- Workstations -->
+    <partial name="_WorkstationsCard" />
+</div>
+
+
+
+
+
+@*<div class="col-12 col-md-6 col-lg-4">
         <div class="dashboard-card">
             <div class="dashboard-card-title">
                 Hideez Enterprise Server
@@ -57,14 +46,6 @@
                             Dapibus ac facilisis in
                             <span class="badge badge-danger badge-pill">2</span>
                         </li>
-                        @*<li class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                            Morbi leo risus
-                            <span class="badge badge-danger badge-pill">1</span>
-                        </li>*@
-                        @*<li class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                            Morbi leo risus
-                            <span class="badge badge-danger badge-pill">1</span>
-                        </li>*@
                         <li class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
                             Morbi leo risus
                             <span class="badge badge-danger badge-pill">1</span>
@@ -73,5 +54,4 @@
                 </div>
             </div>
         </div>
-    </div>
-</div>
+    </div>*@
