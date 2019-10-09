@@ -168,7 +168,7 @@ namespace HES.Core.Services
         {
             var deviceProximitySettings = await GetProximitySettingsAsync(workstationId);
 
-            await RemoteWorkstationConnectionsService.UpdateProximitySettings(workstationId, deviceProximitySettings);
+            await RemoteWorkstationConnectionsService.UpdateProximitySettingsAsync(workstationId, deviceProximitySettings);
         }
 
         public async Task RemoveAllProximityAsync(string deviceId)

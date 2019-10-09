@@ -70,7 +70,7 @@ namespace HES.Core.Hubs
             return base.OnConnectedAsync();
         }
 
-        public override Task OnDisconnectedAsync(Exception exception)
+        public override async Task OnDisconnectedAsync(Exception exception)
         {
             try
             {
@@ -79,14 +79,14 @@ namespace HES.Core.Hubs
                 _logger.LogDebug($"Workstation [{workstationId}] disconnected");
 
                 _remoteDeviceConnectionsService.OnAppHubDisconnected(workstationId);
-                _remoteWorkstationConnectionsService.OnAppHubDisconnected(workstationId);
+                await _remoteWorkstationConnectionsService.OnAppHubDisconnectedAsync(workstationId);
             }
             catch (Exception ex)
             {
                 _logger.LogCritical(ex.Message);
             }
 
-            return base.OnDisconnectedAsync(exception);
+            await base.OnDisconnectedAsync(exception);
         }
 
         #region Device
@@ -238,7 +238,7 @@ namespace HES.Core.Hubs
         {
             try
             {
-                await _remoteWorkstationConnectionsService.RegisterWorkstationInfo(Clients.Caller, workstationInfo);
+                await _remoteWorkstationConnectionsService.RegisterWorkstationInfoAsync(Clients.Caller, workstationInfo);
                 return HideezErrorInfo.Ok;
             }
             catch (Exception ex)

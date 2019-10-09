@@ -293,7 +293,7 @@ namespace HES.Core.Services
         //    return workstationDescr;
         //}
 
-        public async Task RegisterWorkstationInfo(IRemoteAppConnection remoteAppConnection, WorkstationInfo workstationInfo)
+        public async Task RegisterWorkstationInfoAsync(IRemoteAppConnection remoteAppConnection, WorkstationInfo workstationInfo)
         {
             if (workstationInfo == null)
                 throw new ArgumentNullException(nameof(workstationInfo));
@@ -340,7 +340,7 @@ namespace HES.Core.Services
         //    }
         //}
 
-        public async Task OnAppHubDisconnected(string workstationId)
+        public async Task OnAppHubDisconnectedAsync(string workstationId)
         {
             _workstationConnections.TryRemove(workstationId, out IRemoteAppConnection _);
 
@@ -358,12 +358,12 @@ namespace HES.Core.Services
             return _workstationConnections.ContainsKey(workstationId);
         }
 
-        public static async Task UpdateProximitySettings(string workstationId, IReadOnlyList<DeviceProximitySettingsDto> deviceProximitySettings)
+        public static async Task UpdateProximitySettingsAsync(string workstationId, IReadOnlyList<DeviceProximitySettingsDto> deviceProximitySettings)
         {
             await FindWorkstationConnection(workstationId)?.UpdateProximitySettings(deviceProximitySettings);
         }
 
-        public static async Task UpdateRfidIndicatorState(string workstationId, bool isEnabled)
+        public static async Task UpdateRfidIndicatorStateAsync(string workstationId, bool isEnabled)
         {
             await FindWorkstationConnection(workstationId)?.UpdateRFIDIndicatorState(isEnabled);
         }

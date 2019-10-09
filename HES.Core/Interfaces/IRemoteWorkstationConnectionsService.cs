@@ -10,7 +10,7 @@ namespace HES.Core.Interfaces
         void StartUpdateRemoteDevice(IList<string> devicesId);
         void StartUpdateRemoteDevice(string deviceId);
         Task UpdateRemoteDeviceAsync(string deviceId, string workstationId);
-        Task RegisterWorkstationInfo(IRemoteAppConnection remoteAppConnection, WorkstationInfo workstationInfo);
-        Task OnAppHubDisconnected(string workstationId);
+        Task RegisterWorkstationInfoAsync(IRemoteAppConnection remoteAppConnection, WorkstationInfo workstationInfo);
+        Task OnAppHubDisconnectedAsync(string workstationId);
     }
 }

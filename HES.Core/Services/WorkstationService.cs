@@ -130,7 +130,7 @@ namespace HES.Core.Services
         {
             var isEnabled = await GetRfidStateAsync(workstationId);
 
-            await RemoteWorkstationConnectionsService.UpdateRfidIndicatorState(workstationId, isEnabled);
+            await RemoteWorkstationConnectionsService.UpdateRfidIndicatorStateAsync(workstationId, isEnabled);
         }
     }
 }
