@@ -67,7 +67,7 @@ namespace HES.Core.Services
                 if (workstationEventDto.DeviceId != null)
                 {
                     var device = await _deviceRepository.GetByIdAsync(workstationEventDto.DeviceId);
-                    var employee = await _employeeRepository.GetByIdAsync(device.EmployeeId);
+                    var employee = await _employeeRepository.GetByIdAsync(device?.EmployeeId);
                     var deviceAccount = await _deviceAccountRepository
                         .Query()
                         .Where(d => d.Name == workstationEventDto.AccountName && d.Login == workstationEventDto.AccountLogin && d.DeviceId == workstationEventDto.DeviceId)

@@ -168,6 +168,8 @@ namespace HES.Core.Hubs
         // Incomming request
         public async Task<DeviceInfoDto> GetInfoBySerialNo(string serialNo)
         {
+            _logger.LogInformation($"[GetInfoBySerialNo] IN serialNo {serialNo}");
+
             try
             {
                 var device = await _deviceService
@@ -176,7 +178,10 @@ namespace HES.Core.Hubs
                     .AsNoTracking()
                     .FirstOrDefaultAsync(d => d.Id == serialNo);
 
-                return await GetDeviceInfo(device);
+                _logger.LogInformation($"[GetInfoBySerialNo] deviceId from DB {device?.Id}");
+                var deviceInfo = await GetDeviceInfo(device);
+                _logger.LogInformation($"[GetInfoBySerialNo] deviceId from GetDeviceInfo {deviceInfo?.DeviceSerialNo}");
+                return deviceInfo;
             }
             catch (Exception ex)
             {
@@ -196,7 +201,7 @@ namespace HES.Core.Hubs
                 .Where(t => t.DeviceId == device.Id)
                 .AsNoTracking()
                 .AnyAsync();
-            _logger.LogInformation($"[GetDeviceInfo] {needUpdate}");
+            _logger.LogInformation($"[GetDeviceInfo] needUpdate {needUpdate}");
             var info = new DeviceInfoDto()
             {
                 OwnerName = device.Employee?.FullName,
