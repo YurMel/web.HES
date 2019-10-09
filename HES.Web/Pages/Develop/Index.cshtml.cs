@@ -94,7 +94,7 @@ namespace HES.Web.Pages.Develop
 
             var accounts = await _deviceAccountService
                 .Query()
-                .Where(d => d.DeviceId == accountModel.DeviceId && d.Name.Contains("Test_"))
+                .Where(d => d.DeviceId == accountModel.DeviceId && d.Name.Contains("Test_") && d.Deleted == false)
                 .ToListAsync();
 
             foreach (var item in accounts)

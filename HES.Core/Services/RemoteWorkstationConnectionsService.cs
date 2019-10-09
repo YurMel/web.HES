@@ -12,6 +12,7 @@ using Hideez.SDK.Communication.Remote;
 using Hideez.SDK.Communication.Utils;
 using Hideez.SDK.Communication.Workstation;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace HES.Core.Services
@@ -24,6 +25,7 @@ namespace HES.Core.Services
         static readonly ConcurrentDictionary<string, TaskCompletionSource<bool>> _devicesInProgress
             = new ConcurrentDictionary<string, TaskCompletionSource<bool>>();
 
+        readonly IServiceProvider _services;
         readonly IRemoteTaskService _remoteTaskService;
         readonly IRemoteDeviceConnectionsService _remoteDeviceConnectionsService;
         readonly IEmployeeService _employeeService;
@@ -34,8 +36,8 @@ namespace HES.Core.Services
         readonly IWorkstationSessionService _workstationSessionService;
         readonly ILogger<RemoteWorkstationConnectionsService> _logger;
 
-        public RemoteWorkstationConnectionsService(
-                      IRemoteTaskService remoteTaskService,
+        public RemoteWorkstationConnectionsService(IServiceProvider services,
+        IRemoteTaskService remoteTaskService,
                       IRemoteDeviceConnectionsService remoteDeviceConnectionsService,
                       IEmployeeService employeeService,
                       IWorkstationService workstationService,
@@ -45,6 +47,7 @@ namespace HES.Core.Services
                       IWorkstationSessionService workstationSessionService,
                       ILogger<RemoteWorkstationConnectionsService> logger)
         {
+            _services = services;
             _remoteTaskService = remoteTaskService;
             _remoteDeviceConnectionsService = remoteDeviceConnectionsService;
             _employeeService = employeeService;
@@ -72,23 +75,41 @@ namespace HES.Core.Services
             if (deviceId == null)
                 throw new ArgumentNullException(nameof(deviceId));
 
-            var isNew = false;
+            //var isNew = false;
 
-            var tcs = _devicesInProgress.GetOrAdd(deviceId, (x) =>
-            {
-                isNew = true;
-                return new TaskCompletionSource<bool>();
-            });
+            //var tcs = _devicesInProgress.GetOrAdd(deviceId, (x) =>
+            //{
+            //    isNew = true;
+            //    return new TaskCompletionSource<bool>();
+            //});
 
-            if (!isNew)
-            {
-                Debug.WriteLine($"!!!!!!!!!!!!! StartUpdateRemoteDevice already running {deviceId}");
-                return;
-            }
+            //if (!isNew)
+            //{
+            //    Debug.WriteLine($"!!!!!!!!!!!!! StartUpdateRemoteDevice already running {deviceId}");
+            //    return;
+            //}
 
+            //Task.Run(async () =>
+            //{
+            //    await UpdateRemoteDeviceWithTimeout(deviceId, tcs, workstationId: null);
+            //});
             Task.Run(async () =>
             {
-                await UpdateRemoteDeviceWithTimeout(deviceId, tcs, workstationId: null);
+                try
+                {
+                    using (var scope = _services.CreateScope())
+                    {
+                        var scopedProcessingService =
+                            scope.ServiceProvider
+                                .GetRequiredService<IRemoteWorkstationConnectionsService>();
+
+                        await scopedProcessingService.UpdateRemoteDeviceAsync(deviceId, workstationId: null);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"[{deviceId}] {ex.Message}");
+                }
             });
         }
 

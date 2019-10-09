@@ -255,31 +255,72 @@ namespace HES.Core.Hubs
         // Incomming request
         public async Task<HideezErrorInfo> SaveClientEvents(WorkstationEventDto[] workstationEventsDto)
         {
-            try
+
+            if (workstationEventsDto == null)
+                throw new ArgumentNullException(nameof(workstationEventsDto));
+
+            _logger.LogDebug($"[{workstationEventsDto.FirstOrDefault().WorkstationId}] Sent events: {string.Join("; ", workstationEventsDto.Select(s => s.EventId))}");
+
+            // Ignore not approved workstation
+            //var workstationId = workstationEventsDto.FirstOrDefault().WorkstationId;
+            //var workstaton = await _workstationService.GetByIdAsync(workstationId);
+            //if (workstaton.Approved == false)
+            //{
+            //    return new HideezErrorInfo(HideezErrorCode.HesWorkstationNotApproved, $"{workstationId}");
+            //}
+
+            foreach (var eventDto in workstationEventsDto)
             {
-                if (workstationEventsDto == null)
-                    throw new ArgumentNullException(nameof(workstationEventsDto));
-
-                _logger.LogDebug($"[{workstationEventsDto.FirstOrDefault().WorkstationId}] Sent events: {string.Join("; ", workstationEventsDto.Select(s => s.EventId))}");
-
-                // Ignore not approved workstation
-                //var workstationId = workstationEventsDto.FirstOrDefault().WorkstationId;
-                //var workstaton = await _workstationService.GetByIdAsync(workstationId);
-                //if (workstaton.Approved == false)
-                //{
-                //    return new HideezErrorInfo(HideezErrorCode.HesWorkstationNotApproved, $"{workstationId}");
-                //}
-
-                await _workstationEventService.AddEventsRangeAsync(workstationEventsDto);
-                await _workstationSessionService.AddOrUpdateWorkstationSessions(workstationEventsDto);
-
-                return HideezErrorInfo.Ok;
+                try
+                {
+                    await _workstationEventService.AddEventDtoAsync(eventDto);
+                }
+                catch (Exception ex)
+                {
+                    var objDto = $@"Version:{eventDto.Version}, 
+                                        Id:{eventDto.Id},
+                                        Date:{eventDto.Date},
+                                        EventId:{eventDto.EventId},
+                                        SeverityId:{eventDto.SeverityId},
+                                        Note:{eventDto.Note},
+                                        WorkstationId:{eventDto.WorkstationId},
+                                        UserSession:{eventDto.UserSession},
+                                        WorkstationSessionId:{eventDto.WorkstationSessionId},
+                                        DeviceId:{eventDto.DeviceId},
+                                        AccountName:{eventDto.AccountName},
+                                        AccountLogin:{eventDto.AccountLogin}";
+                    _logger.LogError($"{ex.Message} [AddEventDtoAsync] [Object DTO]: {objDto}");
+                }
             }
-            catch (Exception ex)
+
+            foreach (var eventDto in workstationEventsDto)
             {
-                _logger.LogError(ex.Message);
-                return new HideezErrorInfo(ex);
+                try
+                {
+                    await _workstationSessionService.AddOrUpdateWorkstationSession(eventDto);
+                }
+                catch (Exception ex)
+                {
+                    var objDto = $@"Version:{eventDto.Version}, 
+                                        Id:{eventDto.Id},
+                                        Date:{eventDto.Date},
+                                        EventId:{eventDto.EventId},
+                                        SeverityId:{eventDto.SeverityId},
+                                        Note:{eventDto.Note},
+                                        WorkstationId:{eventDto.WorkstationId},
+                                        UserSession:{eventDto.UserSession},
+                                        WorkstationSessionId:{eventDto.WorkstationSessionId},
+                                        DeviceId:{eventDto.DeviceId},
+                                        AccountName:{eventDto.AccountName},
+                                        AccountLogin:{eventDto.AccountLogin}";
+                    _logger.LogError($"{ex.Message} [AddOrUpdateWorkstationSession] [Object DTO]: {objDto}");
+                }
             }
+
+            //await _workstationEventService.AddEventsRangeAsync(workstationEventsDto);
+            //await _workstationSessionService.AddOrUpdateWorkstationSessions(workstationEventsDto);
+
+            return HideezErrorInfo.Ok;
         }
 
         #endregion

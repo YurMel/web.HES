@@ -122,6 +122,55 @@ namespace HES.Core.Services
             }
         }
 
+        public async Task AddOrUpdateWorkstationSession(WorkstationEventDto workstationEventDto)
+        {
+            if (workstationEventDto == null)
+            {
+                throw new Exception(nameof(workstationEventDto));
+            }
+
+            // On unlock
+            if ((workstationEventDto.EventId == WorkstationEventType.HESConnected ||
+                 workstationEventDto.EventId == WorkstationEventType.ServiceStarted ||
+                 workstationEventDto.EventId == WorkstationEventType.ComputerUnlock ||
+                 workstationEventDto.EventId == WorkstationEventType.ComputerLogon) &&
+                 workstationEventDto.WorkstationSessionId != null)
+            {
+                var session = await _workstationSessionRepository.Query()
+                    .FirstOrDefaultAsync(w => w.Id == workstationEventDto.WorkstationSessionId);
+
+                if (session == null)
+                {
+                    // Add new session
+                    await AddSessionAsync(workstationEventDto);
+                }
+                else
+                {
+                    // Reopen session
+                    session.EndDate = null;
+                    await UpdateSessionAsync(session);
+                }
+            }
+
+            // On disconnected or lock
+            if ((workstationEventDto.EventId == WorkstationEventType.ComputerLock ||
+                 workstationEventDto.EventId == WorkstationEventType.ComputerLogoff) &&
+                 workstationEventDto.WorkstationSessionId != null)
+            {
+                var session = await _workstationSessionRepository.Query()
+                    .FirstOrDefaultAsync(w => w.Id == workstationEventDto.WorkstationSessionId);
+
+                if (session == null)
+                {
+                    _logger.LogCritical($"[{workstationEventDto.WorkstationId}] Сannot find last session for closing");
+                    return;
+                }
+
+                session.EndDate = workstationEventDto.Date;
+                await UpdateSessionAsync(session);
+            }
+        }
+
         private async Task AddSessionAsync(WorkstationEventDto workstationEventDto)
         {
             if (workstationEventDto == null)

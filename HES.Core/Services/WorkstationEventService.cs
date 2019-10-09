@@ -44,6 +44,55 @@ namespace HES.Core.Services
             await _workstationEventRepository.AddAsync(workstationEvent);
         }
 
+        public async Task AddEventDtoAsync(WorkstationEventDto workstationEventDto)
+        {
+            if (workstationEventDto == null)
+                throw new ArgumentNullException(nameof(workstationEventDto));
+
+            var exist = await _workstationEventRepository.Query().AsNoTracking().AnyAsync(d => d.Id == workstationEventDto.Id);
+            if (exist)
+            {
+                _logger.LogWarning($"[{workstationEventDto.WorkstationId}] Duplicate event entry '{workstationEventDto.Id}'. Session:{workstationEventDto.UserSession}, Event:{workstationEventDto.EventId}");
+                return;
+            }
+
+            string employeeId = null;
+            string departmentId = null;
+            string deviceAccountId = null;
+
+            if (workstationEventDto.DeviceId != null)
+            {
+                var device = await _deviceRepository.GetByIdAsync(workstationEventDto.DeviceId);
+                var employee = await _employeeRepository.GetByIdAsync(device?.EmployeeId);
+                var deviceAccount = await _deviceAccountRepository
+                    .Query()
+                    .Where(d => d.Name == workstationEventDto.AccountName && d.Login == workstationEventDto.AccountLogin && d.DeviceId == workstationEventDto.DeviceId)
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync();
+
+                employeeId = device?.EmployeeId;
+                departmentId = employee?.DepartmentId;
+                deviceAccountId = deviceAccount?.Id;
+            }
+
+            var workstationEvent = new WorkstationEvent()
+            {
+                Id = workstationEventDto.Id,
+                Date = workstationEventDto.Date,
+                EventId = workstationEventDto.EventId,
+                SeverityId = workstationEventDto.SeverityId,
+                Note = workstationEventDto.Note,
+                WorkstationId = workstationEventDto.WorkstationId,
+                UserSession = workstationEventDto.UserSession,
+                DeviceId = workstationEventDto.DeviceId,
+                EmployeeId = employeeId,
+                DepartmentId = departmentId,
+                DeviceAccountId = deviceAccountId,
+            };
+
+            await AddEventAsync(workstationEvent);
+        }
+
         public async Task AddEventsRangeAsync(IList<WorkstationEventDto> workstationEventsDto)
         {
             if (workstationEventsDto == null)

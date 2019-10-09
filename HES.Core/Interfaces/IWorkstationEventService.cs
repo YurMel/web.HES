@@ -10,6 +10,7 @@ namespace HES.Core.Interfaces
     {
         IQueryable<WorkstationEvent> Query();
         Task AddEventAsync(WorkstationEvent workstationEvent);
-        Task AddEventsRangeAsync(IList<WorkstationEventDto> workstationEventsDto);
+        Task AddEventDtoAsync(WorkstationEventDto workstationEventDto);
+        //Task AddEventsRangeAsync(IList<WorkstationEventDto> workstationEventsDto);
     }
 }
