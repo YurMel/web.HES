@@ -263,14 +263,14 @@ namespace HES.Core.Services
 
         #region Workstation
 
-        public IRemoteAppConnection GetOrAddWorkstationInfo(string workstationId, IRemoteAppConnection remoteAppConnection)
-        {
-            var workstationDescr = _workstationConnections.GetOrAdd(workstationId, (x) =>
-            {
-                return remoteAppConnection;
-            });
-            return workstationDescr;
-        }
+        //public IRemoteAppConnection GetOrAddWorkstationInfo(string workstationId, IRemoteAppConnection remoteAppConnection)
+        //{
+        //    var workstationDescr = _workstationConnections.GetOrAdd(workstationId, (x) =>
+        //    {
+        //        return remoteAppConnection;
+        //    });
+        //    return workstationDescr;
+        //}
 
         public async Task RegisterWorkstationInfo(IRemoteAppConnection remoteAppConnection, WorkstationInfo workstationInfo)
         {
@@ -295,28 +295,32 @@ namespace HES.Core.Services
                 _logger.LogInformation($"New workstation {workstationInfo.MachineName} was added");
             }
 
-            await OnWorkstationConnected(workstationInfo.Id);
+            //await OnWorkstationConnected(workstationInfo.Id);
+
+            //todo UpdateProximitySettingsAsync replace to GetProximitySettingsAsync
+            await _workstationProximityDeviceService.UpdateProximitySettingsAsync(workstationInfo.Id);
+
+            //todo UpdateRfidStateAsync replace to GetRfidStateAsync
+            await _workstationService.UpdateRfidStateAsync(workstationInfo.Id);
         }
 
-        private async Task OnWorkstationConnected(string workstationId)
+        //private async Task OnWorkstationConnected(string workstationId)
+        //{
+        //    try
+        //    {
+        //        _logger.LogDebug($"[{workstationId}] connected");
+        //        await _workstationProximityDeviceService.UpdateProximitySettingsAsync(workstationId);
+
+        //        await _workstationService.UpdateRfidStateAsync(workstationId);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError(ex.Message);
+        //    }
+        //}
+
+        public async Task OnAppHubDisconnected(string workstationId)
         {
-            try
-            {
-                _logger.LogDebug($"[{workstationId}] connected");
-                await _workstationProximityDeviceService.UpdateProximitySettingsAsync(workstationId);
-
-                await _workstationService.UpdateRfidStateAsync(workstationId);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-            }
-        }
-
-        public async Task OnWorkstationDisconnected(string workstationId)
-        {
-            _logger.LogDebug($"[{workstationId}] disconnected");
-
             _workstationConnections.TryRemove(workstationId, out IRemoteAppConnection _);
 
             await _workstationSessionService.CloseSessionAsync(workstationId);

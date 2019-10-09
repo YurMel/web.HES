@@ -45,10 +45,7 @@ namespace HES.Core.Hubs
             if (Context.Items.TryGetValue("WorkstationId", out object workstationId))
                 return (string)workstationId;
             else
-            {
-                _logger.LogCritical("AppHub does not contain WorkstationId!");
                 throw new Exception("AppHub does not contain WorkstationId!");
-            }
         }
 
         public override Task OnConnectedAsync()
@@ -59,19 +56,15 @@ namespace HES.Core.Hubs
                 string workstationId = httpContext.Request.Headers["WorkstationId"].ToString();
 
                 if (string.IsNullOrWhiteSpace(workstationId))
-                {
-                    _logger.LogCritical($"AppHub.OnConnectedAsync - WorkstationId cannot be empty");
-                }
-                else
-                {
-                    _logger.LogCritical($"Workstation '{workstationId}' connected");
-                    _remoteDeviceConnectionsService.OnAppHubConnected(workstationId, Clients.Caller);
-                    Context.Items.Add("WorkstationId", workstationId);
-                }
+                    throw new Exception($"AppHub.OnConnectedAsync - httpContext.Request.Headers does not contain WorkstationId");
+
+                _logger.LogDebug($"Workstation [{workstationId}] connected");
+                _remoteDeviceConnectionsService.OnAppHubConnected(workstationId, Clients.Caller);
+                Context.Items.Add("WorkstationId", workstationId);
             }
             catch (Exception ex)
             {
-                _logger.LogCritical(ex, "OnConnectedAsync error");
+                _logger.LogCritical(ex.Message);
             }
 
             return base.OnConnectedAsync();
@@ -81,12 +74,16 @@ namespace HES.Core.Hubs
         {
             try
             {
-                _remoteDeviceConnectionsService.OnAppHubDisconnected(GetWorkstationId());
-                _remoteWorkstationConnectionsService.OnWorkstationDisconnected(GetWorkstationId());
+                var workstationId = GetWorkstationId();
+
+                _logger.LogDebug($"Workstation [{workstationId}] disconnected");
+
+                _remoteDeviceConnectionsService.OnAppHubDisconnected(workstationId);
+                _remoteWorkstationConnectionsService.OnAppHubDisconnected(workstationId);
             }
             catch (Exception ex)
             {
-                _logger.LogCritical(ex, "OnDisconnectedAsync error");
+                _logger.LogCritical(ex.Message);
             }
 
             return base.OnDisconnectedAsync(exception);
@@ -99,6 +96,9 @@ namespace HES.Core.Hubs
         {
             try
             {
+                if (dto == null || dto.DeviceSerialNo == null)
+                    throw new ArgumentNullException(nameof(dto));
+
                 // Update Battery, Firmware, State, LastSynced         
                 await _deviceService.UpdateDeviceInfoAsync(dto.DeviceSerialNo, dto.Battery, dto.FirmwareVersion, dto.IsLocked);
 
@@ -106,7 +106,7 @@ namespace HES.Core.Hubs
             }
             catch (Exception ex)
             {
-                _logger.LogCritical(ex, "OnDeviceConnected error");
+                _logger.LogCritical(ex.Message);
             }
         }
 
@@ -120,7 +120,7 @@ namespace HES.Core.Hubs
             }
             catch (Exception ex)
             {
-                _logger.LogCritical(ex, "OnDeviceDisconnected error");
+                _logger.LogCritical(ex.Message);
             }
             return Task.CompletedTask;
         }
@@ -140,7 +140,7 @@ namespace HES.Core.Hubs
             }
             catch (Exception ex)
             {
-                _logger.LogCritical(ex, "GetInfoByRfid error");
+                _logger.LogCritical(ex.Message);
                 return null;
             }
         }
@@ -160,7 +160,7 @@ namespace HES.Core.Hubs
             }
             catch (Exception ex)
             {
-                _logger.LogCritical(ex, "GetInfoByMac error");
+                _logger.LogCritical(ex.Message);
                 return null;
             }
         }
@@ -168,7 +168,7 @@ namespace HES.Core.Hubs
         // Incomming request
         public async Task<DeviceInfoDto> GetInfoBySerialNo(string serialNo)
         {
-            _logger.LogInformation($"[GetInfoBySerialNo] IN serialNo {serialNo}");
+            _logger.LogDebug($"[GetInfoBySerialNo] IN serialNo {serialNo}");
 
             try
             {
@@ -178,21 +178,21 @@ namespace HES.Core.Hubs
                     .AsNoTracking()
                     .FirstOrDefaultAsync(d => d.Id == serialNo);
 
-                _logger.LogInformation($"[GetInfoBySerialNo] deviceId from DB {device?.Id}");
+                _logger.LogDebug($"[GetInfoBySerialNo] deviceId from DB {device?.Id}");
                 var deviceInfo = await GetDeviceInfo(device);
-                _logger.LogInformation($"[GetInfoBySerialNo] deviceId from GetDeviceInfo {deviceInfo?.DeviceSerialNo}");
+                _logger.LogDebug($"[GetInfoBySerialNo] deviceId from GetDeviceInfo {deviceInfo?.DeviceSerialNo}");
                 return deviceInfo;
             }
             catch (Exception ex)
             {
-                _logger.LogCritical(ex, "GetInfoByMac error");
+                _logger.LogCritical(ex.Message);
                 return null;
             }
         }
 
         async Task<DeviceInfoDto> GetDeviceInfo(Device device)
         {
-            _logger.LogInformation($"[GetDeviceInfo] {device?.Id}");
+            _logger.LogDebug($"[GetDeviceInfo] {device?.Id}");
             if (device == null)
                 return null;
 
@@ -201,7 +201,7 @@ namespace HES.Core.Hubs
                 .Where(t => t.DeviceId == device.Id)
                 .AsNoTracking()
                 .AnyAsync();
-            _logger.LogInformation($"[GetDeviceInfo] needUpdate {needUpdate}");
+            _logger.LogDebug($"[GetDeviceInfo] needUpdate {needUpdate}");
             var info = new DeviceInfoDto()
             {
                 OwnerName = device.Employee?.FullName,
@@ -210,7 +210,7 @@ namespace HES.Core.Hubs
                 DeviceSerialNo = device.Id,
                 NeedUpdate = needUpdate
             };
-            _logger.LogInformation($"[GetDeviceInfo] return {info?.DeviceSerialNo}");
+            _logger.LogDebug($"[GetDeviceInfo] return {info?.DeviceSerialNo}");
             return info;
         }
 
