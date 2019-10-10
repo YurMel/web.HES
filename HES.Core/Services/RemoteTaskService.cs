@@ -163,16 +163,27 @@ namespace HES.Core.Services
         {
             _dataProtectionService.Validate();
 
-            var query = _deviceTaskService.Query()
+            var device = await _deviceService.GetByIdAsync(deviceId);
+
+            var query = _deviceTaskService
+                .Query()
                 .Include(t => t.DeviceAccount)
                 .Where(t => t.DeviceId == deviceId);
 
-            if (operation != TaskOperation.None)
-                query = query.Where(t => t.Operation == operation);
+            // Filtering by operation
+            switch (operation)
+            {
+                case TaskOperation.None:
+                    break;
+                case TaskOperation.Primary:
+                    query = query.Where(t => t.DeviceAccountId == device.PrimaryAccountId || t.Operation == TaskOperation.Primary);
+                    break;
+            }
 
             query = query.OrderBy(x => x.CreatedAt);
 
             var tasks = await query.ToListAsync();
+            _logger.LogDebug($"[{deviceId}] Task: {operation}, count tasks: {tasks.Count}");
 
             while (tasks.Any())
             {
@@ -190,7 +201,6 @@ namespace HES.Core.Services
                 tasks = await query.ToListAsync();
             }
 
-            var device = await _deviceService.GetByIdAsync(deviceId);
             if (device != null)
             {
                 await _hubContext.Clients.All.SendAsync("UpdateTable", device.EmployeeId);
