@@ -1,6 +1,5 @@
 ﻿using HES.Core.Entities;
 using Hideez.SDK.Communication.HES.DTO;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -11,6 +10,5 @@ namespace HES.Core.Interfaces
         IQueryable<WorkstationEvent> Query();
         Task AddEventAsync(WorkstationEvent workstationEvent);
         Task AddEventDtoAsync(WorkstationEventDto workstationEventDto);
-        //Task AddEventsRangeAsync(IList<WorkstationEventDto> workstationEventsDto);
     }
 }
