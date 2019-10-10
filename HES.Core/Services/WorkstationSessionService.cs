@@ -70,56 +70,9 @@ namespace HES.Core.Services
             return _summaryByWorkstationsRepository.SqlQuery(sql);
         }
 
-        public async Task AddOrUpdateWorkstationSessions(IList<WorkstationEventDto> workstationEventsDto)
+        public async Task<int> GetOpenedSessionsCount()
         {
-            if (workstationEventsDto == null)
-            {
-                throw new Exception(nameof(workstationEventsDto));
-            }
-
-            foreach (var workstationEvent in workstationEventsDto)
-            {
-                // On unlock
-                if ((workstationEvent.EventId == WorkstationEventType.HESConnected ||
-                     workstationEvent.EventId == WorkstationEventType.ServiceStarted ||
-                     workstationEvent.EventId == WorkstationEventType.ComputerUnlock ||
-                     workstationEvent.EventId == WorkstationEventType.ComputerLogon) &&
-                     workstationEvent.WorkstationSessionId != null)
-                {
-                    var session = await _workstationSessionRepository.Query()
-                        .FirstOrDefaultAsync(w => w.Id == workstationEvent.WorkstationSessionId);
-
-                    if (session == null)
-                    {
-                        // Add new session
-                        await AddSessionAsync(workstationEvent);
-                    }
-                    else
-                    {
-                        // Reopen session
-                        session.EndDate = null;
-                        await UpdateSessionAsync(session);
-                    }
-                }
-
-                // On disconnected or lock
-                if ((workstationEvent.EventId == WorkstationEventType.ComputerLock ||
-                     workstationEvent.EventId == WorkstationEventType.ComputerLogoff) &&
-                     workstationEvent.WorkstationSessionId != null)
-                {
-                    var session = await _workstationSessionRepository.Query()
-                        .FirstOrDefaultAsync(w => w.Id == workstationEvent.WorkstationSessionId);
-
-                    if (session == null)
-                    {
-                        _logger.LogCritical($"[{workstationEvent.WorkstationId}] Сannot find last session for closing");
-                        continue;
-                    }
-
-                    session.EndDate = workstationEvent.Date;
-                    await UpdateSessionAsync(session);
-                }
-            }
+            return await _workstationSessionRepository.Query().Where(w => w.EndDate == null).CountAsync();
         }
 
         public async Task AddOrUpdateWorkstationSession(WorkstationEventDto workstationEventDto)
@@ -129,7 +82,7 @@ namespace HES.Core.Services
                 throw new Exception(nameof(workstationEventDto));
             }
 
-            // On unlock
+            // On connected or unlock
             if ((workstationEventDto.EventId == WorkstationEventType.HESConnected ||
                  workstationEventDto.EventId == WorkstationEventType.ServiceStarted ||
                  workstationEventDto.EventId == WorkstationEventType.ComputerUnlock ||
@@ -157,17 +110,30 @@ namespace HES.Core.Services
                  workstationEventDto.EventId == WorkstationEventType.ComputerLogoff) &&
                  workstationEventDto.WorkstationSessionId != null)
             {
-                var session = await _workstationSessionRepository.Query()
-                    .FirstOrDefaultAsync(w => w.Id == workstationEventDto.WorkstationSessionId);
+                await CloseSessionAsync(workstationEventDto.WorkstationId);
+            }
+        }
 
-                if (session == null)
+        public async Task CloseSessionAsync(string workstationId)
+        {
+            var sessions = await _workstationSessionRepository
+                .Query()
+                .Where(w => w.WorkstationId == workstationId && w.EndDate == null)
+                .ToListAsync();
+
+            if (sessions != null)
+            {
+                foreach (var session in sessions)
                 {
-                    _logger.LogCritical($"[{workstationEventDto.WorkstationId}] Сannot find last session for closing");
-                    return;
+                    session.EndDate = DateTime.UtcNow;
+                    await UpdateSessionAsync(session);
                 }
 
-                session.EndDate = workstationEventDto.Date;
-                await UpdateSessionAsync(session);
+                var sessionsCount = sessions.Count;
+                if (sessionsCount > 1)
+                {
+                    _logger.LogCritical($"[{workstationId}] {sessionsCount} sessions were closed, something went wrong");
+                }
             }
         }
 
@@ -225,28 +191,6 @@ namespace HES.Core.Services
             }
 
             await _workstationSessionRepository.UpdateOnlyPropAsync(workstationSession, new string[] { "EndDate" });
-        }
-
-        public async Task CloseSessionAsync(string workstationId)
-        {
-            var session = await _workstationSessionRepository
-                .Query()
-                .Where(w => w.WorkstationId == workstationId && w.EndDate == null)
-                .FirstOrDefaultAsync();
-
-            if (session == null)
-            {
-                _logger.LogCritical($"[{workstationId}] Сannot find last session for closing");
-                return;
-            }
-
-            session.EndDate = DateTime.UtcNow;
-            await UpdateSessionAsync(session);
-        }
-
-        public async Task<int> GetOpenedSessionsCount()
-        {
-            return await _workstationSessionRepository.Query().Where(w => w.EndDate == null).CountAsync();
         }
     }
 }

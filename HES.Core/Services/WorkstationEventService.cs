@@ -52,7 +52,7 @@ namespace HES.Core.Services
             var exist = await _workstationEventRepository.Query().AsNoTracking().AnyAsync(d => d.Id == workstationEventDto.Id);
             if (exist)
             {
-                _logger.LogWarning($"[{workstationEventDto.WorkstationId}] Duplicate event entry '{workstationEventDto.Id}'. Session:{workstationEventDto.UserSession}, Event:{workstationEventDto.EventId}");
+                _logger.LogWarning($"[DUPLICATE EVENT][{workstationEventDto.WorkstationId}] EventId:{workstationEventDto.Id}, Session:{workstationEventDto.UserSession}, Event:{workstationEventDto.EventId}");
                 return;
             }
 
@@ -91,61 +91,6 @@ namespace HES.Core.Services
             };
 
             await AddEventAsync(workstationEvent);
-        }
-
-        public async Task AddEventsRangeAsync(IList<WorkstationEventDto> workstationEventsDto)
-        {
-            if (workstationEventsDto == null)
-                throw new ArgumentNullException(nameof(workstationEventsDto));
-
-            var workstationEvents = new List<WorkstationEvent>();
-
-            foreach (var workstationEventDto in workstationEventsDto)
-            {
-                var exist = await _workstationEventRepository.Query().AsNoTracking().AnyAsync(d => d.Id == workstationEventDto.Id);
-                if (exist)
-                {
-                    _logger.LogCritical($"[{workstationEventDto.WorkstationId}] Duplicate event entry '{workstationEventDto.Id}' for key 'PRIMARY'");
-                    continue;
-                }
-
-                string employeeId = null;
-                string departmentId = null;
-                string deviceAccountId = null;
-
-                if (workstationEventDto.DeviceId != null)
-                {
-                    var device = await _deviceRepository.GetByIdAsync(workstationEventDto.DeviceId);
-                    var employee = await _employeeRepository.GetByIdAsync(device?.EmployeeId);
-                    var deviceAccount = await _deviceAccountRepository
-                        .Query()
-                        .Where(d => d.Name == workstationEventDto.AccountName && d.Login == workstationEventDto.AccountLogin && d.DeviceId == workstationEventDto.DeviceId)
-                        .AsNoTracking()
-                        .FirstOrDefaultAsync();
-
-                    employeeId = device?.EmployeeId;
-                    departmentId = employee?.DepartmentId;
-                    deviceAccountId = deviceAccount?.Id;
-                }
-
-                var workstationEvent = new WorkstationEvent()
-                {
-                    Id = workstationEventDto.Id,
-                    Date = workstationEventDto.Date,
-                    EventId = workstationEventDto.EventId,
-                    SeverityId = workstationEventDto.SeverityId,
-                    Note = workstationEventDto.Note,
-                    WorkstationId = workstationEventDto.WorkstationId,
-                    UserSession = workstationEventDto.UserSession,
-                    DeviceId = workstationEventDto.DeviceId,
-                    EmployeeId = employeeId,
-                    DepartmentId = departmentId,
-                    DeviceAccountId = deviceAccountId,
-                };
-
-                workstationEvents.Add(workstationEvent);
-            }
-            await _workstationEventRepository.AddRangeAsync(workstationEvents);
         }
     }
 }

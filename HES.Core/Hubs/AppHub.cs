@@ -255,7 +255,6 @@ namespace HES.Core.Hubs
         // Incomming request
         public async Task<HideezErrorInfo> SaveClientEvents(WorkstationEventDto[] workstationEventsDto)
         {
-
             if (workstationEventsDto == null)
                 throw new ArgumentNullException(nameof(workstationEventsDto));
 
@@ -291,10 +290,7 @@ namespace HES.Core.Hubs
                                         AccountLogin:{eventDto.AccountLogin}";
                     _logger.LogError($"{ex.Message} [AddEventDtoAsync] [Object DTO]: {objDto}");
                 }
-            }
 
-            foreach (var eventDto in workstationEventsDto)
-            {
                 try
                 {
                     await _workstationSessionService.AddOrUpdateWorkstationSession(eventDto);
@@ -316,9 +312,6 @@ namespace HES.Core.Hubs
                     _logger.LogError($"{ex.Message} [AddOrUpdateWorkstationSession] [Object DTO]: {objDto}");
                 }
             }
-
-            //await _workstationEventService.AddEventsRangeAsync(workstationEventsDto);
-            //await _workstationSessionService.AddOrUpdateWorkstationSessions(workstationEventsDto);
 
             return HideezErrorInfo.Ok;
         }
