@@ -219,7 +219,8 @@ namespace HES.Core.Hubs
         {
             try
             {
-                await _remoteWorkstationConnectionsService.UpdateRemoteDeviceAsync(deviceId, GetWorkstationId());
+                await _remoteWorkstationConnectionsService.UpdateRemoteDeviceAsync(deviceId, GetWorkstationId(), primaryAccountOnly: true);
+                _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(deviceId);
                 return HideezErrorInfo.Ok;
             }
             catch (Exception ex)

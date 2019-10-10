@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using HES.Core.Entities;
@@ -160,7 +159,7 @@ namespace HES.Core.Services
             await _deviceTaskService.DeleteTaskAsync(deviceTask);
         }
 
-        public async Task<HideezErrorCode> ExecuteRemoteTasks(string deviceId, RemoteDevice remoteDevice, TaskOperation operation)
+        public async Task ExecuteRemoteTasks(string deviceId, RemoteDevice remoteDevice, TaskOperation operation)
         {
             _dataProtectionService.Validate();
 
@@ -185,7 +184,7 @@ namespace HES.Core.Services
                     await TaskCompleted(task.Id, idFromDevice);
 
                     if (task.Operation == TaskOperation.Wipe)
-                        return HideezErrorCode.DeviceHasBeenWiped; // further processing is not possible
+                        throw new HideezException(HideezErrorCode.DeviceHasBeenWiped); // further processing is not possible
                 }
 
                 tasks = await query.ToListAsync();
@@ -196,8 +195,6 @@ namespace HES.Core.Services
             {
                 await _hubContext.Clients.All.SendAsync("UpdateTable", device.EmployeeId);
             }
-
-            return HideezErrorCode.Ok;
         }
 
         async Task<ushort> ExecuteRemoteTask(RemoteDevice remoteDevice, DeviceTask task)
@@ -300,7 +297,7 @@ namespace HES.Core.Services
             }
 
             var key = ConvertUtils.HexStringToBytes(task.Password);
-            var respData = await remoteDevice.Wipe(key);
+            await remoteDevice.Wipe(key);
             return 0;
         }
 
@@ -313,7 +310,7 @@ namespace HES.Core.Services
             }
 
             var key = ConvertUtils.HexStringToBytes(task.Password);
-            var respData = await remoteDevice.Link(key);
+            await remoteDevice.Link(key);
             return 0;
         }
 

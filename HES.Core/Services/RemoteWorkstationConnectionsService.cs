@@ -71,49 +71,34 @@ namespace HES.Core.Services
 
         public void StartUpdateRemoteDevice(string deviceId)
         {
-            Debug.WriteLine($"!!!!!!!!!!!!! StartUpdateRemoteDevice {deviceId}");
             if (deviceId == null)
                 throw new ArgumentNullException(nameof(deviceId));
 
-            //var isNew = false;
+#pragma warning disable IDE0067 // Dispose objects before losing scope
+            var scope = _services.CreateScope();
+#pragma warning restore IDE0067 // Dispose objects before losing scope
 
-            //var tcs = _devicesInProgress.GetOrAdd(deviceId, (x) =>
-            //{
-            //    isNew = true;
-            //    return new TaskCompletionSource<bool>();
-            //});
-
-            //if (!isNew)
-            //{
-            //    Debug.WriteLine($"!!!!!!!!!!!!! StartUpdateRemoteDevice already running {deviceId}");
-            //    return;
-            //}
-
-            //Task.Run(async () =>
-            //{
-            //    await UpdateRemoteDeviceWithTimeout(deviceId, tcs, workstationId: null);
-            //});
             Task.Run(async () =>
             {
                 try
                 {
-                    using (var scope = _services.CreateScope())
-                    {
-                        var scopedProcessingService =
-                            scope.ServiceProvider
-                                .GetRequiredService<IRemoteWorkstationConnectionsService>();
+                    var remoteWorkstationConnectionsService = scope.ServiceProvider
+                            .GetRequiredService<IRemoteWorkstationConnectionsService>();
 
-                        await scopedProcessingService.UpdateRemoteDeviceAsync(deviceId, workstationId: null);
-                    }
+                    await remoteWorkstationConnectionsService.UpdateRemoteDeviceAsync(deviceId, workstationId: null, primaryAccountOnly: false);
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError($"[{deviceId}] {ex.Message}");
                 }
+                finally
+                {
+                    scope.Dispose();
+                }
             });
         }
 
-        public async Task UpdateRemoteDeviceAsync(string deviceId, string workstationId)
+        public async Task UpdateRemoteDeviceAsync(string deviceId, string workstationId, bool primaryAccountOnly)
         {
             Debug.WriteLine($"!!!!!!!!!!!!! UpdateRemoteDeviceAsync start {deviceId}");
             if (deviceId == null)
@@ -133,14 +118,9 @@ namespace HES.Core.Services
                 return;
             }
 
-            await UpdateRemoteDeviceWithTimeout(deviceId, tcs, workstationId);
-        }
-
-        private async Task UpdateRemoteDeviceWithTimeout(string deviceId, TaskCompletionSource<bool> tcs, string workstationId)
-        {
             try
             {
-                await UpdateRemoteDevice(deviceId, workstationId).TimeoutAfter(300_000);
+                await UpdateRemoteDevice(deviceId, workstationId, primaryAccountOnly).TimeoutAfter(300_000);
                 tcs.SetResult(true);
             }
             catch (TimeoutException ex)
@@ -159,7 +139,7 @@ namespace HES.Core.Services
             }
         }
 
-        private async Task<bool> UpdateRemoteDevice(string deviceId, string workstationId)
+        private async Task<bool> UpdateRemoteDevice(string deviceId, string workstationId, bool primaryAccountOnly)
         {
             try
             {
@@ -262,10 +242,11 @@ namespace HES.Core.Services
                     }
                 }
 
-                // all tasks processing
-                var res = await _remoteTaskService.ExecuteRemoteTasks(deviceId, remoteDevice, TaskOperation.None);
-                if (res != HideezErrorCode.Ok)
-                    throw new HideezException(res);
+                // updating the primary account or all tasks
+                if (primaryAccountOnly)
+                    await _remoteTaskService.ExecuteRemoteTasks(deviceId, remoteDevice, TaskOperation.Primary);
+                else
+                    await _remoteTaskService.ExecuteRemoteTasks(deviceId, remoteDevice, TaskOperation.None);
 
                 Debug.WriteLine($"!!!!!!!!!!!!! UpdateRemoteDevice OK");
 
