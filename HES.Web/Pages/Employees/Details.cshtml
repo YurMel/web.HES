@@ -136,9 +136,6 @@
                     $('form').removeData('unobtrusiveValidation');
                     $.validator.unobtrusive.parse('form');
 
-                    // Enable tags
-                    $("input[data-role=tagsinput], select[multiple][data-role=tagsinput]").tagsinput();
-
                     // Set disabled
                     if ($('#SharedAccountUrls').prop('disabled')) {
                         $(".bootstrap-tagsinput > input").prop("disabled", true);
@@ -159,10 +156,8 @@
             $.getJSON('/Employees/Details?handler=JsonSharedAccount', { id: id },
                 function (data) {
                     $('#SharedAccountName').val(data.name);
-                    $('#SharedAccountUrls').tagsinput('removeAll');
-                    $('#SharedAccountUrls').tagsinput('add', data.urls);
-                    $('#SharedAccountApps').tagsinput('removeAll');
-                    $('#SharedAccountApps').tagsinput('add', data.apps);
+                    $('#SharedAccountUrls').val(data.urls);
+                    $('#SharedAccountApps').val(data.apps);
                     $('#SharedAccountLogin').val(data.login);
                 });
         }
@@ -172,10 +167,8 @@
             $.getJSON('/Employees/Details?handler=JsonTemplate', { id: id },
                 function (data) {
                     $('#PersonalAccName').val(data.name);
-                    $('#PersonalAccUrls').tagsinput('removeAll');
-                    $('#PersonalAccUrls').tagsinput('add', data.urls);
-                    $('#PersonalAccApps').tagsinput('removeAll');
-                    $('#PersonalAccApps').tagsinput('add', data.apps);
+                    $('#PersonalAccUrls').val(data.urls);
+                    $('#PersonalAccApps').val(data.apps);
                 });
         }
 
