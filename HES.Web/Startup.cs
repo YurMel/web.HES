@@ -114,59 +114,10 @@ namespace HES.Web
                                                  logger);
             });
 
-            services.AddScoped<IRemoteDeviceConnectionsService, RemoteDeviceConnectionsService>();
-            //services.AddSingleton<IRemoteDeviceConnectionsService, RemoteDeviceConnectionsService>(s =>
-            //{
-            //    var scope = s.CreateScope();
-            //    var logger = scope.ServiceProvider.GetService<ILogger<RemoteDeviceConnectionsService>>();
-            //    var dataProtectionService = scope.ServiceProvider.GetService<IDataProtectionService>();
-            //    return new RemoteDeviceConnectionsService(logger, dataProtectionService);
-            //});
-
-            services.AddScoped<IRemoteTaskService, RemoteTaskService>();
-            //services.AddSingleton<IRemoteTaskService, RemoteTaskService>(s =>
-            //{
-            //    var scope = s.CreateScope();
-            //    var deviceService = scope.ServiceProvider.GetService<IDeviceService>();
-            //    var remoteDeviceConnectionsService = scope.ServiceProvider.GetService<IRemoteDeviceConnectionsService>();
-            //    var deviceTaskService = scope.ServiceProvider.GetService<IDeviceTaskService>();
-            //    var deviceAccountService = scope.ServiceProvider.GetService<IDeviceAccountService>();
-            //    var dataProtectionService = scope.ServiceProvider.GetService<IDataProtectionService>();
-            //    var logger = scope.ServiceProvider.GetService<ILogger<RemoteTaskService>>();
-            //    var hubContext = scope.ServiceProvider.GetService<IHubContext<EmployeeDetailsHub>>();
-            //    return new RemoteTaskService(deviceService,
-            //                                 remoteDeviceConnectionsService,
-            //                                 deviceTaskService,
-            //                                 deviceAccountService,
-            //                                 dataProtectionService,
-            //                                 logger,
-            //                                 hubContext);
-            //});
-
             services.AddScoped<IRemoteWorkstationConnectionsService, RemoteWorkstationConnectionsService>();
-            //services.AddSingleton<IRemoteWorkstationConnectionsService, RemoteWorkstationConnectionsService>(s =>
-            //{
-            //    var scope = s.CreateScope();
-            //    var remoteTasksService = scope.ServiceProvider.GetService<IRemoteTaskService>();
-            //    var remoteDeviceConnectionsService = scope.ServiceProvider.GetService<IRemoteDeviceConnectionsService>();
-            //    var employeeService = scope.ServiceProvider.GetService<IEmployeeService>();
-            //    var workstationService = scope.ServiceProvider.GetService<IWorkstationService>();
-            //    var workstationProximityDeviceService = scope.ServiceProvider.GetService<IWorkstationProximityDeviceService>();
-            //    var deviceService = scope.ServiceProvider.GetService<IDeviceService>();
-            //    var dataProtectionService = scope.ServiceProvider.GetService<IDataProtectionService>();
-            //    var workstationSessionService = scope.ServiceProvider.GetService<IWorkstationSessionService>();
-            //    var logger = scope.ServiceProvider.GetService<ILogger<RemoteWorkstationConnectionsService>>();
-            //    return new RemoteWorkstationConnectionsService(remoteTasksService,
-            //                                 remoteDeviceConnectionsService,
-            //                                 employeeService,
-            //                                 workstationService,
-            //                                 workstationProximityDeviceService,
-            //                                 deviceService,
-            //                                 dataProtectionService,
-            //                                 workstationSessionService,
-            //                                 logger);
-            //});
-
+            services.AddScoped<IRemoteDeviceConnectionsService, RemoteDeviceConnectionsService>();
+            services.AddScoped<IRemoteTaskService, RemoteTaskService>();
+            
             services.AddSingleton<INotificationService, NotificationService>(s =>
             {
                 var scope = s.CreateScope();
@@ -175,7 +126,6 @@ namespace HES.Web
                 var applicationUserService = scope.ServiceProvider.GetService<IApplicationUserService>();
                 return new NotificationService(notificationRepository, applicationUserService, logger);
             });
-
             services.AddSingleton<IEmailSenderService, EmailSenderService>(i =>
                  new EmailSenderService(
                      Configuration["EmailSender:Host"],

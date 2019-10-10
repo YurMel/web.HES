@@ -110,7 +110,7 @@ namespace HES.Core.Hubs
             }
         }
 
-        // incoming request
+        // Incoming request
         public Task OnDeviceDisconnected(string deviceId)
         {
             try
@@ -168,8 +168,6 @@ namespace HES.Core.Hubs
         // Incomming request
         public async Task<DeviceInfoDto> GetInfoBySerialNo(string serialNo)
         {
-            _logger.LogDebug($"[GetInfoBySerialNo] IN serialNo {serialNo}");
-
             try
             {
                 var device = await _deviceService
@@ -178,9 +176,7 @@ namespace HES.Core.Hubs
                     .AsNoTracking()
                     .FirstOrDefaultAsync(d => d.Id == serialNo);
 
-                _logger.LogDebug($"[GetInfoBySerialNo] deviceId from DB {device?.Id}");
                 var deviceInfo = await GetDeviceInfo(device);
-                _logger.LogDebug($"[GetInfoBySerialNo] deviceId from GetDeviceInfo {deviceInfo?.DeviceSerialNo}");
                 return deviceInfo;
             }
             catch (Exception ex)
@@ -190,9 +186,8 @@ namespace HES.Core.Hubs
             }
         }
 
-        async Task<DeviceInfoDto> GetDeviceInfo(Device device)
+        private async Task<DeviceInfoDto> GetDeviceInfo(Device device)
         {
-            _logger.LogDebug($"[GetDeviceInfo] {device?.Id}");
             if (device == null)
                 return null;
 
@@ -201,7 +196,7 @@ namespace HES.Core.Hubs
                 .Where(t => t.DeviceId == device.Id)
                 .AsNoTracking()
                 .AnyAsync();
-            _logger.LogDebug($"[GetDeviceInfo] needUpdate {needUpdate}");
+          
             var info = new DeviceInfoDto()
             {
                 OwnerName = device.Employee?.FullName,
@@ -210,7 +205,7 @@ namespace HES.Core.Hubs
                 DeviceSerialNo = device.Id,
                 NeedUpdate = needUpdate
             };
-            _logger.LogDebug($"[GetDeviceInfo] return {info?.DeviceSerialNo}");
+            
             return info;
         }
 
@@ -259,7 +254,7 @@ namespace HES.Core.Hubs
             if (workstationEventsDto == null)
                 throw new ArgumentNullException(nameof(workstationEventsDto));
 
-            _logger.LogDebug($"[{workstationEventsDto.FirstOrDefault().WorkstationId}] Sent events: {string.Join("; ", workstationEventsDto.Select(s => s.EventId))}");
+            _logger.LogDebug($"[{workstationEventsDto.FirstOrDefault().WorkstationId}][{workstationEventsDto.FirstOrDefault().UserSession}] Sent events: {string.Join("; ", workstationEventsDto.Select(s => s.EventId))}");
 
             // Ignore not approved workstation
             //var workstationId = workstationEventsDto.FirstOrDefault().WorkstationId;

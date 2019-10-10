@@ -13,13 +13,10 @@ namespace HES.Core.Services
             = new ConcurrentDictionary<string, DeviceRemoteConnections>();
 
         readonly ILogger<RemoteDeviceConnectionsService> _logger;
-        readonly IDataProtectionService _dataProtectionService;
 
-        public RemoteDeviceConnectionsService(ILogger<RemoteDeviceConnectionsService> logger,
-                                              IDataProtectionService dataProtectionService)
+        public RemoteDeviceConnectionsService(ILogger<RemoteDeviceConnectionsService> logger)
         {
             _logger = logger;
-            _dataProtectionService = dataProtectionService;
         }
 
         static DeviceRemoteConnections GetDeviceRemoteConnections(string deviceId)
@@ -30,25 +27,25 @@ namespace HES.Core.Services
             });
         }
 
-        // device connected to the host (called by AppHub)
+        // Device connected to the host (called by AppHub)
         public void OnDeviceConnected(string deviceId, string workstationId, IRemoteAppConnection appConnection)
         {
             GetDeviceRemoteConnections(deviceId).OnDeviceConnected(workstationId, appConnection);
         }
 
-        // device disconnected from the host (called by AppHub)
+        // Device disconnected from the host (called by AppHub)
         public void OnDeviceDisconnected(string deviceId, string workstationId)
         {
             GetDeviceRemoteConnections(deviceId).OnDeviceDisconnected(workstationId);
         }
 
-        // device hub connected. That means we need to create RemoteDevice
+        // Device hub connected. That means we need to create RemoteDevice
         public void OnDeviceHubConnected(string deviceId, string workstationId, IRemoteCommands caller)
         {
             GetDeviceRemoteConnections(deviceId).OnDeviceHubConnected(workstationId, caller);
         }
 
-        // device hub disconnected
+        // Device hub disconnected
         public void OnDeviceHubDisconnected(string deviceId, string workstationId)
         {
             GetDeviceRemoteConnections(deviceId).OnDeviceHubDisconnected(workstationId);

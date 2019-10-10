@@ -265,15 +265,6 @@ namespace HES.Core.Services
 
         #region Workstation
 
-        //public IRemoteAppConnection GetOrAddWorkstationInfo(string workstationId, IRemoteAppConnection remoteAppConnection)
-        //{
-        //    var workstationDescr = _workstationConnections.GetOrAdd(workstationId, (x) =>
-        //    {
-        //        return remoteAppConnection;
-        //    });
-        //    return workstationDescr;
-        //}
-
         public async Task RegisterWorkstationInfoAsync(IRemoteAppConnection remoteAppConnection, WorkstationInfo workstationInfo)
         {
             if (workstationInfo == null)
@@ -286,40 +277,19 @@ namespace HES.Core.Services
 
             if (await _workstationService.ExistAsync(w => w.Id == workstationInfo.Id))
             {
-                // Workstation exists, update its information
+                // Workstation exists, update information
                 await _workstationService.UpdateWorkstationInfoAsync(workstationInfo);
             }
             else
             {
-                // Workstation does not exist in DB or its name + domain was changed
-                // Create new unapproved workstation      
+                // Workstation does not exist or name + domain was changed, create new
                 await _workstationService.AddWorkstationAsync(workstationInfo);
                 _logger.LogInformation($"New workstation {workstationInfo.MachineName} was added");
             }
 
-            //await OnWorkstationConnected(workstationInfo.Id);
-
-            //todo UpdateProximitySettingsAsync replace to GetProximitySettingsAsync
             await _workstationProximityDeviceService.UpdateProximitySettingsAsync(workstationInfo.Id);
-
-            //todo UpdateRfidStateAsync replace to GetRfidStateAsync
             await _workstationService.UpdateRfidStateAsync(workstationInfo.Id);
         }
-
-        //private async Task OnWorkstationConnected(string workstationId)
-        //{
-        //    try
-        //    {
-        //        _logger.LogDebug($"[{workstationId}] connected");
-        //        await _workstationProximityDeviceService.UpdateProximitySettingsAsync(workstationId);
-
-        //        await _workstationService.UpdateRfidStateAsync(workstationId);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError(ex.Message);
-        //    }
-        //}
 
         public async Task OnAppHubDisconnectedAsync(string workstationId)
         {
