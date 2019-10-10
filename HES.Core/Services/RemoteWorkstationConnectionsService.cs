@@ -37,7 +37,7 @@ namespace HES.Core.Services
         readonly ILogger<RemoteWorkstationConnectionsService> _logger;
 
         public RemoteWorkstationConnectionsService(IServiceProvider services,
-        IRemoteTaskService remoteTaskService,
+                      IRemoteTaskService remoteTaskService,
                       IRemoteDeviceConnectionsService remoteDeviceConnectionsService,
                       IEmployeeService employeeService,
                       IWorkstationService workstationService,
@@ -337,6 +337,11 @@ namespace HES.Core.Services
         public static bool IsWorkstationConnectedToServer(string workstationId)
         {
             return _workstationConnections.ContainsKey(workstationId);
+        }
+
+        public static int WorkstationsOnlineCount()
+        {
+            return _workstationConnections.Count;
         }
 
         public static async Task UpdateProximitySettingsAsync(string workstationId, IReadOnlyList<DeviceProximitySettingsDto> deviceProximitySettings)

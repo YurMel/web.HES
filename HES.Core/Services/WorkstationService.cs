@@ -33,9 +33,9 @@ namespace HES.Core.Services
             return await _workstationRepository.GetByIdAsync(id);
         }
 
-        public async Task<int> GetOnlineCountAsync()
+        public Task<int> GetOnlineCountAsync()
         {
-            return await _workstationRepository.Query().Where(w => w.IsOnline == true).CountAsync();
+            return Task.FromResult(RemoteWorkstationConnectionsService.WorkstationsOnlineCount());
         }
 
         public async Task<bool> ExistAsync(Expression<Func<Workstation, bool>> predicate)
