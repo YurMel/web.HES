@@ -41,8 +41,19 @@ namespace HES.Web.Pages.Develop
         public async Task OnGet()
         {
             DeviceTasks = await _deviceTaskService.Query().OrderByDescending(o => o.CreatedAt).ToListAsync();
-            ViewData["Devices"] = new SelectList(await _deviceService.Query().OrderBy(c => c.Id).ToListAsync(), "Id", "Id");
-            ViewData["Employee"] = new SelectList(await _employeeService.Query().OrderBy(c => c.FirstName).ToListAsync(), "Id", "FullName");
+
+            ViewData["Devices"] = await _deviceService
+                .Query()
+                //.Include(e => e.Employee)
+                .Select(a => new SelectListItem
+                {
+                    Value = a.Id,
+                    Text = a.Id + " - " + a.Employee.FullName
+                })
+                .ToListAsync();
+
+            //ViewData["Devices"] = new SelectList(await _deviceService.Query().OrderBy(c => c.Id).ToListAsync(), "Id", "Id");
+            //ViewData["Employee"] = new SelectList(await _employeeService.Query().OrderBy(c => c.FirstName).ToListAsync(), "Id", "FullName");
         }
 
         public async Task<IActionResult> OnPostCreateAccountAsync(AccountModel accountModel)
@@ -52,33 +63,41 @@ namespace HES.Web.Pages.Develop
                 ErrorMessage = "DeviceId is null";
                 return RedirectToPage("./index");
             }
-            if (accountModel.EmployeeId == null)
+
+            var device = await _deviceService.GetByIdAsync(accountModel.DeviceId);
+            if (device == null)
             {
-                ErrorMessage = "EmployeeId is null";
-                return RedirectToPage("./index");
+                throw new ArgumentNullException(nameof(device));
             }
 
-            for (int i = 0; i < accountModel.AccountsCount; i++)
+            try
             {
-                var deviceAccount = new DeviceAccount()
+                for (int i = 0; i < accountModel.AccountsCount; i++)
                 {
-                    Name = "Test_" + Guid.NewGuid().ToString(),
-                    Urls = Guid.NewGuid().ToString(),
-                    Apps = Guid.NewGuid().ToString(),
-                    Login = Guid.NewGuid().ToString(),
-                    EmployeeId = accountModel.EmployeeId
-                };
+                    var deviceAccount = new DeviceAccount()
+                    {
+                        Name = "Test_" + Guid.NewGuid().ToString(),
+                        Urls = Guid.NewGuid().ToString(),
+                        Apps = Guid.NewGuid().ToString(),
+                        Login = Guid.NewGuid().ToString(),
+                        EmployeeId = device.EmployeeId
+                    };
 
-                var input = new InputModel()
-                {
-                    Password = Guid.NewGuid().ToString(),
-                    OtpSecret = "ybqc 4bk6 fmfg oyx2 zab6 tz3w zmh2 i5zg"
-                };
+                    var input = new InputModel()
+                    {
+                        Password = Guid.NewGuid().ToString(),
+                        OtpSecret = "ybqc 4bk6 fmfg oyx2 zab6 tz3w zmh2 i5zg"
+                    };
 
-                var devices = new string[] { accountModel.DeviceId };
+                    var devices = new string[] { accountModel.DeviceId };
 
-                await _employeeService.CreatePersonalAccountAsync(deviceAccount, input, devices);
-                _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(devices);
+                    await _employeeService.CreatePersonalAccountAsync(deviceAccount, input, devices);
+                    _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(devices);
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.Message;
             }
 
             return RedirectToPage("./index");
@@ -92,16 +111,23 @@ namespace HES.Web.Pages.Develop
                 return RedirectToPage("./index");
             }
 
-            var accounts = await _deviceAccountService
-                .Query()
-                .Where(d => d.DeviceId == accountModel.DeviceId && d.Name.Contains("Test_") && d.Deleted == false)
-                .ToListAsync();
-
-            foreach (var item in accounts)
+            try
             {
-                var deviceId = await _employeeService.DeleteAccount(item.Id);
+                var accounts = await _deviceAccountService
+                    .Query()
+                    .Where(d => d.DeviceId == accountModel.DeviceId && d.Name.Contains("Test_") && d.Deleted == false)
+                    .ToListAsync();
+
+                foreach (var item in accounts)
+                {
+                    var deviceId = await _employeeService.DeleteAccount(item.Id);
+                }
+                _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(accountModel.DeviceId);
             }
-            _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(accountModel.DeviceId);
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.Message;
+            }
 
             return RedirectToPage("./index");
         }
@@ -110,7 +136,7 @@ namespace HES.Web.Pages.Develop
     public class AccountModel
     {
         public string DeviceId { get; set; }
-        public string EmployeeId { get; set; }
+        //public string EmployeeId { get; set; }
         public int AccountsCount { get; set; }
     }
 }
