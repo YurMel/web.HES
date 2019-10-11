@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using HES.Core.Entities;
+﻿using HES.Core.Entities;
 using HES.Core.Interfaces;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace HES.Web.Pages.Dashboard
 {
@@ -27,7 +24,7 @@ namespace HES.Web.Pages.Dashboard
 
         public async Task OnGetAsync()
         {
-            DeviceTasks = await _deviceTaskService.Query().ToListAsync();
+            DeviceTasks = await _deviceTaskService.Query().Include(d => d.DeviceAccount.Employee.Department.Company).ToListAsync();
         }
     }
 }

@@ -34,7 +34,7 @@
                                 @Html.DisplayFor(modelItem => item.Operation)
                             </td>
                             <td>
-                                @Html.DisplayFor(modelItem => item.CreatedAt)
+                                @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.CreatedAt, TimeZoneInfo.Local)
                             </td>
                         </tr>
                     }
