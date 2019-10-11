@@ -1,0 +1,83 @@
+﻿@page
+@model HES.Web.Pages.Dashboard.DevicesInReserveModel
+@{
+    ViewData["Title"] = "DevicesInReserve";
+    ViewData["ActivePage"] = MenuNavPages.Dashboard;
+}
+
+<h1>Devices In Reserve</h1>
+
+<table class="table table-hover border rounded w-100">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Devices[0].Id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Devices[0].MAC)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Devices[0].Model)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Devices[0].RFID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Devices[0].Battery)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Devices[0].Firmware)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Devices)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Id)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.MAC)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Model)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RFID)
+                </td>
+                <td data-sort="@item.Battery">
+                    @if (item.Battery >= 30)
+                    {
+                        <img src="~/svg/device/battery_full.svg" alt="@item.Battery" />
+                        <span>@item.Battery%</span>
+                    }
+                    else if (item.Battery >= 15 && item.Battery <= 30)
+                    {
+                        <img src="~/svg/device/battery_30.svg" alt="@item.Battery" />
+                        <span>@item.Battery%</span>
+                    }
+                    else
+                    {
+                        <img src="~/svg/device/battery_15.svg" alt="@item.Battery" />
+                        <span>@item.Battery%</span>
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Firmware)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section scripts{
+    <script>
+        $(document).ready(function () {
+            // Breadcrumbs
+            $('#breadcrumb').toggleClass('d-none');
+            $('.breadcrumb').append('<li class="breadcrumb-item"><a href="/Dashboard">Dashboard</a></li>');
+            $('.breadcrumb').append('<li class="breadcrumb-item active">Devices In Reserve</li>');
+        });
+    </script>
+}

@@ -11,13 +11,13 @@
             </div>
             <div class="dashboard-card-body__wrapper">
                 <div class="dashboard-card__info">
-                    <div class="dashboard-card__info-body">@Model.RegisteredDevicesCount</div>
-                    <div class="dashboard-card__info-title">Registered</div>
+                    <div class="dashboard-card__info-body font-weight-bold">@Model.RegisteredDevicesCount</div>
+                    <div class="dashboard-card__info-title"><a class="dashboard-link" asp-page="/Devices/Index">Registered</a></div>
                 </div>
                 <div class="dashboard-card__vertical-line"></div>
                 <div class="dashboard-card__info">
                     <div class="dashboard-card__info-body">@Model.FreeDevicesCount</div>
-                    <div class="dashboard-card__info-title">In reserve</div>
+                    <div class="dashboard-card__info-title"><a class="dashboard-link" asp-page="./DevicesInReserve">In reserve</a></div>
                 </div>
             </div>
         </div>

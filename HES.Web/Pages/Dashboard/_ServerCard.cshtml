@@ -11,13 +11,13 @@
             </div>
             <div class="dashboard-card-body__wrapper">
                 <div class="dashboard-card__info">
-                    <div class="dashboard-card__info-body">@Model.ServerVersion</div>
+                    <div class="dashboard-card__info-body font-weight-bold">@Model.ServerVersion</div>
                     <div class="dashboard-card__info-title">HES version</div>
                 </div>
                 <div class="dashboard-card__vertical-line"></div>
                 <div class="dashboard-card__info">
                     <div class="dashboard-card__info-body">@Model.ServerRemoteTasksCount</div>
-                    <div class="dashboard-card__info-title">Remote Tasks</div>
+                    <div class="dashboard-card__info-title"><a class="dashboard-link" asp-page="./DeviceTasks">Device Tasks</a></div>
                 </div>
             </div>
         </div>

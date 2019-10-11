@@ -1,0 +1,59 @@
+﻿@page
+@model HES.Web.Pages.Dashboard.OpenedSessionsModel
+@{
+    ViewData["Title"] = "OpenedSessions";
+    ViewData["ActivePage"] = MenuNavPages.Dashboard;
+}
+
+<h1>Opened Sessions</h1>
+
+<table class="table table-hover border rounded w-100">
+    <thead>
+        <tr>
+            <th class="d-none"></th>
+            <th data-priority="1">
+                @Html.DisplayNameFor(model => model.WorkstationSessions[0].StartDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.WorkstationSessions[0].UnlockedBy)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.WorkstationSessions[0].Workstation)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.WorkstationSessions[0].UserSession)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.WorkstationSessions)
+        {
+            <tr>
+                <td class="d-none"></td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.StartDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UnlockedBy)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Workstation.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UserSession)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section scripts{
+    <script>
+        $(document).ready(function () {
+            // Breadcrumbs
+            $('#breadcrumb').toggleClass('d-none');
+            $('.breadcrumb').append('<li class="breadcrumb-item"><a href="/Dashboard">Dashboard</a></li>');
+            $('.breadcrumb').append('<li class="breadcrumb-item active">Opened Sessions</li>');
+        });
+    </script>
+}

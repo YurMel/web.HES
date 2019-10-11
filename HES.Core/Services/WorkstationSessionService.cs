@@ -70,9 +70,18 @@ namespace HES.Core.Services
             return _summaryByWorkstationsRepository.SqlQuery(sql);
         }
 
-        public async Task<int> GetOpenedSessionsCount()
+        public async Task<int> GetOpenedSessionsCountAsync()
         {
             return await _workstationSessionRepository.Query().Where(w => w.EndDate == null).CountAsync();
+        }
+
+        public async Task<List<WorkstationSession>> GetOpenedSessionsAsync()
+        {
+            return await _workstationSessionRepository
+                .Query()
+                .Include(w => w.Workstation)
+                .Where(w => w.EndDate == null)
+                .ToListAsync();
         }
 
         public async Task AddOrUpdateWorkstationSession(WorkstationEventDto workstationEventDto)

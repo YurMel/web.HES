@@ -1,0 +1,75 @@
+﻿@page
+@model HES.Web.Pages.Dashboard.WorkstationsOnlineModel
+@{
+    ViewData["Title"] = "WorkstationOnline";
+    ViewData["ActivePage"] = MenuNavPages.Dashboard;
+}
+
+<h1>Workstation Online</h1>
+
+<table class="display table table-hover border rounded w-100">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Workstations[0].Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Workstations[0].Domain)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Workstations[0].ClientVersion)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Workstations[0].Department.Company)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Workstations[0].Department)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Workstations[0].OS)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Workstations[0].IP)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Workstations)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Domain)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ClientVersion)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Department.Company.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Department.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.OS)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IP)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section scripts{
+    <script>
+        $(document).ready(function () {
+            // Breadcrumbs
+            $('#breadcrumb').toggleClass('d-none');
+            $('.breadcrumb').append('<li class="breadcrumb-item"><a href="/Dashboard">Dashboard</a></li>');
+            $('.breadcrumb').append('<li class="breadcrumb-item active">Devices In Reserve</li>');
+        });
+    </script>
+}

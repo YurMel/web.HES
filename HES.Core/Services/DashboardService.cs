@@ -61,7 +61,7 @@ namespace HES.Core.Services
 
         public async Task<int> GetEmployeesOpenedSessionsCount()
         {
-            return await _workstationSessionService.GetOpenedSessionsCount();
+            return await _workstationSessionService.GetOpenedSessionsCountAsync();
         }
 
         #endregion

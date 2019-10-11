@@ -198,6 +198,14 @@ a.navbar-brand {
     border-left: 1px solid rgba(33, 37, 41, 0.1);
 }
 
+.dashboard-link {
+    color: #7A7C8B;
+}
+
+    .dashboard-link:hover {
+        color: #7A7C8B;
+    }
+
 /* Card has notify */
 .dashboard-card-notify-header {
     display: flex;

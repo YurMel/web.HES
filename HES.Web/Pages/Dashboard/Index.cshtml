@@ -14,20 +14,6 @@
 
 @section scripts{
     <script>
-
-        @*function LoadInfo() {
-            $.ajax({
-                url: "/Dashboard?handler=LoadInfo",
-                type: "Get",
-                //data: { id: id },
-                async: true,
-                success: function (response) {
-                    alert('@Model.DeviceTaskCount');
-                    $('#deviceTaks').html('@Model.DeviceTaskCount');
-                }
-            });
-        }*@
-
         $(document).ready(function () {
             // Breadcrumbs
             $('#breadcrumb').toggleClass('d-none');

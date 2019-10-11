@@ -15,13 +15,13 @@
                 @Html.DisplayNameFor(model => model.DeviceTasks[0].DeviceId)
             </th>
             <th>
-                Account Name
-            </th>
-            <th>
                 @Html.DisplayNameFor(model => model.DeviceTasks[0].Operation)
             </th>
             <th>
                 Created
+            </th>
+            <th>
+                Account Name
             </th>
             <th>
                 Employee
@@ -43,9 +43,6 @@
                     @Html.DisplayFor(modelItem => item.DeviceId)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Name)
-                </td>
-                <td>
                     @switch (item.Operation)
                     {
                         case TaskOperation.Create:
@@ -61,7 +58,7 @@
                             <span class="badge badge-danger">Wipe</span>
                             break;
                         case TaskOperation.Link:
-                            <span class="badge badge-dark">Link</span>
+                            <span class="badge badge-info">Link</span>
                             break;
                         case TaskOperation.Primary:
                             <span class="badge badge-primary">Primary</span>
@@ -79,6 +76,9 @@
                 </td>
                 <td>
                     @TimeZoneInfo.ConvertTimeFromUtc((DateTime)item.CreatedAt, TimeZoneInfo.Local)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.DeviceAccount.Employee.FullName)
