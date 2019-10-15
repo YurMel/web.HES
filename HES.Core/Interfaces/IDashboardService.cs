@@ -1,7 +1,6 @@
 ﻿using HES.Core.Entities;
-using System;
+using HES.Core.Entities.Models;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace HES.Core.Interfaces
@@ -11,6 +10,7 @@ namespace HES.Core.Interfaces
         string GetServerVersion();
         Task<int> GetDeviceTasksCount();
         Task<List<DeviceTask>> GetDeviceTasks();
+        Task<List<DashboardNotify>> GetServerNotify();
         Task<int> GetEmployeesCount();
         Task<int> GetEmployeesOpenedSessionsCount();
         Task<int> GetDevicesCount();

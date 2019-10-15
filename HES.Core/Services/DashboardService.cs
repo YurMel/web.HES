@@ -1,4 +1,5 @@
 ﻿using HES.Core.Entities;
+using HES.Core.Entities.Models;
 using HES.Core.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -48,6 +49,19 @@ namespace HES.Core.Services
         public async Task<List<DeviceTask>> GetDeviceTasks()
         {
             return await _deviceTaskService.Query().ToListAsync();
+        }
+
+        public async Task<List<DashboardNotify>> GetServerNotify()
+        {
+            var list = new List<DashboardNotify>();
+            var longPendingTasksCount = await _deviceTaskService.Query().Where(d => d.CreatedAt <= DateTime.UtcNow.AddDays(-1)).CountAsync();
+
+            if (longPendingTasksCount > 0)
+            {
+                list.Add(new DashboardNotify() { Message = "Long pending tasks", Count = longPendingTasksCount });
+            }
+
+            return list;
         }
 
         #endregion
