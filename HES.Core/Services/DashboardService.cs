@@ -58,7 +58,13 @@ namespace HES.Core.Services
 
             if (longPendingTasksCount > 0)
             {
-                list.Add(new DashboardNotify() { Message = "Long pending tasks", Count = longPendingTasksCount });
+                list.Add(new DashboardNotify()
+                {
+                    Message = "Long pending tasks",
+                    Count = longPendingTasksCount,
+                    Page = "./DeviceTasks",
+                    Handler = "LongPending"
+                });
             }
 
             return list;
@@ -84,12 +90,18 @@ namespace HES.Core.Services
 
             var nonHideezUnlock = await _workstationSessionService
                 .Query()
-                .Where(w => w.StartDate <= DateTime.UtcNow.AddDays(-7) && w.UnlockedBy == Hideez.SDK.Communication.SessionSwitchSubject.NonHideez)
+                .Where(w => w.StartDate >= DateTime.UtcNow.AddDays(-1) && w.UnlockedBy == Hideez.SDK.Communication.SessionSwitchSubject.NonHideez)
                 .CountAsync();
 
             if (nonHideezUnlock > 0)
             {
-                list.Add(new DashboardNotify() { Message = "Non-hideez unlock", Count = nonHideezUnlock });
+                list.Add(new DashboardNotify()
+                {
+                    Message = "Non-hideez unlock (24h)",
+                    Count = nonHideezUnlock,
+                    Page = "/Audit/WorkstationSessions/Index",
+                    Handler = "NonHideezUnlock"
+                });
             }
 
             var longOpenSession = await _workstationSessionService
@@ -99,7 +111,13 @@ namespace HES.Core.Services
 
             if (longOpenSession > 0)
             {
-                list.Add(new DashboardNotify() { Message = "Long open session", Count = longOpenSession });
+                list.Add(new DashboardNotify()
+                {
+                    Message = "Long open session (>12h)",
+                    Count = longOpenSession,
+                    Page = "/Audit/WorkstationSessions/Index",
+                    Handler = "LongOpenSession"
+                });
             }
 
             return list;
@@ -130,7 +148,13 @@ namespace HES.Core.Services
 
             if (lowBattery > 0)
             {
-                list.Add(new DashboardNotify() { Message = "Low battery", Count = lowBattery });
+                list.Add(new DashboardNotify()
+                {
+                    Message = "Low battery",
+                    Count = lowBattery,
+                    Page = "/Devices/Index",
+                    Handler = "LowBattery"
+                });
             }
 
             var deviceLock = await _deviceService
@@ -140,7 +164,13 @@ namespace HES.Core.Services
 
             if (deviceLock > 0)
             {
-                list.Add(new DashboardNotify() { Message = "Device lock", Count = deviceLock });
+                list.Add(new DashboardNotify()
+                {
+                    Message = "Device lock",
+                    Count = deviceLock,
+                    Page = "/Devices/Index",
+                    Handler = "DeviceLocked"
+                });
             }
 
             var deviceError = await _deviceService
@@ -150,7 +180,13 @@ namespace HES.Core.Services
 
             if (deviceError > 0)
             {
-                list.Add(new DashboardNotify() { Message = "Device error", Count = deviceError });
+                list.Add(new DashboardNotify()
+                {
+                    Message = "Device error",
+                    Count = deviceError,
+                    Page = "/Devices/Index",
+                    Handler = "DeviceError"
+                });
             }
 
             return list;
@@ -181,7 +217,13 @@ namespace HES.Core.Services
 
             if (notApproved > 0)
             {
-                list.Add(new DashboardNotify() { Message = "Waiting for approval", Count = notApproved });
+                list.Add(new DashboardNotify()
+                {
+                    Message = "Waiting for approval",
+                    Count = notApproved,
+                    Page = "/Workstations/Index",
+                    Handler = "NotApproved"
+                });
             }
 
             return list;

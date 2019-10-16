@@ -9,6 +9,7 @@ namespace HES.Core.Entities.Models
     {
         public string Message { get; set; }
         public int Count { get; set; }
-        public IQueryable Query { get; set; }
+        public string Page { get; set; }
+        public string Handler { get; set; }
     }
 }

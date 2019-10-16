@@ -5,9 +5,21 @@
     ViewData["ActivePage"] = MenuNavPages.Dashboard;
 }
 
-<h1>Device Tasks</h1>
+<div class="row align-items-center mr-0">
+    <div class="col">
+        <h1 class="text-navyblue">Device Tasks</h1>
+    </div> 
+    <div class="col-auto p-1">
+        <div class="form-group has-search-right m-0">
+            <div class="form-control-feedback">
+                <img class="img-size" src="~/svg/action/search.svg" />
+            </div>
+            <input id="searchbox" type="text" class="form-control" placeholder="Search">
+        </div>
+    </div>
+</div>
 
-<table class="table table-hover border rounded w-100">
+<table id="deviceTasks" class="display table table-hover border rounded w-100">
     <thead>
         <tr>
             <th class="d-none"></th>
@@ -94,8 +106,19 @@
     </tbody>
 </table>
 
+<div class="row mt-2">
+    <div class="col d-flex justify-content-center justify-content-lg-start align-items-center mb-1 text-nowrap">
+        <span class="d-flex align-items-center mr-1 text-navyblue">Show entries</span>
+        <div id="entries_place"></div>
+    </div>
+    <div id="showing_place" class="col d-flex justify-content-center align-items-center mb-1 text-navyblue text-nowrap"></div>
+    <div id="pagination_place" class="col d-flex justify-content-center justify-content-lg-end align-items-center mb-1"></div>
+</div>
+
 @section scripts{
     <script>
+        InitDeviceTasksDT();
+
         $(document).ready(function () {
             // Breadcrumbs
             $('#breadcrumb').toggleClass('d-none');

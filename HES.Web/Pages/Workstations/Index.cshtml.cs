@@ -51,6 +51,39 @@ namespace HES.Web.Pages.Workstations
             ViewData["TimePattern"] = CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern.ToUpper() == "H:MM" ? "hh:ii" : "hh:ii aa";
         }
 
+        public async Task OnGetNotApprovedAsync()
+        {
+            Workstations = await _workstationService
+                .Query()
+                .Include(w => w.ProximityDevices)
+                .Include(c => c.Department.Company)
+                .Where(w => w.Approved == false)
+                .ToListAsync();
+
+            ViewData["Companies"] = new SelectList(await _orgStructureService.CompanyQuery().ToListAsync(), "Id", "Name");
+            ViewData["ProximityDevicesCount"] = new SelectList(Workstations.Select(s => s.ProximityDevices.Count()).Distinct().OrderBy(f => f).ToDictionary(t => t, t => t), "Key", "Value");
+
+            ViewData["DatePattern"] = CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern.ToLower();
+            ViewData["TimePattern"] = CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern.ToUpper() == "H:MM" ? "hh:ii" : "hh:ii aa";
+        }
+
+        public async Task OnGetOnlineAsync()
+        {
+            var allWorkstations = await _workstationService
+                .Query()
+                .Include(w => w.ProximityDevices)
+                .Include(c => c.Department.Company)         
+                .ToListAsync();
+
+            Workstations = allWorkstations.Where(w => w.IsOnline == true).ToList();
+
+            ViewData["Companies"] = new SelectList(await _orgStructureService.CompanyQuery().ToListAsync(), "Id", "Name");
+            ViewData["ProximityDevicesCount"] = new SelectList(Workstations.Select(s => s.ProximityDevices.Count()).Distinct().OrderBy(f => f).ToDictionary(t => t, t => t), "Key", "Value");
+
+            ViewData["DatePattern"] = CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern.ToLower();
+            ViewData["TimePattern"] = CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern.ToUpper() == "H:MM" ? "hh:ii" : "hh:ii aa";
+        }
+
         public async Task<IActionResult> OnPostFilterWorkstationsAsync(WorkstationFilter WorkstationFilter)
         {
             var filter = _workstationService

@@ -316,12 +316,20 @@ namespace HES.Core.Services
 
         public static async Task UpdateProximitySettingsAsync(string workstationId, IReadOnlyList<DeviceProximitySettingsDto> deviceProximitySettings)
         {
-            await FindWorkstationConnection(workstationId)?.UpdateProximitySettings(deviceProximitySettings);
+            var workstation = FindWorkstationConnection(workstationId);
+            if (workstation != null)
+            {
+                await workstation.UpdateProximitySettings(deviceProximitySettings);
+            }
         }
 
         public static async Task UpdateRfidIndicatorStateAsync(string workstationId, bool isEnabled)
         {
-            await FindWorkstationConnection(workstationId)?.UpdateRFIDIndicatorState(isEnabled);
+            var workstation = FindWorkstationConnection(workstationId);
+            if (workstation != null)
+            {
+                await workstation.UpdateRFIDIndicatorState(isEnabled);
+            }
         }
 
         #endregion
