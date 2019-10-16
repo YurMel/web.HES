@@ -190,13 +190,14 @@ a.navbar-brand {
     font-size: 36px;
 }
 
-.dashboard-link {
+/*.dashboard-link {
     color: #7A7C8B;
 }
 
     .dashboard-link:hover {
         color: #7A7C8B;
-    }
+        text-decoration: none;
+    }*/
 
 /* --- Card notify --- */
 .dashboard-card-notify.dashboard-card-body {

@@ -78,6 +78,33 @@ namespace HES.Core.Services
             return await _workstationSessionService.GetOpenedSessionsCountAsync();
         }
 
+        public async Task<List<DashboardNotify>> GetEmployeesNotify()
+        {
+            var list = new List<DashboardNotify>();
+
+            var nonHideezUnlock = await _workstationSessionService
+                .Query()
+                .Where(w => w.StartDate <= DateTime.UtcNow.AddDays(-7) && w.UnlockedBy == Hideez.SDK.Communication.SessionSwitchSubject.NonHideez)
+                .CountAsync();
+
+            if (nonHideezUnlock > 0)
+            {
+                list.Add(new DashboardNotify() { Message = "Non-hideez unlock", Count = nonHideezUnlock });
+            }
+
+            var longOpenSession = await _workstationSessionService
+                .Query()
+                .Where(w => w.StartDate <= DateTime.UtcNow.AddHours(-12) && w.EndDate == null)
+                .CountAsync();
+
+            if (longOpenSession > 0)
+            {
+                list.Add(new DashboardNotify() { Message = "Long open session", Count = longOpenSession });
+            }
+
+            return list;
+        }
+
         #endregion
 
         #region Devices
@@ -92,6 +119,43 @@ namespace HES.Core.Services
             return await _deviceService.GetFreeDevicesCount();
         }
 
+        public async Task<List<DashboardNotify>> GetDevicesNotify()
+        {
+            var list = new List<DashboardNotify>();
+
+            var lowBattery = await _deviceService
+                .Query()
+                .Where(d => d.Battery <= 30)
+                .CountAsync();
+
+            if (lowBattery > 0)
+            {
+                list.Add(new DashboardNotify() { Message = "Low battery", Count = lowBattery });
+            }
+
+            var deviceLock = await _deviceService
+                .Query()
+                .Where(d => d.State == DeviceState.Locked)
+                .CountAsync();
+
+            if (deviceLock > 0)
+            {
+                list.Add(new DashboardNotify() { Message = "Device lock", Count = deviceLock });
+            }
+
+            var deviceError = await _deviceService
+               .Query()
+               .Where(d => d.State == DeviceState.Error)
+               .CountAsync();
+
+            if (deviceError > 0)
+            {
+                list.Add(new DashboardNotify() { Message = "Device error", Count = deviceError });
+            }
+
+            return list;
+        }
+
         #endregion
 
         #region Workstations
@@ -104,6 +168,23 @@ namespace HES.Core.Services
         public async Task<int> GetWorkstationsOnlineCount()
         {
             return await _workstationService.GetOnlineCountAsync();
+        }
+
+        public async Task<List<DashboardNotify>> GetWorkstationsNotify()
+        {
+            var list = new List<DashboardNotify>();
+
+            var notApproved = await _workstationService
+                .Query()
+                .Where(w => w.Approved == false)
+                .CountAsync();
+
+            if (notApproved > 0)
+            {
+                list.Add(new DashboardNotify() { Message = "Waiting for approval", Count = notApproved });
+            }
+
+            return list;
         }
 
         #endregion

@@ -56,7 +56,7 @@ namespace HES.Core.Services
                 {
                     WorkstationId = workstationId,
                     DeviceId = deviceId,
-                    LockProximity = 40,
+                    LockProximity = 50,
                     UnlockProximity = 75,
                     LockTimeout = 3
                 });

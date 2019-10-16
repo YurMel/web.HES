@@ -71,7 +71,7 @@ namespace HES.Web.Pages.Dashboard
             RegisteredEmployeesCount = await _dashboardService.GetEmployeesCount();
             EmployeesSessionsCount = await _dashboardService.GetEmployeesOpenedSessionsCount();
 
-            EmployeesNotify = new List<DashboardNotify>();
+            EmployeesNotify = await _dashboardService.GetEmployeesNotify();
         }
 
         private async Task GetDevicesInfo()
@@ -79,7 +79,7 @@ namespace HES.Web.Pages.Dashboard
             RegisteredDevicesCount = await _dashboardService.GetDevicesCount();
             FreeDevicesCount = await _dashboardService.GetFreeDevicesCount();
 
-            DevicesNotify = new List<DashboardNotify>();
+            DevicesNotify = await _dashboardService.GetDevicesNotify();
         }
 
         private async Task GetWorkstationsInfo()
@@ -87,7 +87,7 @@ namespace HES.Web.Pages.Dashboard
             RegisteredWorkstationsCount = await _dashboardService.GetWorkstationsCount();
             WorkstationsOnlineCount = await _dashboardService.GetWorkstationsOnlineCount();
 
-            WorkstationsNotify = new List<DashboardNotify>();
+            WorkstationsNotify = await _dashboardService.GetWorkstationsNotify();
         }
     }
 }

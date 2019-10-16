@@ -13,9 +13,12 @@ namespace HES.Core.Interfaces
         Task<List<DashboardNotify>> GetServerNotify();
         Task<int> GetEmployeesCount();
         Task<int> GetEmployeesOpenedSessionsCount();
+        Task<List<DashboardNotify>> GetEmployeesNotify();
         Task<int> GetDevicesCount();
         Task<int> GetFreeDevicesCount();
+        Task<List<DashboardNotify>> GetDevicesNotify();
         Task<int> GetWorkstationsCount();
         Task<int> GetWorkstationsOnlineCount();
+        Task<List<DashboardNotify>> GetWorkstationsNotify();
     }
 }
