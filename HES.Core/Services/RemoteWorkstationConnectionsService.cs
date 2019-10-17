@@ -78,6 +78,11 @@ namespace HES.Core.Services
             var scope = _services.CreateScope();
 #pragma warning restore IDE0067 // Dispose objects before losing scope
 
+            if (!RemoteDeviceConnectionsService.IsDeviceConnectedToHost(deviceId))
+            {
+                return;
+            }
+
             Task.Run(async () =>
             {
                 try
