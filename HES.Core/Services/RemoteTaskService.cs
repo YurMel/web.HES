@@ -175,6 +175,9 @@ namespace HES.Core.Services
                 case TaskOperation.Primary:
                     query = query.Where(t => t.DeviceAccountId == device.PrimaryAccountId || t.Operation == TaskOperation.Primary);
                     break;
+                default:
+                    query = query.Where(t => t.Operation == operation);
+                    break;
             }
 
             query = query.OrderBy(x => x.CreatedAt);
