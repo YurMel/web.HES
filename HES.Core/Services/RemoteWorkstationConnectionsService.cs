@@ -180,6 +180,9 @@ namespace HES.Core.Services
                     await remoteDevice.RefreshDeviceInfo();
                 }
 
+                // try to wipe the device - this is the most priority task
+                await _remoteTaskService.ExecuteRemoteTasks(deviceId, remoteDevice, TaskOperation.Wipe);
+
                 // linking the device
                 if (remoteDevice.AccessLevel.IsLinkRequired)
                 {
