@@ -123,150 +123,153 @@ namespace HES.Core.Services
                 return;
             }
 
+            bool masterKeyError = false;
+
             try
             {
                 await UpdateRemoteDevice(deviceId, workstationId, primaryAccountOnly).TimeoutAfter(300_000);
                 tcs.SetResult(true);
             }
-            catch (TimeoutException ex)
-            {
-                tcs.SetException(ex);
-                _logger.LogCritical($"[{deviceId}] {ex.Message}");
-            }
             catch (Exception ex)
             {
                 tcs.SetException(ex);
                 _logger.LogError($"[{deviceId}] {ex.Message}");
+
+                if (ex is HideezException hex && hex.ErrorCode == HideezErrorCode.ERR_KEY_WRONG)
+                    masterKeyError = true;
+
+                throw;
             }
             finally
             {
+                if (masterKeyError)
+                {
+                    try
+                    {
+                        await _employeeService.HandlingMasterPasswordErrorAsync(deviceId);
+                    }
+                    catch(Exception ex)
+                    {
+                        _logger.LogCritical($"[{deviceId}] {ex.Message}");
+                    }
+                }
                 _devicesInProgress.TryRemove(deviceId, out TaskCompletionSource<bool> _);
             }
         }
 
         private async Task<bool> UpdateRemoteDevice(string deviceId, string workstationId, bool primaryAccountOnly)
         {
-            try
+            Debug.WriteLine($"!!!!!!!!!!!!! UpdateRemoteDevice {deviceId}");
+            //todo
+            //if (true) //conection not approved
+            //throw new HideezException(HideezErrorCode.HesWorkstationNotApproved);
+
+            var remoteDevice = await _remoteDeviceConnectionsService
+                .ConnectDevice(deviceId, workstationId)
+                .TimeoutAfter(30_000);
+
+            if (remoteDevice == null)
+                throw new HideezException(HideezErrorCode.HesFailedEstablishRemoteDeviceConnection);
+
+            var device = await _deviceService
+                .Query()
+                .Include(d => d.DeviceAccessProfile)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(d => d.Id == deviceId);
+
+            if (device == null)
+                throw new HideezException(HideezErrorCode.HesDeviceNotFound);
+
+            // Getting device info
+            await remoteDevice.Initialize();
+
+            // unlocking the device 
+            if (remoteDevice.AccessLevel.IsLocked)
             {
-                Debug.WriteLine($"!!!!!!!!!!!!! UpdateRemoteDevice {deviceId}");
-                //todo
-                //if (true) //conection not approved
-                //throw new HideezException(HideezErrorCode.HesWorkstationNotApproved);
+                // execute the UnlockPin task
+                await _remoteTaskService.ExecuteRemoteTasks(deviceId, remoteDevice, TaskOperation.UnlockPin);
+                await remoteDevice.RefreshDeviceInfo();
+            }
 
-                var remoteDevice = await _remoteDeviceConnectionsService
-                    .ConnectDevice(deviceId, workstationId)
-                    .TimeoutAfter(30_000);
+            // try to wipe the device - this is the most priority task
+            await _remoteTaskService.ExecuteRemoteTasks(deviceId, remoteDevice, TaskOperation.Wipe);
 
-                if (remoteDevice == null)
-                    throw new HideezException(HideezErrorCode.HesFailedEstablishRemoteDeviceConnection);
+            // linking the device
+            if (remoteDevice.AccessLevel.IsLinkRequired)
+            {
+                // execute the Link task
+                await _remoteTaskService.ExecuteRemoteTasks(deviceId, remoteDevice, TaskOperation.Link);
+                await remoteDevice.RefreshDeviceInfo();
 
-                var device = await _deviceService
+                // refresh MasterPassword field
+                device = await _deviceService
                     .Query()
                     .Include(d => d.DeviceAccessProfile)
                     .AsNoTracking()
                     .FirstOrDefaultAsync(d => d.Id == deviceId);
 
-                if (device == null)
-                    throw new HideezException(HideezErrorCode.HesDeviceNotFound);
-
-                // Getting device info
-                await remoteDevice.Initialize();
-
-                // unlocking the device 
-                if (remoteDevice.AccessLevel.IsLocked)
-                {
-                    // execute the UnlockPin task
-                    await _remoteTaskService.ExecuteRemoteTasks(deviceId, remoteDevice, TaskOperation.UnlockPin);
-                    await remoteDevice.RefreshDeviceInfo();
-                }
-
-                // try to wipe the device - this is the most priority task
-                await _remoteTaskService.ExecuteRemoteTasks(deviceId, remoteDevice, TaskOperation.Wipe);
-
-                // linking the device
                 if (remoteDevice.AccessLevel.IsLinkRequired)
                 {
-                    // execute the Link task
-                    await _remoteTaskService.ExecuteRemoteTasks(deviceId, remoteDevice, TaskOperation.Link);
-                    await remoteDevice.RefreshDeviceInfo();
-
-                    // refresh MasterPassword field
-                    device = await _deviceService
-                        .Query()
-                        .Include(d => d.DeviceAccessProfile)
-                        .AsNoTracking()
-                        .FirstOrDefaultAsync(d => d.Id == deviceId);
-
-                    if (remoteDevice.AccessLevel.IsLinkRequired)
-                    {
-                        // we have tried to link the device with no success. Just in case clearing all device's tasks and linkings
-                        await _employeeService.HandlingMasterPasswordErrorAsync(deviceId);
-                        throw new HideezException(HideezErrorCode.HesDeviceNotAssignedToAnyUser);
-                    }
+                    // we have tried to link the device with no success. Just in case clearing all device's tasks and linkings
+                    await _employeeService.HandlingMasterPasswordErrorAsync(deviceId);
+                    throw new HideezException(HideezErrorCode.HesDeviceNotAssignedToAnyUser);
                 }
-
-                // Access 
-                if (device.DeviceAccessProfile == null)
-                    throw new HideezException(HideezErrorCode.HesEmptyDeviceAccessProfile);
-
-                var accessParams = new AccessParams()
-                {
-                    MasterKey_Bond = device.DeviceAccessProfile.MasterKeyBonding,
-                    MasterKey_Connect = device.DeviceAccessProfile.MasterKeyConnection,
-                    MasterKey_Link = device.DeviceAccessProfile.MasterKeyNewLink,
-                    MasterKey_Channel = device.DeviceAccessProfile.MasterKeyNewChannel,
-
-                    Button_Bond = device.DeviceAccessProfile.ButtonBonding,
-                    Button_Connect = device.DeviceAccessProfile.ButtonConnection,
-                    Button_Link = device.DeviceAccessProfile.ButtonNewLink,
-                    Button_Channel = device.DeviceAccessProfile.ButtonNewChannel,
-
-                    Pin_Bond = device.DeviceAccessProfile.PinBonding,
-                    Pin_Connect = device.DeviceAccessProfile.ButtonConnection,
-                    Pin_Link = device.DeviceAccessProfile.PinNewLink,
-                    Pin_Channel = device.DeviceAccessProfile.PinNewChannel,
-
-                    PinMinLength = device.DeviceAccessProfile.PinLength,
-                    PinMaxTries = device.DeviceAccessProfile.PinTryCount,
-                    MasterKeyExpirationPeriod = device.DeviceAccessProfile.MasterKeyExpiration,
-                    PinExpirationPeriod = device.DeviceAccessProfile.PinExpiration,
-                    ButtonExpirationPeriod = device.DeviceAccessProfile.ButtonExpiration,
-                };
-
-                if (string.IsNullOrWhiteSpace(device.MasterPassword))
-                    throw new HideezException(HideezErrorCode.HesEmptyMasterKey);
-
-                var key = ConvertUtils.HexStringToBytes(_dataProtectionService.Unprotect(device.MasterPassword));
-
-                await remoteDevice.Access(DateTime.UtcNow, key, accessParams);
-
-                //todo - remove this block when FW will be fixed
-                {
-                    await remoteDevice.Initialize();
-                    if (remoteDevice.AccessLevel.IsMasterKeyRequired)
-                    {
-                        await remoteDevice.Access(DateTime.UtcNow, key, accessParams);
-                        await remoteDevice.Initialize();
-                    }
-                }
-
-                // updating the primary account or all tasks
-                if (primaryAccountOnly)
-                    await _remoteTaskService.ExecuteRemoteTasks(deviceId, remoteDevice, TaskOperation.Primary);
-                else
-                    await _remoteTaskService.ExecuteRemoteTasks(deviceId, remoteDevice, TaskOperation.None);
-
-                Debug.WriteLine($"!!!!!!!!!!!!! UpdateRemoteDevice OK");
-
-                return true;
             }
-            catch (HideezException ex) when (ex.ErrorCode == HideezErrorCode.ERR_KEY_WRONG)
+
+            // Access 
+            if (device.DeviceAccessProfile == null)
+                throw new HideezException(HideezErrorCode.HesEmptyDeviceAccessProfile);
+
+            var accessParams = new AccessParams()
             {
-                Debug.WriteLine($"!!!!!!!!!!!!! UpdateRemoteDevice ERROR {ex.Message}");
-                _logger.LogCritical($"[{deviceId}] {ex.Message}");
-                await _employeeService.HandlingMasterPasswordErrorAsync(deviceId);
-                throw;
+                MasterKey_Bond = device.DeviceAccessProfile.MasterKeyBonding,
+                MasterKey_Connect = device.DeviceAccessProfile.MasterKeyConnection,
+                MasterKey_Link = device.DeviceAccessProfile.MasterKeyNewLink,
+                MasterKey_Channel = device.DeviceAccessProfile.MasterKeyNewChannel,
+
+                Button_Bond = device.DeviceAccessProfile.ButtonBonding,
+                Button_Connect = device.DeviceAccessProfile.ButtonConnection,
+                Button_Link = device.DeviceAccessProfile.ButtonNewLink,
+                Button_Channel = device.DeviceAccessProfile.ButtonNewChannel,
+
+                Pin_Bond = device.DeviceAccessProfile.PinBonding,
+                Pin_Connect = device.DeviceAccessProfile.ButtonConnection,
+                Pin_Link = device.DeviceAccessProfile.PinNewLink,
+                Pin_Channel = device.DeviceAccessProfile.PinNewChannel,
+
+                PinMinLength = device.DeviceAccessProfile.PinLength,
+                PinMaxTries = device.DeviceAccessProfile.PinTryCount,
+                MasterKeyExpirationPeriod = device.DeviceAccessProfile.MasterKeyExpiration,
+                PinExpirationPeriod = device.DeviceAccessProfile.PinExpiration,
+                ButtonExpirationPeriod = device.DeviceAccessProfile.ButtonExpiration,
+            };
+
+            if (string.IsNullOrWhiteSpace(device.MasterPassword))
+                throw new HideezException(HideezErrorCode.HesEmptyMasterKey);
+
+            var key = ConvertUtils.HexStringToBytes(_dataProtectionService.Unprotect(device.MasterPassword));
+
+            await remoteDevice.Access(DateTime.UtcNow, key, accessParams);
+
+            //todo - remove this block when FW will be fixed
+            {
+                await remoteDevice.Initialize();
+                if (remoteDevice.AccessLevel.IsMasterKeyRequired)
+                {
+                    await remoteDevice.Access(DateTime.UtcNow, key, accessParams);
+                    await remoteDevice.Initialize();
+                }
             }
+
+            // updating the primary account or all tasks
+            if (primaryAccountOnly)
+                await _remoteTaskService.ExecuteRemoteTasks(deviceId, remoteDevice, TaskOperation.Primary);
+            else
+                await _remoteTaskService.ExecuteRemoteTasks(deviceId, remoteDevice, TaskOperation.None);
+
+            Debug.WriteLine($"!!!!!!!!!!!!! UpdateRemoteDevice OK");
+
+            return true;
         }
 
         #endregion Device
