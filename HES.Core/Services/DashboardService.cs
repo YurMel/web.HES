@@ -64,6 +64,19 @@ namespace HES.Core.Services
                     Count = longPendingTasksCount,
                     Page = "./DeviceTasks",
                     Handler = "LongPending"
+                }); 
+                list.Add(new DashboardNotify()
+                {
+                    Message = "Long pending tasks",
+                    Count = longPendingTasksCount,
+                    Page = "./DeviceTasks",
+                    Handler = "LongPending"
+                });    list.Add(new DashboardNotify()
+                {
+                    Message = "Long pending tasks",
+                    Count = longPendingTasksCount,
+                    Page = "./DeviceTasks",
+                    Handler = "LongPending"
                 });
             }
 
