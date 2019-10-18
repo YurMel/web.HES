@@ -128,31 +128,39 @@ namespace HES.Core.Services
             }
         }
 
-        internal async void OnDeviceHubConnected(string workstationId, IRemoteCommands caller)
+        internal void OnDeviceHubConnected(string workstationId, IRemoteCommands caller)
         {
             Debug.WriteLine($"!!!!!!!!!!!!! OnDeviceHubConnected {workstationId}");
 
-            _appConnections.TryGetValue(workstationId, out RemoteDeviceDescription descr);
-            if (descr == null)
-                throw new HideezException(HideezErrorCode.DeviceNotConnectedToAnyHost);
-
-            try
+            Task.Run(async () => 
             {
-                var remoteDevice = new RemoteDevice(_deviceId, caller, null, null); //new SdkLogger<RemoteDeviceConnectionsService>(_logger)
-                descr.Device = remoteDevice;
+                RemoteDeviceDescription descr = null;
+                try
+                {
+                    _appConnections.TryGetValue(workstationId, out descr);
+                    if (descr != null)
+                    {
+                        var remoteDevice = new RemoteDevice(_deviceId, caller, null, null); //new SdkLogger<RemoteDeviceConnectionsService>(_logger)
+                        descr.Device = remoteDevice;
 
-                await remoteDevice.Verify(channelNo);
+                        await remoteDevice.Verify(channelNo);
 
-                // Inform clients about connection ready
-                descr.Tcs.TrySetResult(remoteDevice);
-            }
-            catch (Exception ex)
-            {
-                descr.Device = null;
+                        // Inform clients about connection ready
+                        descr.Tcs.TrySetResult(remoteDevice);
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"!!!!!!!!!!!!! ERROR Workstation Not Connected To Any Host {workstationId}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    descr.Device = null;
 
-                // inform clients about connection fail
-                descr.Tcs?.TrySetException(ex);
-            }
+                    // inform clients about connection fail
+                    descr.Tcs?.TrySetException(ex);
+                }
+            });
         }
 
         internal void OnDeviceHubDisconnected(string workstationId)
