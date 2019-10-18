@@ -75,7 +75,7 @@ namespace HES.Core.Services
         {
             var allAccounts = await _deviceAccountRepository
                  .Query()
-                 .Where(d => d.DeviceId == deviceId)
+                 .Where(d => d.DeviceId == deviceId && d.Deleted == false)
                  .ToListAsync();
 
             foreach (var account in allAccounts)

@@ -405,7 +405,7 @@ namespace HES.Web.Pages.Employees
 
             try
             {
-                var user = await _userManager.FindByEmailAsync(device.Employee.Email);
+                var user = await _userManager.FindByEmailAsync(device.Employee?.Email);
                 if (user != null)
                 {
                     await _userManager.DeleteAsync(user);
