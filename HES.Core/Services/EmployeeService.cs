@@ -488,7 +488,7 @@ namespace HES.Core.Services
             }
         }
 
-        public async Task CreateWorkstationAccountAsync(WorkstationAccountModel workstationAccount, string employeeId, string deviceId)
+        public async Task CreateWorkstationAccountAsync(WorkstationAccount workstationAccount, string employeeId, string deviceId)
         {
             if (workstationAccount == null)
             {

@@ -1,4 +1,5 @@
 ﻿using HES.Core.Entities;
+using HES.Core.Entities.Models;
 using HES.Core.Interfaces;
 using HES.Core.Utilities;
 using Microsoft.EntityFrameworkCore;
@@ -79,6 +80,40 @@ namespace HES.Core.Services
             }
 
             return await _sharedAccountRepository.AddAsync(sharedAccount);
+        }
+
+        public async Task CreateWorkstationSharedAccountAsync(WorkstationAccount workstationAccount)
+        {
+            if (workstationAccount == null)
+            {
+                throw new ArgumentNullException(nameof(workstationAccount));
+            }
+
+            var sharedAccount = new SharedAccount()
+            {
+                Name = workstationAccount.Name,
+                Kind = AccountKind.Workstation                
+            };
+
+            switch (workstationAccount.AccountType)
+            {
+                case WorkstationAccountType.Local:
+                    sharedAccount.Login = $".\\{workstationAccount.Login}";
+                    break;
+                case WorkstationAccountType.Domain:
+                    sharedAccount.Login = $"{workstationAccount.Domain}\\{workstationAccount.Login}";
+                    break;
+                case WorkstationAccountType.Microsoft:
+                    sharedAccount.Login = $"@\\{workstationAccount.Login}";
+                    break;
+            }
+
+            var input = new InputModel()
+            {
+                Password = workstationAccount.Password
+            };
+
+            await CreateSharedAccountAsync(sharedAccount, input);
         }
 
         public async Task UpdateOnlyPropAsync(SharedAccount sharedAccount, string[] properties)

@@ -54,4 +54,10 @@ namespace HES.Core.Entities
         Done,
         Error
     }
+
+    public enum AccountKind
+    {
+        WebApp,
+        Workstation 
+    }
 }

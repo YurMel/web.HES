@@ -1,4 +1,5 @@
 ﻿using HES.Core.Entities;
+using HES.Core.Entities.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,7 @@ namespace HES.Core.Interfaces
         IQueryable<SharedAccount> Query();
         Task<SharedAccount> GetByIdAsync(dynamic id);
         Task<SharedAccount> CreateSharedAccountAsync(SharedAccount sharedAccount, InputModel input);
+        Task CreateWorkstationSharedAccountAsync(WorkstationAccount workstationAccount);
         Task UpdateOnlyPropAsync(SharedAccount sharedAccount, string[] properties);
         Task<List<string>> EditSharedAccountAsync(SharedAccount sharedAccount);
         Task<List<string>> EditSharedAccountPwdAsync(SharedAccount sharedAccount, InputModel input);
