@@ -16,7 +16,6 @@ namespace HES.Web.Pages.SharedAccounts
     public class IndexModel : PageModel
     {
         private readonly ISharedAccountService _sharedAccountService;
-        private readonly IRemoteTaskService _remoteTaskService;
         private readonly IRemoteWorkstationConnectionsService _remoteWorkstationConnectionsService;
         private readonly ILogger<IndexModel> _logger;
 
@@ -31,12 +30,10 @@ namespace HES.Web.Pages.SharedAccounts
         public string ErrorMessage { get; set; }
 
         public IndexModel(ISharedAccountService sharedAccountService,
-                          IRemoteTaskService remoteTaskService,
                           IRemoteWorkstationConnectionsService remoteWorkstationConnectionsService,
                           ILogger<IndexModel> logger)
         {
             _sharedAccountService = sharedAccountService;
-            _remoteTaskService = remoteTaskService;
             _remoteWorkstationConnectionsService = remoteWorkstationConnectionsService;
             _logger = logger;
         }

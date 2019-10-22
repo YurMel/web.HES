@@ -175,7 +175,7 @@
                     <td style="vertical-align:middle">
                         @if (device.PrimaryAccountId == item.Id)
                         {
-                            <span class="badge badge-success custom-badge" data-toggle="tooltip" data-placement="bottom" title="Primary account">
+                            <span class="badge badge-success custom-badge" data-toggle="tooltip" data-placement="bottom" title="Windows account">
                                 @Html.DisplayFor(modelItem => item.Name)
                             </span>
                         }
@@ -283,10 +283,13 @@
                                         <img src="~/svg/action/password.svg" />
                                         Edit password
                                     </a>
-                                    <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="EditPersonalAccountOtp" data-title="Edit personal account OTP">
-                                        <img src="~/svg/action/otp.svg" />
-                                        Edit OTP
-                                    </a>
+                                    @if (item.Kind != AccountKind.Workstation)
+                                    {
+                                        <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="EditPersonalAccountOtp" data-title="Edit personal account OTP">
+                                            <img src="~/svg/action/otp.svg" />
+                                            Edit OTP
+                                        </a>
+                                    }
                                 }
                                 @if (item.Type == Core.Entities.AccountType.Personal && (item.Status == Core.Entities.AccountStatus.Updating || item.Status == Core.Entities.AccountStatus.Removing))
                                 {
@@ -301,7 +304,7 @@
                                     {
                                         <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="SetPrimaryAccount" data-title="Primary account">
                                             <img src="~/svg/action/star.svg" />
-                                            Set as primary account
+                                            Set as windows account
                                         </a>
                                     }
                                     <a class="dropdown-item open-modal-dialog" data-id="@item.Id" data-action="DeleteAccount" data-title="Delete account">

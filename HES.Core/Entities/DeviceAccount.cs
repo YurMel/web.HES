@@ -16,6 +16,7 @@ namespace HES.Core.Entities
         public string Login { get; set; }
         public AccountType Type { get; set; }
         public AccountStatus Status { get; set; }
+        public AccountKind Kind { get; set; }
         [Display(Name = "LastSynced")]
         public DateTime? LastSyncedAt { get; set; }
         [Display(Name = "Created")]
@@ -58,6 +59,6 @@ namespace HES.Core.Entities
     public enum AccountKind
     {
         WebApp,
-        Workstation 
+        Workstation
     }
 }

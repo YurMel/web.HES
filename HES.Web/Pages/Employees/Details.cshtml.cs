@@ -1,4 +1,5 @@
 ﻿using HES.Core.Entities;
+using HES.Core.Entities.Models;
 using HES.Core.Interfaces;
 using HES.Infrastructure;
 using Microsoft.AspNetCore.Identity;
@@ -32,6 +33,8 @@ namespace HES.Web.Pages.Employees
         public IList<Device> Devices { get; set; }
         public IList<DeviceAccount> DeviceAccounts { get; set; }
         public IList<SharedAccount> SharedAccounts { get; set; }
+        public WorkstationAccount WorkstationAccount { get; set; }
+
 
         public Device Device { get; set; }
         public Employee Employee { get; set; }
@@ -447,6 +450,7 @@ namespace HES.Web.Pages.Employees
         {
             ViewData["EmployeeId"] = id;
             ViewData["Templates"] = new SelectList(await _templateService.Query().ToListAsync(), "Id", "Name");
+            ViewData["WorkstationAccountType"] = new SelectList(Enum.GetValues(typeof(WorkstationAccountType)).Cast<WorkstationAccountType>().ToDictionary(t => (int)t, t => t.ToString()), "Key", "Value");
 
             Devices = await _deviceService.Query().Where(d => d.EmployeeId == id).ToListAsync();
 
@@ -481,6 +485,31 @@ namespace HES.Web.Pages.Employees
                     _logger.LogError(ex.Message);
                     ErrorMessage = ex.Message;
                 }
+            }
+
+            return RedirectToPage("./Details", new { id });
+        }
+
+        public async Task<IActionResult> OnPostCreatePersonalWorkstationAccountAsync(WorkstationAccount workstationAccount, string employeeId, string[] selectedDevicesW)
+        {
+            var id = employeeId;
+
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Model is not valid");
+                return RedirectToPage("./Details", new { id });
+            }
+            try
+            {
+                foreach (var deviceId in selectedDevicesW)
+                {
+                    await _employeeService.CreateWorkstationAccountAsync(workstationAccount, employeeId, deviceId);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                ErrorMessage = ex.Message;
             }
 
             return RedirectToPage("./Details", new { id });
