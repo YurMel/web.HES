@@ -56,7 +56,7 @@
         </div>
     </div>
 
-    <ul class="nav nav-pills mb-3 d-none" id="employee-tabs" role="tablist">
+    <ul class="nav nav-pills main-pills mb-3 d-none" id="employee-tabs" role="tablist">
         <li class="nav-item">
             <a class="nav-link active" id="pills-profile-tab" data_id="1" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="true">Profile</a>
         </li>
@@ -73,8 +73,7 @@
 
     <div class="tab-content" id="pills-tabContent" style="height:384px;">
         <!-- Profile -->
-        <div class="tab-pane  show active" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="tab-pane show active" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
             <div class="row">
                 <div class="form-group col">
                     <label asp-for="EmployeeWizard.Employee.FirstName" class="control-label text-gray"></label>
@@ -126,7 +125,7 @@
                     <label asp-for="EmployeeWizard.Employee.PositionId" class="control-label text-gray"></label>
                     <div class="d-flex">
                         <select id="positions" asp-for="EmployeeWizard.Employee.PositionId" class="form-control text-navyblue" asp-items="ViewBag.PositionId"></select>
-                        <button  type="button" class="btn btn-success btn-add open-second-modal-dialog" data-id="" data-action="CreatePosition" data-title="Create position">
+                        <button type="button" class="btn btn-success btn-add open-second-modal-dialog" data-id="" data-action="CreatePosition" data-title="Create position">
                             <img src="~/svg/action/add.svg" />
                         </button>
                     </div>
@@ -136,7 +135,7 @@
             </div>
         </div>
         <!-- Device -->
-        <div class="tab-pane " id="pills-devices" role="tabpanel" aria-labelledby="pills-devices-tab">
+        <div class="tab-pane" id="pills-devices" role="tabpanel" aria-labelledby="pills-devices-tab">
             <div class="row justify-content-center">
                 <div class="form-group col-4">
                     <label class="control-label">Device</label>
@@ -162,40 +161,58 @@
             </div>
         </div>
         <!-- Workstation Account -->
-        <div class="tab-pane " id="pills-workstation_account" role="tabpanel" aria-labelledby="pills-workstation_account-tab">
-            <div class="row">
-                <div class="form-group col">
-                    <label asp-for="EmployeeWizard.WorkstationAccount.AccountType" class="text-gray"></label>
-                    <select id="workstation_account_type" asp-for="EmployeeWizard.WorkstationAccount.AccountType" class="form-control" asp-items="ViewBag.WorkstationAccountType"></select>
+        <div class="tab-pane" id="pills-workstation_account" role="tabpanel" aria-labelledby="pills-workstation_account-tab">
+            <ul class="nav nav-pills mb-3 justify-content-center" id="pills-tab-accounts" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active ws-account-nav" id="pills-personal-tab" data-toggle="pill" href="#pills-personal" role="tab">Personal account</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link ws-account-nav" id="pills-shared-tab" data-toggle="pill" href="#pills-shared" role="tab">Shared account</a>
+                </li>
+            </ul>
+            <div class="tab-content" id="pills-tabContent">
+                <div class="tab-pane fade show active" id="pills-personal" role="tabpanel">
+                    <input id="accountName" type="hidden" asp-for="EmployeeWizard.WorkstationAccount.Name" value="Windows Account" />
+                    <div class="row">
+                        <div class="form-group col">
+                            <label asp-for="EmployeeWizard.WorkstationAccount.AccountType" class="text-gray"></label>
+                            <select id="workstation_account_type" asp-for="EmployeeWizard.WorkstationAccount.AccountType" class="form-control" asp-items="ViewBag.WorkstationAccountType"></select>
+                        </div>
+                        <div id="domain_group" class="form-group col invisible">
+                            <label asp-for="EmployeeWizard.WorkstationAccount.Domain" class="text-gray"></label>
+                            <input id="domain" asp-for="EmployeeWizard.WorkstationAccount.Domain" class="form-control text-navyblue" value="local" autocomplete="new-password" />
+                            <span asp-validation-for="EmployeeWizard.WorkstationAccount.Domain" class="text-danger"></span>
+                        </div>
+                        <div class="col"></div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col">
+                            <label asp-for="EmployeeWizard.WorkstationAccount.Login" class="text-gray"></label>
+                            <input id="login" asp-for="EmployeeWizard.WorkstationAccount.Login" class="form-control text-navyblue" autocomplete="new-password" />
+                            <span asp-validation-for="EmployeeWizard.WorkstationAccount.Login" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col">
+                            <label asp-for="EmployeeWizard.WorkstationAccount.Password" class="text-gray"></label>
+                            <input id="password" asp-for="EmployeeWizard.WorkstationAccount.Password" class="form-control text-navyblue" autocomplete="new-password" />
+                            <span asp-validation-for="EmployeeWizard.WorkstationAccount.Password" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col">
+                            <label asp-for="EmployeeWizard.WorkstationAccount.ConfirmPassword" class="text-gray"></label>
+                            <input id="confirmPassword" asp-for="EmployeeWizard.WorkstationAccount.ConfirmPassword" class="form-control text-navyblue" autocomplete="new-password" />
+                            <span asp-validation-for="EmployeeWizard.WorkstationAccount.ConfirmPassword" class="text-danger"></span>
+                        </div>
+                    </div>
                 </div>
-                <div id="domain_group" class="form-group col invisible">
-                    <label asp-for="EmployeeWizard.WorkstationAccount.Domain" class="text-gray"></label>
-                    <input id="domain" asp-for="EmployeeWizard.WorkstationAccount.Domain" class="form-control text-navyblue" value="local" autocomplete="new-password" />
-                    <span asp-validation-for="EmployeeWizard.WorkstationAccount.Domain" class="text-danger"></span>
+                <div class="tab-pane fade" id="pills-shared" role="tabpanel">
+                    <div class="form-group col" style="max-width:350px; position:relative;left:50%;transform:translateX(-50%);">
+                        <label class="text-gray">Workstation Accounts</label>
+                        <select id="workstation_accounts" class="form-control" asp-items="ViewBag.WorkstationAccounts"></select>
+                    </div>
                 </div>
-                <div class="col"></div>
-            </div>
-            <div class="row">
-                <div class="form-group col">
-                    <label asp-for="EmployeeWizard.WorkstationAccount.Login" class="text-gray"></label>
-                    <input id="login" asp-for="EmployeeWizard.WorkstationAccount.Login" class="form-control text-navyblue" autocomplete="new-password" />
-                    <span asp-validation-for="EmployeeWizard.WorkstationAccount.Login" class="text-danger"></span>
-                </div>
-                <div class="form-group col">
-                    <label asp-for="EmployeeWizard.WorkstationAccount.Password" class="text-gray"></label>
-                    <input asp-for="EmployeeWizard.WorkstationAccount.Password" class="form-control text-navyblue" autocomplete="new-password" />
-                    <span asp-validation-for="EmployeeWizard.WorkstationAccount.Password" class="text-danger"></span>
-                </div>
-                <div class="form-group col">
-                    <label asp-for="EmployeeWizard.WorkstationAccount.ConfirmPassword" class="text-gray"></label>
-                    <input asp-for="EmployeeWizard.WorkstationAccount.ConfirmPassword" class="form-control text-navyblue" autocomplete="new-password" />
-                    <span asp-validation-for="EmployeeWizard.WorkstationAccount.ConfirmPassword" class="text-danger"></span>
-                </div>
-            </div>
-
+            </div>         
         </div>
         <!-- Overview -->
-        <div class="tab-pane " id="pills-overview" role="tabpanel" aria-labelledby="pills-overview-tab">
+        <div class="tab-pane" id="pills-overview" role="tabpanel" aria-labelledby="pills-overview-tab">
             <!-- Employee -->
             <div class="mb-3">
                 <div class="row">
@@ -240,7 +257,7 @@
             <div class="mb-3">
                 <div class="row">
                     <div class="col-auto">
-                        <h4 id="account_title" class="text-navyblue">Windows Local Account</h4>
+                        <h4 id="account_title" class="text-navyblue">Windows Account</h4>
                     </div>
                 </div>
                 <div class="row">
@@ -268,12 +285,12 @@
     $('.btn-next').click(function () {
         var valid = $("#employeeForm").valid();
         if (valid) {
-            $('.nav-pills .active').parent().next('li').find('a').trigger('click');
+            $('.main-pills .active').parent().next('li').find('a').trigger('click');
         }
     });
 
     $('.btn-back').click(function () {
-        $('.nav-pills .active').parent().prev('li').find('a').trigger('click');
+        $('.main-pills .active').parent().prev('li').find('a').trigger('click');
     });
 
     $('a[data-toggle="pill"]').on('show.bs.tab', function (e) {
@@ -324,8 +341,8 @@
 
                 // Device
                 $('#overview_device').html($("#deviceId option:selected").text());
-                var workstation = $("#workstationId option:selected").text();
-                if (workstation != '') {
+                if ($('#proximity').prop('checked')) {
+                    var workstation = $("#workstationId option:selected").text();
                     $('#overview_workstation').html(workstation);
                     $('#overview_workstation_title').removeClass('invisible');
                     $('#overview_workstation').removeClass('invisible');
@@ -388,18 +405,52 @@
             case '0':
                 $('#domain_group').addClass('invisible');
                 $('#domain').val('local');
-                $('#account_title').html('Windows Local Account');
+                //$('#account_title').html('Windows Local Account');
                 break;
             case '1':
                 $('#domain_group').removeClass('invisible');
                 $('#domain').val('');
-                $('#account_title').html('Windows Domain Account');
+                //$('#account_title').html('Windows Domain Account');
                 break;
             case '2':
                 $('#domain_group').addClass('invisible');
                 $('#domain').val('ms');
-                $('#account_title').html('Microsoft Account');
+                //$('#account_title').html('Microsoft Account');
                 break;
         }
-    });  
+    });
+
+    $('.ws-account-nav').on('shown.bs.tab', function (e) {
+        switch (e.target.id) {
+            case "pills-personal-tab":
+                $('#accountName').val("Windows Account");
+                $('#workstation_account_type').val("0");
+                $('#login').val("");
+                $('#domain').val("local");
+                $('#password').val("");
+                $('#confirmPassword').val("");
+                break;
+            case "pills-shared-tab":
+                $('#workstation_accounts').change();
+                break;
+        }
+    });
+
+    $(document).on('change', '#workstation_accounts', function () {
+        $.getJSON('/Employees?handler=JsonWorkstationSharedAccounts', { id: this.value },
+            function (data) {
+                $(data).each(function () {
+                    $('#accountName').val(this.name);
+                    $('#workstation_account_type').val(this.accountType);
+                    $('#login').val(this.login);
+                    $('#domain').val(this.domain);
+                    $('#password').val(this.password);
+                    $('#confirmPassword').val(this.confirmPassword);
+                });
+            });
+    });
+
+    if ($('#workstation_accounts > option').length === 0) {
+        $('#pills-tab-accounts').addClass('d-none');
+    }
 </script>

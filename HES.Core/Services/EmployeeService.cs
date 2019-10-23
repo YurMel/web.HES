@@ -488,11 +488,15 @@ namespace HES.Core.Services
             }
         }
 
-        public async Task CreateWorkstationAccountAsync(WorkstationAccountModel workstationAccount, string employeeId, string deviceId)
+        public async Task CreateWorkstationAccountAsync(WorkstationAccount workstationAccount, string employeeId, string deviceId)
         {
             if (workstationAccount == null)
             {
                 throw new ArgumentNullException(nameof(workstationAccount));
+            }
+            if (employeeId == null)
+            {
+                throw new ArgumentNullException(nameof(employeeId));
             }
             if (deviceId == null)
             {
@@ -501,8 +505,9 @@ namespace HES.Core.Services
 
             var deviceAccount = new DeviceAccount()
             {
-                Name = "Workstation Account",
-                EmployeeId = employeeId
+                Name = workstationAccount.Name,
+                EmployeeId = employeeId,
+                Kind = AccountKind.Workstation
             };
 
             switch (workstationAccount.AccountType)
@@ -574,6 +579,7 @@ namespace HES.Core.Services
                     CreatedAt = DateTime.UtcNow,
                     PasswordUpdatedAt = DateTime.UtcNow,
                     OtpUpdatedAt = input.OtpSecret != null ? new DateTime?(DateTime.UtcNow) : null,
+                    Kind = deviceAccount.Kind,
                     EmployeeId = deviceAccount.EmployeeId,
                     DeviceId = deviceId,
                     SharedAccountId = null

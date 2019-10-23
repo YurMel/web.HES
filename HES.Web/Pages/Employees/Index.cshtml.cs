@@ -22,6 +22,7 @@ namespace HES.Web.Pages.Employees
         private readonly IWorkstationProximityDeviceService _workstationProximityDeviceService;
         private readonly IOrgStructureService _orgStructureService;
         private readonly IRemoteWorkstationConnectionsService _remoteWorkstationConnectionsService;
+        private readonly ISharedAccountService _sharedAccountService;
         private readonly ILogger<IndexModel> _logger;
 
         public IList<Employee> Employees { get; set; }
@@ -47,6 +48,7 @@ namespace HES.Web.Pages.Employees
                           IWorkstationProximityDeviceService workstationProximityDeviceService,
                           IOrgStructureService orgStructureService,
                           IRemoteWorkstationConnectionsService remoteWorkstationConnectionsService,
+                          ISharedAccountService sharedAccountService,
                           ILogger<IndexModel> logger)
         {
             _employeeService = employeeService;
@@ -55,6 +57,7 @@ namespace HES.Web.Pages.Employees
             _workstationProximityDeviceService = workstationProximityDeviceService;
             _orgStructureService = orgStructureService;
             _remoteWorkstationConnectionsService = remoteWorkstationConnectionsService;
+            _sharedAccountService = sharedAccountService;
             _logger = logger;
         }
 
@@ -125,7 +128,7 @@ namespace HES.Web.Pages.Employees
             ViewData["DeviceId"] = new SelectList(await _deviceService.Query().Where(d => d.EmployeeId == null).ToListAsync(), "Id", "Id");
             ViewData["WorkstationId"] = new SelectList(await _workstationService.Query().ToListAsync(), "Id", "Name");
             ViewData["WorkstationAccountType"] = new SelectList(Enum.GetValues(typeof(WorkstationAccountType)).Cast<WorkstationAccountType>().ToDictionary(t => (int)t, t => t.ToString()), "Key", "Value");
-
+            ViewData["WorkstationAccounts"] = new SelectList(await _sharedAccountService.Query().Where(s => s.Kind == AccountKind.Workstation && s.Deleted == false).OrderBy(c => c.Name).ToListAsync(), "Id", "Name");
 
             Devices = await _deviceService
                .Query()
@@ -139,7 +142,7 @@ namespace HES.Web.Pages.Employees
             return Partial("_CreateEmployee", this);
         }
 
-        public async Task<IActionResult> OnPostCreateEmployeeAsync(EmployeeWizard EmployeeWizard)
+        public async Task<IActionResult> OnPostCreateEmployeeAsync(EmployeeWizard employeeWizard)
         {
             if (!ModelState.IsValid)
             {
@@ -150,21 +153,21 @@ namespace HES.Web.Pages.Employees
             try
             {
                 // Create employee
-                var user = await _employeeService.CreateEmployeeAsync(EmployeeWizard.Employee);
+                var user = await _employeeService.CreateEmployeeAsync(employeeWizard.Employee);
 
                 // Add device
-                await _employeeService.AddDeviceAsync(user.Id, new string[] { EmployeeWizard.DeviceId });
-                _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(EmployeeWizard.DeviceId);
+                await _employeeService.AddDeviceAsync(user.Id, new string[] { employeeWizard.DeviceId });
+                _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(employeeWizard.DeviceId);
 
                 // Proximity
-                if (EmployeeWizard.ProximityUnlock == true)
+                if (employeeWizard.ProximityUnlock == true)
                 {
-                    await _workstationProximityDeviceService.AddProximityDeviceAsync(EmployeeWizard.WorkstationId, new string[] { EmployeeWizard.DeviceId });
+                    await _workstationProximityDeviceService.AddProximityDeviceAsync(employeeWizard.WorkstationId, new string[] { employeeWizard.DeviceId });
                 }
 
                 // Add account
-                await _employeeService.CreateWorkstationAccountAsync(EmployeeWizard.WorkstationAccount, user.Id, EmployeeWizard.DeviceId);
-                _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(EmployeeWizard.DeviceId);
+                await _employeeService.CreateWorkstationAccountAsync(employeeWizard.WorkstationAccount, user.Id, employeeWizard.DeviceId);
+                _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(employeeWizard.DeviceId);
 
                 SuccessMessage = $"Employee created.";
             }
@@ -175,6 +178,41 @@ namespace HES.Web.Pages.Employees
             }
 
             return RedirectToPage("./Index");
+        }
+
+        public async Task<JsonResult> OnGetJsonWorkstationSharedAccountsAsync(string id)
+        {
+            if (id == null)
+            {
+                return new JsonResult(new WorkstationAccount());
+            }
+
+            var accountType = WorkstationAccountType.Local;
+            var shared = await _sharedAccountService.Query().Where(d => d.Id == id).FirstOrDefaultAsync();
+            var sharedType = shared.Login.Split('\\')[0];
+            var sharedLogin = shared.Login.Split('\\')[1];
+            switch (sharedType)
+            {
+                case ".":
+                    accountType = WorkstationAccountType.Local;
+                    break;
+                case "@":
+                    accountType = WorkstationAccountType.Microsoft;
+                    break;
+                default:
+                    accountType = WorkstationAccountType.Domain;
+                    break;
+            }
+            var personal = new WorkstationAccount()
+            {
+                Name = shared.Name,
+                AccountType = accountType,
+                Login = sharedLogin,
+                Domain = sharedType,
+                Password = shared.Password,
+                ConfirmPassword = shared.Password
+            };
+            return new JsonResult(personal);
         }
 
         public async Task<IActionResult> OnGetEditEmployeeAsync(string id)

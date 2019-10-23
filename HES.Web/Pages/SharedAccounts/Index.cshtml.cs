@@ -1,7 +1,9 @@
 ﻿using HES.Core.Entities;
+using HES.Core.Entities.Models;
 using HES.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
@@ -14,13 +16,13 @@ namespace HES.Web.Pages.SharedAccounts
     public class IndexModel : PageModel
     {
         private readonly ISharedAccountService _sharedAccountService;
-        private readonly IRemoteTaskService _remoteTaskService;
         private readonly IRemoteWorkstationConnectionsService _remoteWorkstationConnectionsService;
         private readonly ILogger<IndexModel> _logger;
 
         public IList<SharedAccount> SharedAccounts { get; set; }
         public SharedAccount SharedAccount { get; set; }
         public InputModel Input { get; set; }
+        public WorkstationAccount WorkstationAccount { get; set; }
 
         [TempData]
         public string SuccessMessage { get; set; }
@@ -28,12 +30,10 @@ namespace HES.Web.Pages.SharedAccounts
         public string ErrorMessage { get; set; }
 
         public IndexModel(ISharedAccountService sharedAccountService,
-                          IRemoteTaskService remoteTaskService,
                           IRemoteWorkstationConnectionsService remoteWorkstationConnectionsService,
                           ILogger<IndexModel> logger)
         {
             _sharedAccountService = sharedAccountService;
-            _remoteTaskService = remoteTaskService;
             _remoteWorkstationConnectionsService = remoteWorkstationConnectionsService;
             _logger = logger;
         }
@@ -50,6 +50,7 @@ namespace HES.Web.Pages.SharedAccounts
 
         public IActionResult OnGetCreateSharedAccount()
         {
+            ViewData["WorkstationAccountType"] = new SelectList(Enum.GetValues(typeof(WorkstationAccountType)).Cast<WorkstationAccountType>().ToDictionary(t => (int)t, t => t.ToString()), "Key", "Value");
             return Partial("_CreateSharedAccount", this);
         }
 
@@ -64,6 +65,29 @@ namespace HES.Web.Pages.SharedAccounts
             try
             {
                 await _sharedAccountService.CreateSharedAccountAsync(sharedAccount, input);
+                SuccessMessage = $"Shared account created.";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                ErrorMessage = ex.Message;
+            }
+
+            return RedirectToPage("./Index");
+        }
+               
+        public async Task<IActionResult> OnPostCreateWorkstationSharedAccountAsync(WorkstationAccount workstationAccount)
+        {   
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Model is not valid");
+                ErrorMessage = "Model is not valid";
+                return RedirectToPage("./Index");
+            }
+
+            try
+            {
+                await _sharedAccountService.CreateWorkstationSharedAccountAsync(workstationAccount);
                 SuccessMessage = $"Shared account created.";
             }
             catch (Exception ex)
@@ -184,7 +208,7 @@ namespace HES.Web.Pages.SharedAccounts
         }
 
         public async Task<IActionResult> OnPostEditSharedAccountOtpAsync(SharedAccount sharedAccount, InputModel input)
-        {            
+        {
             try
             {
                 var devices = await _sharedAccountService.EditSharedAccountOtpAsync(sharedAccount, input);

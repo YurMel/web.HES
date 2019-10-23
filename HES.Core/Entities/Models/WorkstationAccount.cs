@@ -2,9 +2,14 @@
 
 namespace HES.Core.Entities.Models
 {
-    public class WorkstationAccountModel
+    public class WorkstationAccount
     {
+
         [Required]
+        public string Name { get; set; }
+
+        [Required]
+        [Display(Name = "Type")]
         public WorkstationAccountType AccountType { get; set; }
 
         [Required]
