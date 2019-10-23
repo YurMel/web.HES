@@ -9,6 +9,7 @@ namespace HES.Core.Entities.Models
         public string Name { get; set; }
 
         [Required]
+        [Display(Name = "Type")]
         public WorkstationAccountType AccountType { get; set; }
 
         [Required]
