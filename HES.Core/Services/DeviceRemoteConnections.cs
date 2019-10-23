@@ -54,7 +54,10 @@ namespace HES.Core.Services
         {
             Debug.WriteLine($"!!!!!!!!!!!!! OnDeviceDisconnected {_deviceId}");
 
-            _appConnections.TryRemove(workstationId, out RemoteDeviceDescription _);
+            if (_appConnections.TryRemove(workstationId, out RemoteDeviceDescription descr))
+            {
+                descr.Device?.Shutdown(HideezErrorCode.DeviceDisconnected);
+            }
         }
 
         // workstation disconnected from the server, if this device has connections to this workstation, close them
@@ -62,7 +65,10 @@ namespace HES.Core.Services
         {
             Debug.WriteLine($"!!!!!!!!!!!!! OnAppHubDisconnected {_deviceId}");
 
-            _appConnections.TryRemove(workstationId, out RemoteDeviceDescription _);
+            if (_appConnections.TryRemove(workstationId, out RemoteDeviceDescription descr))
+            {
+                descr.Device?.Shutdown(HideezErrorCode.HesAppHubDisconnected);
+            }
         }
 
         public async Task<RemoteDevice> ConnectDevice(string workstationId)
@@ -165,7 +171,10 @@ namespace HES.Core.Services
 
         internal void OnDeviceHubDisconnected(string workstationId)
         {
-            _appConnections.TryRemove(workstationId, out RemoteDeviceDescription _);
+            if (_appConnections.TryRemove(workstationId, out RemoteDeviceDescription descr))
+            {
+                descr.Device?.Shutdown(HideezErrorCode.HesDeviceHubDisconnected);
+            }
         }
 
         internal RemoteDevice GetRemoteDevice(string workstationId)
