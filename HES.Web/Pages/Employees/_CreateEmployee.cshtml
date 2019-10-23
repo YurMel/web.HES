@@ -142,7 +142,7 @@
                     <select id="deviceId" class="form-control" asp-for="EmployeeWizard.DeviceId" asp-items="ViewBag.DeviceId"></select>
                 </div>
             </div>
-            <div class="row justify-content-center">
+            <div class="row justify-content-center" id="proximity_group">
                 <div class="form-group col-3">
                     <label class="control-label">Proximity unlock</label>
                 </div>
@@ -209,7 +209,7 @@
                         <select id="workstation_accounts" class="form-control" asp-items="ViewBag.WorkstationAccounts"></select>
                     </div>
                 </div>
-            </div>         
+            </div>
         </div>
         <!-- Overview -->
         <div class="tab-pane" id="pills-overview" role="tabpanel" aria-labelledby="pills-overview-tab">
@@ -452,5 +452,9 @@
 
     if ($('#workstation_accounts > option').length === 0) {
         $('#pills-tab-accounts').addClass('d-none');
+    }
+
+    if ($('#workstationId > option').length === 0) {
+        $('#proximity_group').addClass('d-none');
     }
 </script>

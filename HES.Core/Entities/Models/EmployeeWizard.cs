@@ -8,9 +8,7 @@ namespace HES.Core.Entities.Models
         public WorkstationAccount WorkstationAccount { get; set; }
         [Required]
         public string DeviceId { get; set; }
-        [Required]
         public string WorkstationId { get; set; }
-        [Required]
         public bool ProximityUnlock { get; set; }
     }
 }
