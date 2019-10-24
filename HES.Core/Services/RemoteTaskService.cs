@@ -336,24 +336,19 @@ namespace HES.Core.Services
             {
                 MasterKey_Bond = device.DeviceAccessProfile.MasterKeyBonding,
                 MasterKey_Connect = device.DeviceAccessProfile.MasterKeyConnection,
-                MasterKey_Link = device.DeviceAccessProfile.MasterKeyNewLink,
                 MasterKey_Channel = device.DeviceAccessProfile.MasterKeyNewChannel,
 
                 Button_Bond = device.DeviceAccessProfile.ButtonBonding,
                 Button_Connect = device.DeviceAccessProfile.ButtonConnection,
-                Button_Link = device.DeviceAccessProfile.ButtonNewLink,
                 Button_Channel = device.DeviceAccessProfile.ButtonNewChannel,
 
                 Pin_Bond = device.DeviceAccessProfile.PinBonding,
                 Pin_Connect = device.DeviceAccessProfile.ButtonConnection,
-                Pin_Link = device.DeviceAccessProfile.PinNewLink,
                 Pin_Channel = device.DeviceAccessProfile.PinNewChannel,
 
                 PinMinLength = device.DeviceAccessProfile.PinLength,
                 PinMaxTries = device.DeviceAccessProfile.PinTryCount,
-                MasterKeyExpirationPeriod = device.DeviceAccessProfile.MasterKeyExpiration,
                 PinExpirationPeriod = device.DeviceAccessProfile.PinExpiration,
-                ButtonExpirationPeriod = device.DeviceAccessProfile.ButtonExpiration,
             };
 
             var key = ConvertUtils.HexStringToBytes(task.Password);

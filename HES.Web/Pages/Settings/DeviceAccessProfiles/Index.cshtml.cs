@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace HES.Web.Pages.Settings.DeviceAccessProfiles
@@ -14,6 +15,7 @@ namespace HES.Web.Pages.Settings.DeviceAccessProfiles
     {
         private readonly IDeviceService _deviceService;
         private readonly IDeviceAccessProfilesService _deviceAccessProfilesService;
+        private readonly IRemoteWorkstationConnectionsService _remoteWorkstationConnectionsService;
         private readonly ILogger<IndexModel> _logger;
 
         public IList<DeviceAccessProfile> DeviceAccessProfiles { get; set; }
@@ -27,10 +29,12 @@ namespace HES.Web.Pages.Settings.DeviceAccessProfiles
 
         public IndexModel(IDeviceService deviceService,
                           IDeviceAccessProfilesService deviceAccessProfilesService,
+                          IRemoteWorkstationConnectionsService remoteWorkstationConnectionsService,
                           ILogger<IndexModel> logger)
         {
             _deviceService = deviceService;
             _deviceAccessProfilesService = deviceAccessProfilesService;
+            _remoteWorkstationConnectionsService = remoteWorkstationConnectionsService;
             _logger = logger;
         }
 
@@ -41,7 +45,7 @@ namespace HES.Web.Pages.Settings.DeviceAccessProfiles
                 .Include(d => d.Devices)
                 .ToListAsync();
         }
-        
+
         public IActionResult OnGetCreateProfile()
         {
             return Partial("_CreateProfile", this);
@@ -49,9 +53,11 @@ namespace HES.Web.Pages.Settings.DeviceAccessProfiles
 
         public async Task<IActionResult> OnPostCreateProfileAsync(DeviceAccessProfile DeviceAccessProfile)
         {
-            if (DeviceAccessProfile == null)
+            if (!ModelState.IsValid)
             {
-                _logger.LogWarning("DeviceAccessProfile == null");
+                var errors = string.Join(" ", ModelState.Values.SelectMany(s => s.Errors).Select(s => s.ErrorMessage).ToArray());
+                ErrorMessage = errors;
+                _logger.LogError($"DeviceAccessProfile. {errors}");
                 return RedirectToPage("./Index");
             }
 
@@ -94,7 +100,9 @@ namespace HES.Web.Pages.Settings.DeviceAccessProfiles
         {
             if (DeviceAccessProfile == null)
             {
-                _logger.LogWarning("DeviceAccessProfile == null");
+                var errors = string.Join(" ", ModelState.Values.SelectMany(s => s.Errors).Select(s => s.ErrorMessage).ToArray());
+                ErrorMessage = errors;
+                _logger.LogError($"DeviceAccessProfile. {errors}");
                 return RedirectToPage("./Index");
             }
 
@@ -102,6 +110,8 @@ namespace HES.Web.Pages.Settings.DeviceAccessProfiles
             {
                 await _deviceAccessProfilesService.EditProfileAsync(DeviceAccessProfile);
                 await _deviceService.UpdateProfileAsync(DeviceAccessProfile.Id);
+                var devices = await _deviceService.GetDevicesByProfileAsync(DeviceAccessProfile.Id);
+                _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(devices);
                 SuccessMessage = $"Device access profile updated.";
             }
             catch (Exception ex)

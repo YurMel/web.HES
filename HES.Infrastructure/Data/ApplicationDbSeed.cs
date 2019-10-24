@@ -58,20 +58,15 @@ namespace HES.Infrastructure
                     ButtonBonding = true,
                     ButtonConnection = false,
                     ButtonNewChannel = false,
-                    ButtonNewLink = false,
                     PinBonding = false,
-                    PinConnection = true,
-                    PinNewChannel = true,
-                    PinNewLink = true,
+                    PinConnection = false,
+                    PinNewChannel = false,
                     MasterKeyBonding = true,
                     MasterKeyConnection = false,
                     MasterKeyNewChannel = false,
-                    MasterKeyNewLink = false,
                     PinExpiration = 86400,
                     PinLength = 4,
                     PinTryCount = 10,
-                    MasterKeyExpiration = 86400,
-                    ButtonExpiration = 15
                 });
 
                 await _context.SaveChangesAsync();

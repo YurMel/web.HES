@@ -156,7 +156,7 @@ namespace HES.Core.Services
             await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "Battery", "Firmware", "State", "LastSynced" });
         }
 
-        public async Task<string[]> GetDevicesByProfile(string profileId)
+        public async Task<string[]> GetDevicesByProfileAsync(string profileId)
         {
             return await _deviceRepository.Query().Where(d => d.AcceessProfileId == profileId).Select(s => s.Id).ToArrayAsync();
         }
@@ -201,7 +201,7 @@ namespace HES.Core.Services
 
         public async Task UpdateProfileAsync(string profileId)
         {
-            var devicesId = await GetDevicesByProfile(profileId);
+            var devicesId = await GetDevicesByProfileAsync(profileId);
 
             if (devicesId.Length > 0)
             {
