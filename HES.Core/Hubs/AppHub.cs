@@ -58,7 +58,7 @@ namespace HES.Core.Hubs
                 if (string.IsNullOrWhiteSpace(workstationId))
                     throw new Exception($"AppHub.OnConnectedAsync - httpContext.Request.Headers does not contain WorkstationId");
 
-                _logger.LogDebug($"Workstation [{workstationId}] connected");
+                _logger.LogInformation($"[{workstationId}] Workstation connected");
                 _remoteDeviceConnectionsService.OnAppHubConnected(workstationId, Clients.Caller);
                 Context.Items.Add("WorkstationId", workstationId);
             }
@@ -76,7 +76,7 @@ namespace HES.Core.Hubs
             {
                 var workstationId = GetWorkstationId();
 
-                _logger.LogDebug($"Workstation [{workstationId}] disconnected");
+                _logger.LogInformation($"[{workstationId}] Workstation disconnected");
 
                 _remoteDeviceConnectionsService.OnAppHubDisconnected(workstationId);
                 await _remoteWorkstationConnectionsService.OnAppHubDisconnectedAsync(workstationId);
@@ -196,7 +196,7 @@ namespace HES.Core.Hubs
                 .Where(t => t.DeviceId == device.Id)
                 .AsNoTracking()
                 .AnyAsync();
-          
+
             var info = new DeviceInfoDto()
             {
                 OwnerName = device.Employee?.FullName,
@@ -205,7 +205,7 @@ namespace HES.Core.Hubs
                 DeviceSerialNo = device.Id,
                 NeedUpdate = needUpdate
             };
-            
+
             return info;
         }
 
@@ -253,8 +253,6 @@ namespace HES.Core.Hubs
         {
             if (workstationEventsDto == null)
                 throw new ArgumentNullException(nameof(workstationEventsDto));
-
-            _logger.LogDebug($"[{workstationEventsDto.FirstOrDefault().WorkstationId}][{workstationEventsDto.FirstOrDefault().UserSession}] Sent events: {string.Join("; ", workstationEventsDto.Select(s => s.EventId))}");
 
             // Ignore not approved workstation
             //var workstationId = workstationEventsDto.FirstOrDefault().WorkstationId;

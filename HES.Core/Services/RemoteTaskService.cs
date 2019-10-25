@@ -70,7 +70,6 @@ namespace HES.Core.Services
                     deviceAccount.IdFromDevice = idFromDevice;
                     properties.Add("IdFromDevice");
                     await _deviceAccountService.UpdateOnlyPropAsync(deviceAccount, properties.ToArray());
-                    _logger.LogInformation($"[{device.Id}] TaskCompleted {deviceTask.Operation.ToString()}");
                     break;
                 case TaskOperation.Update:
                     deviceAccount.Status = AccountStatus.Done;
@@ -106,7 +105,6 @@ namespace HES.Core.Services
                         properties.Add("OtpUpdatedAt");
                     }
                     await _deviceAccountService.UpdateOnlyPropAsync(deviceAccount, properties.ToArray());
-                    _logger.LogInformation($"[{device.Id}] TaskCompleted {deviceTask.Operation.ToString()}");
                     break;
                 case TaskOperation.Delete:
                     deviceAccount.Status = AccountStatus.Done;
@@ -119,7 +117,6 @@ namespace HES.Core.Services
                     deviceAccount.Deleted = true;
                     properties.Add("Deleted");
                     await _deviceAccountService.UpdateOnlyPropAsync(deviceAccount, properties.ToArray());
-                    _logger.LogInformation($"[{device.Id}] TaskCompleted {deviceTask.Operation.ToString()}");
                     break;
                 case TaskOperation.Primary:
                     deviceAccount.Status = AccountStatus.Done;
@@ -127,30 +124,27 @@ namespace HES.Core.Services
                     device.PrimaryAccountId = deviceTask.DeviceAccountId;
                     await _deviceService.UpdateOnlyPropAsync(device, new string[] { "PrimaryAccountId" });
                     await _deviceAccountService.UpdateOnlyPropAsync(deviceAccount, properties.ToArray());
-                    _logger.LogInformation($"[{device.Id}] TaskCompleted {deviceTask.Operation.ToString()}");
                     break;
                 case TaskOperation.Wipe:
                     device.MasterPassword = null;
                     await _deviceService.UpdateOnlyPropAsync(device, new string[] { "MasterPassword" });
-                    _logger.LogInformation($"[{device.Id}] TaskCompleted {deviceTask.Operation.ToString()}");
                     break;
                 case TaskOperation.UnlockPin:
                     device.State = DeviceState.OK;
                     await _deviceService.UpdateOnlyPropAsync(device, new string[] { "State" });
-                    _logger.LogInformation($"[{device.Id}] TaskCompleted {deviceTask.Operation.ToString()}");
                     break;
                 case TaskOperation.Link:
                     device.MasterPassword = deviceTask.Password;
                     await _deviceService.UpdateOnlyPropAsync(device, new string[] { "MasterPassword" });
-                    _logger.LogInformation($"[{device.Id}] TaskCompleted {deviceTask.Operation.ToString()}");
                     break;
                 case TaskOperation.Profile:
-                    _logger.LogInformation($"[{device.Id}] TaskCompleted {deviceTask.Operation.ToString()}");
                     break;
                 default:
                     _logger.LogCritical($"[{device.Id}] unhandled case {deviceTask.Operation.ToString()}");
                     break;
             }
+
+            _logger.LogDebug($"[{device.Id}] Task {deviceTask.Operation.ToString()} completed");
 
             // Delete task
             await _deviceTaskService.DeleteTaskAsync(deviceTask);
@@ -183,7 +177,6 @@ namespace HES.Core.Services
             query = query.OrderBy(x => x.CreatedAt);
 
             var tasks = await query.ToListAsync();
-            _logger.LogDebug($"[{deviceId}] Task: {operation}, count tasks: {tasks.Count}");
 
             while (tasks.Any())
             {
