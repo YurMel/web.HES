@@ -62,6 +62,22 @@
                 }
             });
         });
+
+        $(document).on('dblclick', '.row-dblclick', function () {
+            var id = $(this).data("id");
+            $('#modalDialogTitle').html("View profile");
+            $('#modalDialog').modal('toggle');
+
+            $.ajax({
+                url: "/Settings/DeviceAccessProfiles?handler=ViewProfile",
+                type: "Get",
+                data: { id: id },
+                async: true,
+                success: function (response) {
+                    $("#modalBody").html(response);
+                }
+            });
+        });
     </script>
     <partial name="_ValidationScriptsPartial" />
 }

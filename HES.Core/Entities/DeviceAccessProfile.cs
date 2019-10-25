@@ -46,6 +46,17 @@ namespace HES.Core.Entities
             {
                 PinExpiration = value <= 59 ? value * 60 : (value - 59) * 3600;
             }
-        }        
+        }
+
+        [NotMapped]
+        public string PinExpirationString
+        {
+            get
+            {
+                var prop = PinExpiration / 60;
+                return prop <= 59 ? ($"{prop} min") : ($"{(prop / 60) + 59} hrs");
+            }
+
+        }
     }
 }

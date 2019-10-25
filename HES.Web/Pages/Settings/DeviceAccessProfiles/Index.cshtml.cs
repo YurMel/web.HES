@@ -98,7 +98,7 @@ namespace HES.Web.Pages.Settings.DeviceAccessProfiles
 
         public async Task<IActionResult> OnPostEditProfileAsync(DeviceAccessProfile DeviceAccessProfile)
         {
-            if (DeviceAccessProfile == null)
+            if (!ModelState.IsValid)
             {
                 var errors = string.Join(" ", ModelState.Values.SelectMany(s => s.Errors).Select(s => s.ErrorMessage).ToArray());
                 ErrorMessage = errors;
@@ -167,6 +167,28 @@ namespace HES.Web.Pages.Settings.DeviceAccessProfiles
             }
 
             return RedirectToPage("./Index");
+        }
+
+        public async Task<IActionResult> OnGetViewProfileAsync(string id)
+        {
+            if (id == null)
+            {
+                _logger.LogWarning("id == null");
+                return NotFound();
+            }
+
+            DeviceAccessProfile = await _deviceAccessProfilesService
+                .Query()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (DeviceAccessProfile == null)
+            {
+                _logger.LogWarning("DeviceAccessProfile == null");
+                return NotFound();
+            }
+
+            return Partial("_DetailsProfile", this);
         }
     }
 }

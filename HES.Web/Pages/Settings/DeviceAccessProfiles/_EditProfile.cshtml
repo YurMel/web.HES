@@ -128,7 +128,7 @@
                 <td>
                     PIN incorrect entry
                 </td>
-                <td class="text-center pl-1 pr-1" title="Maximum number of incorrect PIN code entering. After the number of entries is exceeded.">
+                <td class="text-center pl-1 pr-1" title="Maximum number of incorrect PIN code entering. After the number of entries is exceeded, the device is locked.">
                     <input id="pin_try_count" type="range" class="custom-range" min="3" max="10" step="1" value="@Model.DeviceAccessProfile.PinTryCount" asp-for="DeviceAccessProfile.PinTryCount">
                 </td>
                 <td class="text-center pin-settings-value">
