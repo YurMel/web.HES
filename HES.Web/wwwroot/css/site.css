@@ -1,5 +1,10 @@
-﻿/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
-for details on configuring this project to bundle and minify static web assets. */
+﻿/* --- UI Elements --- */
+/* Override disable custom checkbox */
+.custom-checkbox .custom-control-input:disabled:checked ~ .custom-control-label::before {
+    color: #fff;
+    border-color: #adb5bd;
+    background-color: #adb5bd;
+}
 
 /*#region Bg color */
 .bg-white {
@@ -979,6 +984,7 @@ div.dataTables_scrollHead table.dataTable {
 }
 /*#endregion*/
 
+/* Common */
 .btn-add {
     height: 38px;
     width: 38px;
@@ -987,19 +993,14 @@ div.dataTables_scrollHead table.dataTable {
 }
 
 .pin-settings-value {
-    padding-left: 8px !important;
+    width: 110px;
 }
-
-    .pin-settings-value > h6 {
-        width: 58px;
-    }
 
 .second-modal {
     width: 498px;
     left: 50%;
     transform: translateX(-50%);
 }
-
 
 /*#region Popover*/
 .popover-btn:focus {
