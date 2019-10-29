@@ -146,7 +146,9 @@ namespace HES.Web.Pages.Employees
         {
             if (!ModelState.IsValid)
             {
-                _logger.LogWarning("Model is not valid");
+                var errors = string.Join(" ", ModelState.Values.SelectMany(s => s.Errors).Select(s => s.ErrorMessage).ToArray());
+                ErrorMessage = errors;
+                _logger.LogWarning(errors);
                 return RedirectToPage("./Index");
             }
 
@@ -159,8 +161,8 @@ namespace HES.Web.Pages.Employees
                 await _employeeService.AddDeviceAsync(user.Id, new string[] { employeeWizard.DeviceId });
                 _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(employeeWizard.DeviceId);
 
-                // Proximity
-                if (employeeWizard.ProximityUnlock == true)
+                // Proximity Unlock
+                if (!employeeWizard.SkipProximityUnlock)
                 {
                     await _workstationProximityDeviceService.AddProximityDeviceAsync(employeeWizard.WorkstationId, new string[] { employeeWizard.DeviceId });
                 }
