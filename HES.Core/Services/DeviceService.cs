@@ -158,7 +158,7 @@ namespace HES.Core.Services
 
         public async Task<string[]> GetDevicesByProfileAsync(string profileId)
         {
-            return await _deviceRepository.Query().Where(d => d.AcceessProfileId == profileId).Select(s => s.Id).ToArrayAsync();
+            return await _deviceRepository.Query().Where(d => d.AcceessProfileId == profileId && d.MasterPassword != null).Select(s => s.Id).ToArrayAsync();
         }
 
         public async Task SetProfileAsync(string[] devicesId, string profileId)
