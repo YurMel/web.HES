@@ -200,64 +200,40 @@
     </div>
     <!-- Overview -->
     <div id="overviewTab" class="wizard-tab d-none">
-        <!-- Employee -->
-        <div class="mb-3">
-            <div class="row">
-                <div class="col-auto">
-                    <h4 class="text-navyblue">Employee Details</h4>
+        <div class="row">
+            <!-- Employee -->
+            <div class="col">
+                <h4 class="mx-2 text-navyblue">Employee</h4>
+                <div class="border rounded py-2 px-3">
+                    <div class="font-weight-bold">Full name</div>
+                    <div id="overview_emp_fullname"></div>
+                    <div class="font-weight-bold">Company</div>
+                    <div id="overview_emp_company"></div>
+                    <div class="font-weight-bold">Department</div>
+                    <div id="overview_emp_department"></div>
+                    <div class="font-weight-bold">Position</div>
+                    <div id="overview_emp_position"></div>
                 </div>
             </div>
-            <div class="row">
-                <div class="col font-weight-bold">Full name</div>
-                <div class="col font-weight-bold">Company</div>
-                <div class="col font-weight-bold">Department</div>
-                <div class="col font-weight-bold">Position</div>
-            </div>
-            <div class="row">
-                <div id="overview_emp_fullname" class="col"></div>
-                <div id="overview_emp_company" class="col"></div>
-                <div id="overview_emp_department" class="col"></div>
-                <div id="overview_emp_position" class="col"></div>
-            </div>
-        </div>
-        <!-- Device -->
-        <div class="mb-3">
-            <div class="row">
-                <div class="col-auto">
-                    <h4 class="text-navyblue">Device Details</h4>
+            <!-- Device -->
+            <div class="col">
+                <h4 class="mx-2 text-navyblue">Device</h4>
+                <div class="border rounded py-2 px-3">
+                    <div id="overview_device_sn" class="font-weight-bold">Serial number</div>
+                    <div id="overview_device"></div>
+                    <div id="overview_workstation_title" class="font-weight-bold invisible">Proximity unlock</div>
+                    <div id="overview_workstation" class="invisible"></div>
                 </div>
             </div>
-            <div class="row">
-                <div class="col font-weight-bold">Serial number</div>
-                <div id="overview_workstation_title" class="col font-weight-bold invisible">Proximity unlock</div>
-                <div class="col"></div>
-                <div class="col"></div>
-            </div>
-            <div class="row">
-                <div id="overview_device" class="col"></div>
-                <div id="overview_workstation" class="col invisible"></div>
-                <div class="col"></div>
-                <div class="col"></div>
-            </div>
-        </div>
-        <!-- Account -->
-        <div class="mb-3">
-            <div class="row">
-                <div class="col-auto">
-                    <h4 id="account_title" class="text-navyblue">Windows Account</h4>
+            <!-- Account -->
+            <div class="col">
+                <h4 class="mx-2 text-navyblue">Windows Account</h4>
+                <div class="border rounded py-2 px-3">
+                    <div id="overview_user_name" class="font-weight-bold">User name</div>
+                    <div id="overview_login"></div>
+                    <div id="overview_domain_title" class="font-weight-bold invisible">Domain</div>
+                    <div id="overview_domain" class="invisible"></div>
                 </div>
-            </div>
-            <div class="row">
-                <div class="col font-weight-bold">User name</div>
-                <div id="overview_domain_title" class="col font-weight-bold invisible">Domain</div>
-                <div class="col"></div>
-                <div class="col"></div>
-            </div>
-            <div class="row">
-                <div id="overview_login" class="col"></div>
-                <div id="overview_domain" class="col invisible"></div>
-                <div class="col"></div>
-                <div class="col"></div>
             </div>
         </div>
     </div>
@@ -324,6 +300,60 @@
                         // Buttons
                         $("#skipBtn").addClass("d-none");
                         $('#nextBtn').html("Create");
+
+                        //Employee
+                        $('#overview_emp_fullname').html($('#employee_first_name').val() + ' ' + $('#employee_last_name').val());
+                        $('#overview_emp_company').html($("#companies option:selected").text());
+                        $('#overview_emp_department').html($("#departments option:selected").text());
+                        $('#overview_emp_position').html($("#positions option:selected").text());
+
+                        // Device
+                        var skipDevice = $('#skipDevice').attr("value");
+                        if (skipDevice === 'true') {
+                            $('#overview_device_sn').text("Skipped");
+                            $('#overview_device').html("");
+                            $('#overview_workstation').addClass('invisible');
+                            $('#overview_workstation_title').addClass('invisible');
+                        }
+                        else {
+                            $('#overview_device_sn').text("Serial number");
+                            $('#overview_device').html($("#deviceId option:selected").text());
+                            if ($('#proximitySwitch').prop('checked')) {
+                                var workstation = $("#workstationId option:selected").text();
+                                $('#overview_workstation').html(workstation);
+                                $('#overview_workstation').removeClass('invisible');
+                                $('#overview_workstation_title').removeClass('invisible');
+                            }
+                            else {
+                                $('#overview_workstation').addClass('invisible');
+                                $('#overview_workstation_title').addClass('invisible');
+                            }
+                        }
+
+
+                        // Account
+                        var skipWorkstationAccount = $('#skipWorkstationAccount').attr("value");
+                        if (skipWorkstationAccount === 'true') {
+                            $('#overview_user_name').text("Skipped");
+                            $('#overview_login').html("");
+                            $('#overview_domain_title').addClass('invisible');
+                            $('#overview_domain').addClass('invisible');
+                        }
+                        else {
+                            $('#overview_user_name').text("Serial number");
+                            $('#overview_login').html($("#login").val());
+                            var type = $("#workstation_account_type option:selected").text();
+                            var domain = $("#domain").val();
+                            if (type === 'Domain') {
+                                $('#overview_domain').html(domain);
+                                $('#overview_domain_title').removeClass('invisible');
+                                $('#overview_domain').removeClass('invisible');
+                            }
+                            else {
+                                $('#overview_domain_title').addClass('invisible');
+                                $('#overview_domain').addClass('invisible');
+                            }
+                        }
                         break;
                 }
             }
@@ -400,104 +430,6 @@
 
         NextTab(true);
     }
-
-    //$('a[data-toggle="pill"]').on('show.bs.tab', function (e) {
-    //    switch (e.target.id) {
-    //        case "pills-profile-tab":
-    //            $('#btn_back').addClass('d-none');
-
-    //            SwitchWizardState('wizard_profile', 'procees-back');
-    //            SwitchWizardState('wizard_devices', 'wait');
-    //            break;
-    //        case "pills-devices-tab":
-    //            $('#btn_back').removeClass('d-none');
-
-    //            if (e.relatedTarget.id === "pills-profile-tab") {
-    //                SwitchWizardState('wizard_profile', 'finish');
-    //                SwitchWizardState('wizard_devices', 'procees-next');
-    //            }
-    //            else {
-    //                SwitchWizardState('wizard_devices', 'procees-back');
-    //                SwitchWizardState('wizard_workstation_account', 'wait');
-    //            }
-    //            break;
-    //        case "pills-workstation_account-tab":
-    //            $('#btn_next').removeClass('d-none');
-    //            $('#btn_create').addClass('d-none');
-
-    //            if (e.relatedTarget.id === "pills-devices-tab") {
-    //                SwitchWizardState('wizard_devices', 'finish');
-    //                SwitchWizardState('wizard_workstation_account', 'procees-next');
-    //            }
-    //            else {
-    //                SwitchWizardState('wizard_workstation_account', 'procees-back');
-    //                SwitchWizardState('wizard_overview', 'wait');
-    //            }
-    //            break;
-    //        case "pills-overview-tab":
-    //            $('#btn_next').addClass('d-none');
-    //            $('#btn_create').removeClass('d-none');
-
-    //            SwitchWizardState('wizard_workstation_account', 'finish');
-    //            SwitchWizardState('wizard_overview', 'procees-next');
-
-    //            //Employee
-    //            $('#overview_emp_fullname').html($('#employee_first_name').val() + ' ' + $('#employee_last_name').val());
-    //            $('#overview_emp_company').html($("#companies option:selected").text());
-    //            $('#overview_emp_department').html($("#departments option:selected").text());
-    //            $('#overview_emp_position').html($("#positions option:selected").text());
-
-    //            // Device
-    //            $('#overview_device').html($("#deviceId option:selected").text());
-    //            if ($('#proximity').prop('checked')) {
-    //                var workstation = $("#workstationId option:selected").text();
-    //                $('#overview_workstation').html(workstation);
-    //                $('#overview_workstation_title').removeClass('invisible');
-    //                $('#overview_workstation').removeClass('invisible');
-    //            }
-    //            else {
-    //                $('#overview_workstation_title').addClass('invisible');
-    //                $('#overview_workstation').addClass('invisible');
-    //            }
-
-    //            // Account
-    //            $('#overview_login').html($("#login").val());
-    //            var type = $("#workstation_account_type option:selected").text();
-    //            var domain = $("#domain").val();
-    //            if (type === 'Domain') {
-    //                $('#overview_domain').html(domain);
-    //                $('#overview_domain_title').removeClass('invisible');
-    //                $('#overview_domain').removeClass('invisible');
-    //            }
-    //            else {
-    //                $('#overview_domain_title').addClass('invisible');
-    //                $('#overview_domain').addClass('invisible');
-    //            }
-
-    //            break;
-    //    }
-    //});
-
-    //function SwitchWizardState(id, state) {
-    //    switch (state) {
-    //        case "wait":
-    //            $("#" + id + "").removeClass('wizard-item-process');
-    //            $("#" + id + "").addClass('wizard-item-wait');
-    //            break;
-    //        case "procees-back":
-    //            $("#" + id + "").removeClass('wizard-item-finish');
-    //            $("#" + id + "").addClass('wizard-item-process');
-    //            break;
-    //        case "procees-next":
-    //            $("#" + id + "").removeClass('wizard-item-wait');
-    //            $("#" + id + "").addClass('wizard-item-process');
-    //            break;
-    //        case "finish":
-    //            $("#" + id + "").removeClass('wizard-item-process');
-    //            $("#" + id + "").addClass('wizard-item-finish');
-    //            break;
-    //    }
-    //}
 
     $(document).on('click', '#proximitySwitch', function () {
         if (this.checked) {
