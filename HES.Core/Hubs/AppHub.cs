@@ -91,16 +91,12 @@ namespace HES.Core.Hubs
 
         #region Device
 
-        // incoming request
+        // Incoming request
         public async Task OnDeviceConnected(BleDeviceDto dto)
         {
             try
             {
-                if (dto == null || dto.DeviceSerialNo == null)
-                    throw new ArgumentNullException(nameof(dto));
-
-                // Update Battery, Firmware, State, LastSynced         
-                await _deviceService.UpdateDeviceInfoAsync(dto.DeviceSerialNo, dto.Battery, dto.FirmwareVersion, dto.IsLocked);
+                await OnDevicePropertiesChanged(dto);
 
                 _remoteDeviceConnectionsService.OnDeviceConnected(dto.DeviceSerialNo, GetWorkstationId(), Clients.Caller);
             }
@@ -123,6 +119,23 @@ namespace HES.Core.Hubs
                 _logger.LogCritical(ex.Message);
             }
             return Task.CompletedTask;
+        }
+
+        // Incomming request
+        public async Task OnDevicePropertiesChanged(BleDeviceDto dto)
+        {
+            try
+            {
+                if (dto == null || dto.DeviceSerialNo == null)
+                    throw new ArgumentNullException(nameof(dto));
+
+                // Update Battery, Firmware, IsLocked, LastSynced         
+                await _deviceService.UpdateDeviceInfoAsync(dto.DeviceSerialNo, dto.Battery, dto.FirmwareVersion, dto.IsLocked);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(ex.Message);
+            }
         }
 
         // Incomming request
