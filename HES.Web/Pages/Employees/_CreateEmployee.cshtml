@@ -56,8 +56,8 @@
 </div>
 
 <form id="employeeForm" method="post" asp-page-handler="CreateEmployee">
-    <!-- Profile -->
-    <div class="wizard-tab">
+    <!-- Employee -->
+    <div id="profileTab" class="wizard-tab">
         <div class="row">
             <div class="form-group col">
                 <label asp-for="EmployeeWizard.Employee.FirstName" class="control-label text-gray"></label>
@@ -119,8 +119,9 @@
         </div>
     </div>
     <!-- Device -->
-    <div class="wizard-tab">
-        <input type="hidden" id="skipProximityUnlock" asp-for="EmployeeWizard.SkipProximityUnlock" value="true">
+    <div id="deviceTab" class="wizard-tab d-none">
+        <input id="skipDevice" type="hidden" asp-for="EmployeeWizard.SkipDevice" value="false" />
+        <input id="skipProximityUnlock" type="hidden" asp-for="EmployeeWizard.SkipProximityUnlock" value="true">
         <div class="row justify-content-center">
             <div class="form-group col-4">
                 <label class="control-label">Device</label>
@@ -146,8 +147,8 @@
         </div>
     </div>
     <!-- Workstation Account -->
-    <div class="wizard-tab">
-        <input type="hidden" asp-for="EmployeeWizard.WorkstationAccount.Skip" />
+    <div id="workstationAccountTab" class="wizard-tab d-none">
+        <input id="skipWorkstationAccount" type="hidden" asp-for="EmployeeWizard.WorkstationAccount.Skip" value="false" />
         <ul class="nav nav-pills mb-3 justify-content-center" id="pills-tab-accounts" role="tablist">
             <li class="nav-item">
                 <a class="nav-link active ws-account-nav" id="pills-personal-tab" data-toggle="pill" href="#pills-personal" role="tab">Personal account</a>
@@ -198,7 +199,7 @@
         </div>
     </div>
     <!-- Overview -->
-    <div class="wizard-tab">
+    <div id="overviewTab" class="wizard-tab d-none">
         <!-- Employee -->
         <div class="mb-3">
             <div class="row">
@@ -262,143 +263,143 @@
     </div>
     <!-- Navigation Buttons -->
     <div class="text-right">
-        @*<button type="button" class="btn btn-light mr-3">Skip</button>*@
-        <button type="button" id="backBtn" class="btn btn-secondary" onclick="SwitchTab(-1)">Back</button>
-        <button type="button" id="nextBtn" class="btn btn-primary" onclick="SwitchTab(1)">Next</button>
+        <button type="button" id="skipBtn" class="btn btn-light mr-3 d-none" onclick="SkipTab()">Skip</button>
+        <button type="button" id="backBtn" class="btn btn-secondary d-none" onclick="BackTab()">Back</button>
+        <button type="button" id="nextBtn" class="btn btn-primary" onclick="NextTab()">Next</button>
     </div>
 </form>
 <script>
-    // Current tab is set to be the first tab (0)
     var currentTab = 0;
-    // Display the current tab
-    ShowTab(currentTab);
+    var repeatCount = 1;
 
-    function ShowTab(n) {
-        // Set Tab
-        var x = document.getElementsByClassName("wizard-tab");
-        x[n].style.display = "block";
-
-        // Set Buttons
-        if (n == 0) {
-            document.getElementById("backBtn").style.display = "none";
-        }
-        else {
-            document.getElementById("backBtn").style.display = "inline";
-        }
-        if (n == (x.length - 1)) {
-            document.getElementById("nextBtn").innerHTML = "Create";
-
-            //Employee
-            $('#overview_emp_fullname').html($('#employee_first_name').val() + ' ' + $('#employee_last_name').val());
-            $('#overview_emp_company').html($("#companies option:selected").text());
-            $('#overview_emp_department').html($("#departments option:selected").text());
-            $('#overview_emp_position').html($("#positions option:selected").text());
-
-            // Device
-            $('#overview_device').html($("#deviceId option:selected").text());
-            if ($('#proximitySwitch').prop('checked')) {
-                var workstation = $("#workstationId option:selected").text();
-                $('#overview_workstation').html(workstation);
-                $('#overview_workstation_title').removeClass('invisible');
-                $('#overview_workstation').removeClass('invisible');
-            }
-            else {
-                $('#overview_workstation_title').addClass('invisible');
-                $('#overview_workstation').addClass('invisible');
-            }
-
-            // Account
-            $('#overview_login').html($("#login").val());
-            var type = $("#workstation_account_type option:selected").text();
-            var domain = $("#domain").val();
-            if (type === 'Domain') {
-                $('#overview_domain').html(domain);
-                $('#overview_domain_title').removeClass('invisible');
-                $('#overview_domain').removeClass('invisible');
-            }
-            else {
-                $('#overview_domain_title').addClass('invisible');
-                $('#overview_domain').addClass('invisible');
-            }
-
-        }
-        else {
-            document.getElementById("nextBtn").innerHTML = "Next";
+    function NextTab(skip = false) {
+        // Validation
+        var valid = false;
+        if (skip) {
+            valid = true;
+        } else {
+            valid = $("#employeeForm").valid();
         }
 
-        // Step Indicator
-        SetStepIndicator(n)
-    }
-
-    function SwitchTab(n) {
-        var x = document.getElementsByClassName("wizard-tab");
-        var valid = $("#employeeForm").valid();
-        // Exit the function if any field in the current tab is invalid:
-        if (n == 1 && !valid) return false;
-        // Hide the current tab:
-        x[currentTab].style.display = "none";
-        // Increase or decrease the current tab by 1:
-        currentTab = currentTab + n;
-        // if you have reached the end of the form...
-        if (currentTab >= x.length) {
-            document.getElementById("employeeForm").submit();
+        if (!valid) {
             return false;
         }
 
-        ShowTab(currentTab);
-    }
+        // All tabs
+        var tabs = $('.wizard-tab');
 
-    function SetStepIndicator(n) {
-        n++;
-        switch (n) {
-            case 1:
-                $('#wizard_profile').removeClass("wizard-item-finish");
-                $('#wizard_profile').addClass("wizard-item-process");
+        if (currentTab < tabs.length - 1) {
+            // Change tab
+            for (var i = 0; i < repeatCount; i++) {
+                tabs.eq(currentTab).addClass("d-none"); // Current tab
+                tabs.eq(++currentTab).removeClass("d-none"); // Next tab
 
-                $('#wizard_devices').removeClass("wizard-item-process");
-                $('#wizard_devices').addClass("wizard-item-wait");
-                break;
-            case 2:
-                $('#wizard_profile').removeClass("wizard-item-process");
-                $('#wizard_profile').addClass("wizard-item-finish");
-
-                $('#wizard_devices').removeClass("wizard-item-finish");
-                $('#wizard_devices').addClass("wizard-item-process");
-
-                $('#wizard_workstation_account').removeClass("wizard-item-process");
-                $('#wizard_workstation_account').addClass("wizard-item-wait");
-                break;
-            case 3:
-                $('#wizard_devices').removeClass("wizard-item-process");
-                $('#wizard_devices').addClass("wizard-item-finish");
-
-                $('#wizard_workstation_account').removeClass("wizard-item-finish");
-                $('#wizard_workstation_account').addClass("wizard-item-process");
-
-                $('#wizard_overview').removeClass("wizard-item-process");
-                $('#wizard_overview').addClass("wizard-item-wait");
-                break;
-            case 4:
-                $('#wizard_workstation_account').removeClass("wizard-item-process");
-                $('#wizard_workstation_account').addClass("wizard-item-finish");
-
-                $('#wizard_overview').addClass("wizard-item-process");
+                // Switch tabs
+                switch (currentTab) {
+                    case 0:
+                        // Never get here
+                        break;
+                    case 1:
+                        // Indicator
+                        $('#wizard_profile').removeClass("wizard-item-process");
+                        $('#wizard_profile').addClass("wizard-item-finish");
+                        $('#wizard_devices').removeClass("wizard-item-wait");
+                        $('#wizard_devices').addClass("wizard-item-process");
+                        // Buttons
+                        $("#backBtn").removeClass("d-none");
+                        $("#skipBtn").removeClass("d-none");
+                        break;
+                    case 2:
+                        // Indicator
+                        $('#wizard_devices').removeClass("wizard-item-process");
+                        $('#wizard_devices').addClass("wizard-item-finish");
+                        $('#wizard_workstation_account').removeClass("wizard-item-wait");
+                        $('#wizard_workstation_account').addClass("wizard-item-process");
+                        break;
+                    case 3:
+                        // Indicator
+                        $('#wizard_workstation_account').removeClass("wizard-item-process");
+                        $('#wizard_workstation_account').addClass("wizard-item-finish");
+                        $('#wizard_overview').addClass("wizard-item-process");
+                        // Buttons
+                        $("#skipBtn").addClass("d-none");
+                        $('#nextBtn').html("Create");
+                        break;
+                }
+            }
+        }
+        else {
+            // If last tab submit form
+            $("#employeeForm").submit();
         }
     }
 
+    function BackTab() {
+        // All tabs
+        var tabs = $('.wizard-tab');
 
+        // Change tab
+        for (var i = 0; i < repeatCount; i++) {
+            tabs.eq(currentTab).addClass("d-none"); // Current tab
+            tabs.eq(--currentTab).removeClass("d-none"); // Previous tab
 
+            // Switch tabs
+            switch (currentTab) {
+                case 0:
+                    // Indicator
+                    $('#wizard_profile').removeClass("wizard-item-finish");
+                    $('#wizard_profile').addClass("wizard-item-process");
+                    $('#wizard_devices').removeClass("wizard-item-process");
+                    $('#wizard_devices').addClass("wizard-item-wait");
+                    // Buttons
+                    $("#backBtn").addClass("d-none");
+                    $("#skipBtn").addClass("d-none");
+                    break;
+                case 1:
+                    // Indicator
+                    $('#wizard_devices').removeClass("wizard-item-finish");
+                    $('#wizard_devices').addClass("wizard-item-process");
+                    $('#wizard_workstation_account').removeClass("wizard-item-process");
+                    $('#wizard_workstation_account').addClass("wizard-item-wait");
+                    // Return repeat count to default
+                    repeatCount = 1;
+                    // Remove skip
+                    $('#skipDevice').val(false);
+                    break;
+                case 2:
+                    // Indicator
+                    $('#wizard_workstation_account').removeClass("wizard-item-finish");
+                    $('#wizard_workstation_account').addClass("wizard-item-process");
+                    $('#wizard_overview').removeClass("wizard-item-process");
+                    $('#wizard_overview').addClass("wizard-item-wait");
+                    // Buttons
+                    $("#skipBtn").removeClass("d-none");
+                    $('#nextBtn').html("Next");
+                    // Remove skip
+                    $('#skipWorkstationAccount').val(false);
+                    break;
+                case 3:
+                    // Never get here
+                    break;
+            }
+        }
+    }
 
-    //$('.btn-next').click(function () {
-    //    var valid = $("#employeeForm").valid();
-    //    if (valid) {
-    //        $('.main-pills .active').parent().next('li').find('a').trigger('click');
-    //    }
-    //});
+    function SkipTab() {
+        if (currentTab == 1) {
+            repeatCount = 2;
+            // Set skip
+            $('#skipDevice').val(true);
+            $('#skipWorkstationAccount').val(true);
+        }
 
-    //$('.btn-back').click(function () {
-    //    $('.main-pills .active').parent().prev('li').find('a').trigger('click');
-    //});
+        if (currentTab == 2) {
+            // Set skip
+            $('#skipWorkstationAccount').val(true);
+        }
+
+        NextTab(true);
+    }
 
     //$('a[data-toggle="pill"]').on('show.bs.tab', function (e) {
     //    switch (e.target.id) {
@@ -501,11 +502,11 @@
     $(document).on('click', '#proximitySwitch', function () {
         if (this.checked) {
             $('#workstation_group').removeClass('d-none');
-            $('#skipProximityUnlock').val('false');
+            $('#skipProximityUnlock').val(false);
         }
         else {
             $('#workstation_group').addClass('d-none');
-            $('#skipProximityUnlock').val('true');
+            $('#skipProximityUnlock').val(true);
         }
     });
 

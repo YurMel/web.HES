@@ -158,17 +158,23 @@ namespace HES.Web.Pages.Employees
                 var user = await _employeeService.CreateEmployeeAsync(employeeWizard.Employee);
 
                 // Add device
-                await _employeeService.AddDeviceAsync(user.Id, new string[] { employeeWizard.DeviceId });
-                _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(employeeWizard.DeviceId);
-
-                // Proximity Unlock
-                if (!employeeWizard.SkipProximityUnlock)
+                if (!employeeWizard.SkipDevice)
                 {
-                    await _workstationProximityDeviceService.AddProximityDeviceAsync(employeeWizard.WorkstationId, new string[] { employeeWizard.DeviceId });
-                }
+                    await _employeeService.AddDeviceAsync(user.Id, new string[] { employeeWizard.DeviceId });
 
-                // Add account
-                await _employeeService.CreateWorkstationAccountAsync(employeeWizard.WorkstationAccount, user.Id, employeeWizard.DeviceId);
+                    // Proximity Unlock
+                    if (!employeeWizard.SkipProximityUnlock)
+                    {
+                        await _workstationProximityDeviceService.AddProximityDeviceAsync(employeeWizard.WorkstationId, new string[] { employeeWizard.DeviceId });
+                    }
+                    
+                    // Add workstation account
+                    if (!employeeWizard.WorkstationAccount.Skip)
+                    {
+                        await _employeeService.CreateWorkstationAccountAsync(employeeWizard.WorkstationAccount, user.Id, employeeWizard.DeviceId);
+                    }
+                }
+                
                 _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(employeeWizard.DeviceId);
 
                 SuccessMessage = $"Employee created.";
