@@ -84,7 +84,7 @@ namespace HES.Core.Services
                     MAC = d.MAC,
                     Model = d.Model,
                     RFID = d.RFID,
-                    Battery = 1,
+                    Battery = 100,
                     Firmware = "3.0.0",
                     LastSynced = null,
                     EmployeeId = null,

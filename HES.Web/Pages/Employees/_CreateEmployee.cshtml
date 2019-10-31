@@ -2,401 +2,443 @@
 
 <link href="~/css/wizard.css" rel="stylesheet" />
 
-<form id="employeeForm" method="post">
-    <div class="wizard-header mb-3">
-        <div class="wizard wizard-horizontal wizard-label-vertical wizard-circle">
-            <div id="wizard_profile" class="wizard-item wizard-item-process">
-                <div class="wizard-item-tail"></div>
-                <div class="wizard-item-icon">
-                    <span class="wizard-icon">
-                        <span class="wizard-icon-circle">
-                        </span>
+<div class="wizard-header mb-3">
+    <div class="wizard wizard-horizontal wizard-label-vertical wizard-circle">
+        <div id="wizard_profile" class="wizard-item wizard-item-process">
+            <div class="wizard-item-tail"></div>
+            <div class="wizard-item-icon">
+                <span class="wizard-icon">
+                    <span class="wizard-icon-circle">
                     </span>
+                </span>
+            </div>
+            <div class="wizard-item-content">
+                <div class="wizard-item-title">Profile</div>
+            </div>
+        </div>
+        <div id="wizard_devices" class="wizard-item wizard-item-wait">
+            <div class="wizard-item-tail"></div>
+            <div class="wizard-item-icon">
+                <span class="wizard-icon">
+                    <span class="wizard-icon-circle">
+                    </span>
+                </span>
+            </div>
+            <div class="wizard-item-content">
+                <div class="wizard-item-title">Device</div>
+            </div>
+        </div>
+        <div id="wizard_workstation_account" class="wizard-item wizard-item-wait">
+            <div class="wizard-item-tail"></div>
+            <div class="wizard-item-icon">
+                <span class="wizard-icon">
+                    <span class="wizard-icon-circle">
+                    </span>
+                </span>
+            </div>
+            <div class="wizard-item-content">
+                <div class="wizard-item-title">Windows Account</div>
+            </div>
+        </div>
+        <div id="wizard_overview" class="wizard-item wizard-item-wait">
+            <div class="wizard-item-tail"></div>
+            <div class="wizard-item-icon">
+                <span class="wizard-icon">
+                    <span class="wizard-icon-circle">
+                    </span>
+                </span>
+            </div>
+            <div class="wizard-item-content">
+                <div class="wizard-item-title">Overview</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form id="employeeForm" method="post" asp-page-handler="CreateEmployee">
+    <!-- Employee -->
+    <div id="profileTab" class="wizard-tab">
+        <div class="row">
+            <div class="form-group col">
+                <label asp-for="EmployeeWizard.Employee.FirstName" class="control-label text-gray"></label>
+                <input id="employee_first_name" asp-for="EmployeeWizard.Employee.FirstName" class="form-control text-navyblue" />
+                <span asp-validation-for="EmployeeWizard.Employee.FirstName" class="text-danger"></span>
+            </div>
+            <div class="form-group col">
+                <label asp-for="EmployeeWizard.Employee.LastName" class="control-label text-gray"></label>
+                <input id="employee_last_name" asp-for="EmployeeWizard.Employee.LastName" class="form-control text-navyblue" />
+                <span asp-validation-for="EmployeeWizard.Employee.LastName" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col">
+                <label asp-for="EmployeeWizard.Employee.Email" class="control-label text-gray"></label>
+                <input asp-for="EmployeeWizard.Employee.Email" class="form-control text-navyblue" />
+                <span asp-validation-for="EmployeeWizard.Employee.Email" class="text-danger"></span>
+            </div>
+            <div class="form-group col">
+                <label asp-for="EmployeeWizard.Employee.PhoneNumber" class="control-label text-gray"></label>
+                <input asp-for="EmployeeWizard.Employee.PhoneNumber" class="form-control text-navyblue" />
+                <span asp-validation-for="EmployeeWizard.Employee.PhoneNumber" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col">
+                <label asp-for="EmployeeWizard.Employee.Department.CompanyId" class="control-label text-gray"></label>
+                <div class="d-flex">
+                    <select id="companies" onchange="GetDepartment(this.value)" class="form-control text-navyblue" asp-items="ViewBag.CompanyId"></select>
+                    <button type="button" class="btn btn-success btn-add open-second-modal-dialog" data-id="" data-action="CreateCompany" data-title="Create company">
+                        <img src="~/svg/action/add.svg" />
+                    </button>
                 </div>
-                <div class="wizard-item-content">
-                    <div class="wizard-item-title">Profile</div>
+                <span asp-validation-for="EmployeeWizard.Employee.DepartmentId" class="text-danger"></span>
+            </div>
+            <div class="form-group col">
+                <label asp-for="EmployeeWizard.Employee.DepartmentId" class="control-label text-gray"></label>
+                <div class="d-flex">
+                    <select id="departments" asp-for="EmployeeWizard.Employee.DepartmentId" class="form-control text-navyblue"></select>
+                    <button id="add_position_btn" type="button" class="btn btn-success btn-add open-second-modal-dialog" data-id="" data-action="CreateDepartment" data-title="Create department">
+                        <img src="~/svg/action/add.svg" />
+                    </button>
+                </div>
+                <span asp-validation-for="EmployeeWizard.Employee.DepartmentId" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col">
+                <label asp-for="EmployeeWizard.Employee.PositionId" class="control-label text-gray"></label>
+                <div class="d-flex">
+                    <select id="positions" asp-for="EmployeeWizard.Employee.PositionId" class="form-control text-navyblue" asp-items="ViewBag.PositionId"></select>
+                    <button type="button" class="btn btn-success btn-add open-second-modal-dialog" data-id="" data-action="CreatePosition" data-title="Create position">
+                        <img src="~/svg/action/add.svg" />
+                    </button>
+                </div>
+                <span asp-validation-for="EmployeeWizard.Employee.PositionId" class="text-danger"></span>
+            </div>
+            <div class="col"></div>
+        </div>
+    </div>
+    <!-- Device -->
+    <div id="deviceTab" class="wizard-tab d-none">
+        <input id="skipDevice" type="hidden" asp-for="EmployeeWizard.SkipDevice" value="false" />
+        <input id="skipProximityUnlock" type="hidden" asp-for="EmployeeWizard.SkipProximityUnlock" value="true">
+        <div class="row justify-content-center">
+            <div class="form-group col-4">
+                <label class="control-label">Device</label>
+                <select id="deviceId" class="form-control" asp-for="EmployeeWizard.DeviceId" asp-items="ViewBag.DeviceId"></select>
+            </div>
+        </div>
+        <div class="row justify-content-center" id="proximity_group">
+            <div class="form-group col-3">
+                <label class="control-label">Proximity unlock</label>
+            </div>
+            <div class="form-group col-1">
+                <div class="custom-control custom-switch">
+                    <input type="checkbox" class="custom-control-input" id="proximitySwitch">
+                    <label class="custom-control-label" for="proximitySwitch"></label>
                 </div>
             </div>
-            <div id="wizard_devices" class="wizard-item wizard-item-wait">
-                <div class="wizard-item-tail"></div>
-                <div class="wizard-item-icon">
-                    <span class="wizard-icon">
-                        <span class="wizard-icon-circle">
-                        </span>
-                    </span>
+        </div>
+        <div class="row justify-content-center d-none" id="workstation_group">
+            <div class="form-group col-4">
+                <label class="control-label">Select the workstation for proximity unlock</label>
+                <select id="workstationId" class="form-control" asp-for="EmployeeWizard.WorkstationId" asp-items="ViewBag.WorkstationId"></select>
+            </div>
+        </div>
+    </div>
+    <!-- Workstation Account -->
+    <div id="workstationAccountTab" class="wizard-tab d-none">
+        <input id="skipWorkstationAccount" type="hidden" asp-for="EmployeeWizard.WorkstationAccount.Skip" value="false" />
+        <ul class="nav nav-pills mb-3 justify-content-center" id="pills-tab-accounts" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active ws-account-nav" id="pills-personal-tab" data-toggle="pill" href="#pills-personal" role="tab">Personal account</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link ws-account-nav" id="pills-shared-tab" data-toggle="pill" href="#pills-shared" role="tab">Shared account</a>
+            </li>
+        </ul>
+        <div class="tab-content" id="pills-tabContent">
+            <div class="tab-pane fade show active" id="pills-personal" role="tabpanel">
+                <input id="accountName" type="hidden" asp-for="EmployeeWizard.WorkstationAccount.Name" value="Windows Account" />
+                <div class="row">
+                    <div class="form-group col">
+                        <label asp-for="EmployeeWizard.WorkstationAccount.AccountType" class="text-gray"></label>
+                        <select id="workstation_account_type" asp-for="EmployeeWizard.WorkstationAccount.AccountType" class="form-control" asp-items="ViewBag.WorkstationAccountType"></select>
+                    </div>
+                    <div id="domain_group" class="form-group col invisible">
+                        <label asp-for="EmployeeWizard.WorkstationAccount.Domain" class="text-gray"></label>
+                        <input id="domain" asp-for="EmployeeWizard.WorkstationAccount.Domain" class="form-control text-navyblue" value="local" autocomplete="new-password" />
+                        <span asp-validation-for="EmployeeWizard.WorkstationAccount.Domain" class="text-danger"></span>
+                    </div>
+                    <div class="col"></div>
                 </div>
-                <div class="wizard-item-content">
-                    <div class="wizard-item-title">Device</div>
+                <div class="row">
+                    <div class="form-group col">
+                        <label asp-for="EmployeeWizard.WorkstationAccount.Login" class="text-gray"></label>
+                        <input id="login" asp-for="EmployeeWizard.WorkstationAccount.Login" class="form-control text-navyblue" autocomplete="new-password" />
+                        <span asp-validation-for="EmployeeWizard.WorkstationAccount.Login" class="text-danger"></span>
+                    </div>
+                    <div class="form-group col">
+                        <label asp-for="EmployeeWizard.WorkstationAccount.Password" class="text-gray"></label>
+                        <input id="password" asp-for="EmployeeWizard.WorkstationAccount.Password" class="form-control text-navyblue" autocomplete="new-password" />
+                        <span asp-validation-for="EmployeeWizard.WorkstationAccount.Password" class="text-danger"></span>
+                    </div>
+                    <div class="form-group col">
+                        <label asp-for="EmployeeWizard.WorkstationAccount.ConfirmPassword" class="text-gray"></label>
+                        <input id="confirmPassword" asp-for="EmployeeWizard.WorkstationAccount.ConfirmPassword" class="form-control text-navyblue" autocomplete="new-password" />
+                        <span asp-validation-for="EmployeeWizard.WorkstationAccount.ConfirmPassword" class="text-danger"></span>
+                    </div>
                 </div>
             </div>
-            <div id="wizard_workstation_account" class="wizard-item wizard-item-wait">
-                <div class="wizard-item-tail"></div>
-                <div class="wizard-item-icon">
-                    <span class="wizard-icon">
-                        <span class="wizard-icon-circle">
-                        </span>
-                    </span>
-                </div>
-                <div class="wizard-item-content">
-                    <div class="wizard-item-title">Windows Account</div>
-                </div>
-            </div>
-            <div id="wizard_overview" class="wizard-item wizard-item-wait">
-                <div class="wizard-item-tail"></div>
-                <div class="wizard-item-icon">
-                    <span class="wizard-icon">
-                        <span class="wizard-icon-circle">
-                        </span>
-                    </span>
-                </div>
-                <div class="wizard-item-content">
-                    <div class="wizard-item-title">Overview</div>
+            <div class="tab-pane fade" id="pills-shared" role="tabpanel">
+                <div class="form-group col" style="max-width:350px; position:relative;left:50%;transform:translateX(-50%);">
+                    <label class="text-gray">Workstation Accounts</label>
+                    <select id="workstation_accounts" class="form-control" asp-items="ViewBag.WorkstationAccounts"></select>
                 </div>
             </div>
         </div>
     </div>
-
-    <ul class="nav nav-pills main-pills mb-3 d-none" id="employee-tabs" role="tablist">
-        <li class="nav-item">
-            <a class="nav-link active" id="pills-profile-tab" data_id="1" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="true">Profile</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" id="pills-devices-tab" data_id="2" data-toggle="pill" href="#pills-devices" role="tab" aria-controls="pills-devices" aria-selected="false">Devices</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" id="pills-workstation_account-tab" data_id="3" data-toggle="pill" href="#pills-workstation_account" role="tab" aria-controls="pills-workstation_account" aria-selected="false">Workstation Account</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" id="pills-overview-tab" data_id="4" data-toggle="pill" href="#pills-overview" role="tab" aria-controls="pills-overview" aria-selected="false">Overview</a>
-        </li>
-    </ul>
-
-    <div class="tab-content" id="pills-tabContent" style="height:384px;">
-        <!-- Profile -->
-        <div class="tab-pane show active" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
-            <div class="row">
-                <div class="form-group col">
-                    <label asp-for="EmployeeWizard.Employee.FirstName" class="control-label text-gray"></label>
-                    <input id="employee_first_name" asp-for="EmployeeWizard.Employee.FirstName" class="form-control text-navyblue" />
-                    <span asp-validation-for="EmployeeWizard.Employee.FirstName" class="text-danger"></span>
-                </div>
-                <div class="form-group col">
-                    <label asp-for="EmployeeWizard.Employee.LastName" class="control-label text-gray"></label>
-                    <input id="employee_last_name" asp-for="EmployeeWizard.Employee.LastName" class="form-control text-navyblue" />
-                    <span asp-validation-for="EmployeeWizard.Employee.LastName" class="text-danger"></span>
-                </div>
-            </div>
-            <div class="row">
-                <div class="form-group col">
-                    <label asp-for="EmployeeWizard.Employee.Email" class="control-label text-gray"></label>
-                    <input asp-for="EmployeeWizard.Employee.Email" class="form-control text-navyblue" />
-                    <span asp-validation-for="EmployeeWizard.Employee.Email" class="text-danger"></span>
-                </div>
-                <div class="form-group col">
-                    <label asp-for="EmployeeWizard.Employee.PhoneNumber" class="control-label text-gray"></label>
-                    <input asp-for="EmployeeWizard.Employee.PhoneNumber" class="form-control text-navyblue" />
-                    <span asp-validation-for="EmployeeWizard.Employee.PhoneNumber" class="text-danger"></span>
-                </div>
-            </div>
-            <div class="row">
-                <div class="form-group col">
-                    <label asp-for="EmployeeWizard.Employee.Department.CompanyId" class="control-label text-gray"></label>
-                    <div class="d-flex">
-                        <select id="companies" onchange="GetDepartment(this.value)" class="form-control text-navyblue" asp-items="ViewBag.CompanyId"></select>
-                        <button type="button" class="btn btn-success btn-add open-second-modal-dialog" data-id="" data-action="CreateCompany" data-title="Create company">
-                            <img src="~/svg/action/add.svg" />
-                        </button>
-                    </div>
-                    <span asp-validation-for="EmployeeWizard.Employee.DepartmentId" class="text-danger"></span>
-                </div>
-                <div class="form-group col">
-                    <label asp-for="EmployeeWizard.Employee.DepartmentId" class="control-label text-gray"></label>
-                    <div class="d-flex">
-                        <select id="departments" asp-for="EmployeeWizard.Employee.DepartmentId" class="form-control text-navyblue"></select>
-                        <button id="add_position_btn" type="button" class="btn btn-success btn-add open-second-modal-dialog" data-id="" data-action="CreateDepartment" data-title="Create department">
-                            <img src="~/svg/action/add.svg" />
-                        </button>
-                    </div>
-                    <span asp-validation-for="EmployeeWizard.Employee.DepartmentId" class="text-danger"></span>
-                </div>
-            </div>
-            <div class="row">
-                <div class="form-group col">
-                    <label asp-for="EmployeeWizard.Employee.PositionId" class="control-label text-gray"></label>
-                    <div class="d-flex">
-                        <select id="positions" asp-for="EmployeeWizard.Employee.PositionId" class="form-control text-navyblue" asp-items="ViewBag.PositionId"></select>
-                        <button type="button" class="btn btn-success btn-add open-second-modal-dialog" data-id="" data-action="CreatePosition" data-title="Create position">
-                            <img src="~/svg/action/add.svg" />
-                        </button>
-                    </div>
-                    <span asp-validation-for="EmployeeWizard.Employee.PositionId" class="text-danger"></span>
-                </div>
-                <div class="col"></div>
-            </div>
-        </div>
-        <!-- Device -->
-        <div class="tab-pane" id="pills-devices" role="tabpanel" aria-labelledby="pills-devices-tab">
-            <div class="row justify-content-center">
-                <div class="form-group col-4">
-                    <label class="control-label">Device</label>
-                    <select id="deviceId" class="form-control" asp-for="EmployeeWizard.DeviceId" asp-items="ViewBag.DeviceId"></select>
-                </div>
-            </div>
-            <div class="row justify-content-center" id="proximity_group">
-                <div class="form-group col-3">
-                    <label class="control-label">Proximity unlock</label>
-                </div>
-                <div class="form-group col-1">
-                    <div class="custom-control custom-switch">
-                        <input type="checkbox" class="custom-control-input" id="proximity" asp-for="EmployeeWizard.ProximityUnlock">
-                        <label class="custom-control-label" for="proximity"></label>
-                    </div>
-                </div>
-            </div>
-            <div class="row justify-content-center d-none" id="workstation_group">
-                <div class="form-group col-4">
-                    <label class="control-label">Select the workstation for proximity unlock</label>
-                    <select id="workstationId" class="form-control" asp-for="EmployeeWizard.WorkstationId" asp-items="ViewBag.WorkstationId"></select>
-                </div>
-            </div>
-        </div>
-        <!-- Workstation Account -->
-        <div class="tab-pane" id="pills-workstation_account" role="tabpanel" aria-labelledby="pills-workstation_account-tab">
-            <ul class="nav nav-pills mb-3 justify-content-center" id="pills-tab-accounts" role="tablist">
-                <li class="nav-item">
-                    <a class="nav-link active ws-account-nav" id="pills-personal-tab" data-toggle="pill" href="#pills-personal" role="tab">Personal account</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link ws-account-nav" id="pills-shared-tab" data-toggle="pill" href="#pills-shared" role="tab">Shared account</a>
-                </li>
-            </ul>
-            <div class="tab-content" id="pills-tabContent">
-                <div class="tab-pane fade show active" id="pills-personal" role="tabpanel">
-                    <input id="accountName" type="hidden" asp-for="EmployeeWizard.WorkstationAccount.Name" value="Windows Account" />
-                    <div class="row">
-                        <div class="form-group col">
-                            <label asp-for="EmployeeWizard.WorkstationAccount.AccountType" class="text-gray"></label>
-                            <select id="workstation_account_type" asp-for="EmployeeWizard.WorkstationAccount.AccountType" class="form-control" asp-items="ViewBag.WorkstationAccountType"></select>
-                        </div>
-                        <div id="domain_group" class="form-group col invisible">
-                            <label asp-for="EmployeeWizard.WorkstationAccount.Domain" class="text-gray"></label>
-                            <input id="domain" asp-for="EmployeeWizard.WorkstationAccount.Domain" class="form-control text-navyblue" value="local" autocomplete="new-password" />
-                            <span asp-validation-for="EmployeeWizard.WorkstationAccount.Domain" class="text-danger"></span>
-                        </div>
-                        <div class="col"></div>
-                    </div>
-                    <div class="row">
-                        <div class="form-group col">
-                            <label asp-for="EmployeeWizard.WorkstationAccount.Login" class="text-gray"></label>
-                            <input id="login" asp-for="EmployeeWizard.WorkstationAccount.Login" class="form-control text-navyblue" autocomplete="new-password" />
-                            <span asp-validation-for="EmployeeWizard.WorkstationAccount.Login" class="text-danger"></span>
-                        </div>
-                        <div class="form-group col">
-                            <label asp-for="EmployeeWizard.WorkstationAccount.Password" class="text-gray"></label>
-                            <input id="password" asp-for="EmployeeWizard.WorkstationAccount.Password" class="form-control text-navyblue" autocomplete="new-password" />
-                            <span asp-validation-for="EmployeeWizard.WorkstationAccount.Password" class="text-danger"></span>
-                        </div>
-                        <div class="form-group col">
-                            <label asp-for="EmployeeWizard.WorkstationAccount.ConfirmPassword" class="text-gray"></label>
-                            <input id="confirmPassword" asp-for="EmployeeWizard.WorkstationAccount.ConfirmPassword" class="form-control text-navyblue" autocomplete="new-password" />
-                            <span asp-validation-for="EmployeeWizard.WorkstationAccount.ConfirmPassword" class="text-danger"></span>
-                        </div>
-                    </div>
-                </div>
-                <div class="tab-pane fade" id="pills-shared" role="tabpanel">
-                    <div class="form-group col" style="max-width:350px; position:relative;left:50%;transform:translateX(-50%);">
-                        <label class="text-gray">Workstation Accounts</label>
-                        <select id="workstation_accounts" class="form-control" asp-items="ViewBag.WorkstationAccounts"></select>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Overview -->
-        <div class="tab-pane" id="pills-overview" role="tabpanel" aria-labelledby="pills-overview-tab">
+    <!-- Overview -->
+    <div id="overviewTab" class="wizard-tab d-none">
+        <div class="row">
             <!-- Employee -->
-            <div class="mb-3">
-                <div class="row">
-                    <div class="col-auto">
-                        <h4 class="text-navyblue">Employee Details</h4>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col font-weight-bold">Full name</div>
-                    <div class="col font-weight-bold">Company</div>
-                    <div class="col font-weight-bold">Department</div>
-                    <div class="col font-weight-bold">Position</div>
-                </div>
-                <div class="row">
-                    <div id="overview_emp_fullname" class="col"></div>
-                    <div id="overview_emp_company" class="col"></div>
-                    <div id="overview_emp_department" class="col"></div>
-                    <div id="overview_emp_position" class="col"></div>
+            <div class="col">
+                <h4 class="mx-2 text-navyblue">Employee</h4>
+                <div class="border rounded py-2 px-3">
+                    <div class="font-weight-bold">Full name</div>
+                    <div id="overview_emp_fullname"></div>
+                    <div class="font-weight-bold">Company</div>
+                    <div id="overview_emp_company"></div>
+                    <div class="font-weight-bold">Department</div>
+                    <div id="overview_emp_department"></div>
+                    <div class="font-weight-bold">Position</div>
+                    <div id="overview_emp_position"></div>
                 </div>
             </div>
             <!-- Device -->
-            <div class="mb-3">
-                <div class="row">
-                    <div class="col-auto">
-                        <h4 class="text-navyblue">Device Details</h4>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col font-weight-bold">Serial number</div>
-                    <div id="overview_workstation_title" class="col font-weight-bold invisible">Proximity unlock</div>
-                    <div class="col"></div>
-                    <div class="col"></div>
-                </div>
-                <div class="row">
-                    <div id="overview_device" class="col"></div>
-                    <div id="overview_workstation" class="col invisible"></div>
-                    <div class="col"></div>
-                    <div class="col"></div>
+            <div class="col">
+                <h4 class="mx-2 text-navyblue">Device</h4>
+                <div class="border rounded py-2 px-3">
+                    <div id="overview_device_sn" class="font-weight-bold">Serial number</div>
+                    <div id="overview_device"></div>
+                    <div id="overview_workstation_title" class="font-weight-bold invisible">Proximity unlock</div>
+                    <div id="overview_workstation" class="invisible"></div>
                 </div>
             </div>
             <!-- Account -->
-            <div class="mb-3">
-                <div class="row">
-                    <div class="col-auto">
-                        <h4 id="account_title" class="text-navyblue">Windows Account</h4>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col font-weight-bold">User name</div>
-                    <div id="overview_domain_title" class="col font-weight-bold invisible">Domain</div>
-                    <div class="col"></div>
-                    <div class="col"></div>
-                </div>
-                <div class="row">
-                    <div id="overview_login" class="col"></div>
-                    <div id="overview_domain" class="col invisible"></div>
-                    <div class="col"></div>
-                    <div class="col"></div>
+            <div class="col">
+                <h4 class="mx-2 text-navyblue">Windows Account</h4>
+                <div class="border rounded py-2 px-3">
+                    <div id="overview_user_name" class="font-weight-bold">User name</div>
+                    <div id="overview_login"></div>
+                    <div id="overview_domain_title" class="font-weight-bold invisible">Domain</div>
+                    <div id="overview_domain" class="invisible"></div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="form-group m-0 text-right">
-        <button id="btn_back" type="button" class="btn btn-secondary btn-back d-none">Back</button>
-        <button id="btn_next" type="button" class="btn btn-primary btn-next">Next</button>
-        <input id="btn_create" type="submit" value="Create" class="btn btn-primary d-none" asp-page-handler="CreateEmployee" />
+    <!-- Navigation Buttons -->
+    <div class="text-right">
+        <button type="button" id="skipBtn" class="btn btn-light mr-3 d-none" onclick="SkipTab()">Skip</button>
+        <button type="button" id="backBtn" class="btn btn-secondary d-none" onclick="BackTab()">Back</button>
+        <button type="button" id="nextBtn" class="btn btn-primary" onclick="NextTab()">Next</button>
     </div>
 </form>
 <script>
-    $('.btn-next').click(function () {
-        var valid = $("#employeeForm").valid();
-        if (valid) {
-            $('.main-pills .active').parent().next('li').find('a').trigger('click');
+    var currentTab = 0;
+    var repeatCount = 1;
+
+    function NextTab(skip = false) {
+        // Validation
+        var valid = false;
+        if (skip) {
+            valid = true;
+        } else {
+            valid = $("#employeeForm").valid();
         }
-    });
 
-    $('.btn-back').click(function () {
-        $('.main-pills .active').parent().prev('li').find('a').trigger('click');
-    });
-
-    $('a[data-toggle="pill"]').on('show.bs.tab', function (e) {
-        switch (e.target.id) {
-            case "pills-profile-tab":
-                $('#btn_back').addClass('d-none');
-
-                SwitchWizardState('wizard_profile', 'procees-back');
-                SwitchWizardState('wizard_devices', 'wait');
-                break;
-            case "pills-devices-tab":
-                $('#btn_back').removeClass('d-none');
-
-                if (e.relatedTarget.id === "pills-profile-tab") {
-                    SwitchWizardState('wizard_profile', 'finish');
-                    SwitchWizardState('wizard_devices', 'procees-next');
-                }
-                else {
-                    SwitchWizardState('wizard_devices', 'procees-back');
-                    SwitchWizardState('wizard_workstation_account', 'wait');
-                }
-                break;
-            case "pills-workstation_account-tab":
-                $('#btn_next').removeClass('d-none');
-                $('#btn_create').addClass('d-none');
-
-                if (e.relatedTarget.id === "pills-devices-tab") {
-                    SwitchWizardState('wizard_devices', 'finish');
-                    SwitchWizardState('wizard_workstation_account', 'procees-next');
-                }
-                else {
-                    SwitchWizardState('wizard_workstation_account', 'procees-back');
-                    SwitchWizardState('wizard_overview', 'wait');
-                }
-                break;
-            case "pills-overview-tab":
-                $('#btn_next').addClass('d-none');
-                $('#btn_create').removeClass('d-none');
-
-                SwitchWizardState('wizard_workstation_account', 'finish');
-                SwitchWizardState('wizard_overview', 'procees-next');
-
-                //Employee
-                $('#overview_emp_fullname').html($('#employee_first_name').val() + ' ' + $('#employee_last_name').val());
-                $('#overview_emp_company').html($("#companies option:selected").text());
-                $('#overview_emp_department').html($("#departments option:selected").text());
-                $('#overview_emp_position').html($("#positions option:selected").text());
-
-                // Device
-                $('#overview_device').html($("#deviceId option:selected").text());
-                if ($('#proximity').prop('checked')) {
-                    var workstation = $("#workstationId option:selected").text();
-                    $('#overview_workstation').html(workstation);
-                    $('#overview_workstation_title').removeClass('invisible');
-                    $('#overview_workstation').removeClass('invisible');
-                }
-                else {
-                    $('#overview_workstation_title').addClass('invisible');
-                    $('#overview_workstation').addClass('invisible');
-                }
-
-                // Account
-                $('#overview_login').html($("#login").val());
-                var type = $("#workstation_account_type option:selected").text();
-                var domain = $("#domain").val();
-                if (type === 'Domain') {
-                    $('#overview_domain').html(domain);
-                    $('#overview_domain_title').removeClass('invisible');
-                    $('#overview_domain').removeClass('invisible');
-                }
-                else {
-                    $('#overview_domain_title').addClass('invisible');
-                    $('#overview_domain').addClass('invisible');
-                }
-
-                break;
+        if (!valid) {
+            return false;
         }
-    });
 
-    function SwitchWizardState(id, state) {
-        switch (state) {
-            case "wait":
-                $("#" + id + "").removeClass('wizard-item-process');
-                $("#" + id + "").addClass('wizard-item-wait');
-                break;
-            case "procees-back":
-                $("#" + id + "").removeClass('wizard-item-finish');
-                $("#" + id + "").addClass('wizard-item-process');
-                break;
-            case "procees-next":
-                $("#" + id + "").removeClass('wizard-item-wait');
-                $("#" + id + "").addClass('wizard-item-process');
-                break;
-            case "finish":
-                $("#" + id + "").removeClass('wizard-item-process');
-                $("#" + id + "").addClass('wizard-item-finish');
-                break;
+        // All tabs
+        var tabs = $('.wizard-tab');
+
+        if (currentTab < tabs.length - 1) {
+            // Change tab
+            for (var i = 0; i < repeatCount; i++) {
+                tabs.eq(currentTab).addClass("d-none"); // Current tab
+                tabs.eq(++currentTab).removeClass("d-none"); // Next tab
+
+                // Switch tabs
+                switch (currentTab) {
+                    case 0:
+                        // Never get here
+                        break;
+                    case 1:
+                        // Indicator
+                        $('#wizard_profile').removeClass("wizard-item-process");
+                        $('#wizard_profile').addClass("wizard-item-finish");
+                        $('#wizard_devices').removeClass("wizard-item-wait");
+                        $('#wizard_devices').addClass("wizard-item-process");
+                        // Buttons
+                        $("#backBtn").removeClass("d-none");
+                        $("#skipBtn").removeClass("d-none");
+                        break;
+                    case 2:
+                        // Indicator
+                        $('#wizard_devices').removeClass("wizard-item-process");
+                        $('#wizard_devices').addClass("wizard-item-finish");
+                        $('#wizard_workstation_account').removeClass("wizard-item-wait");
+                        $('#wizard_workstation_account').addClass("wizard-item-process");
+                        break;
+                    case 3:
+                        // Indicator
+                        $('#wizard_workstation_account').removeClass("wizard-item-process");
+                        $('#wizard_workstation_account').addClass("wizard-item-finish");
+                        $('#wizard_overview').addClass("wizard-item-process");
+                        // Buttons
+                        $("#skipBtn").addClass("d-none");
+                        $('#nextBtn').html("Create");
+
+                        //Employee
+                        $('#overview_emp_fullname').html($('#employee_first_name').val() + ' ' + $('#employee_last_name').val());
+                        $('#overview_emp_company').html($("#companies option:selected").text());
+                        $('#overview_emp_department').html($("#departments option:selected").text());
+                        $('#overview_emp_position').html($("#positions option:selected").text());
+
+                        // Device
+                        var skipDevice = $('#skipDevice').attr("value");
+                        if (skipDevice === 'true') {
+                            $('#overview_device_sn').text("Skipped");
+                            $('#overview_device').html("");
+                            $('#overview_workstation').addClass('invisible');
+                            $('#overview_workstation_title').addClass('invisible');
+                        }
+                        else {
+                            $('#overview_device_sn').text("Serial number");
+                            $('#overview_device').html($("#deviceId option:selected").text());
+                            if ($('#proximitySwitch').prop('checked')) {
+                                var workstation = $("#workstationId option:selected").text();
+                                $('#overview_workstation').html(workstation);
+                                $('#overview_workstation').removeClass('invisible');
+                                $('#overview_workstation_title').removeClass('invisible');
+                            }
+                            else {
+                                $('#overview_workstation').addClass('invisible');
+                                $('#overview_workstation_title').addClass('invisible');
+                            }
+                        }
+
+
+                        // Account
+                        var skipWorkstationAccount = $('#skipWorkstationAccount').attr("value");
+                        if (skipWorkstationAccount === 'true') {
+                            $('#overview_user_name').text("Skipped");
+                            $('#overview_login').html("");
+                            $('#overview_domain_title').addClass('invisible');
+                            $('#overview_domain').addClass('invisible');
+                        }
+                        else {
+                            $('#overview_user_name').text("Serial number");
+                            $('#overview_login').html($("#login").val());
+                            var type = $("#workstation_account_type option:selected").text();
+                            var domain = $("#domain").val();
+                            if (type === 'Domain') {
+                                $('#overview_domain').html(domain);
+                                $('#overview_domain_title').removeClass('invisible');
+                                $('#overview_domain').removeClass('invisible');
+                            }
+                            else {
+                                $('#overview_domain_title').addClass('invisible');
+                                $('#overview_domain').addClass('invisible');
+                            }
+                        }
+                        break;
+                }
+            }
+        }
+        else {
+            // If last tab submit form
+            $("#employeeForm").submit();
         }
     }
 
-    $(document).on('click', '#proximity', function () {
+    function BackTab() {
+        // All tabs
+        var tabs = $('.wizard-tab');
+
+        // Change tab
+        for (var i = 0; i < repeatCount; i++) {
+            tabs.eq(currentTab).addClass("d-none"); // Current tab
+            tabs.eq(--currentTab).removeClass("d-none"); // Previous tab
+
+            // Switch tabs
+            switch (currentTab) {
+                case 0:
+                    // Indicator
+                    $('#wizard_profile').removeClass("wizard-item-finish");
+                    $('#wizard_profile').addClass("wizard-item-process");
+                    $('#wizard_devices').removeClass("wizard-item-process");
+                    $('#wizard_devices').addClass("wizard-item-wait");
+                    // Buttons
+                    $("#backBtn").addClass("d-none");
+                    $("#skipBtn").addClass("d-none");
+                    break;
+                case 1:
+                    // Indicator
+                    $('#wizard_devices').removeClass("wizard-item-finish");
+                    $('#wizard_devices').addClass("wizard-item-process");
+                    $('#wizard_workstation_account').removeClass("wizard-item-process");
+                    $('#wizard_workstation_account').addClass("wizard-item-wait");
+                    // Return repeat count to default
+                    repeatCount = 1;
+                    // Remove skip
+                    $('#skipDevice').val(false);
+                    break;
+                case 2:
+                    // Indicator
+                    $('#wizard_workstation_account').removeClass("wizard-item-finish");
+                    $('#wizard_workstation_account').addClass("wizard-item-process");
+                    $('#wizard_overview').removeClass("wizard-item-process");
+                    $('#wizard_overview').addClass("wizard-item-wait");
+                    // Buttons
+                    $("#skipBtn").removeClass("d-none");
+                    $('#nextBtn').html("Next");
+                    // Remove skip
+                    $('#skipWorkstationAccount').val(false);
+                    break;
+                case 3:
+                    // Never get here
+                    break;
+            }
+        }
+    }
+
+    function SkipTab() {
+        if (currentTab == 1) {
+            repeatCount = 2;
+            // Set skip
+            $('#skipDevice').val(true);
+            $('#skipWorkstationAccount').val(true);
+        }
+
+        if (currentTab == 2) {
+            // Set skip
+            $('#skipWorkstationAccount').val(true);
+        }
+
+        NextTab(true);
+    }
+
+    $(document).on('click', '#proximitySwitch', function () {
         if (this.checked) {
             $('#workstation_group').removeClass('d-none');
+            $('#skipProximityUnlock').val(false);
         }
         else {
             $('#workstation_group').addClass('d-none');
+            $('#skipProximityUnlock').val(true);
         }
     });
 
