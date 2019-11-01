@@ -60,72 +60,72 @@
     <div id="profileTab" class="wizard-tab">
         <div class="row">
             <div class="form-group col">
-                <label asp-for="EmployeeWizard.Employee.FirstName" class="control-label text-gray"></label>
-                <input id="employee_first_name" asp-for="EmployeeWizard.Employee.FirstName" class="form-control text-navyblue" />
-                <span asp-validation-for="EmployeeWizard.Employee.FirstName" class="text-danger"></span>
+                <label asp-for="Employee.FirstName" class="control-label text-gray"></label>
+                <input id="employee_first_name" asp-for="Employee.FirstName" class="form-control text-navyblue" />
+                <span asp-validation-for="Employee.FirstName" class="text-danger"></span>
             </div>
             <div class="form-group col">
-                <label asp-for="EmployeeWizard.Employee.LastName" class="control-label text-gray"></label>
-                <input id="employee_last_name" asp-for="EmployeeWizard.Employee.LastName" class="form-control text-navyblue" />
-                <span asp-validation-for="EmployeeWizard.Employee.LastName" class="text-danger"></span>
-            </div>
-        </div>
-        <div class="row">
-            <div class="form-group col">
-                <label asp-for="EmployeeWizard.Employee.Email" class="control-label text-gray"></label>
-                <input asp-for="EmployeeWizard.Employee.Email" class="form-control text-navyblue" />
-                <span asp-validation-for="EmployeeWizard.Employee.Email" class="text-danger"></span>
-            </div>
-            <div class="form-group col">
-                <label asp-for="EmployeeWizard.Employee.PhoneNumber" class="control-label text-gray"></label>
-                <input asp-for="EmployeeWizard.Employee.PhoneNumber" class="form-control text-navyblue" />
-                <span asp-validation-for="EmployeeWizard.Employee.PhoneNumber" class="text-danger"></span>
+                <label asp-for="Employee.LastName" class="control-label text-gray"></label>
+                <input id="employee_last_name" asp-for="Employee.LastName" class="form-control text-navyblue" />
+                <span asp-validation-for="Employee.LastName" class="text-danger"></span>
             </div>
         </div>
         <div class="row">
             <div class="form-group col">
-                <label asp-for="EmployeeWizard.Employee.Department.CompanyId" class="control-label text-gray"></label>
+                <label asp-for="Employee.Email" class="control-label text-gray"></label>
+                <input asp-for="Employee.Email" class="form-control text-navyblue" />
+                <span asp-validation-for="Employee.Email" class="text-danger"></span>
+            </div>
+            <div class="form-group col">
+                <label asp-for="Employee.PhoneNumber" class="control-label text-gray"></label>
+                <input asp-for="Employee.PhoneNumber" class="form-control text-navyblue" />
+                <span asp-validation-for="Employee.PhoneNumber" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col">
+                <label asp-for="Employee.Department.CompanyId" class="control-label text-gray"></label>
                 <div class="d-flex">
                     <select id="companies" onchange="GetDepartment(this.value)" class="form-control text-navyblue" asp-items="ViewBag.CompanyId"></select>
                     <button type="button" class="btn btn-success btn-add open-second-modal-dialog" data-id="" data-action="CreateCompany" data-title="Create company">
                         <img src="~/svg/action/add.svg" />
                     </button>
                 </div>
-                <span asp-validation-for="EmployeeWizard.Employee.DepartmentId" class="text-danger"></span>
+                <span asp-validation-for="Employee.DepartmentId" class="text-danger"></span>
             </div>
             <div class="form-group col">
-                <label asp-for="EmployeeWizard.Employee.DepartmentId" class="control-label text-gray"></label>
+                <label asp-for="Employee.DepartmentId" class="control-label text-gray"></label>
                 <div class="d-flex">
-                    <select id="departments" asp-for="EmployeeWizard.Employee.DepartmentId" class="form-control text-navyblue"></select>
+                    <select id="departments" asp-for="Employee.DepartmentId" class="form-control text-navyblue"></select>
                     <button id="add_position_btn" type="button" class="btn btn-success btn-add open-second-modal-dialog" data-id="" data-action="CreateDepartment" data-title="Create department">
                         <img src="~/svg/action/add.svg" />
                     </button>
                 </div>
-                <span asp-validation-for="EmployeeWizard.Employee.DepartmentId" class="text-danger"></span>
+                <span asp-validation-for="Employee.DepartmentId" class="text-danger"></span>
             </div>
         </div>
         <div class="row">
             <div class="form-group col">
-                <label asp-for="EmployeeWizard.Employee.PositionId" class="control-label text-gray"></label>
+                <label asp-for="Employee.PositionId" class="control-label text-gray"></label>
                 <div class="d-flex">
-                    <select id="positions" asp-for="EmployeeWizard.Employee.PositionId" class="form-control text-navyblue" asp-items="ViewBag.PositionId"></select>
+                    <select id="positions" asp-for="Employee.PositionId" class="form-control text-navyblue" asp-items="ViewBag.PositionId"></select>
                     <button type="button" class="btn btn-success btn-add open-second-modal-dialog" data-id="" data-action="CreatePosition" data-title="Create position">
                         <img src="~/svg/action/add.svg" />
                     </button>
                 </div>
-                <span asp-validation-for="EmployeeWizard.Employee.PositionId" class="text-danger"></span>
+                <span asp-validation-for="Employee.PositionId" class="text-danger"></span>
             </div>
             <div class="col"></div>
         </div>
     </div>
     <!-- Device -->
     <div id="deviceTab" class="wizard-tab d-none">
-        <input id="skipDevice" type="hidden" asp-for="EmployeeWizard.SkipDevice" value="false" />
-        <input id="skipProximityUnlock" type="hidden" asp-for="EmployeeWizard.SkipProximityUnlock" value="true">
+        <input id="skipDevice" type="hidden" asp-for="Wizard.SkipDevice" value="false" />
+        <input id="skipProximityUnlock" type="hidden" asp-for="Wizard.SkipProximityUnlock" value="true">
         <div class="row justify-content-center">
             <div class="form-group col-4">
                 <label class="control-label">Device</label>
-                <select id="deviceId" class="form-control" asp-for="EmployeeWizard.DeviceId" asp-items="ViewBag.DeviceId"></select>
+                <select id="deviceId" class="form-control" asp-for="Wizard.DeviceId" asp-items="ViewBag.DeviceId"></select>
             </div>
         </div>
         <div class="row justify-content-center" id="proximity_group">
@@ -142,13 +142,13 @@
         <div class="row justify-content-center d-none" id="workstation_group">
             <div class="form-group col-4">
                 <label class="control-label">Select the workstation for proximity unlock</label>
-                <select id="workstationId" class="form-control" asp-for="EmployeeWizard.WorkstationId" asp-items="ViewBag.WorkstationId"></select>
+                <select id="workstationId" class="form-control" asp-for="Wizard.WorkstationId" asp-items="ViewBag.WorkstationId"></select>
             </div>
         </div>
     </div>
     <!-- Workstation Account -->
     <div id="workstationAccountTab" class="wizard-tab d-none">
-        <input id="skipWorkstationAccount" type="hidden" asp-for="EmployeeWizard.WorkstationAccount.Skip" value="false" />
+        <input id="skipWorkstationAccount" type="hidden" asp-for="Wizard.WorkstationAccount.Skip" value="false" />
         <ul class="nav nav-pills mb-3 justify-content-center" id="pills-tab-accounts" role="tablist">
             <li class="nav-item">
                 <a class="nav-link active ws-account-nav" id="pills-personal-tab" data-toggle="pill" href="#pills-personal" role="tab">Personal account</a>
@@ -159,34 +159,34 @@
         </ul>
         <div class="tab-content" id="pills-tabContent">
             <div class="tab-pane fade show active" id="pills-personal" role="tabpanel">
-                <input id="accountName" type="hidden" asp-for="EmployeeWizard.WorkstationAccount.Name" value="Windows Account" />
+                <input id="accountName" type="hidden" asp-for="Wizard.WorkstationAccount.Name" value="Windows Account" />
                 <div class="row">
                     <div class="form-group col">
-                        <label asp-for="EmployeeWizard.WorkstationAccount.AccountType" class="text-gray"></label>
-                        <select id="workstation_account_type" asp-for="EmployeeWizard.WorkstationAccount.AccountType" class="form-control" asp-items="ViewBag.WorkstationAccountType"></select>
+                        <label asp-for="Wizard.WorkstationAccount.AccountType" class="text-gray"></label>
+                        <select id="workstation_account_type" asp-for="Wizard.WorkstationAccount.AccountType" class="form-control" asp-items="ViewBag.WorkstationAccountType"></select>
                     </div>
                     <div id="domain_group" class="form-group col invisible">
-                        <label asp-for="EmployeeWizard.WorkstationAccount.Domain" class="text-gray"></label>
-                        <input id="domain" asp-for="EmployeeWizard.WorkstationAccount.Domain" class="form-control text-navyblue" value="local" autocomplete="new-password" />
-                        <span asp-validation-for="EmployeeWizard.WorkstationAccount.Domain" class="text-danger"></span>
+                        <label asp-for="Wizard.WorkstationAccount.Domain" class="text-gray"></label>
+                        <input id="domain" asp-for="Wizard.WorkstationAccount.Domain" class="form-control text-navyblue" value="local" autocomplete="new-password" />
+                        <span asp-validation-for="Wizard.WorkstationAccount.Domain" class="text-danger"></span>
                     </div>
                     <div class="col"></div>
                 </div>
                 <div class="row">
                     <div class="form-group col">
-                        <label asp-for="EmployeeWizard.WorkstationAccount.Login" class="text-gray"></label>
-                        <input id="login" asp-for="EmployeeWizard.WorkstationAccount.Login" class="form-control text-navyblue" autocomplete="new-password" />
-                        <span asp-validation-for="EmployeeWizard.WorkstationAccount.Login" class="text-danger"></span>
+                        <label asp-for="Wizard.WorkstationAccount.Login" class="text-gray"></label>
+                        <input id="login" asp-for="Wizard.WorkstationAccount.Login" class="form-control text-navyblue" autocomplete="new-password" />
+                        <span asp-validation-for="Wizard.WorkstationAccount.Login" class="text-danger"></span>
                     </div>
                     <div class="form-group col">
-                        <label asp-for="EmployeeWizard.WorkstationAccount.Password" class="text-gray"></label>
-                        <input id="password" asp-for="EmployeeWizard.WorkstationAccount.Password" class="form-control text-navyblue" autocomplete="new-password" />
-                        <span asp-validation-for="EmployeeWizard.WorkstationAccount.Password" class="text-danger"></span>
+                        <label asp-for="Wizard.WorkstationAccount.Password" class="text-gray"></label>
+                        <input id="password" asp-for="Wizard.WorkstationAccount.Password" class="form-control text-navyblue" autocomplete="new-password" />
+                        <span asp-validation-for="Wizard.WorkstationAccount.Password" class="text-danger"></span>
                     </div>
                     <div class="form-group col">
-                        <label asp-for="EmployeeWizard.WorkstationAccount.ConfirmPassword" class="text-gray"></label>
-                        <input id="confirmPassword" asp-for="EmployeeWizard.WorkstationAccount.ConfirmPassword" class="form-control text-navyblue" autocomplete="new-password" />
-                        <span asp-validation-for="EmployeeWizard.WorkstationAccount.ConfirmPassword" class="text-danger"></span>
+                        <label asp-for="Wizard.WorkstationAccount.ConfirmPassword" class="text-gray"></label>
+                        <input id="confirmPassword" asp-for="Wizard.WorkstationAccount.ConfirmPassword" class="form-control text-navyblue" autocomplete="new-password" />
+                        <span asp-validation-for="Wizard.WorkstationAccount.ConfirmPassword" class="text-danger"></span>
                     </div>
                 </div>
             </div>

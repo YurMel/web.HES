@@ -16,9 +16,9 @@ namespace HES.Core.Entities
         [Required]
         [Display(Name = "Last Name")]
         public string LastName { get; set; }
-        [Required]
+        [Remote(action: "VerifyEmailAsync", controller: "Validation", AdditionalFields = "Id")]
         [EmailAddress]
-        [Remote(action: "VerifyEmail", controller: "Validation")]
+        [Required]
         public string Email { get; set; }
         [Display(Name = "Phone Number")]
         public string PhoneNumber { get; set; }

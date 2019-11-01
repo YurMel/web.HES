@@ -2,10 +2,8 @@
 
 namespace HES.Core.Entities.Models
 {
-    public class EmployeeWizard
+    public class Wizard
     {
-        public Employee Employee { get; set; }
-        
         [RequiredIf("SkipDevice")]
         public string DeviceId { get; set; }
         public bool SkipDevice { get; set; }

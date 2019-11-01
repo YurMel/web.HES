@@ -30,7 +30,7 @@ namespace HES.Web.Pages.Employees
         public IList<Workstation> Workstations { get; set; }
         public Employee Employee { get; set; }
         public EmployeeFilter EmployeeFilter { get; set; }
-        public EmployeeWizard EmployeeWizard { get; set; }
+        public Wizard Wizard { get; set; }
         public Company Company { get; set; }
         public Department Department { get; set; }
         public Position Position { get; set; }
@@ -142,7 +142,7 @@ namespace HES.Web.Pages.Employees
             return Partial("_CreateEmployee", this);
         }
 
-        public async Task<IActionResult> OnPostCreateEmployeeAsync(EmployeeWizard employeeWizard)
+        public async Task<IActionResult> OnPostCreateEmployeeAsync(Employee employee, Wizard wizard)
         {
             if (!ModelState.IsValid)
             {
@@ -155,27 +155,27 @@ namespace HES.Web.Pages.Employees
             try
             {
                 // Create employee
-                var user = await _employeeService.CreateEmployeeAsync(employeeWizard.Employee);
+                var user = await _employeeService.CreateEmployeeAsync(employee);
 
                 // Add device
-                if (!employeeWizard.SkipDevice)
+                if (!wizard.SkipDevice)
                 {
-                    await _employeeService.AddDeviceAsync(user.Id, new string[] { employeeWizard.DeviceId });
+                    await _employeeService.AddDeviceAsync(user.Id, new string[] { wizard.DeviceId });
 
                     // Proximity Unlock
-                    if (!employeeWizard.SkipProximityUnlock)
+                    if (!wizard.SkipProximityUnlock)
                     {
-                        await _workstationProximityDeviceService.AddProximityDeviceAsync(employeeWizard.WorkstationId, new string[] { employeeWizard.DeviceId });
+                        await _workstationProximityDeviceService.AddProximityDeviceAsync(wizard.WorkstationId, new string[] { wizard.DeviceId });
                     }
-                    
+
                     // Add workstation account
-                    if (!employeeWizard.WorkstationAccount.Skip)
+                    if (!wizard.WorkstationAccount.Skip)
                     {
-                        await _employeeService.CreateWorkstationAccountAsync(employeeWizard.WorkstationAccount, user.Id, employeeWizard.DeviceId);
+                        await _employeeService.CreateWorkstationAccountAsync(wizard.WorkstationAccount, user.Id, wizard.DeviceId);
                     }
                 }
-                
-                _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(employeeWizard.DeviceId);
+
+                _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(wizard.DeviceId);
 
                 SuccessMessage = $"Employee created.";
             }
@@ -254,7 +254,9 @@ namespace HES.Web.Pages.Employees
         {
             if (!ModelState.IsValid)
             {
-                _logger.LogWarning("Model is not valid");
+                var errors = string.Join(" ", ModelState.Values.SelectMany(s => s.Errors).Select(s => s.ErrorMessage).ToArray());
+                ErrorMessage = errors;
+                _logger.LogWarning(errors);
                 return RedirectToPage("./Index");
             }
 
