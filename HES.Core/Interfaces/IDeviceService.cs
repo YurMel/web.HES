@@ -18,7 +18,7 @@ namespace HES.Core.Interfaces
         Task UpdateDeviceInfoAsync(string deviceId, int battery, string firmware, bool locked);
         Task<string[]> GetDevicesByProfileAsync(string profileId);
         Task SetProfileAsync(string[] devicesId, string profileId);
-        Task UpdateProfileAsync(string profileId);
+        Task<string[]> UpdateProfileAsync(string profileId);
         Task UnlockPinAsync(string deviceId);
         Task<bool> ExistAsync(Expression<Func<Device, bool>> predicate);
         Task RemoveEmployeeAsync(string deviceId);

@@ -57,6 +57,11 @@ namespace HES.Core.Services
             return await _deviceRepository.GetCountAsync();
         }
 
+        public async Task<int> GetFreeDevicesCount()
+        {
+            return await _deviceRepository.Query().Where(d => d.EmployeeId == null).CountAsync();
+        }
+
         public async Task<Device> GetByIdAsync(dynamic id)
         {
             return await _deviceRepository.GetByIdAsync(id);
@@ -91,8 +96,8 @@ namespace HES.Core.Services
                     PrimaryAccountId = null,
                     MasterPassword = null,
                     AcceessProfileId = "default",
-                    ImportedAt = DateTime.UtcNow,
-                    UsePin = true
+                    ImportedAt = DateTime.UtcNow
+                    //UsePin = true
                 })
                 .ToList();
 
@@ -156,59 +161,6 @@ namespace HES.Core.Services
             await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "Battery", "Firmware", "State", "LastSynced" });
         }
 
-        public async Task<string[]> GetDevicesByProfileAsync(string profileId)
-        {
-            return await _deviceRepository.Query().Where(d => d.AcceessProfileId == profileId && d.MasterPassword != null).Select(s => s.Id).ToArrayAsync();
-        }
-
-        public async Task SetProfileAsync(string[] devicesId, string profileId)
-        {
-            if (devicesId == null)
-            {
-                throw new NullReferenceException(nameof(devicesId));
-            }
-            if (profileId == null)
-            {
-                throw new NullReferenceException(nameof(profileId));
-            }
-
-            var profile = await _deviceAccessProfilesService.GetByIdAsync(profileId);
-            if (profile == null)
-            {
-                throw new Exception("Profile not found");
-            }
-
-            foreach (var deviceId in devicesId)
-            {
-                var device = await _deviceRepository.GetByIdAsync(deviceId);
-                if (device == null)
-                {
-                    throw new Exception($"Device not found, ID: {deviceId}");
-                }
-
-                device.AcceessProfileId = profileId;
-                await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "AcceessProfileId" });
-
-                if (device.EmployeeId != null)
-                {
-                    // Delete all previous tasks for update profile
-                    await _deviceTaskService.RemoveAllProfileTasksAsync(device.Id);
-                    // Add task for update profile
-                    await _deviceTaskService.AddProfileTaskAsync(device);
-                }
-            }
-        }
-
-        public async Task UpdateProfileAsync(string profileId)
-        {
-            var devicesId = await GetDevicesByProfileAsync(profileId);
-
-            if (devicesId.Length > 0)
-            {
-                await SetProfileAsync(devicesId, profileId);
-            }
-        }
-
         public async Task UnlockPinAsync(string deviceId)
         {
             if (deviceId == null)
@@ -264,9 +216,75 @@ namespace HES.Core.Services
             await _deviceRepository.UpdateOnlyPropAsync(device, properties.ToArray());
         }
 
-        public async Task<int> GetFreeDevicesCount()
+        #region Profile
+
+        public async Task<string[]> GetDevicesByProfileAsync(string profileId)
         {
-            return await _deviceRepository.Query().Where(d => d.EmployeeId == null).CountAsync();
+            var tasks = await _deviceTaskService
+                .Query()
+                .Where(d => d.Operation == TaskOperation.Wipe || d.Operation == TaskOperation.Link)
+                .Select(s => s.DeviceId)
+                .AsNoTracking()
+                .ToListAsync();
+
+            var devicesIds = await _deviceRepository
+               .Query()
+               .Where(d => d.AcceessProfileId == profileId && d.EmployeeId != null && !tasks.Contains(d.Id))
+               .Select(s => s.Id)
+               .AsNoTracking()
+               .ToArrayAsync();
+
+            return devicesIds;
         }
+
+        public async Task SetProfileAsync(string[] devicesId, string profileId)
+        {
+            if (devicesId == null)
+            {
+                throw new NullReferenceException(nameof(devicesId));
+            }
+            if (profileId == null)
+            {
+                throw new NullReferenceException(nameof(profileId));
+            }
+
+            var profile = await _deviceAccessProfilesService.GetByIdAsync(profileId);
+            if (profile == null)
+            {
+                throw new Exception("Profile not found");
+            }
+
+            foreach (var deviceId in devicesId)
+            {
+                var device = await _deviceRepository.GetByIdAsync(deviceId);
+                if (device != null)
+                {
+                    device.AcceessProfileId = profileId;
+                    await _deviceRepository.UpdateOnlyPropAsync(device, new string[] { "AcceessProfileId" });
+
+                    if (device.EmployeeId != null)
+                    {
+                        // Delete all previous tasks for update profile
+                        await _deviceTaskService.RemoveAllProfileTasksAsync(device.Id);
+                        // Add task for update profile
+                        await _deviceTaskService.AddProfileTaskAsync(device);
+                    }
+                }
+            }
+        }
+
+        public async Task<string[]> UpdateProfileAsync(string profileId)
+        {
+            var devicesId = await GetDevicesByProfileAsync(profileId);
+
+            if (devicesId.Length > 0)
+            {
+                await SetProfileAsync(devicesId, profileId);
+            }
+
+            return devicesId;
+        }
+
+        #endregion
     }
 }

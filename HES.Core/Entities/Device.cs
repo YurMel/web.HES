@@ -22,7 +22,6 @@ namespace HES.Core.Entities
         public string AcceessProfileId { get; set; }
         public string MasterPassword { get; set; }
         public DateTime ImportedAt { get; set; }
-        public bool UsePin { get; set; }
 
         [ForeignKey("EmployeeId")]
         public Employee Employee { get; set; }

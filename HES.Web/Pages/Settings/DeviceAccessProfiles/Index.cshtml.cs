@@ -109,9 +109,8 @@ namespace HES.Web.Pages.Settings.DeviceAccessProfiles
             try
             {
                 await _deviceAccessProfilesService.EditProfileAsync(DeviceAccessProfile);
-                await _deviceService.UpdateProfileAsync(DeviceAccessProfile.Id);
-                var devices = await _deviceService.GetDevicesByProfileAsync(DeviceAccessProfile.Id);
-                _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(devices);
+                var devicesId = await _deviceService.UpdateProfileAsync(DeviceAccessProfile.Id);
+                _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(devicesId);
                 SuccessMessage = $"Device access profile updated.";
             }
             catch (Exception ex)
