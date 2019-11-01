@@ -147,10 +147,7 @@ function InitDeviceTasksDT() {
     var table_name = '#deviceTasks';
     var table = $(table_name).DataTable({
         responsive: true,
-        "order": [[3, "dsec"]],
-        "columnDefs": [
-            { "orderable": false, "targets": [0] }
-        ]
+        "order": [[2, "desc"]]
     });
     var dataTable = $(table_name).dataTable();
     // Search box

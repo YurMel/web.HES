@@ -28,7 +28,7 @@ namespace HES.Web.Pages.Dashboard
         {
             DeviceTasks = await _deviceTaskService.Query()
                 .Include(d => d.DeviceAccount.Employee.Department.Company)
-                .OrderByDescending(d => d.CreatedAt)
+                .AsNoTracking()
                 .ToListAsync();
         }
 
