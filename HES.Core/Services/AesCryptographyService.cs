@@ -72,7 +72,6 @@ namespace HES.Core.Services
 
         private byte[] ObjectToByteArray(object obj)
         {
-
             string json = JsonConvert.SerializeObject(obj);
             return Encoding.Unicode.GetBytes(json);
         }

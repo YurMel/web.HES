@@ -93,7 +93,7 @@ namespace HES.Core.Hubs
             return base.OnDisconnectedAsync(exception);
         }
 
-        // gets a device from the context
+        // Gets a device from the context
         RemoteDevice GetDevice()
         {
             var remoteDevice = _remoteDeviceConnectionsService.FindRemoteDevice(GetDeviceId(), GetWorkstationId());
@@ -104,7 +104,7 @@ namespace HES.Core.Hubs
             return remoteDevice;
         }
 
-        // incoming request
+        // Incoming request
         public Task OnVerifyResponse(byte[] data, string error)
         {
             try
@@ -121,7 +121,7 @@ namespace HES.Core.Hubs
             return Task.CompletedTask;
         }
 
-        // incoming request
+        // Incoming request
         public Task OnCommandResponse(byte[] data, string error)
         {
             try
