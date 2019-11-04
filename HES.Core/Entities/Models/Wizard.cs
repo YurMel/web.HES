@@ -1,4 +1,4 @@
-﻿using HES.Core.Entities.Validation;
+﻿using HES.Core.Entities.Attributes;
 
 namespace HES.Core.Entities.Models
 {
