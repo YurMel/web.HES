@@ -19,7 +19,7 @@ namespace HES.Web.Pages.Employees
         private readonly IEmployeeService _employeeService;
         private readonly IDeviceService _deviceService;
         private readonly IWorkstationService _workstationService;
-        private readonly IWorkstationProximityDeviceService _workstationProximityDeviceService;
+        private readonly IProximityDeviceService _workstationProximityDeviceService;
         private readonly IOrgStructureService _orgStructureService;
         private readonly IRemoteWorkstationConnectionsService _remoteWorkstationConnectionsService;
         private readonly ISharedAccountService _sharedAccountService;
@@ -45,7 +45,7 @@ namespace HES.Web.Pages.Employees
         public IndexModel(IEmployeeService employeeService,
                           IDeviceService deviceService,
                           IWorkstationService workstationService,
-                          IWorkstationProximityDeviceService workstationProximityDeviceService,
+                          IProximityDeviceService workstationProximityDeviceService,
                           IOrgStructureService orgStructureService,
                           IRemoteWorkstationConnectionsService remoteWorkstationConnectionsService,
                           ISharedAccountService sharedAccountService,

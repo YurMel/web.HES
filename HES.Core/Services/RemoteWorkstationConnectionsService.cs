@@ -30,7 +30,7 @@ namespace HES.Core.Services
         readonly IRemoteDeviceConnectionsService _remoteDeviceConnectionsService;
         readonly IEmployeeService _employeeService;
         readonly IWorkstationService _workstationService;
-        readonly IWorkstationProximityDeviceService _workstationProximityDeviceService;
+        readonly IProximityDeviceService _workstationProximityDeviceService;
         readonly IDeviceService _deviceService;
         readonly IDataProtectionService _dataProtectionService;
         readonly IWorkstationSessionService _workstationSessionService;
@@ -41,7 +41,7 @@ namespace HES.Core.Services
                       IRemoteDeviceConnectionsService remoteDeviceConnectionsService,
                       IEmployeeService employeeService,
                       IWorkstationService workstationService,
-                      IWorkstationProximityDeviceService workstationProximityDeviceService,
+                      IProximityDeviceService workstationProximityDeviceService,
                       IDeviceService deviceService,
                       IDataProtectionService dataProtectionService,
                       IWorkstationSessionService workstationSessionService,

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HES.Core.Entities
 {
-    public class WorkstationProximityDevice
+    public class ProximityDevice
     {
         [Key]
         public string Id { get; set; }

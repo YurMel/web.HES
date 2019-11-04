@@ -25,7 +25,6 @@ namespace HES.Core.Services
         private readonly IAsyncRepository<Device> _deviceRepository;
         private readonly IAsyncRepository<DeviceTask> _deviceTaskRepository;
         private readonly IAsyncRepository<SharedAccount> _sharedAccountRepository;
-        private readonly INotificationService _notificationService;
         private readonly IDataProtectionProvider _dataProtectionProvider;
         private readonly ILogger<DataProtectionService> _logger;
         private IDataProtector _dataProtector;
@@ -38,15 +37,13 @@ namespace HES.Core.Services
                                      IAsyncRepository<DeviceTask> deviceTaskRepository,
                                      IAsyncRepository<SharedAccount> sharedAccountRepository,
                                      IDataProtectionProvider dataProtectionProvider,
-                                     INotificationService notificationService,
                                      ILogger<DataProtectionService> logger)
         {
             _dataProtectionRepository = dataProtectionRepository;
-            _deviceRepository = deviceRepository; 
+            _deviceRepository = deviceRepository;
             _deviceTaskRepository = deviceTaskRepository;
             _sharedAccountRepository = sharedAccountRepository;
             _dataProtectionProvider = dataProtectionProvider;
-            _notificationService = notificationService;
             _logger = logger;
         }
 
@@ -60,7 +57,6 @@ namespace HES.Core.Services
 
                 if (!_activatedProtection)
                 {
-                    await _notificationService.AddNotifyAsync(NotifyType.DataProtection, "Data protection is enabled and requires activation.", "/Settings/DataProtection/Index");
                     return ProtectionStatus.RequiresActivation;
                 }
 
@@ -120,7 +116,6 @@ namespace HES.Core.Services
                 // Create protector
                 _dataProtector = _dataProtectionProvider.CreateProtector(password);
                 _activatedProtection = true;
-                await _notificationService.RemoveNotifyAsync(NotifyType.DataProtection);
                 _logger.LogInformation($"Protection was activated by {user}.");
             }
             catch (CryptographicException)

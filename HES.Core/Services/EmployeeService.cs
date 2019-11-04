@@ -20,7 +20,7 @@ namespace HES.Core.Services
         private readonly IDeviceTaskService _deviceTaskService;
         private readonly IDeviceAccountService _deviceAccountService;
         private readonly ISharedAccountService _sharedAccountService;
-        private readonly IWorkstationProximityDeviceService _workstationProximityDeviceService;
+        private readonly IProximityDeviceService _workstationProximityDeviceService;
         private readonly IAsyncRepository<WorkstationEvent> _workstationEventRepository;
         private readonly IAsyncRepository<WorkstationSession> _workstationSessionRepository;
         private readonly IDataProtectionService _dataProtectionService;
@@ -31,7 +31,7 @@ namespace HES.Core.Services
                                IDeviceTaskService deviceTaskService,
                                IDeviceAccountService deviceAccountService,
                                ISharedAccountService sharedAccountService,
-                               IWorkstationProximityDeviceService workstationProximityDeviceService,
+                               IProximityDeviceService workstationProximityDeviceService,
                                IAsyncRepository<WorkstationEvent> workstationEventRepository,
                                IAsyncRepository<WorkstationSession> workstationSessionRepository,
                                IDataProtectionService dataProtectionService,

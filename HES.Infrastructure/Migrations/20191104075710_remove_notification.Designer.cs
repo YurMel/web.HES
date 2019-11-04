@@ -3,14 +3,16 @@ using System;
 using HES.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace HES.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20191104075710_remove_notification")]
+    partial class remove_notification
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -325,30 +327,6 @@ namespace HES.Infrastructure.Migrations
                     b.ToTable("Positions");
                 });
 
-            modelBuilder.Entity("HES.Core.Entities.ProximityDevice", b =>
-                {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("DeviceId");
-
-                    b.Property<int>("LockProximity");
-
-                    b.Property<int>("LockTimeout");
-
-                    b.Property<int>("UnlockProximity");
-
-                    b.Property<string>("WorkstationId");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DeviceId");
-
-                    b.HasIndex("WorkstationId");
-
-                    b.ToTable("ProximityDevices");
-                });
-
             modelBuilder.Entity("HES.Core.Entities.SamlIdentityProvider", b =>
                 {
                     b.Property<string>("Id")
@@ -483,6 +461,30 @@ namespace HES.Infrastructure.Migrations
                     b.HasIndex("WorkstationId");
 
                     b.ToTable("WorkstationEvents");
+                });
+
+            modelBuilder.Entity("HES.Core.Entities.WorkstationProximityDevice", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("DeviceId");
+
+                    b.Property<int>("LockProximity");
+
+                    b.Property<int>("LockTimeout");
+
+                    b.Property<int>("UnlockProximity");
+
+                    b.Property<string>("WorkstationId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeviceId");
+
+                    b.HasIndex("WorkstationId");
+
+                    b.ToTable("WorkstationProximityDevices");
                 });
 
             modelBuilder.Entity("HES.Core.Entities.WorkstationSession", b =>
@@ -684,17 +686,6 @@ namespace HES.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("HES.Core.Entities.ProximityDevice", b =>
-                {
-                    b.HasOne("HES.Core.Entities.Device", "Device")
-                        .WithMany()
-                        .HasForeignKey("DeviceId");
-
-                    b.HasOne("HES.Core.Entities.Workstation", "Workstation")
-                        .WithMany("ProximityDevices")
-                        .HasForeignKey("WorkstationId");
-                });
-
             modelBuilder.Entity("HES.Core.Entities.Workstation", b =>
                 {
                     b.HasOne("HES.Core.Entities.Department", "Department")
@@ -722,6 +713,17 @@ namespace HES.Infrastructure.Migrations
 
                     b.HasOne("HES.Core.Entities.Workstation", "Workstation")
                         .WithMany()
+                        .HasForeignKey("WorkstationId");
+                });
+
+            modelBuilder.Entity("HES.Core.Entities.WorkstationProximityDevice", b =>
+                {
+                    b.HasOne("HES.Core.Entities.Device", "Device")
+                        .WithMany()
+                        .HasForeignKey("DeviceId");
+
+                    b.HasOne("HES.Core.Entities.Workstation", "Workstation")
+                        .WithMany("ProximityDevices")
                         .HasForeignKey("WorkstationId");
                 });
 

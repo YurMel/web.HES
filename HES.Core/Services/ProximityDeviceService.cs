@@ -9,21 +9,21 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HES.Core.Services
 {
-    public class WorkstationProximityDeviceService : IWorkstationProximityDeviceService
+    public class ProximityDeviceService : IProximityDeviceService
     {
-        private readonly IAsyncRepository<WorkstationProximityDevice> _workstationProximityDeviceRepository;
+        private readonly IAsyncRepository<ProximityDevice> _proximityDeviceRepository;
         private readonly IWorkstationService _workstationService;
 
-        public WorkstationProximityDeviceService(IAsyncRepository<WorkstationProximityDevice> workstationProximityDeviceRepository,
+        public ProximityDeviceService(IAsyncRepository<ProximityDevice> proximityDeviceRepository,
                                                  IWorkstationService workstationService)
         {
-            _workstationProximityDeviceRepository = workstationProximityDeviceRepository;
+            _proximityDeviceRepository = proximityDeviceRepository;
             _workstationService = workstationService;
         }
 
-        public IQueryable<WorkstationProximityDevice> Query()
+        public IQueryable<ProximityDevice> Query()
         {
-            return _workstationProximityDeviceRepository.Query();
+            return _proximityDeviceRepository.Query();
         }
 
         public async Task AddProximityDeviceAsync(string workstationId, string[] devicesId)
@@ -37,11 +37,11 @@ namespace HES.Core.Services
                 throw new ArgumentNullException(nameof(devicesId));
             }
 
-            List<WorkstationProximityDevice> proximityDevices = new List<WorkstationProximityDevice>();
+            List<ProximityDevice> proximityDevices = new List<ProximityDevice>();
 
             foreach (var deviceId in devicesId)
             {
-                var exists = await _workstationProximityDeviceRepository
+                var exists = await _proximityDeviceRepository
                 .Query()
                 .Where(d => d.DeviceId == deviceId)
                 .Where(d => d.WorkstationId == workstationId)
@@ -52,7 +52,7 @@ namespace HES.Core.Services
                     throw new Exception($"Device {deviceId} already exist.");
                 }
 
-                proximityDevices.Add(new WorkstationProximityDevice
+                proximityDevices.Add(new ProximityDevice
                 {
                     WorkstationId = workstationId,
                     DeviceId = deviceId,
@@ -62,7 +62,7 @@ namespace HES.Core.Services
                 });
             }
 
-            await _workstationProximityDeviceRepository.AddRangeAsync(proximityDevices);
+            await _proximityDeviceRepository.AddRangeAsync(proximityDevices);
             await UpdateProximitySettingsAsync(workstationId);
         }
 
@@ -83,13 +83,13 @@ namespace HES.Core.Services
             }
         }
 
-        public async Task EditProximityDeviceAsync(WorkstationProximityDevice proximityDevice)
+        public async Task EditProximityDeviceAsync(ProximityDevice proximityDevice)
         {
             if (proximityDevice == null)
                 throw new ArgumentNullException(nameof(proximityDevice));
 
             string[] properties = { "LockProximity", "UnlockProximity", "LockTimeout" };
-            await _workstationProximityDeviceRepository.UpdateOnlyPropAsync(proximityDevice, properties);
+            await _proximityDeviceRepository.UpdateOnlyPropAsync(proximityDevice, properties);
             await UpdateProximitySettingsAsync(proximityDevice.WorkstationId);
         }
 
@@ -100,24 +100,24 @@ namespace HES.Core.Services
                 throw new ArgumentNullException(nameof(proximityDeviceId));
             }
 
-            var proximityDevice = await _workstationProximityDeviceRepository.GetByIdAsync(proximityDeviceId);
+            var proximityDevice = await _proximityDeviceRepository.GetByIdAsync(proximityDeviceId);
             if (proximityDevice == null)
             {
                 throw new Exception("Binding not found.");
             }
 
-            await _workstationProximityDeviceRepository.DeleteAsync(proximityDevice);
+            await _proximityDeviceRepository.DeleteAsync(proximityDevice);
             await UpdateProximitySettingsAsync(proximityDevice.WorkstationId);
         }
 
-        public async Task DeleteRangeProximityDevicesAsync(List<WorkstationProximityDevice> proximityDevices)
+        public async Task DeleteRangeProximityDevicesAsync(List<ProximityDevice> proximityDevices)
         {
             if (proximityDevices == null)
             {
                 throw new ArgumentNullException(nameof(proximityDevices));
             }
 
-            await _workstationProximityDeviceRepository.DeleteRangeAsync(proximityDevices);
+            await _proximityDeviceRepository.DeleteRangeAsync(proximityDevices);
 
             foreach (var item in proximityDevices)
             {
@@ -139,7 +139,7 @@ namespace HES.Core.Services
 
             var deviceProximitySettings = new List<DeviceProximitySettingsDto>();
 
-            var proximityDevices = await _workstationProximityDeviceRepository
+            var proximityDevices = await _proximityDeviceRepository
                 .Query()
                 .Include(i => i.Device)
                 .Where(b => b.WorkstationId == workstationId)
@@ -173,12 +173,12 @@ namespace HES.Core.Services
 
         public async Task RemoveAllProximityAsync(string deviceId)
         {
-            var allProximity = await _workstationProximityDeviceRepository
+            var allProximity = await _proximityDeviceRepository
              .Query()
              .Where(w => w.DeviceId == deviceId)
              .ToListAsync();
 
-            await _workstationProximityDeviceRepository.DeleteRangeAsync(allProximity);
+            await _proximityDeviceRepository.DeleteRangeAsync(allProximity);
 
             foreach (var item in allProximity)
             {

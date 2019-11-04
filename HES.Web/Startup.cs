@@ -82,7 +82,7 @@ namespace HES.Web
             services.AddScoped<IDeviceAccessProfilesService, DeviceAccessProfilesService>();
 
             services.AddScoped<IWorkstationService, WorkstationService>();
-            services.AddScoped<IWorkstationProximityDeviceService, WorkstationProximityDeviceService>();
+            services.AddScoped<IProximityDeviceService, ProximityDeviceService>();
             services.AddScoped<IWorkstationEventService, WorkstationEventService>();
 
             services.AddScoped<ISharedAccountService, SharedAccountService>();
@@ -103,14 +103,12 @@ namespace HES.Web
                 var deviceTaskRepository = scope.ServiceProvider.GetService<IAsyncRepository<DeviceTask>>();
                 var sharedAccountRepository = scope.ServiceProvider.GetService<IAsyncRepository<SharedAccount>>();
                 var dataProtectionProvider = scope.ServiceProvider.GetService<IDataProtectionProvider>();
-                var notificationService = scope.ServiceProvider.GetService<INotificationService>();
                 var logger = scope.ServiceProvider.GetService<ILogger<DataProtectionService>>();
                 return new DataProtectionService(dataProtectionRepository,
                                                  deviceRepository,
                                                  deviceTaskRepository,
                                                  sharedAccountRepository,
                                                  dataProtectionProvider,
-                                                 notificationService,
                                                  logger);
             });
 
@@ -118,14 +116,6 @@ namespace HES.Web
             services.AddScoped<IRemoteDeviceConnectionsService, RemoteDeviceConnectionsService>();
             services.AddScoped<IRemoteTaskService, RemoteTaskService>();
             
-            services.AddSingleton<INotificationService, NotificationService>(s =>
-            {
-                var scope = s.CreateScope();
-                var logger = scope.ServiceProvider.GetService<ILogger<NotificationService>>();
-                var notificationRepository = scope.ServiceProvider.GetService<IAsyncRepository<Notification>>();
-                var applicationUserService = scope.ServiceProvider.GetService<IApplicationUserService>();
-                return new NotificationService(notificationRepository, applicationUserService, logger);
-            });
             services.AddSingleton<IEmailSenderService, EmailSenderService>(i =>
                  new EmailSenderService(
                      Configuration["EmailSender:Host"],
