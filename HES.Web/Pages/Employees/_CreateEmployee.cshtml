@@ -309,7 +309,7 @@
 
                         // Device
                         var skipDevice = $('#skipDevice').attr("value");
-                        if (skipDevice === 'true') {
+                        if (skipDevice == 'true') {
                             $('#overview_device_sn').text("Skipped");
                             $('#overview_device').html("");
                             $('#overview_workstation').addClass('invisible');
@@ -333,14 +333,14 @@
 
                         // Account
                         var skipWorkstationAccount = $('#skipWorkstationAccount').attr("value");
-                        if (skipWorkstationAccount === 'true') {
+                        if (skipWorkstationAccount == 'true') {
                             $('#overview_user_name').text("Skipped");
                             $('#overview_login').html("");
                             $('#overview_domain_title').addClass('invisible');
                             $('#overview_domain').addClass('invisible');
                         }
                         else {
-                            $('#overview_user_name').text("Serial number");
+                            $('#overview_user_name').text("User Name");
                             $('#overview_login').html($("#login").val());
                             var type = $("#workstation_account_type option:selected").text();
                             var domain = $("#domain").val();

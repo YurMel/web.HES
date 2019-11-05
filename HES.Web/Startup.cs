@@ -201,7 +201,6 @@ namespace HES.Web
             }
 
             app.UseStatusCodePages();
-            app.UseStatusCodePagesWithReExecute("/StatusCode", "?code={0}");
 
             var supportedCultures = new[]
             {
