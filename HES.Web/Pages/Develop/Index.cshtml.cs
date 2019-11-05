@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using HES.Core.Entities;
+using HES.Core.Entities.Models;
 using HES.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -83,7 +84,7 @@ namespace HES.Web.Pages.Develop
                         EmployeeId = device.EmployeeId
                     };
 
-                    var input = new InputModel()
+                    var input = new AccountPassword()
                     {
                         Password = Guid.NewGuid().ToString(),
                         OtpSecret = "ybqc 4bk6 fmfg oyx2 zab6 tz3w zmh2 i5zg"

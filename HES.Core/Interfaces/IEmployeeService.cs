@@ -26,10 +26,10 @@ namespace HES.Core.Interfaces
         Task AddDeviceAsync(string employeeId, string[] selectedDevices);
         Task RemoveDeviceAsync(string employeeId, string deviceId);
         Task CreateWorkstationAccountAsync(WorkstationAccount workstationAccount, string employeeId, string deviceId);
-        Task CreatePersonalAccountAsync(DeviceAccount deviceAccount, InputModel input, string[] selectedDevices);
+        Task CreatePersonalAccountAsync(DeviceAccount deviceAccount, AccountPassword accountPassword, string[] selectedDevices);
         Task EditPersonalAccountAsync(DeviceAccount deviceAccount);
-        Task EditPersonalAccountPwdAsync(DeviceAccount deviceAccount, InputModel input);
-        Task EditPersonalAccountOtpAsync(DeviceAccount deviceAccount, InputModel input);
+        Task EditPersonalAccountPwdAsync(DeviceAccount deviceAccount, AccountPassword accountPassword);
+        Task EditPersonalAccountOtpAsync(DeviceAccount deviceAccount, AccountPassword accountPassword);
         Task AddSharedAccount(string employeeId, string sharedAccountId, string[] selectedDevices);
         Task<string> DeleteAccount(string accountId);
         Task UndoChanges(string accountId);

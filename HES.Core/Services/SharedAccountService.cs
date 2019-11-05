@@ -39,23 +39,23 @@ namespace HES.Core.Services
             return await _sharedAccountRepository.GetByIdAsync(id);
         }
 
-        public async Task<SharedAccount> CreateSharedAccountAsync(SharedAccount sharedAccount, InputModel input)
+        public async Task<SharedAccount> CreateSharedAccountAsync(SharedAccount sharedAccount)
         {
-
             _dataProtectionService.Validate();
 
-            if (sharedAccount == null || input == null)
+            if (sharedAccount == null)
             {
-                throw new Exception("The parameter must not be null.");
+                throw new ArgumentNullException(nameof(sharedAccount));
             }
 
-            ValidationHepler.VerifyOtpSecret(input.OtpSecret);
+            ValidationHepler.VerifyOtpSecret(sharedAccount.OtpSecret);
 
             var exist = await _sharedAccountRepository
                 .Query()
-                .Where(s => s.Name == sharedAccount.Name)
-                .Where(s => s.Login == sharedAccount.Login)
-                .Where(s => s.Deleted == false)
+                .Where(s => s.Name == sharedAccount.Name &&
+                            s.Login == sharedAccount.Login &&
+                            s.Deleted == false)
+                .AsNoTracking()
                 .AnyAsync();
 
             if (exist)
@@ -64,12 +64,10 @@ namespace HES.Core.Services
             }
 
             // Validate url
-            if (sharedAccount.Urls != null)
-            {
-                sharedAccount.Urls = ValidationHepler.VerifyUrls(sharedAccount.Urls);
-            }
+            sharedAccount.Urls = ValidationHepler.VerifyUrls(sharedAccount.Urls);
+
             // Set password
-            sharedAccount.Password = _dataProtectionService.Protect(input.Password);
+            sharedAccount.Password = _dataProtectionService.Protect(sharedAccount.Password);
             // Set password date change
             sharedAccount.PasswordChangedAt = DateTime.UtcNow;
             // Set otp date change
@@ -92,7 +90,8 @@ namespace HES.Core.Services
             var sharedAccount = new SharedAccount()
             {
                 Name = workstationAccount.Name,
-                Kind = AccountKind.Workstation                
+                Kind = AccountKind.Workstation,
+                Password = workstationAccount.Password
             };
 
             switch (workstationAccount.AccountType)
@@ -108,12 +107,7 @@ namespace HES.Core.Services
                     break;
             }
 
-            var input = new InputModel()
-            {
-                Password = workstationAccount.Password
-            };
-
-            await CreateSharedAccountAsync(sharedAccount, input);
+            await CreateSharedAccountAsync(sharedAccount);
         }
 
         public async Task UpdateOnlyPropAsync(SharedAccount sharedAccount, string[] properties)
@@ -194,17 +188,17 @@ namespace HES.Core.Services
             return devices;
         }
 
-        public async Task<List<string>> EditSharedAccountPwdAsync(SharedAccount sharedAccount, InputModel input)
+        public async Task<List<string>> EditSharedAccountPwdAsync(SharedAccount sharedAccount)
         {
-            _dataProtectionService.Validate();
-
-            if (sharedAccount == null || input == null)
+            if (sharedAccount == null)
             {
-                throw new Exception("The parameter must not be null.");
+                throw new ArgumentNullException(nameof(sharedAccount));
             }
 
+            _dataProtectionService.Validate();
+
             // Update Shared Account
-            sharedAccount.Password = _dataProtectionService.Protect(input.Password);
+            sharedAccount.Password = _dataProtectionService.Protect(sharedAccount.Password);
             sharedAccount.PasswordChangedAt = DateTime.UtcNow;
             string[] properties = { "Password", "PasswordChangedAt" };
             await _sharedAccountRepository.UpdateOnlyPropAsync(sharedAccount, properties);
@@ -245,24 +239,19 @@ namespace HES.Core.Services
             return devices;
         }
 
-        public async Task<List<string>> EditSharedAccountOtpAsync(SharedAccount sharedAccount, InputModel input)
+        public async Task<List<string>> EditSharedAccountOtpAsync(SharedAccount sharedAccount)
         {
-            _dataProtectionService.Validate();
-
             if (sharedAccount == null)
             {
-                throw new Exception(nameof(sharedAccount));
+                throw new ArgumentNullException(nameof(sharedAccount));
             }
 
-            if (input == null)
-            {
-                throw new Exception(nameof(input));
-            }
-
-            ValidationHepler.VerifyOtpSecret(input.OtpSecret);
+            _dataProtectionService.Validate();
+                       
+            ValidationHepler.VerifyOtpSecret(sharedAccount.OtpSecret);
 
             // Update Shared Account
-            sharedAccount.OtpSecret = !string.IsNullOrWhiteSpace(input.OtpSecret) ? _dataProtectionService.Protect(input.OtpSecret) : null;
+            sharedAccount.OtpSecret = !string.IsNullOrWhiteSpace(sharedAccount.OtpSecret) ? _dataProtectionService.Protect(sharedAccount.OtpSecret) : null;
             sharedAccount.OtpSecretChangedAt = !string.IsNullOrWhiteSpace(sharedAccount.OtpSecret) ? new DateTime?(DateTime.UtcNow) : null;
             string[] properties = { "OtpSecret", "OtpSecretChangedAt" };
             await _sharedAccountRepository.UpdateOnlyPropAsync(sharedAccount, properties);

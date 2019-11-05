@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -21,7 +22,7 @@ namespace HES.Web.Pages.SharedAccounts
 
         public IList<SharedAccount> SharedAccounts { get; set; }
         public SharedAccount SharedAccount { get; set; }
-        public InputModel Input { get; set; }
+        public AccountPassword AccountPassword { get; set; }
         public WorkstationAccount WorkstationAccount { get; set; }
 
         [TempData]
@@ -54,17 +55,21 @@ namespace HES.Web.Pages.SharedAccounts
             return Partial("_CreateSharedAccount", this);
         }
 
-        public async Task<IActionResult> OnPostCreateSharedAccountAsync(SharedAccount sharedAccount, InputModel input)
+        public async Task<IActionResult> OnPostCreateSharedAccountAsync(SharedAccount sharedAccount, AccountPassword accountPassword)
         {
             if (!ModelState.IsValid)
             {
-                _logger.LogWarning("Model is not valid");
+                var errors = string.Join(" ", ModelState.Values.SelectMany(s => s.Errors).Select(s => s.ErrorMessage).ToArray());
+                _logger.LogError($"{errors}");
+                ErrorMessage = errors;
                 return RedirectToPage("./Index");
             }
 
             try
             {
-                await _sharedAccountService.CreateSharedAccountAsync(sharedAccount, input);
+                sharedAccount.Password = accountPassword.Password;
+                sharedAccount.OtpSecret = accountPassword.OtpSecret;
+                await _sharedAccountService.CreateSharedAccountAsync(sharedAccount);
                 SuccessMessage = $"Shared account created.";
             }
             catch (Exception ex)
@@ -75,13 +80,14 @@ namespace HES.Web.Pages.SharedAccounts
 
             return RedirectToPage("./Index");
         }
-               
+
         public async Task<IActionResult> OnPostCreateWorkstationSharedAccountAsync(WorkstationAccount workstationAccount)
-        {   
+        {
             if (!ModelState.IsValid)
             {
-                _logger.LogWarning("Model is not valid");
-                ErrorMessage = "Model is not valid";
+                var errors = string.Join(" ", ModelState.Values.SelectMany(s => s.Errors).Select(s => s.ErrorMessage).ToArray());
+                _logger.LogError($"{errors}");
+                ErrorMessage = errors;
                 return RedirectToPage("./Index");
             }
 
@@ -124,7 +130,9 @@ namespace HES.Web.Pages.SharedAccounts
         {
             if (!ModelState.IsValid)
             {
-                _logger.LogWarning("Model is not valid");
+                var errors = string.Join(" ", ModelState.Values.SelectMany(s => s.Errors).Select(s => s.ErrorMessage).ToArray());
+                _logger.LogError($"{errors}");
+                ErrorMessage = errors;
                 return RedirectToPage("./Index");
             }
 
@@ -163,17 +171,20 @@ namespace HES.Web.Pages.SharedAccounts
             return Partial("_EditSharedAccountPwd", this);
         }
 
-        public async Task<IActionResult> OnPostEditSharedAccountPwdAsync(SharedAccount sharedAccount, InputModel input)
+        public async Task<IActionResult> OnPostEditSharedAccountPwdAsync(SharedAccount sharedAccount, AccountPassword accountPassword)
         {
             if (!ModelState.IsValid)
             {
-                _logger.LogWarning("Model is not valid");
+                var errors = string.Join(" ", ModelState.Values.SelectMany(s => s.Errors).Select(s => s.ErrorMessage).ToArray());
+                _logger.LogError($"{errors}");
+                ErrorMessage = errors;
                 return RedirectToPage("./Index");
             }
 
             try
             {
-                var devices = await _sharedAccountService.EditSharedAccountPwdAsync(sharedAccount, input);
+                sharedAccount.Password = accountPassword.Password;
+                var devices = await _sharedAccountService.EditSharedAccountPwdAsync(sharedAccount);
                 _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(devices);
                 SuccessMessage = $"Shared account updated.";
             }
@@ -207,11 +218,12 @@ namespace HES.Web.Pages.SharedAccounts
             return Partial("_EditSharedAccountOtp", this);
         }
 
-        public async Task<IActionResult> OnPostEditSharedAccountOtpAsync(SharedAccount sharedAccount, InputModel input)
+        public async Task<IActionResult> OnPostEditSharedAccountOtpAsync(SharedAccount sharedAccount, AccountPassword accountPassword)
         {
             try
             {
-                var devices = await _sharedAccountService.EditSharedAccountOtpAsync(sharedAccount, input);
+                sharedAccount.OtpSecret = accountPassword.OtpSecret;
+                var devices = await _sharedAccountService.EditSharedAccountOtpAsync(sharedAccount);
                 _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(devices);
                 SuccessMessage = $"Shared account updated.";
             }

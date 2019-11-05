@@ -523,26 +523,21 @@ namespace HES.Core.Services
                     break;
             }
 
-            var input = new InputModel()
-            {
-                Password = workstationAccount.Password
-            };
-
-            await CreatePersonalAccountAsync(deviceAccount, input, new string[] { deviceId });
+            await CreatePersonalAccountAsync(deviceAccount, new AccountPassword() { Password = workstationAccount.Password }, new string[] { deviceId });
         }
 
-        public async Task CreatePersonalAccountAsync(DeviceAccount deviceAccount, InputModel input, string[] selectedDevices)
+        public async Task CreatePersonalAccountAsync(DeviceAccount deviceAccount, AccountPassword accountPassword, string[] selectedDevices)
         {
             if (deviceAccount == null)
                 throw new ArgumentNullException(nameof(deviceAccount));
 
-            if (input == null)
-                throw new ArgumentNullException(nameof(input));
+            if (accountPassword == null)
+                throw new ArgumentNullException(nameof(accountPassword));
 
             if (selectedDevices == null)
                 throw new ArgumentNullException(nameof(selectedDevices));
 
-            ValidationHepler.VerifyOtpSecret(input.OtpSecret);
+            ValidationHepler.VerifyOtpSecret(accountPassword.OtpSecret);
 
             _dataProtectionService.Validate();
 
@@ -578,7 +573,7 @@ namespace HES.Core.Services
                     Status = AccountStatus.Creating,
                     CreatedAt = DateTime.UtcNow,
                     PasswordUpdatedAt = DateTime.UtcNow,
-                    OtpUpdatedAt = input.OtpSecret != null ? new DateTime?(DateTime.UtcNow) : null,
+                    OtpUpdatedAt = accountPassword.OtpSecret != null ? new DateTime?(DateTime.UtcNow) : null,
                     Kind = deviceAccount.Kind,
                     EmployeeId = deviceAccount.EmployeeId,
                     DeviceId = deviceId,
@@ -593,8 +588,8 @@ namespace HES.Core.Services
                     Urls = deviceAccount.Urls,
                     Apps = deviceAccount.Apps,
                     Login = deviceAccount.Login,
-                    Password = _dataProtectionService.Protect(input.Password),
-                    OtpSecret = input.OtpSecret,
+                    Password = _dataProtectionService.Protect(accountPassword.Password),
+                    OtpSecret = accountPassword.OtpSecret,
                     CreatedAt = DateTime.UtcNow,
                     Operation = TaskOperation.Create,
                     DeviceId = deviceId
@@ -670,15 +665,15 @@ namespace HES.Core.Services
             }
         }
 
-        public async Task EditPersonalAccountPwdAsync(DeviceAccount deviceAccount, InputModel input)
+        public async Task EditPersonalAccountPwdAsync(DeviceAccount deviceAccount, AccountPassword accountPassword)
         {
-            _dataProtectionService.Validate();
-
             if (deviceAccount == null)
                 throw new ArgumentNullException(nameof(deviceAccount));
 
-            if (input == null)
-                throw new ArgumentNullException(nameof(input));
+            if (accountPassword == null)
+                throw new ArgumentNullException(nameof(accountPassword));
+
+            _dataProtectionService.Validate();
 
             // Update Device Account
             deviceAccount.Status = AccountStatus.Updating;
@@ -692,7 +687,7 @@ namespace HES.Core.Services
                 await _deviceTaskService.AddTaskAsync(new DeviceTask
                 {
                     DeviceAccountId = deviceAccount.Id,
-                    Password = _dataProtectionService.Protect(input.Password),
+                    Password = _dataProtectionService.Protect(accountPassword.Password),
                     CreatedAt = DateTime.UtcNow,
                     Operation = TaskOperation.Update,
                     DeviceId = deviceAccount.DeviceId
@@ -706,14 +701,17 @@ namespace HES.Core.Services
             }
         }
 
-        public async Task EditPersonalAccountOtpAsync(DeviceAccount deviceAccount, InputModel input)
+        public async Task EditPersonalAccountOtpAsync(DeviceAccount deviceAccount, AccountPassword accountPassword)
         {
-            ValidationHepler.VerifyOtpSecret(input.OtpSecret);
+            if (deviceAccount == null)
+                throw new ArgumentNullException(nameof(deviceAccount));
+
+            if (accountPassword == null)
+                throw new ArgumentNullException(nameof(accountPassword));
 
             _dataProtectionService.Validate();
 
-            if (deviceAccount == null)
-                throw new ArgumentNullException(nameof(deviceAccount));
+            ValidationHepler.VerifyOtpSecret(accountPassword.OtpSecret);
 
             // Update Device Account
             deviceAccount.Status = AccountStatus.Updating;
@@ -728,7 +726,7 @@ namespace HES.Core.Services
                 await _deviceTaskService.AddTaskAsync(new DeviceTask
                 {
                     DeviceAccountId = deviceAccount.Id,
-                    OtpSecret = _dataProtectionService.Protect(input.OtpSecret ?? string.Empty),
+                    OtpSecret = _dataProtectionService.Protect(accountPassword.OtpSecret ?? string.Empty),
                     CreatedAt = DateTime.UtcNow,
                     Operation = TaskOperation.Update,
                     DeviceId = deviceAccount.DeviceId

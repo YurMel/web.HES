@@ -24,7 +24,6 @@ namespace HES.Web.Pages.Employees
         private readonly ISharedAccountService _sharedAccountService;
         private readonly ITemplateService _templateService;
         private readonly ISamlIdentityProviderService _samlIdentityProviderService;
-        private readonly IApplicationUserService _applicationUserService;
         private readonly IRemoteWorkstationConnectionsService _remoteWorkstationConnectionsService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEmailSenderService _emailSender;
@@ -40,7 +39,7 @@ namespace HES.Web.Pages.Employees
         public Employee Employee { get; set; }
         public DeviceAccount DeviceAccount { get; set; }
         public SharedAccount SharedAccount { get; set; }
-        public InputModel Input { get; set; }
+        public AccountPassword AccountPassword { get; set; }
         public bool SamlIdentityProviderEnabled { get; set; }
         public bool UserSamlIdpEnabled { get; set; }
 
@@ -55,7 +54,6 @@ namespace HES.Web.Pages.Employees
                             ISharedAccountService sharedAccountService,
                             ITemplateService templateService,
                             ISamlIdentityProviderService samlIdentityProviderService,
-                            IApplicationUserService applicationUserService,
                             IRemoteWorkstationConnectionsService remoteWorkstationConnectionsService,
                             UserManager<ApplicationUser> userManager,
                             IEmailSenderService emailSender,
@@ -67,7 +65,6 @@ namespace HES.Web.Pages.Employees
             _sharedAccountService = sharedAccountService;
             _templateService = templateService;
             _samlIdentityProviderService = samlIdentityProviderService;
-            _applicationUserService = applicationUserService;
             _remoteWorkstationConnectionsService = remoteWorkstationConnectionsService;
             _userManager = userManager;
             _emailSender = emailSender;
@@ -457,7 +454,7 @@ namespace HES.Web.Pages.Employees
             return Partial("_CreatePersonalAccount", this);
         }
 
-        public async Task<IActionResult> OnPostCreatePersonalAccountAsync(DeviceAccount deviceAccount, InputModel input, string[] selectedDevices)
+        public async Task<IActionResult> OnPostCreatePersonalAccountAsync(DeviceAccount deviceAccount, AccountPassword accountPassword, string[] selectedDevices)
         {
             var id = deviceAccount.EmployeeId;
 
@@ -469,7 +466,7 @@ namespace HES.Web.Pages.Employees
 
             try
             {
-                await _employeeService.CreatePersonalAccountAsync(deviceAccount, input, selectedDevices);
+                await _employeeService.CreatePersonalAccountAsync(deviceAccount, accountPassword, selectedDevices);
                 _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(selectedDevices);
                 SuccessMessage = "Account created and will be recorded when the device is connected to the server.";
             }
@@ -505,6 +502,9 @@ namespace HES.Web.Pages.Employees
                 {
                     await _employeeService.CreateWorkstationAccountAsync(workstationAccount, employeeId, deviceId);
                 }
+
+                _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(selectedDevicesW);
+                SuccessMessage = "Account created and will be recorded when the device is connected to the server.";
             }
             catch (Exception ex)
             {
@@ -586,7 +586,7 @@ namespace HES.Web.Pages.Employees
             return Partial("_EditPersonalAccountPwd", this);
         }
 
-        public async Task<IActionResult> OnPostEditPersonalAccountPwdAsync(DeviceAccount deviceAccount, InputModel input)
+        public async Task<IActionResult> OnPostEditPersonalAccountPwdAsync(DeviceAccount deviceAccount, AccountPassword accountPassword)
         {
             var id = deviceAccount.EmployeeId;
 
@@ -598,7 +598,7 @@ namespace HES.Web.Pages.Employees
 
             try
             {
-                await _employeeService.EditPersonalAccountPwdAsync(deviceAccount, input);
+                await _employeeService.EditPersonalAccountPwdAsync(deviceAccount, accountPassword);
                 _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(deviceAccount.DeviceId);
                 SuccessMessage = "Account updated and will be recorded when the device is connected to the server.";
             }
@@ -634,13 +634,13 @@ namespace HES.Web.Pages.Employees
             return Partial("_EditPersonalAccountOtp", this);
         }
 
-        public async Task<IActionResult> OnPostEditPersonalAccountOtpAsync(DeviceAccount deviceAccount, InputModel input)
+        public async Task<IActionResult> OnPostEditPersonalAccountOtpAsync(DeviceAccount deviceAccount, AccountPassword accountPassword)
         {
             var id = deviceAccount.EmployeeId;
 
             try
             {
-                await _employeeService.EditPersonalAccountOtpAsync(deviceAccount, input);
+                await _employeeService.EditPersonalAccountOtpAsync(deviceAccount, accountPassword);
                 _remoteWorkstationConnectionsService.StartUpdateRemoteDevice(deviceAccount.DeviceId);
                 SuccessMessage = "Account updated and will be recorded when the device is connected to the server.";
             }
