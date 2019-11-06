@@ -1,6 +1,6 @@
 # Hideez Web Server
 
-Hideez Web Server is an HTTP and HTTPS that collects and manage log\pass credentials.
+Hideez Web Server is an HTTP and HTTPS Service that collects and manage log\pass credentials.
 
 ## Requirements
 
@@ -8,7 +8,7 @@ Hideez Web Server is an HTTP and HTTPS that collects and manage log\pass credent
   * .NET Core (.NET Core SDK version 2.2).
   * MySQL Server (version 8.0+).
 
-## Preparation System (**Example** for CentOS 7).
+## Preparation System (Example for CentOS 7).
 
   Adding Microsoft Package Repository and Installing .NET Core:
 
@@ -23,7 +23,7 @@ Hideez Web Server is an HTTP and HTTPS that collects and manage log\pass credent
   $ sudo rpm -Uvh https://dev.mysql.com/get/mysql80-community-release-el7-3.noarch.rpm
   $ sudo yum install mysql-server
 ```
-  * [Note] TO find default root Password using `sudo grep "A temporary password" /var/log/mysqld.log`
+  * **[Note]** To find default root Password using `sudo grep "A temporary password" /var/log/mysqld.log`
 
 ## Getting Started.
 
