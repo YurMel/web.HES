@@ -73,6 +73,7 @@ Hideez Web Server is an HTTP and HTTPS Service that collects and manage log\pass
   [Install]
   WantedBy=multi-user.target
   EOF
+  $ systemctl enable hideez
 ```
 
 ## Run into the Docker
