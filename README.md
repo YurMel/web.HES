@@ -10,6 +10,13 @@ Hideez Web Server is an HTTP and HTTPS Service that collects and manage log\pass
 
 ## Preparation System (Example for CentOS 7).
 
+  Disable SELinux:
+
+```shell
+  $ sudo sed 's/SELINUX=enforcing/SELINUX=disabled/' /etc/sysconfig/selinux
+  $ setenforce 0
+```
+
   Adding Microsoft Package Repository and Installing .NET Core:
 
 ```shell
@@ -23,7 +30,7 @@ Hideez Web Server is an HTTP and HTTPS Service that collects and manage log\pass
   $ sudo rpm -Uvh https://dev.mysql.com/get/mysql80-community-release-el7-3.noarch.rpm
   $ sudo yum install mysql-server
 ```
-  * **[Note]** To find default root Password using `sudo grep "A temporary password" /var/log/mysqld.log`
+  * **[Note]** Find default root password using `sudo grep "A temporary password" /var/log/mysqld.log`
 
 ## Getting Started.
 
