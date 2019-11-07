@@ -8,13 +8,13 @@ Hideez Web Server is an HTTP and HTTPS Service that collects and manage log\pass
   * .NET Core (.NET Core SDK version 2.2).
   * MySQL Server (version 8.0+).
 
-## Preparation System (Example for CentOS 7).
+## Preparation System (Example for [CentOS 7](https://www.centos.org/about/)).
 
   Disabling SELinux:
 
 ```shell
   $ sudo sed 's/SELINUX=enforcing/SELINUX=disabled/' /etc/sysconfig/selinux
-  $ setenforce 0
+  $ sudo setenforce 0
 ```
 
   Adding Microsoft Package Repository and Installing .NET Core:
@@ -37,8 +37,14 @@ Hideez Web Server is an HTTP and HTTPS Service that collects and manage log\pass
   Installing and Cloning a GitHub Repository
 
 ```shell
-  $ sudo yum install git $$ cd /opt
-  $ sudo git clone -b develop https://github.com/HideezGroup/web.HES $$ cd web.HES
+  $ sudo yum install git && cd /opt
+  $ sudo git clone -b develop https://github.com/HideezGroup/web.HES && cd web.HES
+```
+
+  Compiling and Demoninizing Hideez Web Server
+
+```shell
+  $ dotnet publish -c release -v d -o "/opt/develop" --framework netcoreapp2.2 --runtime linux-x64 HES.Web.csproj
 ```
 
 ## Run into the Docker
