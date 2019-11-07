@@ -1,3 +1,5 @@
+<p align="center"><img src="https://cdn.shopify.com/s/files/1/0007/8017/3348/files/HideezLogo_Horizontal_360x.jpg" alt="Hideez"></p>
+
 # Hideez Web Server
 
 Hideez Web Server is an HTTP and HTTPS Service that collects and manage log\pass credentials.
@@ -62,10 +64,12 @@ Hideez Web Server is an HTTP and HTTPS Service that collects and manage log\pass
   Description=Hideez Web service
 
   [Service]
-  WorkingDirectory=/opt/develop/
-  ExecStart=/opt/develop/HES.Web
+
   User=root
   Group=root
+
+  WorkingDirectory=BASE_DIR=/opt/HideezWeb/
+  ExecStart={BASE_DIR}/HES.Web
   Restart=on-failure
   # SyslogIdentifier=dotnet-sample-service
   # PrivateTmp=true
