@@ -1,8 +1,8 @@
 <p align="center"><img src="https://cdn.shopify.com/s/files/1/0007/8017/3348/files/HideezLogo_Horizontal_360x.jpg" alt="Hideez"></p>
 
-# Hideez Web Server
+# Hideez Enterprise Server
 
-Hideez Web Server is an HTTP and HTTPS Service that collects and manage log\pass credentials.
+Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage log\pass credentials.
 
 ## Requirements
 
@@ -43,25 +43,25 @@ Hideez Web Server is an HTTP and HTTPS Service that collects and manage log\pass
   $ sudo git clone -b develop https://github.com/HideezGroup/web.HES && cd web.HES
 ```
 
-  Compiling Hideez Web Server
+  Compiling Hideez Enterprise Server
 
 ```shell
   $ sudo mkdir /opt/HideezWeb
   $ sudo dotnet publish -c release -v d -o "/opt/HideezWeb" --framework netcoreapp2.2 --runtime linux-x64 HES.Web.csproj
   $ sudo cp /opt/web.HES/HES.Web/Crypto_linux.dll /opt/HideezWeb/Crypto.dll && sudo chmod +x /opt/HideezWeb/Crypto.dll
 ```
-  Configuring Hideez Web Server
+  Configuring Hideez Enterprise Server
 
 ```shell
   $ sudo vi /opt/HideezWeb/appsettings.json
 ```
 
-  Demonizing Hideez Web Server
+  Demonizing Hideez Enterprise Server
 
 ```shell
   $ sudo cat <<EOF > /lib/systemd/system/hideez.service
   [Unit]
-  Description=Hideez Web service
+  Description=Hideez Enterprise service
 
   [Service]
 
