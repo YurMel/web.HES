@@ -41,10 +41,11 @@ Hideez Web Server is an HTTP and HTTPS Service that collects and manage log\pass
   $ sudo git clone -b develop https://github.com/HideezGroup/web.HES && cd web.HES
 ```
 
-  Compiling and Demoninizing Hideez Web Server
+  Compiling and Demonizing Hideez Web Server
 
 ```shell
-  $ dotnet publish -c release -v d -o "/opt/develop" --framework netcoreapp2.2 --runtime linux-x64 HES.Web.csproj
+  $ mkdir /opt/HideezWeb
+  $ dotnet publish -c release -v d -o "/opt/HideezWeb" --framework netcoreapp2.2 --runtime linux-x64 HES.Web.csproj
 ```
 
 ## Run into the Docker
