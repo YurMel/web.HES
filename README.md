@@ -58,21 +58,21 @@ Hideez Web Server is an HTTP and HTTPS Service that collects and manage log\pass
 
 ```shell
   $ sudo cat <<EOF > /lib/systemd/system/hideez.service
-    [Unit]
-    Description=Hideez Web service
+  [Unit]
+  Description=Hideez Web service
 
-    [Service]
-    WorkingDirectory=/opt/develop/
-    ExecStart=/opt/develop/HES.Web
-    User=root
-    Group=root
-    Restart=on-failure
-    # SyslogIdentifier=dotnet-sample-service
-    # PrivateTmp=true
+  [Service]
+  WorkingDirectory=/opt/develop/
+  ExecStart=/opt/develop/HES.Web
+  User=root
+  Group=root
+  Restart=on-failure
+  # SyslogIdentifier=dotnet-sample-service
+  # PrivateTmp=true
 
-    [Install]
-    WantedBy=multi-user.target
-    EOF
+  [Install]
+  WantedBy=multi-user.target
+  EOF
 ```
 
 ## Run into the Docker
