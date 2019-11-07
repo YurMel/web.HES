@@ -10,7 +10,7 @@ Hideez Web Server is an HTTP and HTTPS Service that collects and manage log\pass
 
 ## Preparation System (Example for CentOS 7).
 
-  Disable SELinux:
+  Disabling SELinux:
 
 ```shell
   $ sudo sed 's/SELINUX=enforcing/SELINUX=disabled/' /etc/sysconfig/selinux
@@ -34,8 +34,12 @@ Hideez Web Server is an HTTP and HTTPS Service that collects and manage log\pass
 
 ## Getting Started.
 
-  * Install ``
+    Installing and Cloning a GitHub Repository
 
+```shell
+  $ sudo yum install git $$ cd /opt
+  $ sudo git clone -b develop https://github.com/HideezGroup/web.HES $$ cd web.HES
+```
 
 ## Run into the Docker
   * Install docker according official [documentation](https://docs.docker.com/install/linux/docker-ce/debian/)
