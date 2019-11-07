@@ -41,12 +41,23 @@ Hideez Web Server is an HTTP and HTTPS Service that collects and manage log\pass
   $ sudo git clone -b develop https://github.com/HideezGroup/web.HES && cd web.HES
 ```
 
-  Compiling and Demonizing Hideez Web Server
+  Compiling Hideez Web Server
 
 ```shell
   $ sudo mkdir /opt/HideezWeb
   $ sudo dotnet publish -c release -v d -o "/opt/HideezWeb" --framework netcoreapp2.2 --runtime linux-x64 HES.Web.csproj
   $ sudo cp /opt/web.HES/HES.Web/Crypto_linux.dll /opt/HideezWeb/Crypto.dll && sudo chmod +x /opt/HideezWeb/Crypto.dll
+```
+  Configuring Hideez Web Server
+
+```shell
+  $ sudo vi /opt/HideezWeb/appsettings.json
+```
+
+  Demonizing Hideez Web Server
+
+```shell
+  $ touch /lib/systemd/system/hideez.service
 ```
 
 ## Run into the Docker
