@@ -34,7 +34,7 @@ Hideez Web Server is an HTTP and HTTPS Service that collects and manage log\pass
 
 ## Getting Started.
 
-    Installing and Cloning a GitHub Repository
+  Installing and Cloning a GitHub Repository
 
 ```shell
   $ sudo yum install git $$ cd /opt
