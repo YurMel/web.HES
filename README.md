@@ -1,5 +1,4 @@
 <p align="center"><img src="https://cdn.shopify.com/s/files/1/0007/8017/3348/files/HideezLogo_Horizontal_360x.jpg" alt="Hideez"></p>
-<p align="center"><img src="https://cdn.shopify.com/s/files/1/0007/8017/3348/t/6/assets/hes.png" alt="Hideez"></p>
 
 # Hideez Enterprise Server
 
