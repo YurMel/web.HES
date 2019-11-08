@@ -157,6 +157,8 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
   Environment=BASE_DIR=/opt/HideezES/
   ExecStart=${BASE_DIR}/HES.Web
   Restart=on-failure
+  ExecReload=/bin/kill -HUP $MAINPID
+  KillMode=process
   # SyslogIdentifier=dotnet-sample-service
   # PrivateTmp=true
 
@@ -164,6 +166,59 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
   WantedBy=multi-user.target
   EOF
   $ systemctl enable hideez.service
+  $ systemctl restart hideez.service
+```
+
+  Configurung Nginx Proxy
+
+```shell
+ $ sudo mkdir /etc/nginx/certs
+ $ sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/certs/hideez.key -out /etc/nginx/certs/hideez.crt
+```
+
+  Basic Configuration for an NGINX Reverse Proxy
+
+```conf
+    server {
+        listen       80 default_server;
+        listen       [::]:80 default_server;
+        server_name  hideez.example.com;
+
+        location / {
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+            # Enable proxy websockets for the Hideez Client to work
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+            proxy_pass http://localhost:5000;
+        }
+  ...
+```
+
+```conf
+    server {
+        listen       443 ssl http2 default_server;
+        listen       [::]:443 ssl http2 default_server;
+        server_name  hideez.example.com;
+
+        ssl_certificate "certs/hideez.crt";
+        ssl_certificate_key "certs/hideez.key";
+
+        location / {
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+            # Enable proxy websockets for the hideez Client to work
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+            proxy_pass https://localhost:5001;
+        }
+  ...
 ```
 
 ## Run into the Docker
