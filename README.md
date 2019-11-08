@@ -97,7 +97,7 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
   mysql -h localhost -u root -p
 ```
 
-```mysql
+```sql
   ### CREATE DATABASE
   mysql> CREATE DATABASE hideez;
 
@@ -147,7 +147,7 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
 ```shell
   $ sudo cat <<EOF > /lib/systemd/system/hideez.service
   [Unit]
-  Description=Hideez Enterprise service
+  Description=Hideez Enterprise Service
 
   [Service]
 
