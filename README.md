@@ -64,8 +64,8 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
   Enabling and running MySQL Service
 
 ```shell
-  systemctl restart mysqld.service
-  systemctl enable mysqld.service
+  $ sudo systemctl restart mysqld.service
+  $ sudo systemctl enable mysqld.service
 ```
 
   Installing and Cloning a GitHub Repository
@@ -82,6 +82,28 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
   $ sudo dotnet publish -c release -v d -o "/opt/HideezWeb" --framework netcoreapp2.2 --runtime linux-x64 HES.Web.csproj
   $ sudo cp /opt/web.HES/HES.Web/Crypto_linux.dll /opt/HideezWeb/Crypto.dll && sudo chmod +x /opt/HideezWeb/Crypto.dll
 ```
+## Configuring system
+
+  Configuring MySQL Server
+
+```shell
+  mysql -h localhost -u root -p
+```
+
+```mysql
+  ### CREATE DATABASE
+  mysql> CREATE DATABASE hideez;
+
+  ### CREATE USER ACCOUNT
+  mysql> CREATE USER 'hideez'@'127.0.0.1' IDENTIFIED BY '<your_secret>';
+
+  ### GRANT PERMISSIONS ON DATABASE
+  mysql> GRANT ALL ON hideez.* TO 'hideez'@'127.0.0.1';
+
+  ###  RELOAD PRIVILEGES
+  mysql> FLUSH PRIVILEGES;
+```
+
   Configuring Hideez Enterprise Server
 
 ```shell
