@@ -18,7 +18,7 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
   $ sudo sed 's/SELINUX=enforcing/SELINUX=disabled/' /etc/sysconfig/selinux
   $ sudo setenforce 0
 ```
-  Install EPEL Repository and Nginx
+  Installing EPEL Repository and Nginx
 
 ```shell
   $ sudo yum install epel-release
@@ -89,7 +89,7 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
   $ sudo dotnet publish -c release -v d -o "/opt/HideezES" --framework netcoreapp2.2 --runtime linux-x64 HES.Web.csproj
   $ sudo cp /opt/web.HES/HES.Web/Crypto_linux.dll /opt/HideezES/Crypto.dll && sudo chmod +x /opt/HideezES/Crypto.dll
 ```
-## Configuring system
+## Configuring Hideez Enterprise Server
 
   Configuring MySQL Server
 
@@ -170,6 +170,8 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
   $ sudo systemctl restart hideez.service
 ```
 
+## Configuring Nginx Reverse Proxy
+
   Creating a Self-Signed SSL Certificate for Nginx
 
 ```shell
@@ -177,7 +179,7 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
  $ sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/certs/hideez.key -out /etc/nginx/certs/hideez.crt
 ```
 
-  Basic Configuration for an NGINX Reverse Proxy
+  Basic Configuration for an Nginx Reverse Proxy
 
 ```conf
     server {
@@ -222,7 +224,7 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
   ...
 ```
 
-   Restarting NGINX Reverse Proxy and check status
+   Restarting Nginx Reverse Proxy and check status
 
 ```shell
   $ sudo systemctl restart nginx
