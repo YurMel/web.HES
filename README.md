@@ -142,7 +142,7 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
 
 ```
 
-  Demonizing Hideez Enterprise Server
+  Daemonizing Hideez Enterprise Server
 
 ```shell
   $ sudo cat <<EOF > /lib/systemd/system/hideez.service
@@ -227,20 +227,17 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
 ```shell
   $ sudo systemctl restart nginx
   $ sudo systemctl status nginx
+  ● nginx.service - The nginx HTTP and reverse proxy server
+     Loaded: loaded (/usr/lib/systemd/system/nginx.service; disabled; vendor preset: disabled)
+     Active: active (running) since Fri 2019-11-08 20:46:28 EET; 6min ago
+    Process: 14756 ExecStart=/usr/sbin/nginx (code=exited, status=0/SUCCESS)
+    Process: 14754 ExecStartPre=/usr/sbin/nginx -t (code=exited, status=0/SUCCESS)
+    Process: 14752 ExecStartPre=/usr/bin/rm -f /run/nginx.pid (code=exited, status=0/SUCCESS)
+   Main PID: 14758 (nginx)
+     CGroup: /system.slice/nginx.service
+             ├─14758 nginx: master process /usr/sbin/nginx
+             └─14760 nginx: worker process
 ```
 
-```shell
-● nginx.service - The nginx HTTP and reverse proxy server
-   Loaded: loaded (/usr/lib/systemd/system/nginx.service; disabled; vendor preset: disabled)
-   Active: active (running) since Fri 2019-11-08 20:46:28 EET; 6min ago
-  Process: 14756 ExecStart=/usr/sbin/nginx (code=exited, status=0/SUCCESS)
-  Process: 14754 ExecStartPre=/usr/sbin/nginx -t (code=exited, status=0/SUCCESS)
-  Process: 14752 ExecStartPre=/usr/bin/rm -f /run/nginx.pid (code=exited, status=0/SUCCESS)
- Main PID: 14758 (nginx)
-   CGroup: /system.slice/nginx.service
-           ├─14758 nginx: master process /usr/sbin/nginx
-           └─14760 nginx: worker process
-```
-
-## Run into the Docker
-  * Install docker according official [documentation](https://docs.docker.com/install/linux/docker-ce/debian/)
+## Runing into the Docker
+  * Install Docker according official [documentation](https://docs.docker.com/install/linux/docker-ce/debian/)
