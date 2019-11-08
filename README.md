@@ -33,14 +33,17 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
   $ sudo yum install mysql-server
 ```
 
-  MySQL Post Installing Setup
+  ## Getting Started.
+
+  MySQL Post Installing and Securing MySQL Server
 
 ```shell
   $ sudo mysql_secure_installation
 ```
-   Securing MySQL Server
 
-```
+  It will prompt for few question’s, we recommended to say yes
+
+```shell
   Enter password for user root:
 
   The existing password for the user account root has expired. Please set a new password.
@@ -58,11 +61,12 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
 ```
   * **[Note]** Find default root password using `sudo grep "A temporary password" /var/log/mysqld.log`
 
+  Enabling and running MySQL Service
 
-## Getting Started.
-
-  
-
+```shell
+  systemctl restart mysqld.service
+  systemctl enable mysqld.service
+```
 
   Installing and Cloning a GitHub Repository
 
