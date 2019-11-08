@@ -113,7 +113,7 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
 ```json
   {
   "ConnectionStrings": {
-  <p>  "DefaultConnection": "server=127.0.0.1;port=3306;database=hideez;uid=hideez;pwd=<yuor_secret>" </p>
+    "DefaultConnection": "server=127.0.0.1;port=3306;database=hideez;uid=hideez;pwd=<yuor_secret>"
   },
 
   "EmailSender": {
