@@ -110,6 +110,32 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
   $ sudo vi /opt/HideezWeb/appsettings.json
 ```
 
+```json
+  {
+  "ConnectionStrings": {
+    ### DATABASE CREDENTIALS ALLOW TO LOG INTO YOUR DATABASE
+    "DefaultConnection": "server=127.0.0.1;port=3306;database=hideez;uid=hideez;pwd=<yuor_secret>"
+  },
+
+  "EmailSender": {
+    "Host": "smtp.example.com",
+    "Port": 123,
+    "EnableSSL": true,
+    "UserName": "user@example.com",
+    "Password": "password"
+  },
+
+  "Logging": {
+    "LogLevel": {
+      "Default": "Trace",
+      "Microsoft": "Information"
+    }
+  },
+
+  "AllowedHosts": "*"
+
+```
+
   Demonizing Hideez Enterprise Server
 
 ```shell
