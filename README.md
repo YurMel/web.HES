@@ -32,9 +32,37 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
   $ sudo rpm -Uvh https://dev.mysql.com/get/mysql80-community-release-el7-3.noarch.rpm
   $ sudo yum install mysql-server
 ```
+
+  MySQL Post Installing Setup
+
+```shell
+  $ sudo mysql_secure_installation
+```
+   Securing MySQL Server
+
+```
+  Enter password for user root:
+
+  The existing password for the user account root has expired. Please set a new password.
+
+  New password:
+  Re-enter new password:
+
+  Remove anonymous users? (Press y|Y for Yes, any other key for No) : y
+
+  Disallow root login remotely? (Press y|Y for Yes, any other key for No) : y
+
+  Remove test database and access to it? (Press y|Y for Yes, any other key for No) : y
+
+  Reload privilege tables now? (Press y|Y for Yes, any other key for No) : y
+```
   * **[Note]** Find default root password using `sudo grep "A temporary password" /var/log/mysqld.log`
 
+
 ## Getting Started.
+
+  
+
 
   Installing and Cloning a GitHub Repository
 
@@ -77,7 +105,7 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
   [Install]
   WantedBy=multi-user.target
   EOF
-  $ systemctl enable hideez
+  $ systemctl enable hideez.service
 ```
 
 ## Run into the Docker
