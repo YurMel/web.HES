@@ -18,6 +18,13 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
   $ sudo sed 's/SELINUX=enforcing/SELINUX=disabled/' /etc/sysconfig/selinux
   $ sudo setenforce 0
 ```
+  Install EPEL Repository and Nginx
+
+```shell
+  $ sudo yum install epel-release
+  $ sudo yum install nginx
+  $ sudo systemctl enable nginx
+```
 
   Adding Microsoft Package Repository and Installing .NET Core:
 
@@ -72,15 +79,15 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
 
 ```shell
   $ sudo yum install git && cd /opt
-  $ sudo git clone -b develop https://github.com/HideezGroup/web.HES && cd web.HES
+  $ sudo git clone https://github.com/HideezGroup/web.HES && cd web.HES
 ```
 
   Compiling Hideez Enterprise Server
 
 ```shell
-  $ sudo mkdir /opt/HideezWeb
-  $ sudo dotnet publish -c release -v d -o "/opt/HideezWeb" --framework netcoreapp2.2 --runtime linux-x64 HES.Web.csproj
-  $ sudo cp /opt/web.HES/HES.Web/Crypto_linux.dll /opt/HideezWeb/Crypto.dll && sudo chmod +x /opt/HideezWeb/Crypto.dll
+  $ sudo mkdir /opt/HideezES
+  $ sudo dotnet publish -c release -v d -o "/opt/HideezES" --framework netcoreapp2.2 --runtime linux-x64 HES.Web.csproj
+  $ sudo cp /opt/web.HES/HES.Web/Crypto_linux.dll /opt/HideezES/Crypto.dll && sudo chmod +x /opt/HideezES/Crypto.dll
 ```
 ## Configuring system
 
@@ -104,7 +111,7 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
   mysql> FLUSH PRIVILEGES;
 ```
 
-  Configuring Hideez Enterprise Server **(Setting MySQL Credentials)**
+  Configuring Hideez Enterprise Server (MySQL Credentials)
 
 ```shell
   $ sudo vi /opt/HideezWeb/appsettings.json
@@ -113,7 +120,7 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
 ```json
   {
   "ConnectionStrings": {
-    "DefaultConnection": "server=127.0.0.1;port=3306;database=hideez;uid=hideez;pwd=<yuor_secret>"
+    "DefaultConnection": "server=127.0.0.1;port=3306;database=hideez;uid=hideez;pwd=<your_secret>"
   },
 
   "EmailSender": {
@@ -147,8 +154,8 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
   User=root
   Group=root
 
-  WorkingDirectory=BASE_DIR=/opt/HideezWeb/
-  ExecStart={BASE_DIR}/HES.Web
+  Environment=BASE_DIR=/opt/HideezES/
+  ExecStart=${BASE_DIR}/HES.Web
   Restart=on-failure
   # SyslogIdentifier=dotnet-sample-service
   # PrivateTmp=true
