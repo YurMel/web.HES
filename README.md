@@ -110,12 +110,10 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
   $ sudo vi /opt/HideezWeb/appsettings.json
 ```
 
-  MYSQL CREDENTIALS TO ALLOW INSTALL DATA INTO DATABASE
-
 ```json
   {
   "ConnectionStrings": {
-    "DefaultConnection": "server=127.0.0.1;port=3306;database=hideez;uid=hideez;pwd=<yuor_secret>" 
+  <p>  "DefaultConnection": "server=127.0.0.1;port=3306;database=hideez;uid=hideez;pwd=<yuor_secret>" </p>
   },
 
   "EmailSender": {
