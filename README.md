@@ -41,7 +41,7 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
   $ sudo mysql_secure_installation
 ```
 
-  It will prompt for few question’s, we recommended to say yes
+  It will prompt for few question’s, which recommended to say yes
 
 ```shell
   Enter password for user root:
