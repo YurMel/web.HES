@@ -104,7 +104,7 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
   mysql> FLUSH PRIVILEGES;
 ```
 
-  Configuring Hideez Enterprise Server (Setting MySQL Credentials to access to database)
+  Configuring Hideez Enterprise Server (Setting MySQL Credentials)
 
 ```shell
   $ sudo vi /opt/HideezWeb/appsettings.json
