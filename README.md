@@ -87,7 +87,7 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
 ```shell
   $ sudo mkdir /opt/HideezES
   $ sudo dotnet publish -c release -v d -o "/opt/HideezES" --framework netcoreapp2.2 --runtime linux-x64 HES.Web.csproj
-  $ sudo cp /opt/web.HES/HES.Web/Crypto_linux.dll /opt/HideezES/Crypto.dll && sudo chmod +x /opt/HideezES/Crypto.dll
+  $ sudo cp /opt/web.HES/HES.Web/Crypto_linux.dll /opt/HideezES/Crypto.dll
 ```
 ## Configuring Hideez Enterprise Server
 
@@ -114,7 +114,7 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
   Configuring Hideez Enterprise Server (MySQL Credentials)
 
 ```shell
-  $ sudo vi /opt/HideezWeb/appsettings.json
+  $ sudo vi /opt/HideezES/appsettings.json
 ```
 
 ```json
@@ -240,6 +240,8 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
              ├─14758 nginx: master process /usr/sbin/nginx
              └─14760 nginx: worker process
 ```
+## Updating
+
 
 ## Runing into the Docker
   * Install Docker according official [documentation](https://docs.docker.com/install/linux/docker-ce/debian/)
