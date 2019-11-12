@@ -79,14 +79,13 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
 
 ```shell
   $ sudo yum install git && cd /opt
-  $ sudo git clone https://github.com/HideezGroup/web.HES && cd web.HES
+  $ sudo git clone https://github.com/HideezGroup/web.HES && cd web.HES/HES.Web/
 ```
 
   Compiling Hideez Enterprise Server
 
 ```shell
   $ sudo mkdir /opt/HideezES
-  $ sudo cd /opt/web.HES/HES.Web/
   $ sudo dotnet publish -c release -v d -o "/opt/HideezES" --framework netcoreapp2.2 --runtime linux-x64 HES.Web.csproj
   $ sudo cp /opt/web.HES/HES.Web/Crypto_linux.dll /opt/HideezES/Crypto.dll
 ```
