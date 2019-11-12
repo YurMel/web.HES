@@ -194,8 +194,9 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
 
             # Enable proxy websockets for the Hideez Client to work
             proxy_http_version 1.1;
+            proxy_buffering off;
             proxy_set_header Upgrade $http_upgrade;
-            proxy_set_header Connection "upgrade";
+            proxy_set_header Connection $http_connection;
             proxy_pass http://localhost:5000;
         }
   ...
@@ -217,8 +218,9 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
 
             # Enable proxy websockets for the hideez Client to work
             proxy_http_version 1.1;
+            proxy_buffering off;
             proxy_set_header Upgrade $http_upgrade;
-            proxy_set_header Connection "upgrade";
+            proxy_set_header Connection $http_connection;
             proxy_pass https://localhost:5001;
         }
   ...
