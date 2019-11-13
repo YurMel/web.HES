@@ -142,7 +142,7 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
 
 ```
 
-  Daemonizing Hideez Enterprise Server
+### 6. Daemonizing Hideez Enterprise Server
 
 ```shell
   $ sudo cat <<EOF > /lib/systemd/system/hideez.service
@@ -170,7 +170,7 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
   $ sudo systemctl restart hideez.service
 ```
 
-### 4. Configuring Nginx Reverse Proxy
+### 7. Configuring Nginx Reverse Proxy
 
   Creating a Self-Signed SSL Certificate for Nginx
 
@@ -242,7 +242,7 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
              ├─14758 nginx: master process /usr/sbin/nginx
              └─14760 nginx: worker process
 ```
-### 5. Updating
+### 8. Updating Hideez Enterprise Server
 
 
 ## Runing into the Docker
