@@ -242,7 +242,7 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
              ├─14758 nginx: master process /usr/sbin/nginx
              └─14760 nginx: worker process
 ```
-### 8. Updating Hideez Enterprise Server
+## Updating
 
 
 ## Runing into the Docker
