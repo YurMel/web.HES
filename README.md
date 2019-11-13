@@ -42,7 +42,7 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
 
   ## Getting Started.
 
-### 1. MySQL Postinstalling and Securing MySQL Server
+### 1. Postinstalling and Securing MySQL Server
 
 ```shell
   $ sudo mysql_secure_installation
@@ -89,7 +89,7 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
   $ sudo dotnet publish -c release -v d -o "/opt/HideezES" --framework netcoreapp2.2 --runtime linux-x64 HES.Web.csproj
   $ sudo cp /opt/web.HES/HES.Web/Crypto_linux.dll /opt/HideezES/Crypto.dll
 ```
-### 4.Configuring Hideez Enterprise Server
+### 4. Creating MySQL User and Database for Hideez Enterprise Server
 
   Configuring MySQL Server
 
