@@ -42,7 +42,7 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
 
   ## Getting Started.
 
-  MySQL Post Installing and Securing MySQL Server
+### 1. MySQL Postinstalling and Securing MySQL Server
 
 ```shell
   $ sudo mysql_secure_installation
@@ -75,21 +75,21 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
   $ sudo systemctl enable mysqld.service
 ```
 
-  Installing and Cloning a GitHub Repository
+### 2. Installing and Cloning a GitHub Repository
 
 ```shell
   $ sudo yum install git && cd /opt
   $ sudo git clone https://github.com/HideezGroup/web.HES && cd web.HES/HES.Web/
 ```
 
-  Compiling Hideez Enterprise Server
+### 3. Compiling Hideez Enterprise Server
 
 ```shell
   $ sudo mkdir /opt/HideezES
   $ sudo dotnet publish -c release -v d -o "/opt/HideezES" --framework netcoreapp2.2 --runtime linux-x64 HES.Web.csproj
   $ sudo cp /opt/web.HES/HES.Web/Crypto_linux.dll /opt/HideezES/Crypto.dll
 ```
-## Configuring Hideez Enterprise Server
+### 4.Configuring Hideez Enterprise Server
 
   Configuring MySQL Server
 
@@ -111,7 +111,7 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
   mysql> FLUSH PRIVILEGES;
 ```
 
-  Configuring Hideez Enterprise Server (MySQL Credentials)
+### 5. Configuring Hideez Enterprise Server (MySQL Credentials)
 
 ```shell
   $ sudo vi /opt/HideezES/appsettings.json
@@ -170,7 +170,7 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
   $ sudo systemctl restart hideez.service
 ```
 
-## Configuring Nginx Reverse Proxy
+### 4. Configuring Nginx Reverse Proxy
 
   Creating a Self-Signed SSL Certificate for Nginx
 
@@ -242,7 +242,7 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
              ├─14758 nginx: master process /usr/sbin/nginx
              └─14760 nginx: worker process
 ```
-## Updating
+### 5. Updating
 
 
 ## Runing into the Docker
