@@ -89,6 +89,8 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
   $ sudo dotnet publish -c release -v d -o "/opt/HideezES" --framework netcoreapp2.2 --runtime linux-x64 HES.Web.csproj
   $ sudo cp /opt/web.HES/HES.Web/Crypto_linux.dll /opt/HideezES/Crypto.dll
 ```
+  * **[Note]** Require internet connectivity
+
 ### 4. Creating MySQL User and Database for Hideez Enterprise Server
 
   Configuring MySQL Server
