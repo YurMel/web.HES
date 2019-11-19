@@ -33,7 +33,7 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
   $ sudo yum install dotnet-sdk-2.2
 ```
 
-  Adding MySQL Package Repository and Installing .NET Core:
+  Adding MySQL Package Repository and Installing MySQL Server:
 
 ```shell
   $ sudo rpm -Uvh https://dev.mysql.com/get/mysql80-community-release-el7-3.noarch.rpm
