@@ -75,23 +75,7 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
   $ sudo systemctl enable mysqld.service
 ```
 
-### 2. Installing and Cloning a GitHub Repository
-
-```shell
-  $ sudo yum install git && cd /opt
-  $ sudo git clone https://github.com/HideezGroup/web.HES && cd web.HES/HES.Web/
-```
-
-### 3. Compiling Hideez Enterprise Server
-
-```shell
-  $ sudo mkdir /opt/HideezES
-  $ sudo dotnet publish -c release -v d -o "/opt/HideezES" --framework netcoreapp2.2 --runtime linux-x64 HES.Web.csproj
-  $ sudo cp /opt/web.HES/HES.Web/Crypto_linux.dll /opt/HideezES/Crypto.dll
-```
-  * **[Note]** Require internet connectivity
-
-### 4. Creating MySQL User and Database for Hideez Enterprise Server
+### 2. Creating MySQL User and Database for Hideez Enterprise Server
 
   Configuring MySQL Server
 
@@ -112,6 +96,23 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
   ###  RELOAD PRIVILEGES
   mysql> FLUSH PRIVILEGES;
 ```
+
+### 3. Installing and Cloning a GitHub Repository
+
+```shell
+  $ sudo yum install git && cd /opt
+  $ sudo git clone https://github.com/HideezGroup/web.HES && cd web.HES/HES.Web/
+```
+
+### 4. Compiling Hideez Enterprise Server
+
+```shell
+  $ sudo mkdir /opt/HideezES
+  $ sudo dotnet publish -c release -v d -o "/opt/HideezES" --framework netcoreapp2.2 --runtime linux-x64 HES.Web.csproj
+  $ sudo cp /opt/web.HES/HES.Web/Crypto_linux.dll /opt/HideezES/Crypto.dll
+```
+  * **[Note]** Require internet connectivity
+
 
 ### 5. Configuring Hideez Enterprise Server (MySQL Credentials)
 
