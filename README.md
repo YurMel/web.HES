@@ -251,13 +251,13 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
 
 ```shell
   $ cd /opt/src
-  $ git pull
+  $ sudo git pull
 ```
 
 ### 2. Backuping Hideez Enterprise Server
 
 ```shell
-  $ mv /opt/HES /opt/HES.old
+  $ sudo mv /opt/HES /opt/HES.old
 ```
 
 ### 3. Compiling Hideez Enterprise Server
@@ -272,7 +272,7 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
 ### 4. Restoring configure file Hideez Enterprise Server
 
 ```shell
-  $ cp /opt/HES.old/appsettings.json /opt/HES/appsettings.json
+  $ sudo cp /opt/HES.old/appsettings.json /opt/HES/appsettings.json
 ```
 
 ### 5. Restarting Hideez Enterprise Server and check status
