@@ -85,13 +85,13 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
 
 ```sql
   ### CREATE DATABASE
-  mysql> CREATE DATABASE hideez;
+  mysql> CREATE DATABASE <your_db>;
 
   ### CREATE USER ACCOUNT
-  mysql> CREATE USER 'hideez'@'127.0.0.1' IDENTIFIED BY '<your_secret>';
+  mysql> CREATE USER '<your_user>'@'127.0.0.1' IDENTIFIED BY '<your_secret>';
 
   ### GRANT PERMISSIONS ON DATABASE
-  mysql> GRANT ALL ON hideez.* TO 'hideez'@'127.0.0.1';
+  mysql> GRANT ALL ON <your_db>.* TO '<your_user>'@'127.0.0.1';
 
   ###  RELOAD PRIVILEGES
   mysql> FLUSH PRIVILEGES;
@@ -101,15 +101,15 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
 
 ```shell
   $ sudo yum install git && cd /opt
-  $ sudo git clone https://github.com/HideezGroup/web.HES && cd web.HES/HES.Web/
+  $ sudo git clone https://github.com/HideezGroup/HES src && cd src/HES.Web/
 ```
 
 ### 4. Compiling Hideez Enterprise Server
 
 ```shell
-  $ sudo mkdir /opt/HideezES
-  $ sudo dotnet publish -c release -v d -o "/opt/HideezES" --framework netcoreapp2.2 --runtime linux-x64 HES.Web.csproj
-  $ sudo cp /opt/web.HES/HES.Web/Crypto_linux.dll /opt/HideezES/Crypto.dll
+  $ sudo mkdir /opt/HES
+  $ sudo dotnet publish -c release -v d -o "/opt/HES" --framework netcoreapp2.2 --runtime linux-x64 HES.Web.csproj
+  $ sudo cp /opt/src/HES.Web/Crypto_linux.dll /opt/HES/Crypto.dll
 ```
   * **[Note]** Require internet connectivity
 
@@ -117,13 +117,13 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
 ### 5. Configuring Hideez Enterprise Server (MySQL Credentials)
 
 ```shell
-  $ sudo vi /opt/HideezES/appsettings.json
+  $ sudo vi /opt/HES/appsettings.json
 ```
 
 ```json
   {
   "ConnectionStrings": {
-    "DefaultConnection": "server=127.0.0.1;port=3306;database=hideez;uid=hideez;pwd=<your_secret>"
+    "DefaultConnection": "server=127.0.0.1;port=3306;database=<your_db>;uid=<your_user>;pwd=<your_secret>"
   },
 
   "EmailSender": {
@@ -157,7 +157,7 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
   User=root
   Group=root
 
-  Environment=BASE_DIR=/opt/HideezES/
+  Environment=BASE_DIR=/opt/HES/
   ExecStart=${BASE_DIR}/HES.Web
   Restart=on-failure
   ExecReload=/bin/kill -HUP $MAINPID
