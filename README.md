@@ -229,7 +229,7 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
   ...
 ```
 
-   Restarting Nginx Reverse Proxy and check status
+  Restarting Nginx Reverse Proxy and check status
 
 ```shell
   $ sudo systemctl restart nginx
@@ -247,6 +247,46 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
 ```
 ## Updating
 
+### 1. Updating Your Repo by Setting Up a Remote
+
+```shell
+  $ cd /opt/src
+  $ git pull
+```
+
+### 2. Backuping Hideez Enterprise Server
+
+```shell
+  $ mv /opt/HES /opt/HES.old
+```
+
+### 3. Compiling Hideez Enterprise Server
+
+```shell
+  $ sudo mkdir /opt/HES
+  $ sudo dotnet publish -c release -v d -o "/opt/HES" --framework netcoreapp2.2 --runtime linux-x64 HES.Web.csproj
+  $ sudo cp /opt/src/HES.Web/Crypto_linux.dll /opt/HES/Crypto.dll
+```
+  * **[Note]** Require internet connectivity
+
+### 4. Restoring configure file Hideez Enterprise Server
+
+```shell
+  $ cp /opt/HES.old/appsettings.json /opt/HES/appsettings.json
+```
+
+### 5. Restarting Hideez Enterprise Server and check status
+
+```shell
+  $ sudo systemctl restart hideez.service
+  $ sudo systemctl status hideez.service
+  ● hideez.service - Hideez Web service
+     Loaded: loaded (/usr/lib/systemd/system/hideez.service; enabled; vendor preset: disabled)
+     Active: active (running) since Tue 2019-11-05 15:34:39 EET; 2 weeks 2 days ago
+   Main PID: 10816 (HES.Web)
+     CGroup: /system.slice/hideez.service
+             └─10816 /opt/develop/HES.Web
+```
 
 ## Runing into the Docker
   * Install Docker according official [documentation](https://docs.docker.com/install/linux/docker-ce/debian/)
