@@ -157,8 +157,7 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
   User=root
   Group=root
 
-  Environment=BASE_DIR=/opt/HES/
-  ExecStart=${BASE_DIR}/HES.Web
+  ExecStart=/opt/HES/HES.Web
   Restart=on-failure
   ExecReload=/bin/kill -HUP $MAINPID
   KillMode=process
@@ -257,6 +256,7 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
 ### 2. Backuping Hideez Enterprise Server
 
 ```shell
+  $ sudo systemctl stop hideez.service
   $ sudo mv /opt/HES /opt/HES.old
 ```
 
@@ -285,7 +285,7 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
      Active: active (running) since Tue 2019-11-05 15:34:39 EET; 2 weeks 2 days ago
    Main PID: 10816 (HES.Web)
      CGroup: /system.slice/hideez.service
-             └─10816 /opt/develop/HES.Web
+             └─10816 /opt/HES/HES.Web
 ```
 
 ## Runing into the Docker
