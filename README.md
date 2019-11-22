@@ -157,6 +157,7 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
   User=root
   Group=root
 
+  WorkingDirectory=/opt/HES
   ExecStart=/opt/HES/HES.Web
   Restart=on-failure
   ExecReload=/bin/kill -HUP $MAINPID
