@@ -263,7 +263,7 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
 ### 3. Compiling Hideez Enterprise Server
 
 ```shell
-  $ sudo mkdir /opt/HES
+  $ sudo mkdir /opt/HES && cd /opt/src/HES.Web/
   $ sudo dotnet publish -c release -v d -o "/opt/HES" --framework netcoreapp2.2 --runtime linux-x64 HES.Web.csproj
   $ sudo cp /opt/src/HES.Web/Crypto_linux.dll /opt/HES/Crypto.dll
 ```
