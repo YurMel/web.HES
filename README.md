@@ -257,7 +257,7 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
 
 ```shell
   $ sudo systemctl stop hideez.service
-  $ sudo mv /opt/HES /opt/HES.old
+  $ sudo mv /opt/HES /opt/HES_old
 ```
 
 ### 3. Compiling Hideez Enterprise Server
@@ -272,7 +272,8 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
 ### 4. Restoring configure file Hideez Enterprise Server
 
 ```shell
-  $ sudo cp /opt/HES.old/appsettings.json /opt/HES/appsettings.json
+  $ sudo cp /opt/HES_old/appsettings.json /opt/HES/appsettings.json
+  $ sudo rm -rf /opt/HES_old
 ```
 
 ### 5. Restarting Hideez Enterprise Server and check status
