@@ -270,14 +270,21 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
 ```
   * **[Note]** Require internet connectivity
 
-### 4. Restoring configure file Hideez Enterprise Server
+### 4. Backuping MySQL Database (Optional)
+
+```shell
+  $ sudo mkdir /opt/backups
+  $ sudo mysqldump -u <your_user> -p <your_passwd> <your_db> | gzip -c > <your_db>.sql.gz
+```
+
+### 5. Restoring configure file Hideez Enterprise Server
 
 ```shell
   $ sudo cp /opt/HES_old/appsettings.json /opt/HES/appsettings.json
   $ sudo rm -rf /opt/HES_old
 ```
 
-### 5. Restarting Hideez Enterprise Server and check status
+### 6. Restarting Hideez Enterprise Server and check status
 
 ```shell
   $ sudo systemctl restart hideez.service
