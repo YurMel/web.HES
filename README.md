@@ -273,7 +273,7 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
 ### 4. Backuping MySQL Database (Optional)
 
 ```shell
-  $ sudo mkdir /opt/backups
+  $ sudo mkdir /opt/backups && cd /opt/backups
   $ sudo mysqldump -u <your_user> -p <your_passwd> <your_db> | gzip -c > <your_db>.sql.gz
 ```
 
