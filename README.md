@@ -151,6 +151,8 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
   $ sudo cat <<EOF > /lib/systemd/system/hideez.service
   [Unit]
   Description=Hideez Enterprise Service
+  After=mysqld.service
+  # Requires=mysqld.service
 
   [Service]
 
@@ -162,8 +164,6 @@ Hideez Enterprise Server is an HTTP and HTTPS Service that collects and manage l
   Restart=on-failure
   ExecReload=/bin/kill -HUP $MAINPID
   KillMode=process
-  # SyslogIdentifier=dotnet-sample-service
-  # PrivateTmp=true
 
   [Install]
   WantedBy=multi-user.target
